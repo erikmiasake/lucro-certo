@@ -1,6 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion } from 'framer-motion';
-import { Trash2, Plus, ArrowUpRight, ArrowDownRight, CalendarDays, TrendingUp, Check, Edit2 } from 'lucide-react';
+import { Trash2, Plus, ArrowUpRight, ArrowDownRight, CalendarDays, TrendingUp, Check, Edit2, Package, Building2 } from 'lucide-react';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
 import { getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, addCost, getDaySummary, getDateString, getRecentEntries, deleteEntry } from '@/lib/store';
@@ -74,7 +74,7 @@ export default function Movimentacoes() {
     addCost(amount, type, spreadDays, description, category, subcategory, classification);
     setShowCost(false);
     const updated = getDaySummary(today);
-    setFeedback(`Custo registrado! Lucro: ${formatCurrency(updated.profit)}`);
+    setFeedback(`Custo registrado · Lucro: ${formatCurrency(updated.profit)}`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
@@ -167,7 +167,6 @@ export default function Movimentacoes() {
       {/* Content */}
       <div className="flex flex-col gap-2">
         {tab === 'entradas' ? (
-          /* Daily revenue list - last 7 days */
           days.slice(1).map((date, i) => {
             const revenue = getDayRevenue(date);
             const summary = getDaySummary(date);
@@ -251,17 +250,17 @@ export default function Movimentacoes() {
                 >
                   <div className="flex items-center gap-3">
                     <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${c.type === 'product' ? 'bg-accent/10' : 'bg-purple-500/10'}`}>
-                      <span className="text-base">{c.type === 'product' ? '📦' : '🏢'}</span>
+                      {c.type === 'product' ? <Package className="h-4 w-4 text-accent" /> : <Building2 className="h-4 w-4 text-purple-400" />}
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
                         <p className="font-semibold text-foreground">{formatCurrency(c.amount)}</p>
                         <span className="text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
-                          {c.type === 'product' ? 'Produto' : 'Negócio'}
+                          {c.type === 'product' ? 'Variável' : 'Fixo'}
                         </span>
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        {c.type === 'product' ? config.productCostLabel : config.businessCostLabel}
+                        {c.description || (c.type === 'product' ? config.productCostLabel : config.businessCostLabel)}
                         {c.type === 'product' && ` · ${c.spreadDays}d`}
                         {' · '}{formatDateLabel(c.date)}
                       </p>

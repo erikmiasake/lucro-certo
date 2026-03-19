@@ -37,10 +37,10 @@ export default function Desempenho() {
     <div className="p-5 md:p-8 max-w-4xl mx-auto safe-bottom">
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Desempenho</h1>
-        <p className="text-muted-foreground text-sm mt-1">{config.icon} Evolução do seu negócio</p>
+        <p className="text-muted-foreground text-sm mt-1">Evolução do seu negócio</p>
       </div>
 
-      {/* Period cards with comparison */}
+      {/* Period cards */}
       <div className="grid grid-cols-2 gap-3 mb-5">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-5 card-elevated relative overflow-hidden">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">Semana</p>
@@ -91,7 +91,7 @@ export default function Desempenho() {
         </motion.div>
       </div>
 
-      {/* Bar chart - Revenue vs Cost */}
+      {/* Bar chart */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl p-5 md:p-6 card-elevated mb-5">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
@@ -139,7 +139,7 @@ export default function Desempenho() {
         </div>
       </motion.div>
 
-      {/* Best & worst day */}
+      {/* Best & worst */}
       {bestWorst && (
         <div className="grid grid-cols-2 gap-3 mb-5">
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="rounded-2xl p-4 card-elevated">
@@ -161,7 +161,7 @@ export default function Desempenho() {
         </div>
       )}
 
-      {/* Weekly summary table */}
+      {/* Weekly summary */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="rounded-2xl p-5 md:p-6 card-elevated">
         <p className="text-sm font-semibold text-foreground mb-4">Resumo da semana</p>
         <div className="space-y-3">

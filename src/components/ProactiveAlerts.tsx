@@ -1,12 +1,19 @@
 import { motion, AnimatePresence } from 'framer-motion';
 import { getProactiveAlerts, ProactiveAlert } from '@/lib/store';
-import { AlertTriangle, TrendingUp, TrendingDown, Lightbulb, ChevronRight } from 'lucide-react';
+import { ChevronRight, AlertTriangle, TrendingUp, TrendingDown, Lightbulb, Target, Flame, Zap, BarChart3 } from 'lucide-react';
 
-const alertStyles: Record<ProactiveAlert['type'], { border: string; bg: string; iconColor: string }> = {
-  danger: { border: 'border-destructive/30', bg: 'bg-destructive/5', iconColor: 'text-destructive' },
-  warning: { border: 'border-yellow-500/30', bg: 'bg-yellow-500/5', iconColor: 'text-yellow-500' },
-  success: { border: 'border-primary/30', bg: 'bg-primary/5', iconColor: 'text-primary' },
-  info: { border: 'border-blue-400/30', bg: 'bg-blue-400/5', iconColor: 'text-blue-400' },
+const alertStyles: Record<ProactiveAlert['type'], { border: string; bg: string }> = {
+  danger: { border: 'border-destructive/30', bg: 'bg-destructive/5' },
+  warning: { border: 'border-yellow-500/30', bg: 'bg-yellow-500/5' },
+  success: { border: 'border-primary/30', bg: 'bg-primary/5' },
+  info: { border: 'border-blue-400/30', bg: 'bg-blue-400/5' },
+};
+
+const alertIcons: Record<string, React.ReactNode> = {
+  danger: <AlertTriangle className="h-4 w-4 text-destructive" />,
+  warning: <Flame className="h-4 w-4 text-yellow-500" />,
+  success: <TrendingUp className="h-4 w-4 text-primary" />,
+  info: <Lightbulb className="h-4 w-4 text-blue-400" />,
 };
 
 export default function ProactiveAlerts() {
@@ -29,7 +36,9 @@ export default function ProactiveAlerts() {
               className={`rounded-xl p-3.5 border ${style.border} ${style.bg} transition-all`}
             >
               <div className="flex items-start gap-3">
-                <span className="text-lg shrink-0 mt-0.5">{alert.icon}</span>
+                <div className="mt-0.5 shrink-0">
+                  {alertIcons[alert.type]}
+                </div>
                 <div className="flex-1 min-w-0">
                   <p className="text-sm font-semibold text-foreground leading-tight">{alert.title}</p>
                   <p className="text-xs text-muted-foreground mt-0.5 leading-relaxed">{alert.message}</p>

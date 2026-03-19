@@ -30,7 +30,7 @@ export default function Custos() {
   const handleCost = (amount: number, type: 'product' | 'business', spreadDays: number, description?: string, category?: string, subcategory?: string, classification?: CostClassification) => {
     addCost(amount, type, spreadDays, description, category, subcategory, classification);
     setShowCost(false);
-    setFeedback('Custo registrado!');
+    setFeedback('Custo registrado');
     setTimeout(() => setFeedback(null), 2500);
   };
 
@@ -41,7 +41,7 @@ export default function Custos() {
         <p className="text-muted-foreground text-sm mt-1">Entenda onde está gastando e onde pode otimizar</p>
       </div>
 
-      {/* Alert - high cost */}
+      {/* Alert */}
       {breakdown.isHighCost && (
         <motion.div
           initial={{ opacity: 0, y: -8 }}
@@ -50,7 +50,7 @@ export default function Custos() {
         >
           <AlertTriangle className="h-5 w-5 text-destructive shrink-0 mt-0.5" />
           <div>
-            <p className="text-sm font-semibold text-destructive">Custos elevados!</p>
+            <p className="text-sm font-semibold text-destructive">Custos elevados</p>
             <p className="text-xs text-destructive/80 mt-0.5">
               Seus custos representam mais de 70% da receita. Revise seus gastos.
             </p>
@@ -58,7 +58,7 @@ export default function Custos() {
         </motion.div>
       )}
 
-      {/* Summary cards - Fixed vs Variable */}
+      {/* Fixed vs Variable */}
       <div className="grid grid-cols-2 gap-3 mb-4">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-4 card-elevated">
           <div className="flex items-center gap-2 mb-2">
@@ -96,7 +96,7 @@ export default function Custos() {
         </motion.div>
       </div>
 
-      {/* Total cost + profit impact */}
+      {/* Total cost */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl p-4 card-elevated mb-4">
         <div className="flex items-center justify-between">
           <div>
@@ -147,7 +147,6 @@ export default function Custos() {
 
       {viewTab === 'overview' ? (
         <>
-          {/* Top costs ranking */}
           {breakdown.categories.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-4 card-elevated mb-4">
               <div className="flex items-center gap-2 mb-3">
@@ -188,7 +187,6 @@ export default function Custos() {
             </motion.div>
           )}
 
-          {/* Subcategory breakdown */}
           {breakdown.subcategories.length > 0 && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl p-4 card-elevated mb-4">
               <div className="flex items-center gap-2 mb-3">
@@ -206,7 +204,6 @@ export default function Custos() {
             </motion.div>
           )}
 
-          {/* Profit impact */}
           {breakdown.profitImpact.length > 0 && week.totalRevenue > 0 && (
             <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl p-4 card-elevated mb-4">
               <div className="flex items-center gap-2 mb-3">
@@ -226,7 +223,6 @@ export default function Custos() {
             </motion.div>
           )}
 
-          {/* AI insights for costs */}
           {breakdown.total > 0 && (
             <AIInsightsPanel
               summary={{
@@ -243,7 +239,6 @@ export default function Custos() {
           )}
         </>
       ) : (
-        /* Full cost list */
         <div className="flex flex-col gap-2">
           {costs.length === 0 ? (
             <div className="text-center py-12">
@@ -264,7 +259,7 @@ export default function Custos() {
               >
                 <div className="flex items-center gap-3 flex-1 min-w-0">
                   <div className={`w-9 h-9 rounded-lg flex items-center justify-center shrink-0 ${c.type === 'product' ? 'bg-accent/10' : 'bg-purple-500/10'}`}>
-                    <span className="text-base">{c.type === 'product' ? '📦' : '🏢'}</span>
+                    {c.type === 'product' ? <Package className="h-4 w-4 text-accent" /> : <Building2 className="h-4 w-4 text-purple-400" />}
                   </div>
                   <div className="min-w-0">
                     <div className="flex items-center gap-2">
@@ -283,7 +278,7 @@ export default function Custos() {
                       {c.category && <span className="text-[10px] px-1.5 py-0.5 rounded bg-accent/10 text-accent">{c.category}</span>}
                       {c.subcategory && <span className="text-[10px] px-1.5 py-0.5 rounded bg-purple-500/10 text-purple-400">{c.subcategory}</span>}
                       <span className="text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
-                        {(c as any).classification === 'fixed' ? 'Fixo' : 'Var'}
+                        {c.classification === 'fixed' ? 'Fixo' : 'Var'}
                       </span>
                       {c.type === 'product' && <span className="text-[10px] text-muted-foreground">{c.spreadDays}d</span>}
                     </div>
