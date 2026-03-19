@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BusinessType, businessConfigs } from '@/lib/business-config';
 import { setBusinessType, setOnboardingData } from '@/lib/store';
 import { TextEffect } from '@/components/ui/text-effect';
 import { ArrowRight, ArrowLeft, DollarSign, Tag, Sparkles, Zap, Clock } from 'lucide-react';
+import HeroScreen from '@/components/HeroScreen';
+import AILoadingScreen from '@/components/AILoadingScreen';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'academia', 'outro'];
 
@@ -26,11 +28,14 @@ const businessIcons: Record<BusinessType, string> = {
 };
 
 export default function Onboarding() {
-  const [step, setStep] = useState<'type' | 'details'>('type');
+  const [step, setStep] = useState<'hero' | 'loading' | 'type' | 'details'>('hero');
   const [selectedType, setSelectedType] = useState<BusinessType | null>(null);
   const [avgSales, setAvgSales] = useState('');
   const [selectedCosts, setSelectedCosts] = useState<string[]>([]);
   const [clickedType, setClickedType] = useState<BusinessType | null>(null);
+
+  const handleHeroStart = () => setStep('loading');
+  const handleLoadingComplete = useCallback(() => setStep('type'), []);
 
   const handleSelectType = (type: BusinessType) => {
     setClickedType(type);
@@ -64,23 +69,20 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-10 safe-bottom relative overflow-hidden">
-      {/* Ambient background */}
-      <div className="absolute inset-0 -z-10">
-        <div className="absolute top-[15%] left-1/2 -translate-x-1/2 w-[600px] h-[600px] rounded-full bg-primary/6 blur-[150px]" />
-        <div className="absolute bottom-[20%] right-1/4 w-[400px] h-[400px] rounded-full bg-accent/4 blur-[120px]" />
-        <div className="absolute top-[60%] left-[10%] w-[250px] h-[250px] rounded-full bg-primary/3 blur-[100px]" />
-      </div>
-
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center safe-bottom relative overflow-hidden">
       <AnimatePresence mode="wait">
-        {step === 'type' ? (
+        {step === 'hero' ? (
+          <HeroScreen key="hero" onStart={handleHeroStart} onLearnMore={() => {}} />
+        ) : step === 'loading' ? (
+          <AILoadingScreen key="loading" onComplete={handleLoadingComplete} />
+        ) : step === 'type' ? (
           <motion.div
             key="type-step"
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-3xl"
+            className="w-full max-w-3xl px-6 py-10"
           >
             {/* Header Section */}
             <div className="text-center mb-8">
@@ -187,7 +189,7 @@ export default function Onboarding() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-sm"
+            className="w-full max-w-sm px-6 py-10"
           >
             <button
               onClick={() => setStep('type')}
