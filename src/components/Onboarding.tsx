@@ -138,7 +138,7 @@ export default function Onboarding() {
                     className="group relative rounded-2xl overflow-hidden border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--primary)/0.12)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
                     {/* Image */}
-                    <div className="relative h-36 sm:h-40 overflow-hidden">
+                    <div className="relative h-32 sm:h-36 overflow-hidden">
                       <img
                         src={businessImages[type]}
                         alt={c.label}
