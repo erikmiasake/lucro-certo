@@ -9,15 +9,19 @@ export interface Entry {
   category?: string;
 }
 
+export type CostClassification = 'fixed' | 'variable';
+
 export interface Cost {
   id: string;
   amount: number;
   type: 'product' | 'business';
+  classification: CostClassification;
   spreadDays: number;
   date: string;
   createdAt: number;
   description?: string;
   category?: string;
+  subcategory?: string;
 }
 
 export interface AppState {
