@@ -4,7 +4,8 @@ import { BusinessType, businessConfigs } from '@/lib/business-config';
 import { setBusinessType, setOnboardingData } from '@/lib/store';
 import { AnimatedGroup } from '@/components/ui/animated-group';
 import { TextEffect } from '@/components/ui/text-effect';
-import { ArrowRight, ArrowLeft, DollarSign, Tag } from 'lucide-react';
+import { GlowingEffect } from '@/components/ui/glowing-effect';
+import { ArrowRight, ArrowLeft, DollarSign, Tag, TrendingUp } from 'lucide-react';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'outro'];
 
@@ -59,9 +60,9 @@ export default function Onboarding() {
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
-            className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center text-3xl mx-auto mb-6 shadow-lg glow-primary"
+            className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6 shadow-lg glow-primary"
           >
-            💰
+            <TrendingUp className="h-8 w-8 text-primary-foreground" />
           </motion.div>
 
           <TextEffect preset="blur" as="h1" className="text-3xl font-bold text-foreground mb-2 tracking-tight">
@@ -88,8 +89,16 @@ export default function Onboarding() {
                 <button
                   key={type}
                   onClick={() => handleSelectType(type)}
-                  className="group flex items-center gap-4 w-full p-4 rounded-2xl card-elevated hover:border-primary/40 transition-all text-left active:scale-[0.98] hover:glow-primary"
+                  className="group relative flex items-center gap-4 w-full p-4 rounded-2xl card-elevated hover:border-primary/40 transition-all text-left active:scale-[0.98]"
                 >
+                  <GlowingEffect
+                    spread={40}
+                    glow
+                    disabled={false}
+                    proximity={64}
+                    inactiveZone={0.01}
+                    borderWidth={2}
+                  />
                   <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
                     {c.icon}
                   </div>
