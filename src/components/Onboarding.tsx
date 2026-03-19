@@ -28,11 +28,14 @@ const businessIcons: Record<BusinessType, string> = {
 };
 
 export default function Onboarding() {
-  const [step, setStep] = useState<'type' | 'details'>('type');
+  const [step, setStep] = useState<'hero' | 'loading' | 'type' | 'details'>('hero');
   const [selectedType, setSelectedType] = useState<BusinessType | null>(null);
   const [avgSales, setAvgSales] = useState('');
   const [selectedCosts, setSelectedCosts] = useState<string[]>([]);
   const [clickedType, setClickedType] = useState<BusinessType | null>(null);
+
+  const handleHeroStart = () => setStep('loading');
+  const handleLoadingComplete = useCallback(() => setStep('type'), []);
 
   const handleSelectType = (type: BusinessType) => {
     setClickedType(type);
