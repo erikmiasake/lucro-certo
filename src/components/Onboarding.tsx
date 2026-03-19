@@ -102,7 +102,7 @@ export default function Onboarding() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
               >
-                <p className="text-muted-foreground text-lg mb-3 max-w-md mx-auto">
+                <p className="text-muted-foreground text-base mb-2 max-w-md mx-auto">
                   Escolha seu tipo de negócio e receba análises inteligentes personalizadas
                 </p>
                 <div className="flex items-center justify-center gap-2 text-muted-foreground/70 text-sm">
