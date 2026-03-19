@@ -2,12 +2,19 @@ import { useState } from 'react';
 import { motion } from 'framer-motion';
 import { BusinessType, businessConfigs } from '@/lib/business-config';
 import { setBusinessType, setOnboardingData } from '@/lib/store';
-import { AnimatedGroup } from '@/components/ui/animated-group';
 import { TextEffect } from '@/components/ui/text-effect';
-import { GlowingEffect } from '@/components/ui/glowing-effect';
+import { GalleryCard } from '@/components/ui/generative-art-gallery';
 import { ArrowRight, ArrowLeft, DollarSign, Tag, TrendingUp } from 'lucide-react';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'outro'];
+
+const businessImages: Record<BusinessType, string> = {
+  restaurante: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop',
+  salao: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=600&auto=format&fit=crop',
+  petshop: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=600&auto=format&fit=crop',
+  loja: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=600&auto=format&fit=crop',
+  outro: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600&auto=format&fit=crop',
+};
 
 export default function Onboarding() {
   const [step, setStep] = useState<'type' | 'details'>('type');
@@ -43,7 +50,7 @@ export default function Onboarding() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 safe-bottom relative overflow-hidden">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 py-10 safe-bottom relative overflow-hidden">
       <div className="absolute inset-0 -z-10">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px]" />
         <div className="absolute bottom-1/4 left-1/3 w-[300px] h-[300px] rounded-full bg-accent/5 blur-[100px]" />
@@ -54,63 +61,42 @@ export default function Onboarding() {
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.6 }}
-          className="w-full max-w-sm text-center"
+          className="w-full max-w-2xl text-center"
         >
           <motion.div
             initial={{ scale: 0.5, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
-            className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6 shadow-lg glow-primary"
+            className="w-14 h-14 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-5 shadow-lg glow-primary"
           >
-            <TrendingUp className="h-8 w-8 text-primary-foreground" />
+            <TrendingUp className="h-7 w-7 text-primary-foreground" />
           </motion.div>
 
           <TextEffect preset="blur" as="h1" className="text-3xl font-bold text-foreground mb-2 tracking-tight">
             Lucro Real
           </TextEffect>
 
-          <TextEffect preset="fade" delay={0.3} as="p" className="text-muted-foreground mb-10 text-base">
-            Seu assistente inteligente de lucro.
+          <TextEffect preset="fade" delay={0.3} as="p" className="text-muted-foreground mb-8 text-base">
+            Qual empreendimento vamos analisar?
           </TextEffect>
 
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 0.5 }}
-            className="text-foreground font-semibold text-lg mb-5"
-          >
-            Qual é o seu tipo de negócio?
-          </motion.p>
-
-          <AnimatedGroup preset="blur-slide" className="flex flex-col gap-3">
-            {types.map((type) => {
+          <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            {types.map((type, index) => {
               const c = businessConfigs[type];
               return (
-                <button
+                <GalleryCard
                   key={type}
+                  index={index}
                   onClick={() => handleSelectType(type)}
-                  className="group relative flex items-center gap-4 w-full p-4 rounded-2xl card-elevated hover:border-primary/40 transition-all text-left active:scale-[0.98]"
-                >
-                  <GlowingEffect
-                    spread={40}
-                    glow
-                    disabled={false}
-                    proximity={64}
-                    inactiveZone={0.01}
-                    borderWidth={2}
-                  />
-                  <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
-                    {c.icon}
-                  </div>
-                  <div className="flex-1">
-                    <span className="text-foreground font-semibold text-base block">{c.label}</span>
-                    <span className="text-muted-foreground text-xs">{c.entryLabel}</span>
-                  </div>
-                  <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
-                </button>
+                  item={{
+                    title: c.label,
+                    category: c.entryLabel,
+                    image: businessImages[type],
+                  }}
+                />
               );
             })}
-          </AnimatedGroup>
+          </div>
         </motion.div>
       ) : (
         <motion.div
@@ -127,8 +113,12 @@ export default function Onboarding() {
           </button>
 
           <div className="flex items-center gap-3 mb-6">
-            <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-2xl">
-              {config?.icon}
+            <div className="w-12 h-12 rounded-xl overflow-hidden">
+              <img
+                src={selectedType ? businessImages[selectedType] : ''}
+                alt={config?.label}
+                className="w-full h-full object-cover"
+              />
             </div>
             <div>
               <h2 className="text-xl font-bold text-foreground">{config?.label}</h2>
@@ -136,7 +126,6 @@ export default function Onboarding() {
             </div>
           </div>
 
-          {/* Average sales */}
           <div className="mb-6">
             <div className="flex items-center gap-2 mb-2">
               <DollarSign className="h-4 w-4 text-primary" />
@@ -155,7 +144,6 @@ export default function Onboarding() {
             </div>
           </div>
 
-          {/* Main costs */}
           <div className="mb-8">
             <div className="flex items-center gap-2 mb-3">
               <Tag className="h-4 w-4 text-accent" />
