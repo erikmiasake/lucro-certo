@@ -11,7 +11,7 @@ import CostModal from '@/components/CostModal';
 import FeedbackToast from '@/components/FeedbackToast';
 import {
   Plus, Minus, TrendingUp, TrendingDown, Lightbulb,
-  ArrowUpRight, ArrowDownRight, Percent, Target,
+  ArrowUpRight, ArrowDownRight, Percent,
 } from 'lucide-react';
 import AIInsightsPanel from '@/components/AIInsightsPanel';
 
