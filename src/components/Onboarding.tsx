@@ -1,46 +1,87 @@
 import { motion } from 'framer-motion';
 import { BusinessType, businessConfigs } from '@/lib/business-config';
 import { setBusinessType } from '@/lib/store';
+import { AnimatedGroup } from '@/components/ui/animated-group';
+import { TextEffect } from '@/components/ui/text-effect';
+import { ArrowRight } from 'lucide-react';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'outro'];
 
 export default function Onboarding() {
   return (
-    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 safe-bottom">
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center px-6 safe-bottom relative overflow-hidden">
+      {/* Background effects */}
+      <div className="absolute inset-0 -z-10">
+        <div className="absolute top-1/4 left-1/2 -translate-x-1/2 w-[500px] h-[500px] rounded-full bg-primary/5 blur-[120px]" />
+        <div className="absolute bottom-1/4 left-1/3 w-[300px] h-[300px] rounded-full bg-accent/5 blur-[100px]" />
+      </div>
+
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        transition={{ duration: 0.5 }}
+        transition={{ duration: 0.6 }}
         className="w-full max-w-sm text-center"
       >
-        <div className="text-5xl mb-4">💰</div>
-        <h1 className="text-2xl font-bold text-foreground mb-2">Lucro Real</h1>
-        <p className="text-muted-foreground mb-8 text-base">
+        {/* Logo */}
+        <motion.div 
+          initial={{ scale: 0.5, opacity: 0 }}
+          animate={{ scale: 1, opacity: 1 }}
+          transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
+          className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center text-3xl mx-auto mb-6 shadow-lg glow-primary"
+        >
+          💰
+        </motion.div>
+
+        <TextEffect
+          preset="blur"
+          as="h1"
+          className="text-3xl font-bold text-foreground mb-2 tracking-tight"
+        >
+          Lucro Real
+        </TextEffect>
+        
+        <TextEffect
+          preset="fade"
+          delay={0.3}
+          as="p"
+          className="text-muted-foreground mb-10 text-base"
+        >
           Saiba quanto realmente sobra no seu bolso.
-        </p>
+        </TextEffect>
 
-        <p className="text-foreground font-semibold text-lg mb-4">
+        <motion.p 
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 0.5 }}
+          className="text-foreground font-semibold text-lg mb-5"
+        >
           Qual é o seu tipo de negócio?
-        </p>
+        </motion.p>
 
-        <div className="flex flex-col gap-3">
-          {types.map((type, i) => {
+        <AnimatedGroup
+          preset="blur-slide"
+          className="flex flex-col gap-3"
+        >
+          {types.map((type) => {
             const config = businessConfigs[type];
             return (
-              <motion.button
+              <button
                 key={type}
-                initial={{ opacity: 0, x: -20 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.1 + i * 0.07 }}
                 onClick={() => setBusinessType(type)}
-                className="flex items-center gap-4 w-full p-4 rounded-2xl bg-card border border-border hover:border-primary/50 hover:bg-secondary transition-all text-left active:scale-[0.98]"
+                className="group flex items-center gap-4 w-full p-4 rounded-2xl card-elevated hover:border-primary/40 transition-all text-left active:scale-[0.98] hover:glow-primary"
               >
-                <span className="text-3xl">{config.icon}</span>
-                <span className="text-foreground font-medium text-base">{config.label}</span>
-              </motion.button>
+                <div className="w-12 h-12 rounded-xl bg-secondary flex items-center justify-center text-2xl group-hover:scale-110 transition-transform">
+                  {config.icon}
+                </div>
+                <div className="flex-1">
+                  <span className="text-foreground font-semibold text-base block">{config.label}</span>
+                  <span className="text-muted-foreground text-xs">{config.entryLabel}</span>
+                </div>
+                <ArrowRight className="h-4 w-4 text-muted-foreground group-hover:text-primary group-hover:translate-x-1 transition-all" />
+              </button>
             );
           })}
-        </div>
+        </AnimatedGroup>
       </motion.div>
     </div>
   );
