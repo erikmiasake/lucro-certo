@@ -1,7 +1,7 @@
 import { useStore } from '@/hooks/use-store';
 import Onboarding from '@/components/Onboarding';
-import AppLayout from '@/components/AppLayout';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import AppLayout from '@/components/AceternitySidebar';
+import { Routes, Route } from 'react-router-dom';
 import VisaoGeral from './VisaoGeral';
 import Movimentacoes from './Movimentacoes';
 import Custos from './Custos';
