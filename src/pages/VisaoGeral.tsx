@@ -11,7 +11,7 @@ import CostModal from '@/components/CostModal';
 import FeedbackToast from '@/components/FeedbackToast';
 import {
   Plus, Minus, TrendingUp, TrendingDown, Lightbulb,
-  ArrowUpRight, ArrowDownRight, Percent, Target,
+  ArrowUpRight, ArrowDownRight, Percent,
 } from 'lucide-react';
 import AIInsightsPanel from '@/components/AIInsightsPanel';
 
@@ -139,13 +139,6 @@ export default function VisaoGeral() {
             </p>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated">
-            <div className="flex items-center gap-2 mb-2">
-              <Target className="h-3.5 w-3.5 text-purple-400" />
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Ticket médio</p>
-            </div>
-            <p className="text-xl font-bold text-foreground">{formatCurrency(summary.ticketMedio)}</p>
-          </motion.div>
         </div>
       </motion.div>
 

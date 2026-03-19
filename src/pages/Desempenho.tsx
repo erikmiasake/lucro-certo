@@ -5,7 +5,7 @@ import {
   getWeekSummary, getMonthSummary, getDaySummary, getDateString,
   getWeekDailyData, getBestAndWorstDay, getPreviousWeekSummary,
 } from '@/lib/store';
-import { TrendingUp, TrendingDown, BarChart3, Trophy, AlertTriangle, ArrowUpRight, ArrowDownRight, Percent, Target } from 'lucide-react';
+import { TrendingUp, TrendingDown, BarChart3, Trophy, AlertTriangle, ArrowUpRight, ArrowDownRight, Percent } from 'lucide-react';
 
 function formatCurrency(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -76,16 +76,11 @@ export default function Desempenho() {
       </div>
 
       {/* KPI row */}
-      <div className="grid grid-cols-3 gap-3 mb-5">
+      <div className="grid grid-cols-2 gap-3 mb-5">
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="rounded-2xl p-4 card-elevated text-center">
           <Percent className="h-4 w-4 text-primary mx-auto mb-1" />
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Margem semanal</p>
           <p className="text-lg font-bold text-foreground">{formatPercent(week.margin)}</p>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl p-4 card-elevated text-center">
-          <Target className="h-4 w-4 text-blue-400 mx-auto mb-1" />
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Ticket médio</p>
-          <p className="text-lg font-bold text-foreground">{formatCurrency(week.ticketMedio)}</p>
         </motion.div>
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="rounded-2xl p-4 card-elevated text-center">
           <BarChart3 className="h-4 w-4 text-accent mx-auto mb-1" />
