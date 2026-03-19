@@ -1,4 +1,4 @@
-export type BusinessType = 'restaurante' | 'salao' | 'petshop' | 'loja' | 'outro';
+export type BusinessType = 'restaurante' | 'salao' | 'petshop' | 'loja' | 'academia' | 'outro';
 
 export interface BusinessConfig {
   label: string;
@@ -17,7 +17,7 @@ export interface BusinessConfig {
 
 export const businessConfigs: Record<BusinessType, BusinessConfig> = {
   restaurante: {
-    label: 'Restaurante',
+    label: 'Restaurante / Lanchonete',
     icon: '🍽️',
     entryLabel: 'Vendas',
     entryVerb: 'venda',
@@ -71,6 +71,20 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
     productCostExample: 'ex: estoque, mercadoria',
     businessCostLabel: 'Custo da loja',
     businessCostExample: 'ex: aluguel, contas',
+  },
+  academia: {
+    label: 'Academia / Espaço Fitness',
+    icon: '💪',
+    entryLabel: 'Mensalidades e serviços',
+    entryVerb: 'receita',
+    costCategories: {
+      product: ['Equipamentos', 'Suplementos', 'Manutenção', 'Limpeza'],
+      business: ['Aluguel', 'Energia', 'Água', 'Funcionários', 'Sistema/Software'],
+    },
+    productCostLabel: 'Custo operacional',
+    productCostExample: 'ex: equipamentos, manutenção',
+    businessCostLabel: 'Custo da academia',
+    businessCostExample: 'ex: aluguel, energia, folha',
   },
   outro: {
     label: 'Outro',
