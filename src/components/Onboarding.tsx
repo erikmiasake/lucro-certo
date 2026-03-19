@@ -3,9 +3,10 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { BusinessType, businessConfigs } from '@/lib/business-config';
 import { setBusinessType, setOnboardingData } from '@/lib/store';
 import { TextEffect } from '@/components/ui/text-effect';
-import { ArrowRight, ArrowLeft, DollarSign, Tag, Sparkles, Zap, Clock } from 'lucide-react';
+import { Sparkles, Zap, Clock } from 'lucide-react';
 import HeroScreen from '@/components/HeroScreen';
 import AILoadingScreen from '@/components/AILoadingScreen';
+import OnboardingDetails from '@/components/OnboardingDetails';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'academia', 'outro'];
 
@@ -30,8 +31,6 @@ const businessIcons: Record<BusinessType, string> = {
 export default function Onboarding() {
   const [step, setStep] = useState<'hero' | 'loading' | 'type' | 'details'>('hero');
   const [selectedType, setSelectedType] = useState<BusinessType | null>(null);
-  const [avgSales, setAvgSales] = useState('');
-  const [selectedCosts, setSelectedCosts] = useState<string[]>([]);
   const [clickedType, setClickedType] = useState<BusinessType | null>(null);
 
   const handleHeroStart = () => setStep('loading');
@@ -42,30 +41,18 @@ export default function Onboarding() {
     setTimeout(() => {
       setSelectedType(type);
       setStep('details');
-      setSelectedCosts([]);
       setClickedType(null);
     }, 300);
   };
 
-  const handleFinish = () => {
+  const handleFinish = (avgSales: string, selectedCosts: string[]) => {
     if (!selectedType) return;
-    const avg = parseFloat(avgSales.replace(',', '.'));
+    const avg = parseFloat(avgSales.replace(/\./g, '').replace(',', '.'));
     setOnboardingData({
       averageSales: avg > 0 ? avg : undefined,
       mainCosts: selectedCosts.length > 0 ? selectedCosts : undefined,
     });
     setBusinessType(selectedType);
-  };
-
-  const config = selectedType ? businessConfigs[selectedType] : null;
-  const allCostCategories = config
-    ? [...config.costCategories.product, ...config.costCategories.business]
-    : [];
-
-  const toggleCost = (cost: string) => {
-    setSelectedCosts(prev =>
-      prev.includes(cost) ? prev.filter(c => c !== cost) : [...prev, cost]
-    );
   };
 
   return (
@@ -182,85 +169,14 @@ export default function Onboarding() {
               Powered by inteligência artificial • Análises em tempo real
             </motion.p>
           </motion.div>
-        ) : (
-          <motion.div
+        ) : selectedType ? (
+          <OnboardingDetails
             key="details-step"
-            initial={{ opacity: 0, x: 40 }}
-            animate={{ opacity: 1, x: 0 }}
-            exit={{ opacity: 0, x: -40 }}
-            transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-sm px-6 py-10"
-          >
-            <button
-              onClick={() => setStep('type')}
-              className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors mb-6 text-sm"
-            >
-              <ArrowLeft className="h-4 w-4" /> Voltar
-            </button>
-
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-12 h-12 rounded-xl overflow-hidden border border-border">
-                <img
-                  src={selectedType ? businessImages[selectedType] : ''}
-                  alt={config?.label}
-                  className="w-full h-full object-cover"
-                />
-              </div>
-              <div>
-                <h2 className="text-xl font-bold text-foreground">{config?.label}</h2>
-                <p className="text-muted-foreground text-sm">Personalize sua análise</p>
-              </div>
-            </div>
-
-            <div className="mb-6">
-              <div className="flex items-center gap-2 mb-2">
-                <DollarSign className="h-4 w-4 text-primary" />
-                <label className="text-sm font-medium text-foreground">Média de vendas por dia (opcional)</label>
-              </div>
-              <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 border border-border">
-                <span className="text-lg font-bold text-muted-foreground">R$</span>
-                <input
-                  type="number"
-                  inputMode="decimal"
-                  placeholder="0,00"
-                  value={avgSales}
-                  onChange={(e) => setAvgSales(e.target.value)}
-                  className="flex-1 text-xl font-bold bg-transparent outline-none text-foreground placeholder:text-muted"
-                />
-              </div>
-            </div>
-
-            <div className="mb-8">
-              <div className="flex items-center gap-2 mb-3">
-                <Tag className="h-4 w-4 text-accent" />
-                <label className="text-sm font-medium text-foreground">Seus principais custos (opcional)</label>
-              </div>
-              <div className="flex flex-wrap gap-2">
-                {allCostCategories.map((cost) => (
-                  <button
-                    key={cost}
-                    onClick={() => toggleCost(cost)}
-                    className={`px-3 py-2 rounded-xl text-sm font-medium transition-all active:scale-[0.95] ${
-                      selectedCosts.includes(cost)
-                        ? 'bg-primary/20 text-primary border border-primary/30'
-                        : 'bg-secondary text-muted-foreground border border-border hover:text-foreground'
-                    }`}
-                  >
-                    {cost}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            <button
-              onClick={handleFinish}
-              className="w-full py-4 rounded-2xl gradient-primary text-primary-foreground font-semibold text-lg active:scale-[0.97] transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
-            >
-              Começar a usar
-              <ArrowRight className="h-5 w-5" />
-            </button>
-          </motion.div>
-        )}
+            selectedType={selectedType}
+            onBack={() => setStep('type')}
+            onFinish={handleFinish}
+          />
+        ) : null}
       </AnimatePresence>
     </div>
   );
