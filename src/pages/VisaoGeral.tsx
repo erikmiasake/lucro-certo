@@ -11,8 +11,9 @@ import CostModal from '@/components/CostModal';
 import FeedbackToast from '@/components/FeedbackToast';
 import {
   Plus, Minus, TrendingUp, TrendingDown, Lightbulb,
-  ArrowUpRight, ArrowDownRight, Percent, Target, Receipt,
+  ArrowUpRight, ArrowDownRight, Percent, Target,
 } from 'lucide-react';
+import AIInsightsPanel from '@/components/AIInsightsPanel';
 
 function formatCurrency(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
