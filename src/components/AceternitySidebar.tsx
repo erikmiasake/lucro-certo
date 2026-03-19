@@ -1,7 +1,7 @@
 import React, { useState, createContext, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { LayoutDashboard, ArrowLeftRight, Wallet, TrendingUp, Settings, Menu, X } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Wallet, TrendingUp, Settings, Menu, X, Activity } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
 import { businessConfigs } from "@/lib/business-config";
@@ -27,11 +27,11 @@ const useSidebarContext = () => {
 };
 
 const links: SidebarLink[] = [
-  { label: "Visão geral", href: "/", icon: <LayoutDashboard className="h-5 w-5 shrink-0 text-muted-foreground" /> },
-  { label: "Movimentações", href: "/movimentacoes", icon: <ArrowLeftRight className="h-5 w-5 shrink-0 text-muted-foreground" /> },
-  { label: "Custos", href: "/custos", icon: <Wallet className="h-5 w-5 shrink-0 text-muted-foreground" /> },
-  { label: "Desempenho", href: "/desempenho", icon: <TrendingUp className="h-5 w-5 shrink-0 text-muted-foreground" /> },
-  { label: "Configurações", href: "/configuracoes", icon: <Settings className="h-5 w-5 shrink-0 text-muted-foreground" /> },
+  { label: "Visão geral", href: "/", icon: <LayoutDashboard className="h-5 w-5 shrink-0" /> },
+  { label: "Movimentações", href: "/movimentacoes", icon: <ArrowLeftRight className="h-5 w-5 shrink-0" /> },
+  { label: "Custos", href: "/custos", icon: <Wallet className="h-5 w-5 shrink-0" /> },
+  { label: "Desempenho", href: "/desempenho", icon: <TrendingUp className="h-5 w-5 shrink-0" /> },
+  { label: "Configurações", href: "/configuracoes", icon: <Settings className="h-5 w-5 shrink-0" /> },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
@@ -40,11 +40,8 @@ export default function AppLayout({ children }: { children: React.ReactNode }) {
   return (
     <SidebarContext.Provider value={{ open, setOpen, animate: true }}>
       <div className="min-h-screen flex w-full bg-background">
-        {/* Desktop sidebar */}
         <DesktopSidebar />
-        {/* Mobile sidebar */}
         <MobileSidebar />
-        {/* Main content */}
         <div className="flex-1 flex flex-col min-w-0">
           <main className="flex-1 overflow-auto">
             {children}
@@ -73,8 +70,8 @@ function DesktopSidebar() {
     >
       {/* Logo */}
       <div className="flex items-center gap-3 px-1 mb-8">
-        <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center text-lg shrink-0">
-          💰
+        <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center shrink-0">
+          <Activity className="h-4.5 w-4.5 text-primary-foreground" />
         </div>
         <AnimatePresence>
           {open && (
@@ -86,7 +83,7 @@ function DesktopSidebar() {
             >
               <p className="text-sm font-bold text-foreground tracking-tight">Lucro Real</p>
               {config && (
-                <p className="text-[11px] text-muted-foreground">{config.icon} {config.label}</p>
+                <p className="text-[11px] text-muted-foreground">{config.label}</p>
               )}
             </motion.div>
           )}
@@ -140,7 +137,7 @@ function DesktopSidebar() {
           >
             <div className="rounded-xl bg-muted/50 border border-border p-3">
               <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Seus dados ficam salvos neste dispositivo.
+                Dados armazenados localmente.
               </p>
             </div>
           </motion.div>
@@ -163,16 +160,16 @@ function MobileSidebar() {
         <button onClick={() => setOpen(!open)} className="p-2 text-muted-foreground hover:text-foreground transition-colors">
           <Menu className="h-5 w-5" />
         </button>
-        <div className="flex items-center gap-2 ml-3">
-          <div className="w-7 h-7 rounded-lg bg-primary/20 flex items-center justify-center text-sm">💰</div>
+        <div className="flex items-center gap-2.5 ml-3">
+          <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center">
+            <Activity className="h-3.5 w-3.5 text-primary-foreground" />
+          </div>
           <span className="text-sm font-bold text-foreground">Lucro Real</span>
         </div>
       </div>
 
-      {/* Spacer for fixed header */}
       <div className="h-14" />
 
-      {/* Overlay + Drawer */}
       <AnimatePresence>
         {open && (
           <>
@@ -192,11 +189,13 @@ function MobileSidebar() {
             >
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-xl bg-primary/20 flex items-center justify-center text-lg">💰</div>
+                  <div className="w-9 h-9 rounded-xl gradient-primary flex items-center justify-center">
+                    <Activity className="h-4.5 w-4.5 text-primary-foreground" />
+                  </div>
                   <div>
                     <p className="text-sm font-bold text-foreground">Lucro Real</p>
                     {config && (
-                      <p className="text-[11px] text-muted-foreground">{config.icon} {config.label}</p>
+                      <p className="text-[11px] text-muted-foreground">{config.label}</p>
                     )}
                   </div>
                 </div>
@@ -230,7 +229,7 @@ function MobileSidebar() {
               <div className="mt-auto">
                 <div className="rounded-xl bg-muted/50 border border-border p-3">
                   <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    Seus dados ficam salvos neste dispositivo.
+                    Dados armazenados localmente.
                   </p>
                 </div>
               </div>

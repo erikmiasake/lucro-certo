@@ -12,8 +12,8 @@ import FeedbackToast from '@/components/FeedbackToast';
 import ProactiveAlerts from '@/components/ProactiveAlerts';
 import GoalsProgress from '@/components/GoalsProgress';
 import {
-  Plus, Minus, TrendingUp, TrendingDown, Lightbulb,
-  ArrowUpRight, ArrowDownRight, Percent,
+  Plus, Minus, TrendingUp, TrendingDown, Zap,
+  ArrowUpRight, ArrowDownRight, Percent, Activity,
 } from 'lucide-react';
 import AIInsightsPanel from '@/components/AIInsightsPanel';
 
@@ -53,7 +53,7 @@ export default function VisaoGeral() {
     addEntry(amount);
     setShowEntry(false);
     const updated = getDaySummary(today);
-    setFeedback(`Hoje você já fez ${formatCurrency(updated.totalRevenue)}`);
+    setFeedback(`Receita atualizada: ${formatCurrency(updated.totalRevenue)}`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
@@ -61,7 +61,7 @@ export default function VisaoGeral() {
     addCost(amount, type, spreadDays);
     setShowCost(false);
     const updated = getDaySummary(today);
-    setFeedback(`Hoje sobrou ${formatCurrency(updated.profit)} pra você`);
+    setFeedback(`Lucro atual: ${formatCurrency(updated.profit)}`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
@@ -73,13 +73,13 @@ export default function VisaoGeral() {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
         <div className="flex items-center gap-2 mb-1">
-          <div className="w-8 h-8 rounded-lg bg-secondary flex items-center justify-center text-base">{config.icon}</div>
+          <Activity className="h-4 w-4 text-muted-foreground" />
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{config.label}</span>
         </div>
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Hoje no seu negócio</h1>
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Visão geral</h1>
       </motion.div>
 
-      {/* Proactive alerts - AI copilot */}
+      {/* Proactive alerts */}
       <div className="mb-4">
         <ProactiveAlerts />
       </div>
@@ -91,12 +91,12 @@ export default function VisaoGeral() {
           className="rounded-2xl p-5 md:p-6 relative overflow-hidden glow-primary border border-primary/20"
           style={{ background: 'linear-gradient(135deg, hsl(152 76% 52% / 0.08), hsl(228 14% 10%))' }}
         >
-          <div className="absolute top-0 right-0 w-40 h-40 gradient-primary opacity-[0.08] rounded-full blur-3xl -translate-y-10 translate-x-10" />
+          <div className="absolute top-0 right-0 w-40 h-40 gradient-primary opacity-[0.06] rounded-full blur-3xl -translate-y-10 translate-x-10" />
           <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-muted-foreground text-sm mb-2 flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${summary.profit >= 0 ? 'bg-primary' : 'bg-destructive'}`} />
-                Sobrou pra você
+                Lucro do dia
               </p>
               <p className={`text-4xl md:text-5xl font-extrabold tracking-tight ${summary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
                 {formatCurrency(summary.profit)}
@@ -117,7 +117,7 @@ export default function VisaoGeral() {
         </motion.div>
 
         {/* KPI row */}
-        <div className="grid grid-cols-2 md:grid-cols-4 gap-3">
+        <div className="grid grid-cols-3 gap-3">
           <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated">
             <div className="flex items-center gap-2 mb-2">
               <ArrowUpRight className="h-3.5 w-3.5 text-blue-400" />
@@ -195,7 +195,7 @@ export default function VisaoGeral() {
             className="mt-4 rounded-2xl p-4 bg-secondary border border-border space-y-2"
           >
             <div className="flex items-center gap-2 mb-1">
-              <Lightbulb className="h-4 w-4 text-accent" />
+              <Zap className="h-4 w-4 text-primary" />
               <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Insights</p>
             </div>
             {insights.slice(0, 4).map((insight, i) => (
