@@ -75,6 +75,7 @@ function getWeeksOfMonth() {
 }
 
 export default function Movimentacoes() {
+  const navigate = useNavigate();
   const state = useStore();
   const config = businessConfigs[state.businessType!];
   const costs = getRecentCosts();
