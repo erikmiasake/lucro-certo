@@ -142,8 +142,8 @@ export default function Onboarding() {
                     </div>
 
                     {/* Content */}
-                    <div className="px-4 pb-4 pt-1">
-                      <h3 className="text-foreground font-bold text-sm sm:text-base leading-tight mb-1 group-hover:text-primary transition-colors duration-200">
+                    <div className="px-3 pb-3 pt-1 sm:px-4 sm:pb-4">
+                      <h3 className="text-foreground font-bold text-xs sm:text-base leading-tight mb-0.5 sm:mb-1 group-hover:text-primary transition-colors duration-200">
                         {c.label}
                       </h3>
                       <p className="text-muted-foreground text-xs flex items-center gap-1.5">
