@@ -1,9 +1,11 @@
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BusinessType, businessConfigs } from '@/lib/business-config';
 import { setBusinessType, setOnboardingData } from '@/lib/store';
 import { TextEffect } from '@/components/ui/text-effect';
 import { ArrowRight, ArrowLeft, DollarSign, Tag, Sparkles, Zap, Clock } from 'lucide-react';
+import HeroScreen from '@/components/HeroScreen';
+import AILoadingScreen from '@/components/AILoadingScreen';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'academia', 'outro'];
 
