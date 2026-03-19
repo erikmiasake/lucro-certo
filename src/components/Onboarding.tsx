@@ -69,20 +69,20 @@ export default function Onboarding() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-3xl px-6 py-10"
+            className="w-full max-w-3xl px-4 sm:px-6 py-6 sm:py-10"
           >
             {/* Header Section */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-5 sm:mb-8">
               <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
-                className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-lg glow-primary"
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg glow-primary"
               >
                 <Sparkles className="h-6 w-6 text-primary-foreground" />
               </motion.div>
 
-              <TextEffect preset="blur" as="h1" className="text-2xl sm:text-3xl font-extrabold text-foreground mb-2 tracking-tight leading-tight">
+              <TextEffect preset="blur" as="h1" className="text-xl sm:text-3xl font-extrabold text-foreground mb-2 tracking-tight leading-tight">
                 Descubra quanto você realmente lucra
               </TextEffect>
 
@@ -91,7 +91,7 @@ export default function Onboarding() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
               >
-                <p className="text-muted-foreground text-base mb-2 max-w-md mx-auto">
+                <p className="text-muted-foreground text-sm sm:text-base mb-2 max-w-md mx-auto">
                   Escolha seu tipo de negócio e receba análises inteligentes personalizadas
                 </p>
                 <div className="flex items-center justify-center gap-2 text-muted-foreground/70 text-sm">
@@ -102,7 +102,7 @@ export default function Onboarding() {
             </div>
 
             {/* Cards Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
               {types.map((type, index) => {
                 const c = businessConfigs[type];
                 const isClicked = clickedType === type;
@@ -124,10 +124,10 @@ export default function Onboarding() {
                     whileHover={{ scale: 1.03, y: -4 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => handleSelectType(type)}
-                    className="group relative rounded-2xl overflow-hidden border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--primary)/0.12)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                    className="group relative rounded-xl sm:rounded-2xl overflow-hidden border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--primary)/0.12)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
                     {/* Image */}
-                    <div className="relative h-32 sm:h-36 overflow-hidden">
+                    <div className="relative h-24 sm:h-36 overflow-hidden">
                       <img
                         src={businessImages[type]}
                         alt={c.label}
@@ -142,8 +142,8 @@ export default function Onboarding() {
                     </div>
 
                     {/* Content */}
-                    <div className="px-4 pb-4 pt-1">
-                      <h3 className="text-foreground font-bold text-sm sm:text-base leading-tight mb-1 group-hover:text-primary transition-colors duration-200">
+                    <div className="px-3 pb-3 pt-1 sm:px-4 sm:pb-4">
+                      <h3 className="text-foreground font-bold text-xs sm:text-base leading-tight mb-0.5 sm:mb-1 group-hover:text-primary transition-colors duration-200">
                         {c.label}
                       </h3>
                       <p className="text-muted-foreground text-xs flex items-center gap-1.5">
@@ -164,7 +164,7 @@ export default function Onboarding() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
-              className="text-center text-muted-foreground/50 text-xs mt-8"
+              className="text-center text-muted-foreground/50 text-xs mt-5 sm:mt-8"
             >
               Powered by inteligência artificial • Análises em tempo real
             </motion.p>

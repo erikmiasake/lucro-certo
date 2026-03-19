@@ -106,7 +106,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -40 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="w-full max-w-md px-6 py-8"
+      className="w-full max-w-md px-4 sm:px-6 py-6 sm:py-8"
     >
       {/* Back + Progress */}
       <div className="flex items-center justify-between mb-6">
