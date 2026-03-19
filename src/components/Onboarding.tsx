@@ -102,7 +102,7 @@ export default function Onboarding() {
             </div>
 
             {/* Cards Grid */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-4">
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
               {types.map((type, index) => {
                 const c = businessConfigs[type];
                 const isClicked = clickedType === type;
