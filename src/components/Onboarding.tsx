@@ -72,7 +72,7 @@ export default function Onboarding() {
             className="w-full max-w-3xl px-4 sm:px-6 py-6 sm:py-10"
           >
             {/* Header Section */}
-            <div className="text-center mb-8">
+            <div className="text-center mb-5 sm:mb-8">
               <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
