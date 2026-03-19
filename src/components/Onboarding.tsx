@@ -69,7 +69,7 @@ export default function Onboarding() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -20 }}
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-3xl px-6 py-10"
+            className="w-full max-w-3xl px-4 sm:px-6 py-6 sm:py-10"
           >
             {/* Header Section */}
             <div className="text-center mb-8">
