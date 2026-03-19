@@ -1,6 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BusinessConfig } from '@/lib/business-config';
+import { Package, Building2 } from 'lucide-react';
 
 interface CostModalProps {
   open: boolean;
@@ -49,7 +50,7 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-end justify-center bg-foreground/30 backdrop-blur-sm"
+          className="fixed inset-0 z-50 flex items-end justify-center bg-background/60 backdrop-blur-md"
           onClick={onClose}
         >
           <motion.div
@@ -57,45 +58,68 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
             animate={{ y: 0 }}
             exit={{ y: '100%' }}
             transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="w-full max-w-lg bg-card rounded-t-3xl p-6 safe-bottom"
+            className="w-full max-w-lg rounded-t-3xl p-6 safe-bottom card-elevated border-t border-border"
             onClick={(e) => e.stopPropagation()}
           >
-            <div className="w-10 h-1 bg-muted rounded-full mx-auto mb-5" />
+            <div className="w-10 h-1 bg-muted rounded-full mx-auto mb-6" />
 
             {step === 'type' ? (
               <>
-                <h2 className="text-xl font-bold text-foreground mb-1">Tipo de custo</h2>
-                <p className="text-muted-foreground text-sm mb-5">Selecione o tipo</p>
+                <h2 className="text-lg font-bold text-foreground mb-1">Tipo de custo</h2>
+                <p className="text-muted-foreground text-xs mb-5">Selecione o tipo de custo</p>
 
                 <div className="flex flex-col gap-3">
                   <button
                     onClick={() => selectType('product')}
-                    className="p-4 rounded-2xl bg-background border border-border text-left active:scale-[0.98] transition-transform hover:border-primary/40"
+                    className="p-4 rounded-2xl bg-secondary/50 border border-border text-left active:scale-[0.98] transition-all hover:border-accent/40 hover:bg-secondary group"
                   >
-                    <p className="font-semibold text-foreground text-base">📦 {config.productCostLabel}</p>
-                    <p className="text-muted-foreground text-sm mt-1">{config.productCostExample}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Distribuído ao longo de dias</p>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center">
+                        <Package className="h-4 w-4 text-accent" />
+                      </div>
+                      <p className="font-semibold text-foreground text-base">{config.productCostLabel}</p>
+                    </div>
+                    <p className="text-muted-foreground text-sm">{config.productCostExample}</p>
+                    <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-accent/50" />
+                      Distribuído ao longo de dias
+                    </p>
                   </button>
 
                   <button
                     onClick={() => selectType('business')}
-                    className="p-4 rounded-2xl bg-background border border-border text-left active:scale-[0.98] transition-transform hover:border-primary/40"
+                    className="p-4 rounded-2xl bg-secondary/50 border border-border text-left active:scale-[0.98] transition-all hover:border-purple-400/40 hover:bg-secondary group"
                   >
-                    <p className="font-semibold text-foreground text-base">🏢 {config.businessCostLabel}</p>
-                    <p className="text-muted-foreground text-sm mt-1">{config.businessCostExample}</p>
-                    <p className="text-xs text-muted-foreground mt-1">Custo fixo do dia</p>
+                    <div className="flex items-center gap-3 mb-2">
+                      <div className="w-9 h-9 rounded-lg bg-purple-500/10 flex items-center justify-center">
+                        <Building2 className="h-4 w-4 text-purple-400" />
+                      </div>
+                      <p className="font-semibold text-foreground text-base">{config.businessCostLabel}</p>
+                    </div>
+                    <p className="text-muted-foreground text-sm">{config.businessCostExample}</p>
+                    <p className="text-xs text-muted-foreground mt-1.5 flex items-center gap-1">
+                      <span className="w-1.5 h-1.5 rounded-full bg-purple-400/50" />
+                      Custo fixo do dia
+                    </p>
                   </button>
                 </div>
               </>
             ) : (
               <>
-                <h2 className="text-xl font-bold text-foreground mb-1">
-                  {costType === 'product' ? config.productCostLabel : config.businessCostLabel}
-                </h2>
-                <p className="text-muted-foreground text-sm mb-5">Quanto você gastou?</p>
+                <div className="flex items-center gap-3 mb-6">
+                  <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${costType === 'product' ? 'bg-accent/10' : 'bg-purple-500/10'}`}>
+                    {costType === 'product' ? <Package className="h-4 w-4 text-accent" /> : <Building2 className="h-4 w-4 text-purple-400" />}
+                  </div>
+                  <div>
+                    <h2 className="text-lg font-bold text-foreground">
+                      {costType === 'product' ? config.productCostLabel : config.businessCostLabel}
+                    </h2>
+                    <p className="text-muted-foreground text-xs">Quanto você gastou?</p>
+                  </div>
+                </div>
 
-                <div className="flex items-center gap-2 mb-4">
-                  <span className="text-2xl font-bold text-muted-foreground">R$</span>
+                <div className="flex items-center gap-2 mb-4 p-4 rounded-xl bg-secondary/50 border border-border">
+                  <span className="text-xl font-bold text-muted-foreground">R$</span>
                   <input
                     ref={inputRef}
                     type="number"
@@ -109,9 +133,7 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
 
                 {costType === 'product' && (
                   <div className="mb-6">
-                    <p className="text-sm text-muted-foreground mb-3">
-                      Distribuir em quantos dias?
-                    </p>
+                    <p className="text-sm text-muted-foreground mb-3">Distribuir em quantos dias?</p>
                     <div className="flex gap-2">
                       {[3, 5, 7].map((d) => (
                         <button
@@ -119,8 +141,8 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                           onClick={() => setSpreadDays(d)}
                           className={`flex-1 py-3 rounded-xl font-semibold text-sm transition-all ${
                             spreadDays === d
-                              ? 'bg-primary text-primary-foreground'
-                              : 'bg-muted text-muted-foreground'
+                              ? 'gradient-primary text-primary-foreground shadow-md shadow-primary/15'
+                              : 'bg-secondary text-muted-foreground hover:text-foreground'
                           }`}
                         >
                           {d} dias
@@ -133,7 +155,7 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                 <button
                   onClick={handleSubmit}
                   disabled={!value || parseFloat(value.replace(',', '.')) <= 0}
-                  className="w-full py-4 rounded-2xl bg-accent text-accent-foreground font-semibold text-lg disabled:opacity-40 active:scale-[0.97] transition-all"
+                  className="w-full py-4 rounded-2xl gradient-accent text-accent-foreground font-semibold text-lg disabled:opacity-30 active:scale-[0.97] transition-all shadow-lg shadow-accent/15"
                 >
                   Registrar custo
                 </button>
