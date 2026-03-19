@@ -110,17 +110,28 @@ export function getDayRevenue(date: string): number {
     .reduce((sum, e) => sum + e.amount, 0);
 }
 
-export function addCost(amount: number, type: 'product' | 'business', spreadDays: number = 1, description?: string, category?: string) {
+export function addCost(
+  amount: number,
+  type: 'product' | 'business',
+  spreadDays: number = 1,
+  description?: string,
+  category?: string,
+  subcategory?: string,
+  classification?: CostClassification
+) {
   const today = new Date().toISOString().split('T')[0];
+  const inferredClassification = classification || (type === 'business' ? 'fixed' : 'variable');
   const cost: Cost = {
     id: crypto.randomUUID(),
     amount,
     type,
+    classification: inferredClassification,
     spreadDays: type === 'business' ? 1 : spreadDays,
     date: today,
     createdAt: Date.now(),
     description,
     category,
+    subcategory,
   };
   state = { ...state, costs: [...state.costs, cost] };
   notify();
