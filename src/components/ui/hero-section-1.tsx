@@ -61,7 +61,6 @@ export function HeroSection() {
                 {/* Heading */}
                 <TextEffect
                   preset="blur"
-                  speedSegment={0.3}
                   as="h1"
                   className="mt-8 text-balance text-4xl md:text-6xl lg:text-7xl font-bold text-foreground"
                 >
