@@ -150,13 +150,6 @@ export default function Onboarding() {
                       {/* Hover glow overlay */}
                       <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors duration-300" />
                       
-                      {/* Icon badge */}
-                      <motion.div
-                        className="absolute top-3 right-3 w-9 h-9 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50 flex items-center justify-center text-lg shadow-sm"
-                        whileHover={{ rotate: 10 }}
-                      >
-                        {businessIcons[type]}
-                      </motion.div>
                     </div>
 
                     {/* Content */}
