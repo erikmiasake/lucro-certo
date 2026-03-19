@@ -70,8 +70,8 @@ export default function Movimentacoes() {
     setEditValue(current > 0 ? current.toString() : '');
   };
 
-  const handleCost = (amount: number, type: 'product' | 'business', spreadDays: number) => {
-    addCost(amount, type, spreadDays);
+  const handleCost = (amount: number, type: 'product' | 'business', spreadDays: number, description?: string, category?: string, subcategory?: string, classification?: any) => {
+    addCost(amount, type, spreadDays, description, category, subcategory, classification);
     setShowCost(false);
     const updated = getDaySummary(today);
     setFeedback(`Custo registrado! Lucro: ${formatCurrency(updated.profit)}`);

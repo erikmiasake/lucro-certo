@@ -9,15 +9,19 @@ export interface Entry {
   category?: string;
 }
 
+export type CostClassification = 'fixed' | 'variable';
+
 export interface Cost {
   id: string;
   amount: number;
   type: 'product' | 'business';
+  classification: CostClassification;
   spreadDays: number;
   date: string;
   createdAt: number;
   description?: string;
   category?: string;
+  subcategory?: string;
 }
 
 export interface AppState {
@@ -106,17 +110,28 @@ export function getDayRevenue(date: string): number {
     .reduce((sum, e) => sum + e.amount, 0);
 }
 
-export function addCost(amount: number, type: 'product' | 'business', spreadDays: number = 1, description?: string, category?: string) {
+export function addCost(
+  amount: number,
+  type: 'product' | 'business',
+  spreadDays: number = 1,
+  description?: string,
+  category?: string,
+  subcategory?: string,
+  classification?: CostClassification
+) {
   const today = new Date().toISOString().split('T')[0];
+  const inferredClassification = classification || (type === 'business' ? 'fixed' : 'variable');
   const cost: Cost = {
     id: crypto.randomUUID(),
     amount,
     type,
+    classification: inferredClassification,
     spreadDays: type === 'business' ? 1 : spreadDays,
     date: today,
     createdAt: Date.now(),
     description,
     category,
+    subcategory,
   };
   state = { ...state, costs: [...state.costs, cost] };
   notify();
@@ -266,36 +281,69 @@ export function getBestAndWorstDay(days: number = 30) {
 export function getCostBreakdown() {
   const productCosts = state.costs.filter(c => c.type === 'product');
   const businessCosts = state.costs.filter(c => c.type === 'business');
+  const fixedCosts = state.costs.filter(c => (c as any).classification === 'fixed' || c.type === 'business');
+  const variableCosts = state.costs.filter(c => (c as any).classification === 'variable' || (!(c as any).classification && c.type === 'product'));
   const totalProduct = productCosts.reduce((s, c) => s + c.amount, 0);
   const totalBusiness = businessCosts.reduce((s, c) => s + c.amount, 0);
+  const totalFixed = fixedCosts.reduce((s, c) => s + c.amount, 0);
+  const totalVariable = variableCosts.reduce((s, c) => s + c.amount, 0);
   const total = totalProduct + totalBusiness;
 
   // Group by category
-  const categoryMap = new Map<string, number>();
+  const categoryMap = new Map<string, { amount: number; items: Cost[] }>();
   state.costs.forEach(c => {
     const key = c.category || (c.type === 'product' ? 'Produto' : 'Negócio');
-    categoryMap.set(key, (categoryMap.get(key) || 0) + c.amount);
+    const existing = categoryMap.get(key) || { amount: 0, items: [] };
+    existing.amount += c.amount;
+    existing.items.push(c);
+    categoryMap.set(key, existing);
   });
 
   const categories = Array.from(categoryMap.entries())
-    .map(([name, amount]) => ({
+    .map(([name, data]) => ({
       name,
-      amount,
-      percentage: total > 0 ? (amount / total) * 100 : 0,
+      amount: data.amount,
+      count: data.items.length,
+      percentage: total > 0 ? (data.amount / total) * 100 : 0,
     }))
     .sort((a, b) => b.amount - a.amount);
+
+  // Subcategory breakdown
+  const subcategoryMap = new Map<string, number>();
+  state.costs.forEach(c => {
+    if (c.subcategory) {
+      subcategoryMap.set(c.subcategory, (subcategoryMap.get(c.subcategory) || 0) + c.amount);
+    }
+  });
+  const subcategories = Array.from(subcategoryMap.entries())
+    .map(([name, amount]) => ({ name, amount, percentage: total > 0 ? (amount / total) * 100 : 0 }))
+    .sort((a, b) => b.amount - a.amount);
+
+  // Profit impact per category
+  const week = getWeekSummary();
+  const profitImpact = categories.map(cat => ({
+    name: cat.name,
+    amount: cat.amount,
+    profitImpactPercent: week.totalRevenue > 0 ? (cat.amount / week.totalRevenue) * 100 : 0,
+  }));
 
   return {
     totalProduct,
     totalBusiness,
+    totalFixed,
+    totalVariable,
     total,
     productPercentage: total > 0 ? (totalProduct / total) * 100 : 0,
     businessPercentage: total > 0 ? (totalBusiness / total) * 100 : 0,
+    fixedPercentage: total > 0 ? (totalFixed / total) * 100 : 0,
+    variablePercentage: total > 0 ? (totalVariable / total) * 100 : 0,
     categories,
+    subcategories,
+    profitImpact,
     isHighCost: (() => {
-      const week = getWeekSummary();
       return week.totalRevenue > 0 && week.totalRealCost > week.totalRevenue * 0.7;
     })(),
+    topCost: categories.length > 0 ? categories[0] : null,
   };
 }
 
