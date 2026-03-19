@@ -1,6 +1,12 @@
 import { useStore } from '@/hooks/use-store';
 import Onboarding from '@/components/Onboarding';
-import Dashboard from '@/components/Dashboard';
+import AppLayout from '@/components/AppLayout';
+import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import VisaoGeral from './VisaoGeral';
+import Movimentacoes from './Movimentacoes';
+import Custos from './Custos';
+import Desempenho from './Desempenho';
+import Configuracoes from './Configuracoes';
 
 export default function Index() {
   const state = useStore();
@@ -9,5 +15,15 @@ export default function Index() {
     return <Onboarding />;
   }
 
-  return <Dashboard />;
+  return (
+    <AppLayout>
+      <Routes>
+        <Route index element={<VisaoGeral />} />
+        <Route path="movimentacoes" element={<Movimentacoes />} />
+        <Route path="custos" element={<Custos />} />
+        <Route path="desempenho" element={<Desempenho />} />
+        <Route path="configuracoes" element={<Configuracoes />} />
+      </Routes>
+    </AppLayout>
+  );
 }
