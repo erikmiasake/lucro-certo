@@ -1,4 +1,5 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { motion, AnimatePresence } from 'framer-motion';
 import { 
   Plus, ArrowUpRight, ArrowDownRight, CalendarDays, TrendingUp, TrendingDown,
@@ -74,6 +75,7 @@ function getWeeksOfMonth() {
 }
 
 export default function Movimentacoes() {
+  const navigate = useNavigate();
   const state = useStore();
   const config = businessConfigs[state.businessType!];
   const costs = getRecentCosts();
@@ -584,7 +586,7 @@ export default function Movimentacoes() {
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.05 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => setShowCost(true)}
+          onClick={() => navigate('/custos')}
           className="px-4 py-3 rounded-2xl bg-card border border-border text-foreground font-semibold text-sm shadow-lg flex items-center gap-2"
         >
           <ArrowDownRight className="h-4 w-4 text-destructive/70" />
