@@ -5,7 +5,7 @@ import {
   getWeekSummary, getMonthSummary, getDaySummary, getDateString,
   getWeekDailyData, getBestAndWorstDay, getPreviousWeekSummary,
 } from '@/lib/store';
-import { TrendingUp, TrendingDown, BarChart3, Trophy, AlertTriangle, ArrowUpRight, ArrowDownRight, Percent, Target } from 'lucide-react';
+import { TrendingUp, TrendingDown, BarChart3, Trophy, AlertTriangle, ArrowUpRight, ArrowDownRight, Percent } from 'lucide-react';
 
 function formatCurrency(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
