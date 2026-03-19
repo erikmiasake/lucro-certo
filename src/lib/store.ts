@@ -24,12 +24,18 @@ export interface Cost {
   subcategory?: string;
 }
 
+export interface Goals {
+  monthlyProfit: number | null;
+  monthlyMargin: number | null;
+}
+
 export interface AppState {
   businessType: BusinessType | null;
   entries: Entry[];
   costs: Cost[];
   averageSales?: number;
   mainCosts?: string[];
+  goals: Goals;
 }
 
 const STORAGE_KEY = 'lucro-real-data';
@@ -37,9 +43,12 @@ const STORAGE_KEY = 'lucro-real-data';
 function loadState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
-    if (raw) return JSON.parse(raw);
+    if (raw) {
+      const parsed = JSON.parse(raw);
+      return { goals: { monthlyProfit: null, monthlyMargin: null }, ...parsed };
+    }
   } catch {}
-  return { businessType: null, entries: [], costs: [] };
+  return { businessType: null, entries: [], costs: [], goals: { monthlyProfit: null, monthlyMargin: null } };
 }
 
 function saveState(state: AppState) {
@@ -75,6 +84,11 @@ export function setOnboardingData(data: { averageSales?: number; mainCosts?: str
   notify();
 }
 
+export function setGoals(goals: Partial<Goals>) {
+  state = { ...state, goals: { ...state.goals, ...goals } };
+  notify();
+}
+
 export function addEntry(amount: number, description?: string, category?: string) {
   const today = new Date().toISOString().split('T')[0];
   const entry: Entry = {
@@ -90,7 +104,6 @@ export function addEntry(amount: number, description?: string, category?: string
 }
 
 export function setDayRevenue(date: string, amount: number) {
-  // Remove all entries for this date, then add one with the total
   const otherEntries = state.entries.filter((e) => e.date !== date);
   const entry: Entry = {
     id: crypto.randomUUID(),
@@ -281,15 +294,14 @@ export function getBestAndWorstDay(days: number = 30) {
 export function getCostBreakdown() {
   const productCosts = state.costs.filter(c => c.type === 'product');
   const businessCosts = state.costs.filter(c => c.type === 'business');
-  const fixedCosts = state.costs.filter(c => (c as any).classification === 'fixed' || c.type === 'business');
-  const variableCosts = state.costs.filter(c => (c as any).classification === 'variable' || (!(c as any).classification && c.type === 'product'));
+  const fixedCosts = state.costs.filter(c => c.classification === 'fixed' || c.type === 'business');
+  const variableCosts = state.costs.filter(c => c.classification === 'variable' || (!c.classification && c.type === 'product'));
   const totalProduct = productCosts.reduce((s, c) => s + c.amount, 0);
   const totalBusiness = businessCosts.reduce((s, c) => s + c.amount, 0);
   const totalFixed = fixedCosts.reduce((s, c) => s + c.amount, 0);
   const totalVariable = variableCosts.reduce((s, c) => s + c.amount, 0);
   const total = totalProduct + totalBusiness;
 
-  // Group by category
   const categoryMap = new Map<string, { amount: number; items: Cost[] }>();
   state.costs.forEach(c => {
     const key = c.category || (c.type === 'product' ? 'Produto' : 'Negócio');
@@ -308,7 +320,6 @@ export function getCostBreakdown() {
     }))
     .sort((a, b) => b.amount - a.amount);
 
-  // Subcategory breakdown
   const subcategoryMap = new Map<string, number>();
   state.costs.forEach(c => {
     if (c.subcategory) {
@@ -319,7 +330,6 @@ export function getCostBreakdown() {
     .map(([name, amount]) => ({ name, amount, percentage: total > 0 ? (amount / total) * 100 : 0 }))
     .sort((a, b) => b.amount - a.amount);
 
-  // Profit impact per category
   const week = getWeekSummary();
   const profitImpact = categories.map(cat => ({
     name: cat.name,
@@ -347,6 +357,211 @@ export function getCostBreakdown() {
   };
 }
 
+// ─── Trend Detection ───────────────────────────────────────────────
+
+function getLastNDaysSummaries(n: number) {
+  const results: { date: string; revenue: number; cost: number; profit: number; margin: number }[] = [];
+  for (let i = 0; i < n; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    const dateStr = getDateString(d);
+    const s = getDaySummary(dateStr);
+    results.push({ date: dateStr, revenue: s.totalRevenue, cost: s.totalRealCost, profit: s.profit, margin: s.margin });
+  }
+  return results;
+}
+
+export interface ProactiveAlert {
+  type: 'danger' | 'warning' | 'success' | 'info';
+  icon: string;
+  title: string;
+  message: string;
+  actionHint?: string;
+}
+
+export function getProactiveAlerts(): ProactiveAlert[] {
+  const alerts: ProactiveAlert[] = [];
+  const last7 = getLastNDaysSummaries(7);
+  const last3 = last7.slice(0, 3);
+  const week = getWeekSummary();
+  const month = getMonthSummary();
+  const costBreakdown = getCostBreakdown();
+
+  // Check for active days (days with any data)
+  const activeDays = last7.filter(d => d.revenue > 0 || d.cost > 0);
+  if (activeDays.length < 2) return alerts;
+
+  // 1. Cost trending up last 3 days
+  const costDays = last3.filter(d => d.cost > 0);
+  if (costDays.length >= 3 && costDays[0].cost > costDays[1].cost && costDays[1].cost > costDays[2].cost) {
+    alerts.push({
+      type: 'warning',
+      icon: '📈',
+      title: 'Custos em alta',
+      message: `Seu custo aumentou nos últimos 3 dias. Sua margem pode cair.`,
+      actionHint: 'Revise seus custos variáveis',
+    });
+  }
+
+  // 2. Profit trending down
+  const profitDays = last3.filter(d => d.revenue > 0);
+  if (profitDays.length >= 3 && profitDays[0].profit < profitDays[1].profit && profitDays[1].profit < profitDays[2].profit) {
+    alerts.push({
+      type: 'danger',
+      icon: '📉',
+      title: 'Lucro em queda',
+      message: `Seu lucro caiu 3 dias seguidos. Se continuar assim, pode ter prejuízo.`,
+    });
+  }
+
+  // 3. Week projection - loss
+  if (week.totalEntries > 0) {
+    const daysElapsed = activeDays.length || 1;
+    const avgDailyProfit = week.profit / daysElapsed;
+    const remaining = 7 - daysElapsed;
+    const projected = week.profit + avgDailyProfit * remaining;
+    if (projected < 0) {
+      alerts.push({
+        type: 'danger',
+        icon: '🔮',
+        title: 'Previsão de prejuízo',
+        message: `Se continuar assim, você terminará a semana com prejuízo de ${formatCurrencySimple(Math.abs(projected))}.`,
+        actionHint: 'Aumente as vendas ou reduza custos',
+      });
+    } else if (avgDailyProfit > 0 && projected > week.profit) {
+      alerts.push({
+        type: 'success',
+        icon: '🚀',
+        title: 'Lucro crescendo',
+        message: `Se manter esse ritmo, seu lucro semanal pode chegar a ${formatCurrencySimple(projected)}.`,
+      });
+    }
+  }
+
+  // 4. Low margin alert
+  if (week.totalRevenue > 0 && week.margin < 15 && week.margin >= 0) {
+    alerts.push({
+      type: 'warning',
+      icon: '⚡',
+      title: 'Margem muito baixa',
+      message: `Sua margem está em ${week.margin.toFixed(0)}%. Ideal é acima de 20%.`,
+      actionHint: 'Revise seus preços ou custos',
+    });
+  }
+
+  // 5. Top cost impact insight
+  if (costBreakdown.topCost && costBreakdown.topCost.percentage > 35) {
+    const top = costBreakdown.topCost;
+    const potentialSaving = top.amount * 0.1;
+    alerts.push({
+      type: 'info',
+      icon: '💡',
+      title: `${top.name}: ${top.percentage.toFixed(0)}% dos custos`,
+      message: `Reduzir esse custo em 10% economizaria ${formatCurrencySimple(potentialSaving)}.`,
+      actionHint: 'Negocie com fornecedores',
+    });
+  }
+
+  // 6. Goal progress
+  if (state.goals.monthlyProfit && state.goals.monthlyProfit > 0) {
+    const progress = (month.profit / state.goals.monthlyProfit) * 100;
+    const dayOfMonth = new Date().getDate();
+    const expectedProgress = (dayOfMonth / 30) * 100;
+    if (progress >= 100) {
+      alerts.push({
+        type: 'success',
+        icon: '🏆',
+        title: 'Meta atingida!',
+        message: `Você já atingiu sua meta de lucro mensal de ${formatCurrencySimple(state.goals.monthlyProfit)}!`,
+      });
+    } else if (progress < expectedProgress * 0.7 && dayOfMonth > 7) {
+      alerts.push({
+        type: 'warning',
+        icon: '🎯',
+        title: 'Meta em risco',
+        message: `Você atingiu ${progress.toFixed(0)}% da meta, mas deveria estar em ${expectedProgress.toFixed(0)}%.`,
+        actionHint: 'Intensifique as vendas',
+      });
+    }
+  }
+
+  // 7. Best day insight
+  const bestDay = getBestDayOfWeek();
+  if (bestDay) {
+    alerts.push({
+      type: 'info',
+      icon: '📊',
+      title: `Seu melhor dia: ${bestDay.day}`,
+      message: `Você lucra em média ${formatCurrencySimple(bestDay.avgProfit)} às ${bestDay.day}s. Foque mais vendas nesse dia.`,
+    });
+  }
+
+  return alerts.slice(0, 4); // Max 4 alerts
+}
+
+function getBestDayOfWeek() {
+  const weekday = ['Domingo', 'Segunda', 'Terça', 'Quarta', 'Quinta', 'Sexta', 'Sábado'];
+  const dayProfits: { total: number; count: number }[] = Array.from({ length: 7 }, () => ({ total: 0, count: 0 }));
+
+  const dates = getDateRange(30);
+  for (const date of dates) {
+    const s = getDaySummary(date);
+    if (s.totalRevenue === 0) continue;
+    const d = new Date(date + 'T00:00:00');
+    const dow = d.getDay();
+    dayProfits[dow].total += s.profit;
+    dayProfits[dow].count++;
+  }
+
+  let bestIdx = -1;
+  let bestAvg = -Infinity;
+  for (let i = 0; i < 7; i++) {
+    if (dayProfits[i].count >= 2) {
+      const avg = dayProfits[i].total / dayProfits[i].count;
+      if (avg > bestAvg) {
+        bestAvg = avg;
+        bestIdx = i;
+      }
+    }
+  }
+
+  if (bestIdx === -1) return null;
+  return { day: weekday[bestIdx], avgProfit: bestAvg };
+}
+
+function formatCurrencySimple(v: number): string {
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+}
+
+// ─── Goals Progress ────────────────────────────────────────────────
+
+export function getGoalsProgress() {
+  const month = getMonthSummary();
+  const goals = state.goals;
+  const dayOfMonth = new Date().getDate();
+  const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+  const monthProgress = (dayOfMonth / daysInMonth) * 100;
+
+  return {
+    profit: {
+      target: goals.monthlyProfit,
+      current: month.profit,
+      progress: goals.monthlyProfit ? Math.min((month.profit / goals.monthlyProfit) * 100, 100) : 0,
+      onTrack: goals.monthlyProfit ? (month.profit / goals.monthlyProfit) * 100 >= monthProgress * 0.8 : true,
+    },
+    margin: {
+      target: goals.monthlyMargin,
+      current: month.margin,
+      progress: goals.monthlyMargin ? Math.min((month.margin / goals.monthlyMargin) * 100, 100) : 0,
+      onTrack: goals.monthlyMargin ? month.margin >= goals.monthlyMargin * 0.8 : true,
+    },
+    monthProgress,
+    daysRemaining: daysInMonth - dayOfMonth,
+  };
+}
+
+// ─── Enhanced Smart Insights ───────────────────────────────────────
+
 export function getSmartInsights(): string[] {
   const insights: string[] = [];
   const today = getDaySummary();
@@ -354,64 +569,77 @@ export function getSmartInsights(): string[] {
   const week = getWeekSummary();
   const prevWeek = getPreviousWeekSummary();
   const costBreakdown = getCostBreakdown();
+  const month = getMonthSummary();
 
-  // Comparison with yesterday
+  // Comparison with yesterday - with R$ impact
   if (yesterday.totalRevenue > 0 && today.totalRevenue > 0) {
     const diff = today.profit - yesterday.profit;
     if (diff > 0) {
-      insights.push(`📈 Seu lucro subiu R$ ${diff.toFixed(2)} comparado a ontem`);
-    } else if (diff < 0) {
-      insights.push(`📉 Seu lucro caiu R$ ${Math.abs(diff).toFixed(2)} comparado a ontem`);
+      insights.push(`📈 Lucro subiu R$ ${diff.toFixed(2)} vs ontem. Continue assim!`);
+    } else if (diff < -10) {
+      insights.push(`📉 Lucro caiu R$ ${Math.abs(diff).toFixed(2)} vs ontem. Verifique seus custos.`);
     }
   }
 
-  // Week over week
+  // Week over week with action
   if (prevWeek.totalRevenue > 0 && week.totalRevenue > 0) {
-    if (week.profit > prevWeek.profit) {
-      insights.push('🚀 Você está melhor que a semana passada!');
-    } else if (week.profit < prevWeek.profit) {
-      insights.push('⚠️ Seu desempenho esta semana está abaixo da anterior');
+    const diff = week.profit - prevWeek.profit;
+    if (diff > 0) {
+      insights.push(`🚀 Semana ${formatCurrencySimple(Math.abs(diff))} melhor que a anterior!`);
+    } else if (diff < 0) {
+      insights.push(`⚠️ Semana ${formatCurrencySimple(Math.abs(diff))} pior que a anterior. Hora de agir.`);
     }
   }
 
-  // High cost alert
-  if (costBreakdown.isHighCost) {
-    insights.push('🔴 Seus custos estão acima de 70% da receita. Atenção!');
+  // High cost with specific impact
+  if (costBreakdown.isHighCost && week.totalRevenue > 0) {
+    const excess = week.totalRealCost - week.totalRevenue * 0.6;
+    insights.push(`🔴 Custos altos! Reduzir ${formatCurrencySimple(excess)} colocaria margem em 40%.`);
   }
 
-  // Low margin
+  // Top cost with actionable saving
+  if (costBreakdown.categories.length > 0 && costBreakdown.total > 0) {
+    const top = costBreakdown.categories[0];
+    if (top.percentage > 30) {
+      const saving10 = top.amount * 0.1;
+      insights.push(`💡 ${top.name} = ${top.percentage.toFixed(0)}% dos custos. Reduzir 10% = +${formatCurrencySimple(saving10)} de lucro.`);
+    }
+  }
+
+  // Margin health
   if (today.totalRevenue > 0 && today.margin < 15) {
-    insights.push('⚡ Sua margem hoje está muito baixa. Reveja os preços.');
+    const neededRevenue = today.totalRealCost / 0.8; // for 20% margin
+    const extra = neededRevenue - today.totalRevenue;
+    insights.push(`⚡ Margem baixa (${today.margin.toFixed(0)}%). Mais ${formatCurrencySimple(extra)} em vendas hoje daria 20%.`);
   }
 
-  // Projection
+  // Projection with R$
   if (week.totalEntries > 0) {
     const avgDailyProfit = week.profit / 7;
-    const remainingDays = 7 - new Date().getDay();
-    const projected = week.profit + avgDailyProfit * remainingDays;
-    if (projected < 0) {
-      insights.push('🔮 Se continuar assim, você terá prejuízo esta semana');
+    const projected30 = avgDailyProfit * 30;
+    if (projected30 > 0) {
+      insights.push(`🔮 Projeção mensal: ${formatCurrencySimple(projected30)} de lucro mantendo esse ritmo.`);
+    } else if (projected30 < 0) {
+      insights.push(`🔮 Projeção: prejuízo de ${formatCurrencySimple(Math.abs(projected30))} no mês se continuar assim.`);
     }
   }
 
-  // Top cost
-  if (costBreakdown.categories.length > 0) {
-    const top = costBreakdown.categories[0];
-    if (top.percentage > 40) {
-      insights.push(`💡 "${top.name}" representa ${top.percentage.toFixed(0)}% dos seus custos. Considere reduzir.`);
-    }
+  // Goal progress
+  if (state.goals.monthlyProfit && month.profit > 0) {
+    const pct = (month.profit / state.goals.monthlyProfit) * 100;
+    insights.push(`🎯 Meta mensal: ${pct.toFixed(0)}% atingida (${formatCurrencySimple(month.profit)} de ${formatCurrencySimple(state.goals.monthlyProfit)})`);
   }
 
   // Positive reinforcement
   if (today.profit > 0 && today.margin > 30) {
-    insights.push('👏 Excelente margem hoje! Continue assim.');
+    insights.push('👏 Margem excelente hoje! Dia lucrativo.');
   }
 
   if (insights.length === 0 && today.totalRevenue === 0 && today.totalRealCost === 0) {
     insights.push('💡 Registre suas vendas e custos para receber insights personalizados');
   }
 
-  return insights;
+  return insights.slice(0, 5);
 }
 
 export function getRecentEntries(limit: number = 50): Entry[] {
@@ -445,7 +673,6 @@ export function suggestCategory(description: string, businessType: BusinessType)
     if (desc.includes(cat.toLowerCase())) return { type: 'business', category: cat };
   }
 
-  // Common keywords
   const productKeywords = ['ingrediente', 'mercadoria', 'estoque', 'produto', 'insumo', 'material', 'embalagem', 'ração', 'tinta', 'creme', 'chocolate', 'carne', 'frango', 'bebida'];
   const businessKeywords = ['aluguel', 'energia', 'luz', 'água', 'internet', 'funcionário', 'salário', 'conta', 'imposto', 'taxa', 'software', 'sistema', 'gás'];
 
@@ -460,6 +687,6 @@ export function suggestCategory(description: string, businessType: BusinessType)
 }
 
 export function resetAll() {
-  state = { businessType: null, entries: [], costs: [] };
+  state = { businessType: null, entries: [], costs: [], goals: { monthlyProfit: null, monthlyMargin: null } };
   notify();
 }
