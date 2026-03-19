@@ -93,7 +93,7 @@ export default function Onboarding() {
                 <Sparkles className="h-8 w-8 text-primary-foreground" />
               </motion.div>
 
-              <TextEffect preset="blur" as="h1" className="text-4xl sm:text-5xl font-extrabold text-foreground mb-3 tracking-tight leading-tight">
+              <TextEffect preset="blur" as="h1" className="text-2xl sm:text-3xl font-extrabold text-foreground mb-2 tracking-tight leading-tight">
                 Descubra quanto você realmente lucra
               </TextEffect>
 
