@@ -85,6 +85,27 @@ export function addEntry(amount: number, description?: string, category?: string
   notify();
 }
 
+export function setDayRevenue(date: string, amount: number) {
+  // Remove all entries for this date, then add one with the total
+  const otherEntries = state.entries.filter((e) => e.date !== date);
+  const entry: Entry = {
+    id: crypto.randomUUID(),
+    amount,
+    date,
+    createdAt: Date.now(),
+    description: 'Total do dia',
+    category: 'Receita diária',
+  };
+  state = { ...state, entries: [...otherEntries, entry] };
+  notify();
+}
+
+export function getDayRevenue(date: string): number {
+  return state.entries
+    .filter((e) => e.date === date)
+    .reduce((sum, e) => sum + e.amount, 0);
+}
+
 export function addCost(amount: number, type: 'product' | 'business', spreadDays: number = 1, description?: string, category?: string) {
   const today = new Date().toISOString().split('T')[0];
   const cost: Cost = {
