@@ -9,25 +9,42 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { summary, businessType, period } = await req.json();
+    const { summary, businessType, period, costBreakdown, goals } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
-    const systemPrompt = `Você é um consultor financeiro inteligente para pequenos negócios brasileiros.
-Seu papel é analisar os dados financeiros e gerar insights acionáveis, curtos e claros.
-Responda SEMPRE em português brasileiro. Seja direto, empático e prático.
-Formato: retorne um JSON com a estrutura: { "insights": ["insight1", "insight2"], "recommendation": "recomendação principal", "prediction": "previsão simples" }
-Máximo 3 insights, 1 recomendação, 1 previsão. Cada um com no máximo 2 frases.`;
+    const systemPrompt = `Você é um copiloto financeiro inteligente para pequenos negócios brasileiros.
+Seu papel é ANTECIPAR problemas, ALERTAR riscos e RECOMENDAR ações específicas com impacto em R$.
+Nunca seja genérico. Sempre diga valores em reais e sugira ações práticas.
+
+REGRAS:
+- Cada insight deve mencionar um valor em R$ ou % real
+- Recomendações devem ser ações que o usuário pode fazer AGORA
+- Previsões devem ser baseadas na tendência dos dados
+- Se há meta, relate o progresso
+- Identifique o PRINCIPAL problema e o PRINCIPAL ponto forte
+- Máximo 3 insights, 1 recomendação, 1 previsão. Cada um com no máximo 2 frases.
+
+Retorne usando a tool "generate_insights".`;
+
+    const costInfo = costBreakdown
+      ? `\n- Top custo: ${costBreakdown.topCost || 'N/A'} (${costBreakdown.topPercentage || 0}% do total)
+- Fixos: R$ ${costBreakdown.totalFixed?.toFixed(2) || '0'} | Variáveis: R$ ${costBreakdown.totalVariable?.toFixed(2) || '0'}`
+      : '';
+
+    const goalInfo = goals?.monthlyProfit
+      ? `\n- Meta de lucro mensal: R$ ${goals.monthlyProfit.toFixed(2)}
+- Progresso: ${goals.progress?.toFixed(0) || 0}%`
+      : '';
 
     const userPrompt = `Dados do negócio (${businessType || 'genérico'}) - ${period || 'semana'}:
 - Receita: R$ ${summary.totalRevenue?.toFixed(2) || '0'}
 - Custos: R$ ${summary.totalRealCost?.toFixed(2) || '0'}
 - Lucro: R$ ${summary.profit?.toFixed(2) || '0'}
 - Margem: ${summary.margin?.toFixed(1) || '0'}%
-- Ticket médio: R$ ${summary.ticketMedio?.toFixed(2) || '0'}
-- Quantidade de vendas: ${summary.totalEntries || 0}
+- Quantidade de vendas: ${summary.totalEntries || 0}${costInfo}${goalInfo}
 
-Gere insights, uma recomendação e uma previsão simples.`;
+Gere insights ESPECÍFICOS com valores em R$, uma recomendação ACIONÁVEL e uma previsão baseada na tendência.`;
 
     const response = await fetch("https://ai.gateway.lovable.dev/v1/chat/completions", {
       method: "POST",
@@ -46,22 +63,22 @@ Gere insights, uma recomendação e uma previsão simples.`;
             type: "function",
             function: {
               name: "generate_insights",
-              description: "Retorna insights financeiros estruturados",
+              description: "Retorna insights financeiros acionáveis com valores em R$",
               parameters: {
                 type: "object",
                 properties: {
                   insights: {
                     type: "array",
                     items: { type: "string" },
-                    description: "Lista de 1-3 insights curtos sobre o desempenho",
+                    description: "Lista de 1-3 insights específicos com valores em R$ e ações claras",
                   },
                   recommendation: {
                     type: "string",
-                    description: "Uma recomendação acionável principal",
+                    description: "UMA ação específica que o usuário pode fazer agora, com impacto estimado em R$",
                   },
                   prediction: {
                     type: "string",
-                    description: "Uma previsão simples baseada nos dados",
+                    description: "Previsão baseada na tendência atual, com valor projetado em R$",
                   },
                 },
                 required: ["insights", "recommendation", "prediction"],
@@ -105,7 +122,6 @@ Gere insights, uma recomendação e uma previsão simples.`;
       });
     }
 
-    // Fallback: try to parse content directly
     const content = data.choices?.[0]?.message?.content || "";
     try {
       const parsed = JSON.parse(content);

@@ -2,6 +2,8 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, RefreshCw, Lightbulb, Target, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { getCostBreakdown, getGoalsProgress } from '@/lib/store';
+import { useStore } from '@/hooks/use-store';
 
 interface AIInsightsData {
   insights: string[];
@@ -23,6 +25,7 @@ interface AIInsightsPanelProps {
 }
 
 export default function AIInsightsPanel({ summary, businessType, period = 'semana' }: AIInsightsPanelProps) {
+  const store = useStore();
   const [data, setData] = useState<AIInsightsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -31,8 +34,25 @@ export default function AIInsightsPanel({ summary, businessType, period = 'seman
     setLoading(true);
     setError(null);
     try {
+      const breakdown = getCostBreakdown();
+      const goalsProgress = getGoalsProgress();
+
       const { data: result, error: fnError } = await supabase.functions.invoke('ai-insights', {
-        body: { summary, businessType, period },
+        body: {
+          summary,
+          businessType,
+          period,
+          costBreakdown: {
+            topCost: breakdown.topCost?.name || null,
+            topPercentage: breakdown.topCost?.percentage || 0,
+            totalFixed: breakdown.totalFixed,
+            totalVariable: breakdown.totalVariable,
+          },
+          goals: store.goals.monthlyProfit ? {
+            monthlyProfit: store.goals.monthlyProfit,
+            progress: goalsProgress.profit.progress,
+          } : null,
+        },
       });
 
       if (fnError) throw new Error(fnError.message);
@@ -120,7 +140,7 @@ export default function AIInsightsPanel({ summary, businessType, period = 'seman
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
               <Sparkles className="h-4 w-4 text-primary" />
-              <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Análise IA</p>
+              <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Copiloto IA</p>
             </div>
             <button
               onClick={fetchInsights}
@@ -151,7 +171,10 @@ export default function AIInsightsPanel({ summary, businessType, period = 'seman
             <div className="p-3 rounded-xl bg-primary/10 border border-primary/20 mb-3">
               <div className="flex items-start gap-2">
                 <Target className="h-3.5 w-3.5 text-primary mt-0.5 shrink-0" />
-                <p className="text-sm text-primary font-medium leading-relaxed">{data.recommendation}</p>
+                <div>
+                  <p className="text-[10px] uppercase tracking-wider text-primary/70 font-semibold mb-0.5">Ação recomendada</p>
+                  <p className="text-sm text-primary font-medium leading-relaxed">{data.recommendation}</p>
+                </div>
               </div>
             </div>
           )}
@@ -160,7 +183,10 @@ export default function AIInsightsPanel({ summary, businessType, period = 'seman
           {data.prediction && (
             <div className="flex items-start gap-2 px-1">
               <TrendingUp className="h-3.5 w-3.5 text-muted-foreground mt-0.5 shrink-0" />
-              <p className="text-xs text-muted-foreground leading-relaxed">{data.prediction}</p>
+              <div>
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground/70 font-semibold mb-0.5">Previsão</p>
+                <p className="text-xs text-muted-foreground leading-relaxed">{data.prediction}</p>
+              </div>
             </div>
           )}
         </motion.div>
