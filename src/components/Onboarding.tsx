@@ -164,7 +164,7 @@ export default function Onboarding() {
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
-              className="text-center text-muted-foreground/50 text-xs mt-8"
+              className="text-center text-muted-foreground/50 text-xs mt-5 sm:mt-8"
             >
               Powered by inteligência artificial • Análises em tempo real
             </motion.p>
