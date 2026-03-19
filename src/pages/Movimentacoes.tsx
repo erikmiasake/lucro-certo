@@ -1,25 +1,39 @@
-import { useState, useRef, useEffect } from 'react';
-import { motion } from 'framer-motion';
-import { Trash2, Plus, ArrowUpRight, ArrowDownRight, CalendarDays, TrendingUp, Check, Edit2, Package, Building2 } from 'lucide-react';
+import { useState, useRef, useEffect, useMemo } from 'react';
+import { motion, AnimatePresence } from 'framer-motion';
+import { 
+  Plus, ArrowUpRight, ArrowDownRight, CalendarDays, TrendingUp, TrendingDown,
+  Check, Edit2, Package, Building2, Trash2, Sparkles, BarChart3, Brain
+} from 'lucide-react';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
-import { getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, addCost, getDaySummary, getDateString, getRecentEntries, deleteEntry } from '@/lib/store';
+import {
+  getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, addCost,
+  getDaySummary, getDateString, getWeekSummary, getMonthSummary,
+  getWeekDailyData, getSmartInsights, getPreviousWeekSummary
+} from '@/lib/store';
 import CostModal from '@/components/CostModal';
 import FeedbackToast from '@/components/FeedbackToast';
+import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
-function formatCurrency(value: number) {
+type Period = 'dia' | 'semana' | 'mes';
+
+function fmt(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
+function fmtShort(value: number) {
+  if (Math.abs(value) >= 1000) return `R$ ${(value / 1000).toFixed(1)}k`;
+  return fmt(value);
+}
+
 function formatDateLabel(dateStr: string) {
-  const [y, m, d] = dateStr.split('-');
   const today = getDateString();
   const yesterday = new Date();
   yesterday.setDate(yesterday.getDate() - 1);
   const yesterdayStr = getDateString(yesterday);
-
   if (dateStr === today) return 'Hoje';
   if (dateStr === yesterdayStr) return 'Ontem';
+  const [, m, d] = dateStr.split('-');
   return `${d}/${m}`;
 }
 
@@ -33,23 +47,57 @@ function getLast7Days(): string[] {
   return days;
 }
 
+function getLast30Days(): string[] {
+  const days: string[] = [];
+  for (let i = 0; i < 30; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    days.push(getDateString(d));
+  }
+  return days;
+}
+
+function getWeeksOfMonth() {
+  const weeks: { label: string; revenue: number; cost: number; profit: number }[] = [];
+  for (let w = 0; w < 4; w++) {
+    let revenue = 0, cost = 0;
+    for (let d = 0; d < 7; d++) {
+      const date = new Date();
+      date.setDate(date.getDate() - (w * 7 + d));
+      const s = getDaySummary(getDateString(date));
+      revenue += s.totalRevenue;
+      cost += s.totalRealCost;
+    }
+    weeks.push({ label: `Semana ${4 - w}`, revenue, cost, profit: revenue - cost });
+  }
+  return weeks.reverse();
+}
+
 export default function Movimentacoes() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
   const costs = getRecentCosts();
-  const [tab, setTab] = useState<'entradas' | 'custos'>('entradas');
+  const [period, setPeriod] = useState<Period>('dia');
   const [showCost, setShowCost] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
   const inputRef = useRef<HTMLInputElement>(null);
   const today = getDateString();
-  const days = getLast7Days();
+
+  const todaySummary = getDaySummary(today);
+  const weekSummary = getWeekSummary();
+  const monthSummary = getMonthSummary();
+  const prevWeek = getPreviousWeekSummary();
+  const weekData = getWeekDailyData();
+  const insights = getSmartInsights();
+
+  const weekChange = prevWeek.totalRevenue > 0
+    ? ((weekSummary.totalRevenue - prevWeek.totalRevenue) / prevWeek.totalRevenue * 100)
+    : 0;
 
   useEffect(() => {
-    if (editingDate) {
-      setTimeout(() => inputRef.current?.focus(), 50);
-    }
+    if (editingDate) setTimeout(() => inputRef.current?.focus(), 50);
   }, [editingDate]);
 
   const handleSaveDayRevenue = (date: string) => {
@@ -57,7 +105,7 @@ export default function Movimentacoes() {
     if (num >= 0 && !isNaN(num)) {
       setDayRevenue(date, num);
       const summary = getDaySummary(date);
-      setFeedback(`${formatDateLabel(date)}: ${formatCurrency(num)} · Lucro: ${formatCurrency(summary.profit)}`);
+      setFeedback(`${formatDateLabel(date)}: ${fmt(num)} · Lucro: ${fmt(summary.profit)}`);
       setTimeout(() => setFeedback(null), 3000);
     }
     setEditingDate(null);
@@ -74,209 +122,474 @@ export default function Movimentacoes() {
     addCost(amount, type, spreadDays, description, category, subcategory, classification);
     setShowCost(false);
     const updated = getDaySummary(today);
-    setFeedback(`Custo registrado · Lucro: ${formatCurrency(updated.profit)}`);
+    setFeedback(`Custo registrado · Lucro: ${fmt(updated.profit)}`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
-  const todaySummary = getDaySummary(today);
+  const days7 = getLast7Days();
+
+  // Average revenue for comparison
+  const avgRevenue = useMemo(() => {
+    const daysWithRevenue = days7.filter(d => getDayRevenue(d) > 0);
+    if (daysWithRevenue.length === 0) return 0;
+    return daysWithRevenue.reduce((s, d) => s + getDayRevenue(d), 0) / daysWithRevenue.length;
+  }, [days7]);
+
+  const weeksOfMonth = useMemo(() => getWeeksOfMonth(), []);
 
   return (
-    <div className="p-5 md:p-8 max-w-3xl mx-auto safe-bottom">
-      <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Movimentações</h1>
-        <p className="text-muted-foreground text-sm mt-1">Registre a receita total de cada dia</p>
+    <div className="p-4 md:p-8 max-w-3xl mx-auto safe-bottom pb-24">
+      {/* Header */}
+      <div className="mb-5">
+        <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">Visão do seu negócio</h1>
+        <p className="text-muted-foreground text-xs mt-0.5">Performance e movimentações em tempo real</p>
       </div>
 
-      {/* Today highlight */}
-      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-5 card-elevated mb-5 border-l-4 border-l-primary">
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <CalendarDays className="h-4 w-4 text-primary" />
-            <p className="text-sm font-semibold text-foreground">Hoje</p>
-          </div>
-          <div className="flex items-center gap-1.5">
-            <TrendingUp className="h-3 w-3 text-primary" />
-            <span className="text-xs text-muted-foreground">
-              Lucro: <span className={todaySummary.profit >= 0 ? 'text-primary font-medium' : 'text-destructive font-medium'}>{formatCurrency(todaySummary.profit)}</span>
-            </span>
-          </div>
-        </div>
-
-        {editingDate === today ? (
-          <div className="flex items-center gap-2">
-            <span className="text-lg font-bold text-muted-foreground">R$</span>
-            <input
-              ref={inputRef}
-              type="number"
-              inputMode="decimal"
-              placeholder="0,00"
-              value={editValue}
-              onChange={(e) => setEditValue(e.target.value)}
-              onKeyDown={(e) => e.key === 'Enter' && handleSaveDayRevenue(today)}
-              className="flex-1 text-2xl font-bold bg-transparent outline-none text-foreground placeholder:text-muted"
-            />
-            <button
-              onClick={() => handleSaveDayRevenue(today)}
-              className="p-2.5 rounded-xl bg-primary text-primary-foreground active:scale-95 transition-all"
-            >
-              <Check className="h-5 w-5" />
-            </button>
-          </div>
-        ) : (
-          <button
-            onClick={() => startEditing(today)}
-            className="w-full flex items-center justify-between p-3 rounded-xl bg-secondary/50 hover:bg-secondary/80 transition-all group"
+      {/* Summary Cards */}
+      <div className="grid grid-cols-3 gap-2 mb-4">
+        {[
+          { label: 'Hoje', revenue: todaySummary.totalRevenue, profit: todaySummary.profit },
+          { label: 'Semana', revenue: weekSummary.totalRevenue, profit: weekSummary.profit },
+          { label: 'Mês', revenue: monthSummary.totalRevenue, profit: monthSummary.profit },
+        ].map((item, i) => (
+          <motion.div
+            key={item.label}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: i * 0.05 }}
+            onClick={() => setPeriod(i === 0 ? 'dia' : i === 1 ? 'semana' : 'mes')}
+            className={`p-3 rounded-xl cursor-pointer transition-all ${
+              (i === 0 && period === 'dia') || (i === 1 && period === 'semana') || (i === 2 && period === 'mes')
+                ? 'card-elevated border-primary/30 ring-1 ring-primary/20'
+                : 'card-elevated hover:border-border'
+            }`}
           >
-            <div className="flex items-center gap-2">
-              <ArrowUpRight className="h-4 w-4 text-primary" />
-              <span className="text-lg font-bold text-foreground">
-                {getDayRevenue(today) > 0 ? formatCurrency(getDayRevenue(today)) : 'Informar receita do dia'}
-              </span>
-            </div>
-            <Edit2 className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
-          </button>
-        )}
-      </motion.div>
-
-      {/* Tabs */}
-      <div className="flex gap-2 mb-5 p-1 rounded-xl bg-secondary/50">
-        <button
-          onClick={() => setTab('entradas')}
-          className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
-            tab === 'entradas'
-              ? 'bg-card text-primary shadow-md'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <ArrowUpRight className="h-4 w-4" />
-          Receita diária
-        </button>
-        <button
-          onClick={() => setTab('custos')}
-          className={`flex-1 py-2.5 rounded-lg font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
-            tab === 'custos'
-              ? 'bg-card text-accent shadow-md'
-              : 'text-muted-foreground hover:text-foreground'
-          }`}
-        >
-          <ArrowDownRight className="h-4 w-4" />
-          Custos ({costs.length})
-        </button>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">{item.label}</p>
+            <p className="text-sm font-bold text-foreground">{fmtShort(item.revenue)}</p>
+            <p className={`text-[10px] font-medium flex items-center gap-0.5 mt-0.5 ${item.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
+              {item.profit >= 0 ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
+              {fmtShort(item.profit)}
+            </p>
+          </motion.div>
+        ))}
       </div>
 
-      {/* Content */}
-      <div className="flex flex-col gap-2">
-        {tab === 'entradas' ? (
-          days.slice(1).map((date, i) => {
-            const revenue = getDayRevenue(date);
-            const summary = getDaySummary(date);
-            const isEditing = editingDate === date;
+      {/* Period Toggle */}
+      <div className="flex gap-1 mb-4 p-0.5 rounded-lg bg-secondary/50">
+        {(['dia', 'semana', 'mes'] as Period[]).map((p) => (
+          <button
+            key={p}
+            onClick={() => setPeriod(p)}
+            className={`flex-1 py-2 rounded-md font-medium text-xs transition-all ${
+              period === p
+                ? 'bg-card text-primary shadow-sm'
+                : 'text-muted-foreground hover:text-foreground'
+            }`}
+          >
+            {p === 'dia' ? 'Dia' : p === 'semana' ? 'Semana' : 'Mês'}
+          </button>
+        ))}
+      </div>
 
-            return (
-              <motion.div
-                key={date}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.03 }}
-                className="flex items-center justify-between p-4 rounded-xl card-elevated group hover:border-primary/20 transition-all"
-              >
-                {isEditing ? (
-                  <div className="flex items-center gap-2 flex-1">
-                    <span className="text-sm font-bold text-muted-foreground">R$</span>
-                    <input
-                      ref={inputRef}
-                      type="number"
-                      inputMode="decimal"
-                      placeholder="0,00"
-                      value={editValue}
-                      onChange={(e) => setEditValue(e.target.value)}
-                      onKeyDown={(e) => e.key === 'Enter' && handleSaveDayRevenue(date)}
-                      className="flex-1 text-lg font-bold bg-transparent outline-none text-foreground placeholder:text-muted"
-                    />
-                    <button
-                      onClick={() => handleSaveDayRevenue(date)}
-                      className="p-2 rounded-lg bg-primary text-primary-foreground active:scale-95 transition-all"
-                    >
-                      <Check className="h-4 w-4" />
-                    </button>
-                  </div>
-                ) : (
-                  <>
-                    <div className="flex items-center gap-3 cursor-pointer flex-1" onClick={() => startEditing(date)}>
-                      <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center">
-                        <span className="text-xs font-bold text-primary">{formatDateLabel(date)}</span>
-                      </div>
-                      <div>
-                        <p className="font-semibold text-foreground">
-                          {revenue > 0 ? formatCurrency(revenue) : <span className="text-muted-foreground">—</span>}
-                        </p>
-                        {revenue > 0 && (
-                          <p className="text-xs text-muted-foreground">
-                            Lucro: <span className={summary.profit >= 0 ? 'text-primary' : 'text-destructive'}>{formatCurrency(summary.profit)}</span>
-                          </p>
-                        )}
-                      </div>
-                    </div>
-                    <Edit2 className="h-4 w-4 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onClick={() => startEditing(date)} />
-                  </>
-                )}
-              </motion.div>
-            );
-          })
-        ) : (
-          <>
-            <button
-              onClick={() => setShowCost(true)}
-              className="w-full py-3 rounded-2xl border-2 border-dashed border-border text-muted-foreground font-medium text-sm mb-2 active:scale-[0.98] transition-all hover:border-primary/30 hover:text-primary flex items-center justify-center gap-2"
-            >
-              <Plus className="h-4 w-4" />
-              Adicionar custo
-            </button>
-            {costs.length === 0 ? (
-              <div className="text-center py-12">
-                <div className="w-16 h-16 rounded-2xl bg-secondary flex items-center justify-center mx-auto mb-4">
-                  <ArrowDownRight className="h-7 w-7 text-muted-foreground" />
+      {/* AI Insight Banner */}
+      {insights.length > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 5 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="flex items-start gap-2.5 p-3 rounded-xl bg-primary/5 border border-primary/10 mb-4"
+        >
+          <Brain className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+          <div>
+            <p className="text-xs text-primary/90 font-medium leading-relaxed">{insights[0]}</p>
+            {insights.length > 1 && (
+              <p className="text-[10px] text-primary/50 mt-1">+{insights.length - 1} insights disponíveis</p>
+            )}
+          </div>
+        </motion.div>
+      )}
+
+      <AnimatePresence mode="wait">
+        {/* ───── DIA ───── */}
+        {period === 'dia' && (
+          <motion.div key="dia" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            {/* Today Input */}
+            <div className="rounded-xl p-4 card-elevated mb-3 border-l-4 border-l-primary">
+              <div className="flex items-center justify-between mb-2">
+                <div className="flex items-center gap-2">
+                  <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                  <p className="text-xs font-semibold text-foreground">Hoje</p>
                 </div>
-                <p className="text-muted-foreground text-sm">Nenhum custo registrado</p>
+                <span className="text-[10px] text-muted-foreground">
+                  Lucro: <span className={todaySummary.profit >= 0 ? 'text-primary font-medium' : 'text-destructive font-medium'}>{fmt(todaySummary.profit)}</span>
+                </span>
               </div>
-            ) : (
-              costs.map((c, i) => (
+
+              {editingDate === today ? (
+                <div className="flex items-center gap-2">
+                  <span className="text-base font-bold text-muted-foreground">R$</span>
+                  <input
+                    ref={inputRef}
+                    type="number"
+                    inputMode="decimal"
+                    placeholder="0,00"
+                    value={editValue}
+                    onChange={(e) => setEditValue(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSaveDayRevenue(today)}
+                    className="flex-1 text-xl font-bold bg-transparent outline-none text-foreground placeholder:text-muted"
+                  />
+                  <button onClick={() => handleSaveDayRevenue(today)} className="p-2 rounded-lg bg-primary text-primary-foreground active:scale-95 transition-all">
+                    <Check className="h-4 w-4" />
+                  </button>
+                </div>
+              ) : (
+                <button onClick={() => startEditing(today)} className="w-full flex items-center justify-between p-2.5 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-all group">
+                  <div className="flex items-center gap-2">
+                    <ArrowUpRight className="h-4 w-4 text-primary" />
+                    <span className="text-base font-bold text-foreground">
+                      {getDayRevenue(today) > 0 ? fmt(getDayRevenue(today)) : 'Registrar receita'}
+                    </span>
+                  </div>
+                  <Edit2 className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                </button>
+              )}
+
+              {/* Revenue / Cost / Profit breakdown */}
+              {todaySummary.totalRevenue > 0 && (
+                <div className="flex gap-3 mt-3 pt-3 border-t border-border/50">
+                  <div className="flex-1 text-center">
+                    <p className="text-[10px] text-muted-foreground">Receita</p>
+                    <p className="text-xs font-semibold text-foreground">{fmtShort(todaySummary.totalRevenue)}</p>
+                  </div>
+                  <div className="flex-1 text-center">
+                    <p className="text-[10px] text-muted-foreground">Custos</p>
+                    <p className="text-xs font-semibold text-destructive/80">{fmtShort(todaySummary.totalRealCost)}</p>
+                  </div>
+                  <div className="flex-1 text-center">
+                    <p className="text-[10px] text-muted-foreground">Lucro</p>
+                    <p className={`text-xs font-bold ${todaySummary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(todaySummary.profit)}</p>
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Recent days list */}
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 px-1">Últimos dias</p>
+            <div className="flex flex-col gap-1.5">
+              {days7.slice(1).map((date, i) => {
+                const revenue = getDayRevenue(date);
+                const summary = getDaySummary(date);
+                const isEditing = editingDate === date;
+                const aboveAvg = avgRevenue > 0 && revenue > avgRevenue;
+                const belowAvg = avgRevenue > 0 && revenue > 0 && revenue < avgRevenue;
+
+                return (
+                  <motion.div
+                    key={date}
+                    initial={{ opacity: 0, x: -8 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="flex items-center justify-between p-3 rounded-xl card-elevated group hover:border-primary/20 transition-all"
+                  >
+                    {isEditing ? (
+                      <div className="flex items-center gap-2 flex-1">
+                        <span className="text-sm font-bold text-muted-foreground">R$</span>
+                        <input
+                          ref={inputRef}
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="0,00"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleSaveDayRevenue(date)}
+                          className="flex-1 text-base font-bold bg-transparent outline-none text-foreground placeholder:text-muted"
+                        />
+                        <button onClick={() => handleSaveDayRevenue(date)} className="p-1.5 rounded-lg bg-primary text-primary-foreground active:scale-95">
+                          <Check className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2.5 cursor-pointer flex-1" onClick={() => startEditing(date)}>
+                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <span className="text-[10px] font-bold text-primary">{formatDateLabel(date)}</span>
+                          </div>
+                          <div>
+                            <div className="flex items-center gap-1.5">
+                              <p className="font-semibold text-sm text-foreground">
+                                {revenue > 0 ? fmt(revenue) : <span className="text-muted-foreground text-xs">—</span>}
+                              </p>
+                              {aboveAvg && <TrendingUp className="h-3 w-3 text-primary" />}
+                              {belowAvg && <TrendingDown className="h-3 w-3 text-destructive/60" />}
+                            </div>
+                            {revenue > 0 && (
+                              <p className="text-[10px] text-muted-foreground">
+                                Lucro: <span className={summary.profit >= 0 ? 'text-primary' : 'text-destructive'}>{fmt(summary.profit)}</span>
+                                {aboveAvg && <span className="ml-1 text-primary/60">acima da média</span>}
+                                {belowAvg && <span className="ml-1 text-destructive/50">abaixo da média</span>}
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <Edit2 className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onClick={() => startEditing(date)} />
+                      </>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
+          </motion.div>
+        )}
+
+        {/* ───── SEMANA ───── */}
+        {period === 'semana' && (
+          <motion.div key="semana" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            {/* Week chart */}
+            <div className="rounded-xl p-4 card-elevated mb-3">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <BarChart3 className="h-3.5 w-3.5 text-primary" />
+                  <p className="text-xs font-semibold text-foreground">Receita por dia</p>
+                </div>
+                {weekChange !== 0 && (
+                  <span className={`text-[10px] font-medium flex items-center gap-0.5 ${weekChange >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                    {weekChange >= 0 ? <TrendingUp className="h-2.5 w-2.5" /> : <TrendingDown className="h-2.5 w-2.5" />}
+                    {weekChange >= 0 ? '+' : ''}{weekChange.toFixed(0)}% vs semana anterior
+                  </span>
+                )}
+              </div>
+              <div className="h-40">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={weekData} barSize={20}>
+                    <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                    <YAxis hide />
+                    <Tooltip
+                      contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '11px' }}
+                      formatter={(value: number) => [fmt(value), '']}
+                      labelFormatter={(label) => label}
+                    />
+                    <Bar dataKey="revenue" radius={[6, 6, 0, 0]}>
+                      {weekData.map((entry, index) => (
+                        <Cell key={index} fill={entry.revenue > 0 ? 'hsl(var(--primary))' : 'hsl(var(--secondary))'} opacity={entry.revenue > 0 ? 0.8 : 0.3} />
+                      ))}
+                    </Bar>
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Week breakdown */}
+            <div className="rounded-xl p-4 card-elevated mb-3">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-3">Resumo da semana</p>
+              <div className="grid grid-cols-3 gap-3">
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Receita</p>
+                  <p className="text-sm font-bold text-foreground">{fmtShort(weekSummary.totalRevenue)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Custos</p>
+                  <p className="text-sm font-bold text-destructive/80">{fmtShort(weekSummary.totalRealCost)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Lucro</p>
+                  <p className={`text-sm font-bold ${weekSummary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(weekSummary.profit)}</p>
+                </div>
+              </div>
+              {weekSummary.totalRevenue > 0 && (
+                <div className="mt-3 pt-3 border-t border-border/50">
+                  <div className="flex items-center justify-between">
+                    <span className="text-[10px] text-muted-foreground">Margem de lucro</span>
+                    <span className={`text-xs font-bold ${weekSummary.margin >= 20 ? 'text-primary' : 'text-destructive'}`}>{weekSummary.margin.toFixed(1)}%</span>
+                  </div>
+                  <div className="w-full h-1.5 rounded-full bg-secondary mt-1.5 overflow-hidden">
+                    <motion.div
+                      className={`h-full rounded-full ${weekSummary.margin >= 20 ? 'bg-primary' : 'bg-destructive'}`}
+                      initial={{ width: 0 }}
+                      animate={{ width: `${Math.min(weekSummary.margin, 100)}%` }}
+                    />
+                  </div>
+                </div>
+              )}
+            </div>
+
+            {/* Daily detail list */}
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 px-1">Dias da semana</p>
+            <div className="flex flex-col gap-1.5">
+              {weekData.map((day, i) => (
                 <motion.div
-                  key={c.id}
-                  initial={{ opacity: 0, x: -8 }}
+                  key={day.date}
+                  initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.03 }}
-                  className="flex items-center justify-between p-4 rounded-xl card-elevated group hover:border-accent/20 transition-all"
+                  className="flex items-center justify-between p-3 rounded-xl card-elevated"
                 >
-                  <div className="flex items-center gap-3">
-                    <div className={`w-9 h-9 rounded-lg flex items-center justify-center ${c.type === 'product' ? 'bg-accent/10' : 'bg-purple-500/10'}`}>
-                      {c.type === 'product' ? <Package className="h-4 w-4 text-accent" /> : <Building2 className="h-4 w-4 text-purple-400" />}
+                  <div className="flex items-center gap-2.5">
+                    <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                      <span className="text-[10px] font-bold text-primary">{day.label}</span>
                     </div>
                     <div>
-                      <div className="flex items-center gap-2">
-                        <p className="font-semibold text-foreground">{formatCurrency(c.amount)}</p>
-                        <span className="text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
-                          {c.type === 'product' ? 'Variável' : 'Fixo'}
-                        </span>
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        {c.description || (c.type === 'product' ? config.productCostLabel : config.businessCostLabel)}
-                        {c.type === 'product' && ` · ${c.spreadDays}d`}
-                        {' · '}{formatDateLabel(c.date)}
-                      </p>
+                      <p className="text-sm font-semibold text-foreground">{day.revenue > 0 ? fmt(day.revenue) : '—'}</p>
+                      {day.revenue > 0 && (
+                        <p className="text-[10px] text-muted-foreground">
+                          Custo: {fmtShort(day.cost)} · Lucro: <span className={day.profit >= 0 ? 'text-primary' : 'text-destructive'}>{fmtShort(day.profit)}</span>
+                        </p>
+                      )}
                     </div>
                   </div>
-                  <button
-                    onClick={() => deleteCost(c.id)}
-                    className="p-2 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
-                  >
-                    <Trash2 className="h-4 w-4" />
-                  </button>
+                  {day.revenue > 0 && (
+                    <span className={`text-[10px] font-medium ${day.margin >= 20 ? 'text-primary' : 'text-destructive/70'}`}>
+                      {day.margin.toFixed(0)}%
+                    </span>
+                  )}
                 </motion.div>
-              ))
-            )}
-          </>
+              ))}
+            </div>
+          </motion.div>
         )}
+
+        {/* ───── MÊS ───── */}
+        {period === 'mes' && (
+          <motion.div key="mes" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+            {/* Month summary */}
+            <div className="rounded-xl p-4 card-elevated mb-3">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-3">Resumo mensal (30 dias)</p>
+              <div className="grid grid-cols-3 gap-3 mb-3">
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Receita</p>
+                  <p className="text-sm font-bold text-foreground">{fmtShort(monthSummary.totalRevenue)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Custos</p>
+                  <p className="text-sm font-bold text-destructive/80">{fmtShort(monthSummary.totalRealCost)}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] text-muted-foreground">Lucro</p>
+                  <p className={`text-sm font-bold ${monthSummary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(monthSummary.profit)}</p>
+                </div>
+              </div>
+              {monthSummary.totalRevenue > 0 && (
+                <div className="flex items-center justify-between pt-3 border-t border-border/50">
+                  <span className="text-[10px] text-muted-foreground">Margem</span>
+                  <span className={`text-xs font-bold ${monthSummary.margin >= 20 ? 'text-primary' : 'text-destructive'}`}>{monthSummary.margin.toFixed(1)}%</span>
+                </div>
+              )}
+            </div>
+
+            {/* Weekly chart */}
+            <div className="rounded-xl p-4 card-elevated mb-3">
+              <div className="flex items-center gap-2 mb-3">
+                <BarChart3 className="h-3.5 w-3.5 text-primary" />
+                <p className="text-xs font-semibold text-foreground">Receita por semana</p>
+              </div>
+              <div className="h-36">
+                <ResponsiveContainer width="100%" height="100%">
+                  <BarChart data={weeksOfMonth} barSize={28}>
+                    <XAxis dataKey="label" tick={{ fontSize: 9, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                    <YAxis hide />
+                    <Tooltip
+                      contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '11px' }}
+                      formatter={(value: number) => [fmt(value), '']}
+                    />
+                    <Bar dataKey="revenue" fill="hsl(var(--primary))" opacity={0.8} radius={[6, 6, 0, 0]} />
+                  </BarChart>
+                </ResponsiveContainer>
+              </div>
+            </div>
+
+            {/* Weeks detail */}
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 px-1">Semanas do mês</p>
+            <div className="flex flex-col gap-1.5">
+              {weeksOfMonth.map((week, i) => (
+                <motion.div
+                  key={week.label}
+                  initial={{ opacity: 0, x: -5 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.05 }}
+                  className="flex items-center justify-between p-3 rounded-xl card-elevated"
+                >
+                  <div>
+                    <p className="text-xs font-semibold text-foreground">{week.label}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      Receita: {fmtShort(week.revenue)} · Custo: {fmtShort(week.cost)}
+                    </p>
+                  </div>
+                  <div className="text-right">
+                    <p className={`text-sm font-bold ${week.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(week.profit)}</p>
+                    <p className="text-[10px] text-muted-foreground">lucro</p>
+                  </div>
+                </motion.div>
+              ))}
+            </div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Costs Section */}
+      <div className="mt-5">
+        <div className="flex items-center justify-between mb-2 px-1">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Custos recentes</p>
+          <span className="text-[10px] text-muted-foreground">{costs.length} registros</span>
+        </div>
+        {costs.length > 0 ? (
+          <div className="flex flex-col gap-1.5">
+            {costs.slice(0, 5).map((c, i) => (
+              <motion.div
+                key={c.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.03 }}
+                className="flex items-center justify-between p-3 rounded-xl card-elevated group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${c.type === 'product' ? 'bg-accent/10' : 'bg-purple-500/10'}`}>
+                    {c.type === 'product' ? <Package className="h-3.5 w-3.5 text-accent" /> : <Building2 className="h-3.5 w-3.5 text-purple-400" />}
+                  </div>
+                  <div>
+                    <p className="font-semibold text-xs text-foreground">{fmt(c.amount)}</p>
+                    <p className="text-[10px] text-muted-foreground">
+                      {c.description || (c.type === 'product' ? config.productCostLabel : config.businessCostLabel)}
+                      {' · '}{formatDateLabel(c.date)}
+                    </p>
+                  </div>
+                </div>
+                <button
+                  onClick={() => deleteCost(c.id)}
+                  className="p-1.5 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
+                >
+                  <Trash2 className="h-3.5 w-3.5" />
+                </button>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 rounded-xl card-elevated">
+            <p className="text-muted-foreground text-xs">Nenhum custo registrado</p>
+          </div>
+        )}
+      </div>
+
+      {/* Floating Actions */}
+      <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+        <motion.button
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => startEditing(today)}
+          className="px-5 py-3 rounded-2xl gradient-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 flex items-center gap-2"
+        >
+          <Plus className="h-4 w-4" />
+          Registrar receita
+        </motion.button>
+        <motion.button
+          initial={{ y: 20, opacity: 0 }}
+          animate={{ y: 0, opacity: 1 }}
+          transition={{ delay: 0.05 }}
+          whileTap={{ scale: 0.95 }}
+          onClick={() => setShowCost(true)}
+          className="px-4 py-3 rounded-2xl bg-card border border-border text-foreground font-semibold text-sm shadow-lg flex items-center gap-2"
+        >
+          <ArrowDownRight className="h-4 w-4 text-destructive/70" />
+          Custo
+        </motion.button>
       </div>
 
       <CostModal open={showCost} onClose={() => setShowCost(false)} onSubmit={handleCost} config={config} />
