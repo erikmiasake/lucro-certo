@@ -155,20 +155,13 @@ function MobileSidebar() {
 
   return (
     <div className="md:hidden">
-      {/* Mobile header trigger */}
-      <div className="fixed top-0 left-0 right-0 z-40 h-14 flex items-center px-4 bg-background/80 backdrop-blur-xl border-b border-border/50">
-        <button onClick={() => setOpen(!open)} className="p-2 text-muted-foreground hover:text-foreground transition-colors">
-          <Menu className="h-5 w-5" />
-        </button>
-        <div className="flex items-center gap-2.5 ml-3">
-          <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center">
-            <Activity className="h-3.5 w-3.5 text-primary-foreground" />
-          </div>
-          <span className="text-sm font-bold text-foreground">Lucro Real</span>
-        </div>
-      </div>
-
-      <div className="h-14" />
+      {/* Transparent floating menu trigger */}
+      <button
+        onClick={() => setOpen(!open)}
+        className="fixed top-4 left-4 z-40 p-2.5 rounded-xl bg-background/40 backdrop-blur-md border border-border/30 text-muted-foreground hover:text-foreground hover:bg-background/60 transition-all shadow-lg shadow-black/10"
+      >
+        <Menu className="h-5 w-5" />
+      </button>
 
       <AnimatePresence>
         {open && (
