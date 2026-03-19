@@ -9,6 +9,8 @@ import {
 import EntryModal from '@/components/EntryModal';
 import CostModal from '@/components/CostModal';
 import FeedbackToast from '@/components/FeedbackToast';
+import ProactiveAlerts from '@/components/ProactiveAlerts';
+import GoalsProgress from '@/components/GoalsProgress';
 import {
   Plus, Minus, TrendingUp, TrendingDown, Lightbulb,
   ArrowUpRight, ArrowDownRight, Percent,
@@ -63,7 +65,6 @@ export default function VisaoGeral() {
     setTimeout(() => setFeedback(null), 3000);
   };
 
-  // Comparison indicators
   const profitDiff = yesterday.totalRevenue > 0 ? summary.profit - yesterday.profit : null;
   const maxRevenue = Math.max(...weekData.map(d => d.revenue), 1);
 
@@ -77,6 +78,11 @@ export default function VisaoGeral() {
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Hoje no seu negócio</h1>
       </motion.div>
+
+      {/* Proactive alerts - AI copilot */}
+      <div className="mb-4">
+        <ProactiveAlerts />
+      </div>
 
       {/* Hero profit card */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-3 md:gap-4">
@@ -100,7 +106,6 @@ export default function VisaoGeral() {
               {summary.profit >= 0 ? <TrendingUp className="h-6 w-6 text-primary" /> : <TrendingDown className="h-6 w-6 text-destructive" />}
             </div>
           </div>
-          {/* Comparison badge */}
           {profitDiff !== null && (
             <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${
               profitDiff >= 0 ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'
@@ -138,9 +143,13 @@ export default function VisaoGeral() {
               {formatPercent(summary.margin)}
             </p>
           </motion.div>
-
         </div>
       </motion.div>
+
+      {/* Goals progress */}
+      <div className="mt-4">
+        <GoalsProgress />
+      </div>
 
       {/* Mini chart - 7 days */}
       <motion.div
@@ -189,7 +198,7 @@ export default function VisaoGeral() {
               <Lightbulb className="h-4 w-4 text-accent" />
               <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Insights</p>
             </div>
-            {insights.slice(0, 3).map((insight, i) => (
+            {insights.slice(0, 4).map((insight, i) => (
               <motion.p
                 key={i}
                 initial={{ opacity: 0, x: -8 }}

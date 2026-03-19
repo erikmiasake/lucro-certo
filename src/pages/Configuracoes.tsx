@@ -1,15 +1,18 @@
 import { useStore } from '@/hooks/use-store';
 import { BusinessType, businessConfigs } from '@/lib/business-config';
-import { setBusinessType, resetAll } from '@/lib/store';
+import { setBusinessType, resetAll, setGoals } from '@/lib/store';
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Check, Trash2, ChevronRight } from 'lucide-react';
+import { Check, Trash2, Target, TrendingUp, Percent } from 'lucide-react';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'outro'];
 
 export default function Configuracoes() {
   const state = useStore();
   const [confirmReset, setConfirmReset] = useState(false);
+  const [profitGoal, setProfitGoal] = useState(state.goals?.monthlyProfit?.toString() || '');
+  const [marginGoal, setMarginGoal] = useState(state.goals?.monthlyMargin?.toString() || '');
+  const [goalsSaved, setGoalsSaved] = useState(false);
 
   const handleReset = () => {
     if (confirmReset) {
@@ -19,6 +22,17 @@ export default function Configuracoes() {
       setConfirmReset(true);
       setTimeout(() => setConfirmReset(false), 3000);
     }
+  };
+
+  const handleSaveGoals = () => {
+    const profit = parseFloat(profitGoal.replace(',', '.'));
+    const margin = parseFloat(marginGoal.replace(',', '.'));
+    setGoals({
+      monthlyProfit: !isNaN(profit) && profit > 0 ? profit : null,
+      monthlyMargin: !isNaN(margin) && margin > 0 ? margin : null,
+    });
+    setGoalsSaved(true);
+    setTimeout(() => setGoalsSaved(false), 2000);
   };
 
   return (
@@ -62,6 +76,70 @@ export default function Configuracoes() {
               </button>
             );
           })}
+        </div>
+      </motion.div>
+
+      {/* Goals */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-2xl p-5 card-elevated mb-5">
+        <div className="flex items-center gap-2 mb-4">
+          <Target className="h-4 w-4 text-primary" />
+          <p className="text-xs uppercase tracking-wider text-muted-foreground font-medium">Metas mensais</p>
+        </div>
+        
+        <div className="space-y-4">
+          <div>
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+              <TrendingUp className="h-3 w-3" />
+              Meta de lucro mensal (R$)
+            </label>
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 border border-border">
+              <span className="text-sm font-bold text-muted-foreground">R$</span>
+              <input
+                type="number"
+                inputMode="decimal"
+                placeholder="Ex: 5000"
+                value={profitGoal}
+                onChange={(e) => setProfitGoal(e.target.value)}
+                className="flex-1 text-lg font-bold bg-transparent outline-none text-foreground placeholder:text-muted"
+              />
+            </div>
+          </div>
+
+          <div>
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+              <Percent className="h-3 w-3" />
+              Meta de margem (%)
+            </label>
+            <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 border border-border">
+              <input
+                type="number"
+                inputMode="decimal"
+                placeholder="Ex: 25"
+                value={marginGoal}
+                onChange={(e) => setMarginGoal(e.target.value)}
+                className="flex-1 text-lg font-bold bg-transparent outline-none text-foreground placeholder:text-muted"
+              />
+              <span className="text-sm font-bold text-muted-foreground">%</span>
+            </div>
+          </div>
+
+          <button
+            onClick={handleSaveGoals}
+            className={`w-full py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+              goalsSaved
+                ? 'bg-primary/10 text-primary'
+                : 'gradient-primary text-primary-foreground shadow-md shadow-primary/15 active:scale-[0.97]'
+            }`}
+          >
+            {goalsSaved ? (
+              <>
+                <Check className="h-4 w-4" />
+                Metas salvas!
+              </>
+            ) : (
+              'Salvar metas'
+            )}
+          </button>
         </div>
       </motion.div>
 
