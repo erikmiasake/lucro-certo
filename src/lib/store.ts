@@ -367,7 +367,7 @@ export function getInsight(date: string = getDateString()): string | null {
 
 export function suggestCategory(description: string, businessType: BusinessType): { type: 'product' | 'business'; category: string } | null {
   const desc = description.toLowerCase();
-  const { businessConfigs } = require('./business-config');
+  const { businessConfigs } = await import('./business-config') as any;
   const config = businessConfigs[businessType];
 
   for (const cat of config.costCategories.product) {
