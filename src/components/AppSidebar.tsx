@@ -28,7 +28,7 @@ export function AppSidebar() {
   const config = appState.businessType ? businessConfigs[appState.businessType] : null;
 
   return (
-    <Sidebar collapsible="icon">
+    <Sidebar collapsible="offcanvas">
       <SidebarContent className="flex flex-col justify-between h-full">
         <div>
           {/* Logo area */}
