@@ -83,17 +83,17 @@ export default function Onboarding() {
             className="w-full max-w-3xl"
           >
             {/* Header Section */}
-            <div className="text-center mb-10">
+            <div className="text-center mb-8">
               <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
-                className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6 shadow-lg glow-primary"
+                className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-lg glow-primary"
               >
-                <Sparkles className="h-8 w-8 text-primary-foreground" />
+                <Sparkles className="h-6 w-6 text-primary-foreground" />
               </motion.div>
 
-              <TextEffect preset="blur" as="h1" className="text-4xl sm:text-5xl font-extrabold text-foreground mb-3 tracking-tight leading-tight">
+              <TextEffect preset="blur" as="h1" className="text-2xl sm:text-3xl font-extrabold text-foreground mb-2 tracking-tight leading-tight">
                 Descubra quanto você realmente lucra
               </TextEffect>
 
@@ -102,7 +102,7 @@ export default function Onboarding() {
                 animate={{ opacity: 1, y: 0 }}
                 transition={{ delay: 0.3, duration: 0.5 }}
               >
-                <p className="text-muted-foreground text-lg mb-3 max-w-md mx-auto">
+                <p className="text-muted-foreground text-base mb-2 max-w-md mx-auto">
                   Escolha seu tipo de negócio e receba análises inteligentes personalizadas
                 </p>
                 <div className="flex items-center justify-center gap-2 text-muted-foreground/70 text-sm">
@@ -138,7 +138,7 @@ export default function Onboarding() {
                     className="group relative rounded-2xl overflow-hidden border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--primary)/0.12)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
                     {/* Image */}
-                    <div className="relative h-36 sm:h-40 overflow-hidden">
+                    <div className="relative h-32 sm:h-36 overflow-hidden">
                       <img
                         src={businessImages[type]}
                         alt={c.label}
@@ -150,13 +150,6 @@ export default function Onboarding() {
                       {/* Hover glow overlay */}
                       <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors duration-300" />
                       
-                      {/* Icon badge */}
-                      <motion.div
-                        className="absolute top-3 right-3 w-9 h-9 rounded-xl bg-card/80 backdrop-blur-sm border border-border/50 flex items-center justify-center text-lg shadow-sm"
-                        whileHover={{ rotate: 10 }}
-                      >
-                        {businessIcons[type]}
-                      </motion.div>
                     </div>
 
                     {/* Content */}
