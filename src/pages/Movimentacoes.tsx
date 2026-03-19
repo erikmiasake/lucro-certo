@@ -1,9 +1,9 @@
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { Trash2, Plus, ArrowUpRight, ArrowDownRight } from 'lucide-react';
+import { Trash2, Plus, ArrowUpRight, ArrowDownRight, Zap, TrendingUp } from 'lucide-react';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
-import { getRecentEntries, getRecentCosts, deleteEntry, deleteCost, addEntry, addCost } from '@/lib/store';
+import { getRecentEntries, getRecentCosts, deleteEntry, deleteCost, addEntry, addCost, getDaySummary, getDateString } from '@/lib/store';
 import EntryModal from '@/components/EntryModal';
 import CostModal from '@/components/CostModal';
 import FeedbackToast from '@/components/FeedbackToast';
@@ -17,6 +17,8 @@ function formatDate(dateStr: string) {
   return `${d}/${m}`;
 }
 
+const QUICK_AMOUNTS = [10, 20, 50, 100];
+
 export default function Movimentacoes() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
@@ -26,19 +28,30 @@ export default function Movimentacoes() {
   const [showEntry, setShowEntry] = useState(false);
   const [showCost, setShowCost] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const today = getDateString();
+  const summary = getDaySummary(today);
 
   const handleEntry = (amount: number) => {
     addEntry(amount);
     setShowEntry(false);
-    setFeedback('Entrada registrada!');
+    const updated = getDaySummary(today);
+    setFeedback(`Entrada registrada! Lucro atual: ${formatCurrency(updated.profit)}`);
+    setTimeout(() => setFeedback(null), 3000);
+  };
+
+  const handleQuickEntry = (amount: number) => {
+    addEntry(amount);
+    const updated = getDaySummary(today);
+    setFeedback(`+${formatCurrency(amount)} · Lucro: ${formatCurrency(updated.profit)}`);
     setTimeout(() => setFeedback(null), 2500);
   };
 
   const handleCost = (amount: number, type: 'product' | 'business', spreadDays: number) => {
     addCost(amount, type, spreadDays);
     setShowCost(false);
-    setFeedback('Custo registrado!');
-    setTimeout(() => setFeedback(null), 2500);
+    const updated = getDaySummary(today);
+    setFeedback(`Custo registrado! Lucro: ${formatCurrency(updated.profit)}`);
+    setTimeout(() => setFeedback(null), 3000);
   };
 
   return (
@@ -47,6 +60,29 @@ export default function Movimentacoes() {
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Movimentações</h1>
         <p className="text-muted-foreground text-sm mt-1">Histórico de entradas e custos</p>
       </div>
+
+      {/* Quick entry */}
+      <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-4 card-elevated mb-5">
+        <div className="flex items-center gap-2 mb-3">
+          <Zap className="h-4 w-4 text-primary" />
+          <p className="text-sm font-semibold text-foreground">Entrada rápida</p>
+          <div className="ml-auto flex items-center gap-1.5">
+            <TrendingUp className="h-3 w-3 text-primary" />
+            <span className="text-xs text-muted-foreground">Lucro: <span className={summary.profit >= 0 ? 'text-primary font-medium' : 'text-destructive font-medium'}>{formatCurrency(summary.profit)}</span></span>
+          </div>
+        </div>
+        <div className="flex gap-2">
+          {QUICK_AMOUNTS.map(amount => (
+            <button
+              key={amount}
+              onClick={() => handleQuickEntry(amount)}
+              className="flex-1 py-3 rounded-xl bg-primary/10 text-primary font-semibold text-sm active:scale-[0.95] transition-all hover:bg-primary/20"
+            >
+              +R${amount}
+            </button>
+          ))}
+        </div>
+      </motion.div>
 
       {/* Tabs */}
       <div className="flex gap-2 mb-5 p-1 rounded-xl bg-secondary/50">
@@ -59,7 +95,7 @@ export default function Movimentacoes() {
           }`}
         >
           <ArrowUpRight className="h-4 w-4" />
-          Entradas
+          Entradas ({entries.length})
         </button>
         <button
           onClick={() => setTab('custos')}
@@ -70,7 +106,7 @@ export default function Movimentacoes() {
           }`}
         >
           <ArrowDownRight className="h-4 w-4" />
-          Custos
+          Custos ({costs.length})
         </button>
       </div>
 
@@ -92,34 +128,41 @@ export default function Movimentacoes() {
                 <ArrowUpRight className="h-7 w-7 text-muted-foreground" />
               </div>
               <p className="text-muted-foreground text-sm">Nenhuma entrada registrada</p>
-              <p className="text-muted-foreground text-xs mt-1">Toque em "Adicionar entrada" acima</p>
+              <p className="text-muted-foreground text-xs mt-1">Use a entrada rápida acima ou toque em "Adicionar entrada"</p>
             </div>
           ) : (
-            entries.map((e, i) => (
-              <motion.div
-                key={e.id}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.03 }}
-                className="flex items-center justify-between p-4 rounded-xl card-elevated group hover:border-primary/20 transition-all"
-              >
-                <div className="flex items-center gap-3">
-                  <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
-                    <ArrowUpRight className="h-4 w-4 text-blue-400" />
-                  </div>
-                  <div>
-                    <p className="font-semibold text-foreground">{formatCurrency(e.amount)}</p>
-                    <p className="text-xs text-muted-foreground">{formatDate(e.date)}</p>
-                  </div>
-                </div>
-                <button
-                  onClick={() => deleteEntry(e.id)}
-                  className="p-2 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
+            entries.map((e, i) => {
+              // Calculate profit impact
+              const profitImpact = e.date === today ? `Lucro +${formatCurrency(e.amount)}` : null;
+              return (
+                <motion.div
+                  key={e.id}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.03 }}
+                  className="flex items-center justify-between p-4 rounded-xl card-elevated group hover:border-primary/20 transition-all"
                 >
-                  <Trash2 className="h-4 w-4" />
-                </button>
-              </motion.div>
-            ))
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-lg bg-blue-500/10 flex items-center justify-center">
+                      <ArrowUpRight className="h-4 w-4 text-blue-400" />
+                    </div>
+                    <div>
+                      <p className="font-semibold text-foreground">{formatCurrency(e.amount)}</p>
+                      <div className="flex items-center gap-2">
+                        <p className="text-xs text-muted-foreground">{formatDate(e.date)}</p>
+                        {e.category && <span className="text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">{e.category}</span>}
+                      </div>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => deleteEntry(e.id)}
+                    className="p-2 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
+                  >
+                    <Trash2 className="h-4 w-4" />
+                  </button>
+                </motion.div>
+              );
+            })
           )
         ) : (
           costs.length === 0 ? (
@@ -128,7 +171,6 @@ export default function Movimentacoes() {
                 <ArrowDownRight className="h-7 w-7 text-muted-foreground" />
               </div>
               <p className="text-muted-foreground text-sm">Nenhum custo registrado</p>
-              <p className="text-muted-foreground text-xs mt-1">Toque em "Adicionar custo" acima</p>
             </div>
           ) : (
             costs.map((c, i) => (
@@ -144,12 +186,17 @@ export default function Movimentacoes() {
                     <span className="text-base">{c.type === 'product' ? '📦' : '🏢'}</span>
                   </div>
                   <div>
-                    <p className="font-semibold text-foreground">{formatCurrency(c.amount)}</p>
+                    <div className="flex items-center gap-2">
+                      <p className="font-semibold text-foreground">{formatCurrency(c.amount)}</p>
+                      <span className="text-[10px] px-1.5 py-0.5 rounded bg-secondary text-muted-foreground">
+                        {c.type === 'product' ? 'Produto' : 'Negócio'}
+                      </span>
+                    </div>
                     <p className="text-xs text-muted-foreground">
                       {c.type === 'product' ? config.productCostLabel : config.businessCostLabel}
                       {c.type === 'product' && ` · ${c.spreadDays}d`}
+                      {' · '}{formatDate(c.date)}
                     </p>
-                    <p className="text-xs text-muted-foreground">{formatDate(c.date)}</p>
                   </div>
                 </div>
                 <button
