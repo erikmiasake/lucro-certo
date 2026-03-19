@@ -31,8 +31,6 @@ const businessIcons: Record<BusinessType, string> = {
 export default function Onboarding() {
   const [step, setStep] = useState<'hero' | 'loading' | 'type' | 'details'>('hero');
   const [selectedType, setSelectedType] = useState<BusinessType | null>(null);
-  const [avgSales, setAvgSales] = useState('');
-  const [selectedCosts, setSelectedCosts] = useState<string[]>([]);
   const [clickedType, setClickedType] = useState<BusinessType | null>(null);
 
   const handleHeroStart = () => setStep('loading');
@@ -43,30 +41,18 @@ export default function Onboarding() {
     setTimeout(() => {
       setSelectedType(type);
       setStep('details');
-      setSelectedCosts([]);
       setClickedType(null);
     }, 300);
   };
 
-  const handleFinish = () => {
+  const handleFinish = (avgSales: string, selectedCosts: string[]) => {
     if (!selectedType) return;
-    const avg = parseFloat(avgSales.replace(',', '.'));
+    const avg = parseFloat(avgSales.replace(/\./g, '').replace(',', '.'));
     setOnboardingData({
       averageSales: avg > 0 ? avg : undefined,
       mainCosts: selectedCosts.length > 0 ? selectedCosts : undefined,
     });
     setBusinessType(selectedType);
-  };
-
-  const config = selectedType ? businessConfigs[selectedType] : null;
-  const allCostCategories = config
-    ? [...config.costCategories.product, ...config.costCategories.business]
-    : [];
-
-  const toggleCost = (cost: string) => {
-    setSelectedCosts(prev =>
-      prev.includes(cost) ? prev.filter(c => c !== cost) : [...prev, cost]
-    );
   };
 
   return (
