@@ -1,4 +1,4 @@
-import { BusinessType } from './business-config';
+import { BusinessType, businessConfigs } from './business-config';
 
 export interface Entry {
   id: string;
