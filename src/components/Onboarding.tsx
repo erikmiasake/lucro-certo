@@ -88,9 +88,9 @@ export default function Onboarding() {
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
                 transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
-                className="w-16 h-16 rounded-2xl gradient-primary flex items-center justify-center mx-auto mb-6 shadow-lg glow-primary"
+                className="w-12 h-12 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-4 shadow-lg glow-primary"
               >
-                <Sparkles className="h-8 w-8 text-primary-foreground" />
+                <Sparkles className="h-6 w-6 text-primary-foreground" />
               </motion.div>
 
               <TextEffect preset="blur" as="h1" className="text-2xl sm:text-3xl font-extrabold text-foreground mb-2 tracking-tight leading-tight">
