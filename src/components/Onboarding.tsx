@@ -189,7 +189,7 @@ export default function Onboarding() {
             animate={{ opacity: 1, x: 0 }}
             exit={{ opacity: 0, x: -40 }}
             transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-            className="w-full max-w-sm"
+            className="w-full max-w-sm px-6 py-10"
           >
             <button
               onClick={() => setStep('type')}
