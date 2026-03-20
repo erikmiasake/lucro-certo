@@ -100,6 +100,11 @@ export function setGoals(goals: Partial<Goals>) {
   notify();
 }
 
+export function setBusinessProfile(profile: Partial<BusinessProfile>) {
+  state = { ...state, businessProfile: { ...state.businessProfile, ...profile } };
+  notify();
+}
+
 export function addEntry(amount: number, description?: string, category?: string) {
   const today = new Date().toISOString().split('T')[0];
   const entry: Entry = {
