@@ -4,8 +4,15 @@ import { businessConfigs } from '@/lib/business-config';
 import {
   getWeekSummary, getMonthSummary, getDaySummary, getDateString,
   getWeekDailyData, getBestAndWorstDay, getPreviousWeekSummary,
+  getMarginTrend, getMonthlyProjection, getCostPerSale, getProfitPerSale,
 } from '@/lib/store';
-import { TrendingUp, TrendingDown, BarChart3, Trophy, AlertTriangle, ArrowUpRight, ArrowDownRight, Percent } from 'lucide-react';
+import ProactiveAlerts from '@/components/ProactiveAlerts';
+import AIInsightsPanel from '@/components/AIInsightsPanel';
+import GoalsProgress from '@/components/GoalsProgress';
+import {
+  TrendingUp, TrendingDown, BarChart3, Trophy, AlertTriangle,
+  ArrowUpRight, ArrowDownRight, Percent, Target, Zap, DollarSign,
+} from 'lucide-react';
 
 function formatCurrency(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
@@ -20,6 +27,16 @@ function formatDateBR(dateStr: string) {
   return `${d}/${m}`;
 }
 
+const fadeUp = {
+  hidden: { opacity: 0, y: 16 },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] } },
+};
+
+const stagger = {
+  hidden: {},
+  visible: { transition: { staggerChildren: 0.06 } },
+};
+
 export default function Desempenho() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
@@ -29,20 +46,29 @@ export default function Desempenho() {
   const weekData = getWeekDailyData();
   const bestWorst = getBestAndWorstDay();
   const todayDate = getDateString();
+  const marginTrend = getMarginTrend();
+  const projection = getMonthlyProjection();
+  const costPerSale = getCostPerSale();
+  const profitPerSale = getProfitPerSale();
 
   const maxVal = Math.max(...weekData.map(d => Math.max(d.revenue, d.cost)), 1);
   const weekDiff = prevWeek.totalRevenue > 0 ? week.profit - prevWeek.profit : null;
 
   return (
     <div className="p-5 md:p-8 max-w-4xl mx-auto safe-bottom">
-      <div className="mb-6">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-5">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Desempenho</h1>
-        <p className="text-muted-foreground text-sm mt-1">Evolução do seu negócio</p>
+        <p className="text-muted-foreground text-sm mt-1">Evolução e inteligência do seu negócio</p>
+      </motion.div>
+
+      {/* Proactive Alerts */}
+      <div className="mb-4">
+        <ProactiveAlerts />
       </div>
 
       {/* Period cards */}
-      <div className="grid grid-cols-2 gap-3 mb-5">
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-5 card-elevated relative overflow-hidden">
+      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 gap-3 mb-4">
+        <motion.div variants={fadeUp} className="rounded-2xl p-5 card-elevated relative overflow-hidden">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">Semana</p>
           <p className={`text-2xl font-extrabold tracking-tight ${week.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
             {formatCurrency(week.profit)}
@@ -58,10 +84,10 @@ export default function Desempenho() {
               </span>
             )}
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(week.totalRevenue)} vendas · {week.totalEntries} {config.entryVerb}s</p>
+          <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(week.totalRevenue)} vendas</p>
         </motion.div>
 
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-2xl p-5 card-elevated relative overflow-hidden">
+        <motion.div variants={fadeUp} className="rounded-2xl p-5 card-elevated relative overflow-hidden">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">Mês</p>
           <p className={`text-2xl font-extrabold tracking-tight ${month.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
             {formatCurrency(month.profit)}
@@ -71,28 +97,86 @@ export default function Desempenho() {
               {formatPercent(month.margin)} margem
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(month.totalRevenue)} vendas · {month.totalEntries} {config.entryVerb}s</p>
+          <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(month.totalRevenue)} vendas</p>
         </motion.div>
-      </div>
+      </motion.div>
 
-      {/* KPI row */}
-      <div className="grid grid-cols-2 gap-3 mb-5">
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.08 }} className="rounded-2xl p-4 card-elevated text-center">
-          <Percent className="h-4 w-4 text-primary mx-auto mb-1" />
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Margem semanal</p>
-          <p className="text-lg font-bold text-foreground">{formatPercent(week.margin)}</p>
-        </motion.div>
-        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="rounded-2xl p-4 card-elevated text-center">
-          <BarChart3 className="h-4 w-4 text-accent mx-auto mb-1" />
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground mb-1">Custo/venda</p>
-          <p className="text-lg font-bold text-accent">
-            {week.totalEntries > 0 ? formatCurrency(week.totalRealCost / week.totalEntries) : 'R$ 0'}
+      {/* Per-sale metrics + margin trend */}
+      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-3 gap-2 mb-4">
+        <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
+          <DollarSign className="h-3.5 w-3.5 text-primary mx-auto mb-1" />
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Lucro/venda</p>
+          <p className={`text-sm font-bold ${profitPerSale >= 0 ? 'text-primary' : 'text-destructive'}`}>
+            {profitPerSale > 0 ? formatCurrency(profitPerSale) : '—'}
           </p>
         </motion.div>
+        <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
+          <BarChart3 className="h-3.5 w-3.5 text-accent mx-auto mb-1" />
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Custo/venda</p>
+          <p className="text-sm font-bold text-accent">
+            {costPerSale > 0 ? formatCurrency(costPerSale) : '—'}
+          </p>
+        </motion.div>
+        <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
+          {marginTrend.direction === 'up' ? (
+            <TrendingUp className="h-3.5 w-3.5 text-primary mx-auto mb-1" />
+          ) : marginTrend.direction === 'down' ? (
+            <TrendingDown className="h-3.5 w-3.5 text-destructive mx-auto mb-1" />
+          ) : (
+            <Percent className="h-3.5 w-3.5 text-muted-foreground mx-auto mb-1" />
+          )}
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Margem</p>
+          <p className={`text-sm font-bold ${
+            marginTrend.direction === 'up' ? 'text-primary' : marginTrend.direction === 'down' ? 'text-destructive' : 'text-foreground'
+          }`}>
+            {marginTrend.direction === 'up' ? 'Subindo' : marginTrend.direction === 'down' ? 'Caindo' : 'Estável'}
+          </p>
+        </motion.div>
+      </motion.div>
+
+      {/* Monthly projection */}
+      {projection.revenue > 0 && (
+        <motion.div
+          initial={{ opacity: 0, y: 12 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="rounded-2xl p-4 mb-4 border border-primary/20 relative overflow-hidden"
+          style={{ background: 'linear-gradient(135deg, hsl(152 76% 52% / 0.06), hsl(228 14% 10%))' }}
+        >
+          <div className="absolute top-0 right-0 w-32 h-32 gradient-primary opacity-[0.04] rounded-full blur-3xl -translate-y-8 translate-x-8" />
+          <div className="flex items-center gap-2 mb-3">
+            <Target className="h-4 w-4 text-primary" />
+            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Projeção mensal</p>
+          </div>
+          <div className="grid grid-cols-3 gap-3">
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-0.5">Receita</p>
+              <p className="text-sm font-bold text-foreground">{formatCurrency(projection.revenue)}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-0.5">Custos</p>
+              <p className="text-sm font-bold text-accent">{formatCurrency(projection.cost)}</p>
+            </div>
+            <div>
+              <p className="text-[10px] text-muted-foreground mb-0.5">Lucro</p>
+              <p className={`text-sm font-bold ${projection.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                {formatCurrency(projection.profit)}
+              </p>
+            </div>
+          </div>
+          <p className="text-[10px] text-muted-foreground mt-2">
+            Baseado no ritmo atual · Margem projetada: {formatPercent(projection.margin)}
+          </p>
+        </motion.div>
+      )}
+
+      {/* Goals progress */}
+      <div className="mb-4">
+        <GoalsProgress />
       </div>
 
       {/* Bar chart */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl p-5 md:p-6 card-elevated mb-5">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl p-5 md:p-6 card-elevated mb-4">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
@@ -120,13 +204,13 @@ export default function Desempenho() {
                   <motion.div
                     initial={{ height: 0 }}
                     animate={{ height: `${revH}%` }}
-                    transition={{ delay: 0.2 + i * 0.05, duration: 0.5 }}
+                    transition={{ delay: 0.25 + i * 0.05, duration: 0.5 }}
                     className={`flex-1 rounded-t-md ${isToday ? 'gradient-primary' : 'bg-primary/30'}`}
                   />
                   <motion.div
                     initial={{ height: 0 }}
                     animate={{ height: `${costH}%` }}
-                    transition={{ delay: 0.25 + i * 0.05, duration: 0.5 }}
+                    transition={{ delay: 0.3 + i * 0.05, duration: 0.5 }}
                     className={`flex-1 rounded-t-md ${isToday ? 'gradient-accent' : 'bg-accent/30'}`}
                   />
                 </div>
@@ -141,7 +225,7 @@ export default function Desempenho() {
 
       {/* Best & worst */}
       {bestWorst && (
-        <div className="grid grid-cols-2 gap-3 mb-5">
+        <div className="grid grid-cols-2 gap-3 mb-4">
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="rounded-2xl p-4 card-elevated">
             <div className="flex items-center gap-2 mb-2">
               <Trophy className="h-4 w-4 text-primary" />
@@ -160,6 +244,15 @@ export default function Desempenho() {
           </motion.div>
         </div>
       )}
+
+      {/* AI Insights */}
+      <div className="mb-4">
+        <AIInsightsPanel
+          summary={week}
+          businessType={state.businessType || 'outro'}
+          period="semana"
+        />
+      </div>
 
       {/* Weekly summary */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="rounded-2xl p-5 md:p-6 card-elevated">

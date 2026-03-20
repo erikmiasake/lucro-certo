@@ -63,7 +63,7 @@ export default function GoalsProgress() {
               <span className={`text-[10px] font-medium ${
                 progress.profit.progress >= 100 ? 'text-primary' : progress.profit.onTrack ? 'text-muted-foreground' : 'text-yellow-500'
               }`}>
-                {progress.profit.progress >= 100 ? '🏆 Meta atingida!' : `${progress.profit.progress.toFixed(0)}% da meta`}
+                {progress.profit.progress >= 100 ? 'Meta atingida!' : `${progress.profit.progress.toFixed(0)}% da meta`}
               </span>
               <span className="text-[10px] text-muted-foreground">
                 {progress.monthProgress.toFixed(0)}% do mês
@@ -106,7 +106,7 @@ export default function GoalsProgress() {
             <span className={`text-[10px] font-medium ${
               progress.margin.progress >= 100 ? 'text-blue-400' : progress.margin.onTrack ? 'text-muted-foreground' : 'text-yellow-500'
             }`}>
-              {progress.margin.progress >= 100 ? '🏆 Meta atingida!' : `${progress.margin.progress.toFixed(0)}% da meta`}
+              {progress.margin.progress >= 100 ? 'Meta atingida!' : `${progress.margin.progress.toFixed(0)}% da meta`}
             </span>
           </div>
         )}

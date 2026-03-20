@@ -559,6 +559,47 @@ export function getGoalsProgress() {
   };
 }
 
+// ─── Margin Trend ──────────────────────────────────────────────────
+
+export function getMarginTrend(): { direction: 'up' | 'down' | 'stable'; values: number[] } {
+  const last7 = getLastNDaysSummaries(7);
+  const margins = last7.filter(d => d.revenue > 0).map(d => d.margin);
+  if (margins.length < 2) return { direction: 'stable', values: margins };
+  const recent = margins.slice(0, Math.min(3, margins.length));
+  const avgRecent = recent.reduce((s, v) => s + v, 0) / recent.length;
+  const older = margins.slice(Math.min(3, margins.length));
+  if (older.length === 0) return { direction: 'stable', values: margins };
+  const avgOlder = older.reduce((s, v) => s + v, 0) / older.length;
+  const diff = avgRecent - avgOlder;
+  return {
+    direction: diff > 3 ? 'up' : diff < -3 ? 'down' : 'stable',
+    values: margins,
+  };
+}
+
+export function getMonthlyProjection(): { revenue: number; cost: number; profit: number; margin: number } {
+  const month = getMonthSummary();
+  const dayOfMonth = new Date().getDate();
+  const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
+  if (dayOfMonth === 0 || month.totalRevenue === 0) return { revenue: 0, cost: 0, profit: 0, margin: 0 };
+  const factor = daysInMonth / dayOfMonth;
+  const revenue = month.totalRevenue * factor;
+  const cost = month.totalRealCost * factor;
+  const profit = revenue - cost;
+  const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
+  return { revenue, cost, profit, margin };
+}
+
+export function getCostPerSale(): number {
+  const week = getWeekSummary();
+  return week.totalEntries > 0 ? week.totalRealCost / week.totalEntries : 0;
+}
+
+export function getProfitPerSale(): number {
+  const week = getWeekSummary();
+  return week.totalEntries > 0 ? week.profit / week.totalEntries : 0;
+}
+
 // ─── Enhanced Smart Insights ───────────────────────────────────────
 
 export function getSmartInsights(): string[] {
