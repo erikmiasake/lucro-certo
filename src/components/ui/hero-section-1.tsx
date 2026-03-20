@@ -98,7 +98,7 @@ export function HeroSection() {
                       className="rounded-xl px-6 text-base"
                       asChild
                     >
-                      <Link to="#como-funciona">
+                      <Link to="/como-funciona">
                         <span>Como funciona</span>
                         <ChevronRight className="ml-1 h-4 w-4" />
                       </Link>
