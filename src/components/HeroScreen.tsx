@@ -88,7 +88,7 @@ export default function HeroScreen({ onStart, onLearnMore }: HeroScreenProps) {
           <Button
             size="lg"
             variant="ghost"
-            onClick={onLearnMore}
+            onClick={() => navigate('/como-funciona')}
             className="rounded-xl px-6 py-6 text-base text-muted-foreground hover:text-foreground"
           >
             Ver como funciona
