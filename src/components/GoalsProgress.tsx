@@ -106,7 +106,7 @@ export default function GoalsProgress() {
             <span className={`text-[10px] font-medium ${
               progress.margin.progress >= 100 ? 'text-blue-400' : progress.margin.onTrack ? 'text-muted-foreground' : 'text-yellow-500'
             }`}>
-              {progress.margin.progress >= 100 ? '🏆 Meta atingida!' : `${progress.margin.progress.toFixed(0)}% da meta`}
+              {progress.margin.progress >= 100 ? 'Meta atingida!' : `${progress.margin.progress.toFixed(0)}% da meta`}
             </span>
           </div>
         )}

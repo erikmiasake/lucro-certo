@@ -185,10 +185,10 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       <span className="text-[11px] px-2 py-0.5 rounded-full bg-secondary text-foreground font-medium">
-                        {classification === 'fixed' ? '📌 Fixo' : '📊 Variável'}
+                        {classification === 'fixed' ? 'Fixo' : 'Variável'}
                       </span>
                       <span className="text-[11px] px-2 py-0.5 rounded-full bg-secondary text-foreground font-medium">
-                        {costType === 'product' ? '📦 Produto' : '🏢 Negócio'}
+                        {costType === 'product' ? 'Produto' : 'Negócio'}
                       </span>
                       <span className="text-[11px] px-2 py-0.5 rounded-full bg-accent/10 text-accent font-medium">{category}</span>
                       {subcategory && <span className="text-[11px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 font-medium">{subcategory}</span>}
