@@ -18,6 +18,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/landing" element={<Landing />} />
+          <Route path="/como-funciona" element={<ComoFunciona />} />
           <Route path="/*" element={<Index />} />
         </Routes>
       </BrowserRouter>
