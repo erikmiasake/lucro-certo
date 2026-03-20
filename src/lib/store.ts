@@ -29,6 +29,14 @@ export interface Goals {
   monthlyMargin: number | null;
 }
 
+export interface BusinessProfile {
+  name: string;
+  city: string;
+  operatingDays: number;
+  employeeCount: number;
+  objective: 'increase_profit' | 'reduce_costs' | 'organize' | '';
+}
+
 export interface AppState {
   businessType: BusinessType | null;
   entries: Entry[];
@@ -36,6 +44,7 @@ export interface AppState {
   averageSales?: number;
   mainCosts?: string[];
   goals: Goals;
+  businessProfile: BusinessProfile;
 }
 
 const STORAGE_KEY = 'lucro-real-data';
