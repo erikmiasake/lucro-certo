@@ -49,15 +49,17 @@ export interface AppState {
 
 const STORAGE_KEY = 'lucro-real-data';
 
+const defaultProfile: BusinessProfile = { name: '', city: '', operatingDays: 6, employeeCount: 0, objective: '' };
+
 function loadState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { goals: { monthlyProfit: null, monthlyMargin: null }, ...parsed };
+      return { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, ...parsed };
     }
   } catch {}
-  return { businessType: null, entries: [], costs: [], goals: { monthlyProfit: null, monthlyMargin: null } };
+  return { businessType: null, entries: [], costs: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
 }
 
 function saveState(state: AppState) {
