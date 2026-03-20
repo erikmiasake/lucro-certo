@@ -1,4 +1,5 @@
 import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { BusinessType } from '@/lib/business-config';
 import { setBusinessType, setOnboardingData, setBusinessProfile } from '@/lib/store';
@@ -26,6 +27,7 @@ const businessImages: Record<BusinessType, string> = {
 };
 
 export default function Onboarding() {
+  const navigate = useNavigate();
   const [step, setStep] = useState<'hero' | 'loading' | 'type' | 'details' | 'processing' | 'confirmation'>('hero');
   const [selectedType, setSelectedType] = useState<BusinessType | null>(null);
   const [clickedType, setClickedType] = useState<BusinessType | null>(null);
@@ -61,6 +63,7 @@ export default function Onboarding() {
     if (finishData.profile) {
       setBusinessProfile(finishData.profile);
     }
+    navigate('/', { replace: true });
     setBusinessType(selectedType);
     setTimeout(() => {
       toast.success('Sua personalização foi realizada com sucesso!', {
