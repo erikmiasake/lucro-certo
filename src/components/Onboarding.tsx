@@ -1,12 +1,18 @@
 import { useState, useCallback } from 'react';
 import { AnimatePresence } from 'framer-motion';
 import { BusinessType } from '@/lib/business-config';
-import { setBusinessType, setOnboardingData } from '@/lib/store';
+import { setBusinessType, setOnboardingData, setBusinessProfile } from '@/lib/store';
 import HeroScreen from '@/components/HeroScreen';
 import AILoadingScreen from '@/components/AILoadingScreen';
-import OnboardingDetails from '@/components/OnboardingDetails';
+import OnboardingDetails, { OnboardingFinishData } from '@/components/OnboardingDetails';
 import OnboardingProcessing from '@/components/OnboardingProcessing';
 import OnboardingConfirmation from '@/components/OnboardingConfirmation';
+import { toast } from 'sonner';
+
+import { motion } from 'framer-motion';
+import { Sparkles, Clock, Zap } from 'lucide-react';
+import { businessConfigs } from '@/lib/business-config';
+import { TextEffect } from '@/components/ui/text-effect';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'academia', 'outro'];
 
@@ -19,16 +25,11 @@ const businessImages: Record<BusinessType, string> = {
   outro: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600&auto=format&fit=crop',
 };
 
-import { motion } from 'framer-motion';
-import { Sparkles, Clock, Zap } from 'lucide-react';
-import { businessConfigs } from '@/lib/business-config';
-import { TextEffect } from '@/components/ui/text-effect';
-
 export default function Onboarding() {
   const [step, setStep] = useState<'hero' | 'loading' | 'type' | 'details' | 'processing' | 'confirmation'>('hero');
   const [selectedType, setSelectedType] = useState<BusinessType | null>(null);
   const [clickedType, setClickedType] = useState<BusinessType | null>(null);
-  const [finishData, setFinishData] = useState<{ avgSales: string; costs: string[] }>({ avgSales: '', costs: [] });
+  const [finishData, setFinishData] = useState<OnboardingFinishData>({ avgSales: '', selectedCosts: [], profile: {} });
 
   const handleHeroStart = () => setStep('loading');
   const handleLoadingComplete = useCallback(() => setStep('type'), []);
@@ -42,9 +43,9 @@ export default function Onboarding() {
     }, 300);
   };
 
-  const handleFinish = (avgSales: string, selectedCosts: string[]) => {
+  const handleFinish = (data: OnboardingFinishData) => {
     if (!selectedType) return;
-    setFinishData({ avgSales, costs: selectedCosts });
+    setFinishData(data);
     setStep('processing');
   };
 
@@ -55,9 +56,18 @@ export default function Onboarding() {
     const avg = parseFloat(finishData.avgSales.replace(/\./g, '').replace(',', '.'));
     setOnboardingData({
       averageSales: avg > 0 ? avg : undefined,
-      mainCosts: finishData.costs.length > 0 ? finishData.costs : undefined,
+      mainCosts: finishData.selectedCosts.length > 0 ? finishData.selectedCosts : undefined,
     });
+    if (finishData.profile) {
+      setBusinessProfile(finishData.profile);
+    }
     setBusinessType(selectedType);
+    setTimeout(() => {
+      toast.success('Sua personalização foi realizada com sucesso!', {
+        description: 'Seu painel está pronto para uso.',
+        duration: 4000,
+      });
+    }, 500);
   };
 
   return (
@@ -114,54 +124,32 @@ export default function Onboarding() {
                   <motion.button
                     key={type}
                     initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                    animate={{
-                      opacity: 1,
-                      y: 0,
-                      scale: isClicked ? 0.95 : 1,
-                    }}
-                    transition={{
-                      delay: index * 0.08,
-                      duration: 0.5,
-                      ease: [0.22, 1, 0.36, 1],
-                    }}
+                    animate={{ opacity: 1, y: 0, scale: isClicked ? 0.95 : 1 }}
+                    transition={{ delay: index * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
                     whileHover={{ scale: 1.03, y: -4 }}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => handleSelectType(type)}
                     className="group relative rounded-xl sm:rounded-2xl overflow-hidden border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--primary)/0.12)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
                     <div className="relative h-24 sm:h-36 overflow-hidden">
-                      <img
-                        src={businessImages[type]}
-                        alt={c.label}
-                        className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
-                        loading="lazy"
-                      />
+                      <img src={businessImages[type]} alt={c.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
                       <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
                       <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors duration-300" />
                     </div>
-
                     <div className="px-3 pb-3 pt-1 sm:px-4 sm:pb-4">
-                      <h3 className="text-foreground font-bold text-xs sm:text-base leading-tight mb-0.5 sm:mb-1 group-hover:text-primary transition-colors duration-200">
-                        {c.label}
-                      </h3>
+                      <h3 className="text-foreground font-bold text-xs sm:text-base leading-tight mb-0.5 sm:mb-1 group-hover:text-primary transition-colors duration-200">{c.label}</h3>
                       <p className="text-muted-foreground text-xs flex items-center gap-1.5">
                         <Zap className="h-3 w-3 text-primary/60" />
                         {c.entryLabel}
                       </p>
                     </div>
-
                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                   </motion.button>
                 );
               })}
             </div>
 
-            <motion.p
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              transition={{ delay: 0.8 }}
-              className="text-center text-muted-foreground/50 text-xs mt-5 sm:mt-8"
-            >
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="text-center text-muted-foreground/50 text-xs mt-5 sm:mt-8">
               Powered by inteligência artificial
             </motion.p>
           </motion.div>
@@ -179,7 +167,7 @@ export default function Onboarding() {
             key="confirmation"
             businessType={selectedType}
             avgSales={finishData.avgSales}
-            selectedCosts={finishData.costs}
+            selectedCosts={finishData.selectedCosts}
             onEnter={handleEnterApp}
           />
         ) : null}

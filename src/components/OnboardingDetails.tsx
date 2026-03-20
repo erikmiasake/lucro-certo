@@ -1,7 +1,11 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BusinessType, businessConfigs } from '@/lib/business-config';
-import { ArrowRight, ArrowLeft, DollarSign, Tag, Brain, Plus, X, Sparkles } from 'lucide-react';
+import { BusinessProfile } from '@/lib/store';
+import {
+  ArrowRight, ArrowLeft, DollarSign, Tag, Brain, Plus, X, Sparkles,
+  Building2, MapPin, Calendar, Users, Crosshair, TrendingUp, Percent
+} from 'lucide-react';
 
 const businessImages: Record<BusinessType, string> = {
   restaurante: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop',
@@ -28,10 +32,22 @@ const aiHints = [
   'Preparando insights personalizados…',
 ];
 
+const objectives = [
+  { value: 'increase_profit', label: 'Aumentar lucro', icon: TrendingUp },
+  { value: 'reduce_costs', label: 'Reduzir custos', icon: Percent },
+  { value: 'organize', label: 'Organizar financeiro', icon: Calendar },
+] as const;
+
+export interface OnboardingFinishData {
+  avgSales: string;
+  selectedCosts: string[];
+  profile: Partial<BusinessProfile>;
+}
+
 interface Props {
   selectedType: BusinessType;
   onBack: () => void;
-  onFinish: (avgSales: string, selectedCosts: string[]) => void;
+  onFinish: (data: OnboardingFinishData) => void;
 }
 
 export default function OnboardingDetails({ selectedType, onBack, onFinish }: Props) {
@@ -42,13 +58,19 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
   const [aiHintIndex, setAiHintIndex] = useState(-1);
   const [showAiHint, setShowAiHint] = useState(false);
 
+  // Profile fields
+  const [businessName, setBusinessName] = useState('');
+  const [city, setCity] = useState('');
+  const [operatingDays, setOperatingDays] = useState('6');
+  const [employeeCount, setEmployeeCount] = useState('');
+  const [objective, setObjective] = useState('');
+
   const config = businessConfigs[selectedType];
   const allCostCategories = useMemo(
     () => [...config.costCategories.product, ...config.costCategories.business],
     [config]
   );
 
-  // Pre-select common costs (first 3 product + first 2 business)
   useEffect(() => {
     const preSelected = [
       ...config.costCategories.product.slice(0, 2),
@@ -57,7 +79,6 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     setSelectedCosts(preSelected);
   }, [config]);
 
-  // Show AI hints when user interacts
   useEffect(() => {
     if (avgSales.length > 0 || selectedCosts.length > 0) {
       setShowAiHint(true);
@@ -95,9 +116,22 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     setAvgSales(formatted);
   };
 
-  // Progress: step 2 of 2 (type selection was step 1)
-  const filledFields = (avgSales.length > 0 ? 1 : 0) + (selectedCosts.length > 0 ? 1 : 0);
-  const progress = filledFields / 2;
+  const handleFinish = () => {
+    onFinish({
+      avgSales,
+      selectedCosts,
+      profile: {
+        name: businessName,
+        city,
+        operatingDays: parseInt(operatingDays) || 6,
+        employeeCount: parseInt(employeeCount) || 0,
+        objective: objective as BusinessProfile['objective'],
+      },
+    });
+  };
+
+  const filledFields = (avgSales.length > 0 ? 1 : 0) + (selectedCosts.length > 0 ? 1 : 0) + (businessName.length > 0 ? 0.5 : 0) + (objective ? 0.5 : 0);
+  const progress = Math.min(filledFields / 3, 1);
 
   return (
     <motion.div
@@ -106,10 +140,10 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
       animate={{ opacity: 1, x: 0 }}
       exit={{ opacity: 0, x: -40 }}
       transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="w-full max-w-md px-4 sm:px-6 py-6 sm:py-8"
+      className="w-full max-w-md px-4 sm:px-6 py-6 sm:py-8 max-h-[100dvh] overflow-y-auto"
     >
       {/* Back + Progress */}
-      <div className="flex items-center justify-between mb-6">
+      <div className="flex items-center justify-between mb-5">
         <button
           onClick={onBack}
           className="flex items-center gap-2 text-muted-foreground hover:text-foreground transition-colors text-sm"
@@ -130,74 +164,143 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
       </div>
 
       {/* Header */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.1 }}
-        className="flex items-center gap-3 mb-2"
-      >
-        <div className="w-11 h-11 rounded-xl overflow-hidden border border-border shadow-sm">
-          <img
-            src={businessImages[selectedType]}
-            alt={config.label}
-            className="w-full h-full object-cover"
-          />
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="flex items-center gap-3 mb-1.5">
+        <div className="w-10 h-10 rounded-xl overflow-hidden border border-border shadow-sm">
+          <img src={businessImages[selectedType]} alt={config.label} className="w-full h-full object-cover" />
         </div>
         <div>
           <h2 className="text-lg font-bold text-foreground">{config.label}</h2>
         </div>
       </motion.div>
 
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 0.2 }}
-        className="mb-6"
-      >
-        <p className="text-sm text-muted-foreground">
-          Configure sua análise inteligente
-        </p>
-        <p className="text-xs text-muted-foreground/60 mt-1">
-          Quanto mais preciso, mais exata será sua análise
-        </p>
+      <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.15 }} className="mb-5">
+        <p className="text-sm text-muted-foreground">Configure sua análise inteligente</p>
+        <p className="text-xs text-muted-foreground/60 mt-0.5">Quanto mais preciso, mais exata será sua análise</p>
+      </motion.div>
+
+      {/* Business Name */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="mb-4">
+        <div className="flex items-center gap-2 mb-1.5">
+          <Building2 className="h-4 w-4 text-primary" />
+          <label className="text-sm font-medium text-foreground">Nome do negócio</label>
+        </div>
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+          <input
+            type="text"
+            placeholder="Ex: Restaurante do João"
+            value={businessName}
+            onChange={e => setBusinessName(e.target.value)}
+            className="flex-1 text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
+          />
+        </div>
+      </motion.div>
+
+      {/* City */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.23 }} className="mb-4">
+        <div className="flex items-center gap-2 mb-1.5">
+          <MapPin className="h-4 w-4 text-primary" />
+          <label className="text-sm font-medium text-foreground">Cidade / Região</label>
+        </div>
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+          <input
+            type="text"
+            placeholder="Ex: São Paulo, SP"
+            value={city}
+            onChange={e => setCity(e.target.value)}
+            className="flex-1 text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
+          />
+        </div>
+      </motion.div>
+
+      {/* Operating days + employees */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }} className="grid grid-cols-2 gap-3 mb-4">
+        <div>
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Calendar className="h-3.5 w-3.5 text-primary" />
+            <label className="text-xs font-medium text-foreground">Dias/semana</label>
+          </div>
+          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+            <input
+              type="number"
+              inputMode="numeric"
+              placeholder="6"
+              value={operatingDays}
+              onChange={e => setOperatingDays(e.target.value)}
+              className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
+            />
+          </div>
+        </div>
+        <div>
+          <div className="flex items-center gap-1.5 mb-1.5">
+            <Users className="h-3.5 w-3.5 text-primary" />
+            <label className="text-xs font-medium text-foreground">Funcionários</label>
+          </div>
+          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+            <input
+              type="number"
+              inputMode="numeric"
+              placeholder="0"
+              value={employeeCount}
+              onChange={e => setEmployeeCount(e.target.value)}
+              className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
+            />
+          </div>
+        </div>
       </motion.div>
 
       {/* Revenue Input */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.25 }}
-        className="mb-5"
-      >
-        <div className="flex items-center gap-2 mb-2">
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.29 }} className="mb-4">
+        <div className="flex items-center gap-2 mb-1.5">
           <DollarSign className="h-4 w-4 text-primary" />
           <label className="text-sm font-medium text-foreground">Média de vendas por dia</label>
         </div>
-        <div className="flex items-center gap-2 p-3.5 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 focus-within:bg-secondary/60 transition-all">
-          <span className="text-base font-bold text-muted-foreground">R$</span>
+        <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+          <span className="text-sm font-bold text-muted-foreground">R$</span>
           <input
             type="text"
             inputMode="numeric"
             placeholder={`Ex: R$ ${suggestedAvgSales[selectedType]} por dia`}
             value={avgSales}
             onChange={handleSalesChange}
-            className="flex-1 text-lg font-bold bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40 placeholder:font-normal placeholder:text-sm"
+            className="flex-1 text-sm font-bold bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40 placeholder:font-normal"
           />
         </div>
       </motion.div>
 
-      {/* Costs Selection */}
-      <motion.div
-        initial={{ opacity: 0, y: 10 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.35 }}
-        className="mb-5"
-      >
+      {/* Objective */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }} className="mb-4">
         <div className="flex items-center gap-2 mb-1.5">
+          <Crosshair className="h-4 w-4 text-primary" />
+          <label className="text-sm font-medium text-foreground">Objetivo principal</label>
+        </div>
+        <div className="grid grid-cols-3 gap-2">
+          {objectives.map(obj => {
+            const isActive = objective === obj.value;
+            return (
+              <button
+                key={obj.value}
+                onClick={() => setObjective(obj.value)}
+                className={`flex flex-col items-center gap-1.5 p-3 rounded-xl text-center transition-all ${
+                  isActive
+                    ? 'bg-primary/15 border border-primary/30 shadow-sm shadow-primary/10'
+                    : 'bg-secondary/40 border border-border hover:border-primary/20'
+                }`}
+              >
+                <obj.icon className={`h-4 w-4 ${isActive ? 'text-primary' : 'text-muted-foreground'}`} />
+                <span className={`text-xs font-medium leading-tight ${isActive ? 'text-primary' : 'text-muted-foreground'}`}>{obj.label}</span>
+              </button>
+            );
+          })}
+        </div>
+      </motion.div>
+
+      {/* Costs Selection */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="mb-4">
+        <div className="flex items-center gap-2 mb-1">
           <Tag className="h-4 w-4 text-accent" />
           <label className="text-sm font-medium text-foreground">Seus principais custos</label>
         </div>
-        <p className="text-xs text-muted-foreground/60 mb-3 flex items-center gap-1.5">
+        <p className="text-xs text-muted-foreground/60 mb-2.5 flex items-center gap-1.5">
           <Brain className="h-3 w-3 text-primary/60" />
           Pré-selecionamos os custos mais comuns do seu setor
         </p>
@@ -207,7 +310,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
               key={cost}
               whileTap={{ scale: 0.93 }}
               onClick={() => toggleCost(cost)}
-              className={`px-3 py-2 rounded-xl text-sm font-medium transition-all ${
+              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
                 selectedCosts.includes(cost)
                   ? 'bg-primary/15 text-primary border border-primary/30 shadow-sm shadow-primary/10'
                   : 'bg-secondary/50 text-muted-foreground border border-border hover:text-foreground hover:border-border'
@@ -217,7 +320,6 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
             </motion.button>
           ))}
 
-          {/* Custom costs added by user */}
           {selectedCosts
             .filter(c => !allCostCategories.includes(c))
             .map(cost => (
@@ -227,20 +329,15 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
                 animate={{ scale: 1, opacity: 1 }}
                 whileTap={{ scale: 0.93 }}
                 onClick={() => toggleCost(cost)}
-                className="px-3 py-2 rounded-xl text-sm font-medium bg-primary/15 text-primary border border-primary/30 shadow-sm shadow-primary/10 flex items-center gap-1"
+                className="px-3 py-1.5 rounded-lg text-xs font-medium bg-primary/15 text-primary border border-primary/30 flex items-center gap-1"
               >
                 {cost}
                 <X className="h-3 w-3" />
               </motion.button>
             ))}
 
-          {/* Add custom cost */}
           {showAddCost ? (
-            <motion.div
-              initial={{ width: 0, opacity: 0 }}
-              animate={{ width: 'auto', opacity: 1 }}
-              className="flex items-center gap-1"
-            >
+            <motion.div initial={{ width: 0, opacity: 0 }} animate={{ width: 'auto', opacity: 1 }} className="flex items-center gap-1">
               <input
                 type="text"
                 value={newCost}
@@ -248,28 +345,22 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
                 onKeyDown={e => e.key === 'Enter' && addCustomCost()}
                 placeholder="Nome do custo"
                 autoFocus
-                className="px-3 py-2 rounded-xl text-sm bg-secondary/50 border border-border text-foreground outline-none focus:border-primary/40 w-32"
+                className="px-3 py-1.5 rounded-lg text-xs bg-secondary/50 border border-border text-foreground outline-none focus:border-primary/40 w-28"
               />
-              <button
-                onClick={addCustomCost}
-                className="p-2 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors"
-              >
-                <Plus className="h-3.5 w-3.5" />
+              <button onClick={addCustomCost} className="p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+                <Plus className="h-3 w-3" />
               </button>
-              <button
-                onClick={() => { setShowAddCost(false); setNewCost(''); }}
-                className="p-2 rounded-lg text-muted-foreground hover:text-foreground transition-colors"
-              >
-                <X className="h-3.5 w-3.5" />
+              <button onClick={() => { setShowAddCost(false); setNewCost(''); }} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors">
+                <X className="h-3 w-3" />
               </button>
             </motion.div>
           ) : (
             <motion.button
               whileTap={{ scale: 0.93 }}
               onClick={() => setShowAddCost(true)}
-              className="px-3 py-2 rounded-xl text-sm font-medium text-muted-foreground border border-dashed border-border hover:border-primary/30 hover:text-primary transition-all flex items-center gap-1"
+              className="px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground border border-dashed border-border hover:border-primary/30 hover:text-primary transition-all flex items-center gap-1"
             >
-              <Plus className="h-3.5 w-3.5" />
+              <Plus className="h-3 w-3" />
               Adicionar
             </motion.button>
           )}
@@ -285,7 +376,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -5 }}
             transition={{ duration: 0.3 }}
-            className="flex items-center gap-2 mb-5 px-3 py-2.5 rounded-xl bg-primary/5 border border-primary/10"
+            className="flex items-center gap-2 mb-4 px-3 py-2 rounded-xl bg-primary/5 border border-primary/10"
           >
             <Sparkles className="h-3.5 w-3.5 text-primary animate-pulse" />
             <span className="text-xs text-primary/80">{aiHints[aiHintIndex]}</span>
@@ -299,12 +390,12 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
         animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.45 }}
         whileTap={{ scale: 0.97 }}
-        onClick={() => onFinish(avgSales, selectedCosts)}
-        className="w-full py-4 rounded-2xl gradient-primary text-primary-foreground font-semibold text-base active:scale-[0.97] transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
+        onClick={handleFinish}
+        className="w-full py-3.5 rounded-2xl gradient-primary text-primary-foreground font-semibold text-sm active:scale-[0.97] transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
       >
-        <Brain className="h-4.5 w-4.5" />
+        <Brain className="h-4 w-4" />
         Gerar minha análise
-        <ArrowRight className="h-4.5 w-4.5" />
+        <ArrowRight className="h-4 w-4" />
       </motion.button>
     </motion.div>
   );
