@@ -63,8 +63,8 @@ export default function Onboarding() {
     if (finishData.profile) {
       setBusinessProfile(finishData.profile);
     }
+    navigate('/', { replace: true });
     setBusinessType(selectedType);
-    setTimeout(() => {
       toast.success('Sua personalização foi realizada com sucesso!', {
         description: 'Seu painel está pronto para uso.',
         duration: 4000,
