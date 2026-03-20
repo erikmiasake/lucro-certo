@@ -27,6 +27,7 @@ const businessImages: Record<BusinessType, string> = {
 };
 
 export default function Onboarding() {
+  const navigate = useNavigate();
   const [step, setStep] = useState<'hero' | 'loading' | 'type' | 'details' | 'processing' | 'confirmation'>('hero');
   const [selectedType, setSelectedType] = useState<BusinessType | null>(null);
   const [clickedType, setClickedType] = useState<BusinessType | null>(null);
