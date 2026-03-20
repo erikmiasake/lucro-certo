@@ -81,7 +81,7 @@ function DesktopSidebar() {
               exit={{ opacity: 0, width: 0 }}
               className="overflow-hidden whitespace-nowrap"
             >
-              <p className="text-sm font-bold text-foreground tracking-tight">Lucro Real</p>
+              <p className="text-sm font-bold text-foreground tracking-tight">{appState.businessProfile?.name || 'Lucro Real'}</p>
               {config && (
                 <p className="text-[11px] text-muted-foreground">{config.label}</p>
               )}
@@ -186,7 +186,7 @@ function MobileSidebar() {
                     <Activity className="h-4.5 w-4.5 text-primary-foreground" />
                   </div>
                   <div>
-                    <p className="text-sm font-bold text-foreground">Lucro Real</p>
+                    <p className="text-sm font-bold text-foreground">{appState.businessProfile?.name || 'Lucro Real'}</p>
                     {config && (
                       <p className="text-[11px] text-muted-foreground">{config.label}</p>
                     )}
