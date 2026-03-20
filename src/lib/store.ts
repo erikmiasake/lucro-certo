@@ -29,6 +29,14 @@ export interface Goals {
   monthlyMargin: number | null;
 }
 
+export interface BusinessProfile {
+  name: string;
+  city: string;
+  operatingDays: number;
+  employeeCount: number;
+  objective: 'increase_profit' | 'reduce_costs' | 'organize' | '';
+}
+
 export interface AppState {
   businessType: BusinessType | null;
   entries: Entry[];
@@ -36,19 +44,22 @@ export interface AppState {
   averageSales?: number;
   mainCosts?: string[];
   goals: Goals;
+  businessProfile: BusinessProfile;
 }
 
 const STORAGE_KEY = 'lucro-real-data';
+
+const defaultProfile: BusinessProfile = { name: '', city: '', operatingDays: 6, employeeCount: 0, objective: '' };
 
 function loadState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { goals: { monthlyProfit: null, monthlyMargin: null }, ...parsed };
+      return { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, ...parsed };
     }
   } catch {}
-  return { businessType: null, entries: [], costs: [], goals: { monthlyProfit: null, monthlyMargin: null } };
+  return { businessType: null, entries: [], costs: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
 }
 
 function saveState(state: AppState) {
@@ -86,6 +97,11 @@ export function setOnboardingData(data: { averageSales?: number; mainCosts?: str
 
 export function setGoals(goals: Partial<Goals>) {
   state = { ...state, goals: { ...state.goals, ...goals } };
+  notify();
+}
+
+export function setBusinessProfile(profile: Partial<BusinessProfile>) {
+  state = { ...state, businessProfile: { ...state.businessProfile, ...profile } };
   notify();
 }
 
@@ -719,6 +735,6 @@ export function suggestCategory(description: string, businessType: BusinessType)
 }
 
 export function resetAll() {
-  state = { businessType: null, entries: [], costs: [], goals: { monthlyProfit: null, monthlyMargin: null } };
+  state = { businessType: null, entries: [], costs: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
   notify();
 }
