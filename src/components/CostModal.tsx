@@ -159,10 +159,10 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                     </div>
                     <div className="flex flex-wrap gap-1.5">
                       <span className="text-[11px] px-2 py-0.5 rounded-full bg-secondary text-foreground font-medium">
-                        {aiSuggestion.classification === 'fixed' ? '📌 Fixo' : '📊 Variável'}
+                        {aiSuggestion.classification === 'fixed' ? 'Fixo' : 'Variável'}
                       </span>
                       <span className="text-[11px] px-2 py-0.5 rounded-full bg-secondary text-foreground font-medium">
-                        {aiSuggestion.type === 'product' ? '📦 Produto' : '🏢 Negócio'}
+                        {aiSuggestion.type === 'product' ? 'Produto' : 'Negócio'}
                       </span>
                       <span className="text-[11px] px-2 py-0.5 rounded-full bg-accent/10 text-accent font-medium">
                         {aiSuggestion.category}
