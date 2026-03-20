@@ -1,5 +1,6 @@
 import { motion } from 'framer-motion';
 import { ArrowRight, ChevronRight } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import heroBg from '@/assets/hero-bg.jpg';
 
@@ -9,6 +10,7 @@ interface HeroScreenProps {
 }
 
 export default function HeroScreen({ onStart, onLearnMore }: HeroScreenProps) {
+  const navigate = useNavigate();
   return (
     <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
       {/* Full-screen background image with slow zoom */}
@@ -86,7 +88,7 @@ export default function HeroScreen({ onStart, onLearnMore }: HeroScreenProps) {
           <Button
             size="lg"
             variant="ghost"
-            onClick={onLearnMore}
+            onClick={() => navigate('/como-funciona')}
             className="rounded-xl px-6 py-6 text-base text-muted-foreground hover:text-foreground"
           >
             Ver como funciona
