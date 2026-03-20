@@ -31,7 +31,7 @@ const links: SidebarLink[] = [
   { label: "Movimentações", href: "/movimentacoes", icon: <ArrowLeftRight className="h-5 w-5 shrink-0" /> },
   { label: "Custos", href: "/custos", icon: <Wallet className="h-5 w-5 shrink-0" /> },
   { label: "Desempenho", href: "/desempenho", icon: <TrendingUp className="h-5 w-5 shrink-0" /> },
-  { label: "Configurações", href: "/configuracoes", icon: <Settings className="h-5 w-5 shrink-0" /> },
+  { label: "Meu Negócio", href: "/configuracoes", icon: <Settings className="h-5 w-5 shrink-0" /> },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {

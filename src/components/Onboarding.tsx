@@ -1,12 +1,12 @@
 import { useState, useCallback } from 'react';
-import { motion, AnimatePresence } from 'framer-motion';
-import { BusinessType, businessConfigs } from '@/lib/business-config';
+import { AnimatePresence } from 'framer-motion';
+import { BusinessType } from '@/lib/business-config';
 import { setBusinessType, setOnboardingData } from '@/lib/store';
-import { TextEffect } from '@/components/ui/text-effect';
-import { Sparkles, Zap, Clock } from 'lucide-react';
 import HeroScreen from '@/components/HeroScreen';
 import AILoadingScreen from '@/components/AILoadingScreen';
 import OnboardingDetails from '@/components/OnboardingDetails';
+import OnboardingProcessing from '@/components/OnboardingProcessing';
+import OnboardingConfirmation from '@/components/OnboardingConfirmation';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'academia', 'outro'];
 
@@ -19,19 +19,16 @@ const businessImages: Record<BusinessType, string> = {
   outro: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600&auto=format&fit=crop',
 };
 
-const businessIcons: Record<BusinessType, string> = {
-  restaurante: '🍽️',
-  salao: '💇',
-  petshop: '🐾',
-  loja: '🛍️',
-  academia: '💪',
-  outro: '📦',
-};
+import { motion } from 'framer-motion';
+import { Sparkles, Clock, Zap } from 'lucide-react';
+import { businessConfigs } from '@/lib/business-config';
+import { TextEffect } from '@/components/ui/text-effect';
 
 export default function Onboarding() {
-  const [step, setStep] = useState<'hero' | 'loading' | 'type' | 'details'>('hero');
+  const [step, setStep] = useState<'hero' | 'loading' | 'type' | 'details' | 'processing' | 'confirmation'>('hero');
   const [selectedType, setSelectedType] = useState<BusinessType | null>(null);
   const [clickedType, setClickedType] = useState<BusinessType | null>(null);
+  const [finishData, setFinishData] = useState<{ avgSales: string; costs: string[] }>({ avgSales: '', costs: [] });
 
   const handleHeroStart = () => setStep('loading');
   const handleLoadingComplete = useCallback(() => setStep('type'), []);
@@ -47,10 +44,18 @@ export default function Onboarding() {
 
   const handleFinish = (avgSales: string, selectedCosts: string[]) => {
     if (!selectedType) return;
-    const avg = parseFloat(avgSales.replace(/\./g, '').replace(',', '.'));
+    setFinishData({ avgSales, costs: selectedCosts });
+    setStep('processing');
+  };
+
+  const handleProcessingComplete = useCallback(() => setStep('confirmation'), []);
+
+  const handleEnterApp = () => {
+    if (!selectedType) return;
+    const avg = parseFloat(finishData.avgSales.replace(/\./g, '').replace(',', '.'));
     setOnboardingData({
       averageSales: avg > 0 ? avg : undefined,
-      mainCosts: selectedCosts.length > 0 ? selectedCosts : undefined,
+      mainCosts: finishData.costs.length > 0 ? finishData.costs : undefined,
     });
     setBusinessType(selectedType);
   };
@@ -71,7 +76,6 @@ export default function Onboarding() {
             transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
             className="w-full max-w-3xl px-4 sm:px-6 py-6 sm:py-10"
           >
-            {/* Header Section */}
             <div className="text-center mb-5 sm:mb-8">
               <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
@@ -101,7 +105,6 @@ export default function Onboarding() {
               </motion.div>
             </div>
 
-            {/* Cards Grid */}
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
               {types.map((type, index) => {
                 const c = businessConfigs[type];
@@ -126,7 +129,6 @@ export default function Onboarding() {
                     onClick={() => handleSelectType(type)}
                     className="group relative rounded-xl sm:rounded-2xl overflow-hidden border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--primary)/0.12)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40"
                   >
-                    {/* Image */}
                     <div className="relative h-24 sm:h-36 overflow-hidden">
                       <img
                         src={businessImages[type]}
@@ -135,13 +137,9 @@ export default function Onboarding() {
                         loading="lazy"
                       />
                       <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
-                      
-                      {/* Hover glow overlay */}
                       <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors duration-300" />
-                      
                     </div>
 
-                    {/* Content */}
                     <div className="px-3 pb-3 pt-1 sm:px-4 sm:pb-4">
                       <h3 className="text-foreground font-bold text-xs sm:text-base leading-tight mb-0.5 sm:mb-1 group-hover:text-primary transition-colors duration-200">
                         {c.label}
@@ -152,29 +150,37 @@ export default function Onboarding() {
                       </p>
                     </div>
 
-                    {/* Selection indicator line */}
                     <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
                   </motion.button>
                 );
               })}
             </div>
 
-            {/* Trust indicator */}
             <motion.p
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.8 }}
               className="text-center text-muted-foreground/50 text-xs mt-5 sm:mt-8"
             >
-              Powered by inteligência artificial • Análises em tempo real
+              Powered by inteligência artificial
             </motion.p>
           </motion.div>
-        ) : selectedType ? (
+        ) : step === 'details' && selectedType ? (
           <OnboardingDetails
             key="details-step"
             selectedType={selectedType}
             onBack={() => setStep('type')}
             onFinish={handleFinish}
+          />
+        ) : step === 'processing' ? (
+          <OnboardingProcessing key="processing" onComplete={handleProcessingComplete} />
+        ) : step === 'confirmation' && selectedType ? (
+          <OnboardingConfirmation
+            key="confirmation"
+            businessType={selectedType}
+            avgSales={finishData.avgSales}
+            selectedCosts={finishData.costs}
+            onEnter={handleEnterApp}
           />
         ) : null}
       </AnimatePresence>
