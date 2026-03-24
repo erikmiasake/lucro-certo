@@ -1,12 +1,16 @@
 import { useStore } from '@/hooks/use-store';
 import { BusinessType, businessConfigs } from '@/lib/business-config';
 import { setBusinessType, resetAll, setGoals, setBusinessProfile } from '@/lib/store';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
   Check, Trash2, Target, TrendingUp, Percent, Building2,
-  MapPin, Calendar, Users, Crosshair, ChevronDown, Save
+  MapPin, Calendar, Users, Crosshair, ChevronDown, Save,
+  User, Mail, Camera, KeyRound, LogOut, ShieldAlert
 } from 'lucide-react';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useNavigate } from 'react-router-dom';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'academia', 'outro'];
 
@@ -18,6 +22,7 @@ const objectives = [
 
 export default function Configuracoes() {
   const state = useStore();
+  const navigate = useNavigate();
   const [confirmReset, setConfirmReset] = useState(false);
   const [profitGoal, setProfitGoal] = useState(state.goals?.monthlyProfit?.toString() || '');
   const [marginGoal, setMarginGoal] = useState(state.goals?.monthlyMargin?.toString() || '');
@@ -31,6 +36,54 @@ export default function Configuracoes() {
   const [profileSaved, setProfileSaved] = useState(false);
 
   const [showType, setShowType] = useState(false);
+
+  // User Profile State
+  const [user, setUser] = useState<any>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [userName, setUserName] = useState('');
+  const [userSaved, setUserSaved] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      setUserName(user?.user_metadata?.full_name || '');
+      setLoadingUser(false);
+    };
+    fetchUser();
+  }, []);
+
+  const handleUpdateUser = async () => {
+    if (!user) return;
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { full_name: userName }
+      });
+      if (error) throw error;
+      setUserSaved(true);
+      setTimeout(() => setUserSaved(false), 2000);
+    } catch (error: any) {
+      toast.error('Erro ao atualizar perfil', { description: error.message });
+    }
+  };
+
+  const handleSignOut = async () => {
+    await supabase.auth.signOut();
+    navigate('/landing');
+  };
+
+  const handlePasswordReset = async () => {
+    if (!user?.email) return;
+    try {
+      const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
+        redirectTo: window.location.origin,
+      });
+      if (error) throw error;
+      toast.success('E-mail enviado!', { description: 'Verifique sua caixa de entrada para redefinir a senha.' });
+    } catch (error: any) {
+      toast.error('Erro', { description: error.message });
+    }
+  };
 
   const handleReset = () => {
     if (confirmReset) {
@@ -74,31 +127,108 @@ export default function Configuracoes() {
     </div>
   );
 
-  const InputField = ({ label, icon: Icon, value, onChange, placeholder, type = 'text', inputMode }: any) => (
+  const InputField = ({ label, icon: Icon, value, onChange, placeholder, type = 'text', inputMode, disabled = false }: any) => (
     <div>
       <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
         <Icon className="h-3 w-3" />
         {label}
       </label>
-      <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 border border-border focus-within:border-primary/30 transition-colors">
+      <div className={`flex items-center gap-2 p-3 rounded-xl border transition-colors ${disabled ? 'bg-secondary/20 border-border/50 opacity-70' : 'bg-secondary/50 border-border focus-within:border-primary/30'}`}>
         <input
           type={type}
           inputMode={inputMode}
           placeholder={placeholder}
           value={value}
           onChange={(e) => onChange(e.target.value)}
-          className="flex-1 text-sm font-medium bg-transparent outline-none text-foreground placeholder:text-muted"
+          disabled={disabled}
+          className="flex-1 text-sm font-medium bg-transparent outline-none text-foreground placeholder:text-muted disabled:cursor-not-allowed"
         />
       </div>
     </div>
   );
 
+  const isGoogleProvider = user?.app_metadata?.provider === 'google' || user?.app_metadata?.providers?.includes('google');
+
   return (
     <div className="p-5 md:p-8 max-w-3xl mx-auto safe-bottom">
       <div className="mb-6">
-        <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Meu Negócio</h1>
-        <p className="text-muted-foreground text-sm mt-1">Perfil e estrutura do seu negócio</p>
+        <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Configurações</h1>
+        <p className="text-muted-foreground text-sm mt-1">Gerencie seu perfil e seu negócio.</p>
       </div>
+
+      {loadingUser ? (
+        <div className="rounded-2xl p-8 card-elevated mb-5 flex justify-center items-center">
+          <div className="w-6 h-6 border-2 border-primary border-t-transparent rounded-full animate-spin" />
+        </div>
+      ) : user ? (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-5 card-elevated mb-5 border border-primary/10">
+          <SectionTitle icon={User} title="Minha Conta" />
+          
+          <div className="flex items-center gap-4 mb-6 p-4 rounded-xl bg-secondary/30 border border-white/5">
+            <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center text-primary text-xl font-bold relative group">
+              {user.user_metadata?.avatar_url ? (
+                <img src={user.user_metadata.avatar_url} alt="Avatar" className="w-full h-full rounded-full object-cover" />
+              ) : (
+                userName ? userName.charAt(0).toUpperCase() : <User className="w-8 h-8" />
+              )}
+            </div>
+            <div className="flex-1 min-w-0">
+              <h3 className="text-lg font-bold text-foreground truncate">{userName || 'Usuário'}</h3>
+              <p className="text-sm text-muted-foreground truncate">{user.email}</p>
+              <div className="mt-1 flex gap-2 items-center">
+                <span className="text-[10px] uppercase font-semibold text-primary/80 bg-primary/10 px-2 py-0.5 rounded-full">
+                  {isGoogleProvider ? 'Google Auth' : 'E-mail'}
+                </span>
+                <span className="text-[10px] text-muted-foreground/60">
+                  Criada em {new Date(user.created_at).toLocaleDateString('pt-BR')}
+                </span>
+              </div>
+            </div>
+          </div>
+
+          <div className="space-y-4 mb-4">
+            <InputField label="Nome completo" icon={User} value={userName} onChange={setUserName} placeholder="Seu nome" />
+            <InputField label="E-mail (não editável)" icon={Mail} value={user.email} onChange={() => {}} disabled={true} />
+          </div>
+
+          <div className="flex flex-col sm:flex-row gap-3">
+            <button
+              onClick={handleUpdateUser}
+              className={`flex-1 py-3 mt-2 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+                userSaved ? 'bg-primary/20 text-primary' : 'bg-primary/10 text-primary hover:bg-primary/20'
+              }`}
+            >
+              {userSaved ? <><Check className="h-4 w-4" /> Atualizado!</> : <><Save className="h-4 w-4" /> Salvar alterações</>}
+            </button>
+            
+            {!isGoogleProvider && (
+              <button
+                onClick={handlePasswordReset}
+                className="flex-1 py-3 mt-2 rounded-xl font-medium text-sm transition-all flex items-center justify-center gap-2 bg-secondary/50 text-foreground hover:bg-secondary/80 border border-border"
+              >
+                <KeyRound className="h-4 w-4" /> Redefinir Senha
+              </button>
+            )}
+          </div>
+          
+        </motion.div>
+      ) : (
+        <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-6 card-elevated mb-5 border border-dashed border-border flex flex-col items-center text-center">
+          <div className="w-12 h-12 rounded-full bg-secondary flex items-center justify-center mb-3">
+            <User className="h-6 w-6 text-muted-foreground" />
+          </div>
+          <h3 className="text-base font-bold text-foreground">Você não está conectado</h3>
+          <p className="text-sm text-muted-foreground mt-1 max-w-sm">
+            Crie uma conta ou faça login para proteger seus dados e sincronizá-los em todos os seus dispositivos.
+          </p>
+          <button
+            onClick={() => navigate('/landing')}
+            className="mt-5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all bg-primary text-primary-foreground hover:bg-primary/90"
+          >
+            Fazer login ou Cadastro
+          </button>
+        </motion.div>
+      )}
 
       {/* Business Profile */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-5 card-elevated mb-5">
