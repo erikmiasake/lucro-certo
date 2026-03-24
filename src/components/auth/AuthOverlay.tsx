@@ -76,17 +76,6 @@ export default function AuthOverlay({ isOpen, onClose, onSuccess }: AuthOverlayP
                 </div>
               </div>
 
-              <div className="relative z-10 flex items-center gap-4 text-sm text-zinc-500">
-                <div className="flex -space-x-2">
-                  {[1, 2, 3].map((i) => (
-                    <div
-                      key={i}
-                      className="w-8 h-8 rounded-full border-2 border-[#0A0A0B] bg-zinc-800"
-                    />
-                  ))}
-                </div>
-                <p>Junte-se a milhares de empreendedores</p>
-              </div>
             </div>
 
             {/* Right Side: Functional Form */}

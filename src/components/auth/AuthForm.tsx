@@ -1,9 +1,11 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Mail, Lock, User, ArrowRight } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, AlertCircle } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
 
 interface AuthFormProps {
   onSuccess: () => void;
@@ -11,16 +13,69 @@ interface AuthFormProps {
 
 export default function AuthForm({ onSuccess }: AuthFormProps) {
   const [mode, setMode] = useState<'login' | 'register'>('register');
+  const [showEmailForm, setShowEmailForm] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState('');
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [name, setName] = useState('');
+
+  const handleGoogleLogin = async () => {
+    try {
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: window.location.origin
+        }
+      });
+      if (error) throw error;
+    } catch (err: any) {
+      toast.error('Erro ao conectar com Google', {
+        description: err.message
+      });
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    // Simulate auth network request
-    setTimeout(() => {
+    setErrorMsg('');
+
+    try {
+      if (mode === 'register') {
+        const { error } = await supabase.auth.signUp({
+          email,
+          password,
+          options: {
+            data: {
+              full_name: name
+            }
+          }
+        });
+        if (error) throw error;
+        // Assume success leads to intermediate screen
+        onSuccess();
+      } else {
+        const { error } = await supabase.auth.signInWithPassword({
+          email,
+          password
+        });
+        if (error) throw error;
+        onSuccess();
+      }
+    } catch (err: any) {
+      console.error(err);
+      if (err.message.includes('Invalid login credentials')) {
+        setErrorMsg('E-mail ou senha incorretos.');
+      } else if (err.message.includes('User already registered')) {
+        setErrorMsg('Este e-mail já está cadastrado.');
+      } else {
+        setErrorMsg(err.message || 'Ocorreu um erro ao processar sua solicitação.');
+      }
+    } finally {
       setIsLoading(false);
-      onSuccess();
-    }, 1500);
+    }
   };
 
   const GoogleIcon = () => (
@@ -45,12 +100,12 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
   );
 
   return (
-    <div className="w-full max-w-sm mx-auto p-4 md:p-8 rounded-3xl bg-card/60 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden">
+    <div className="w-full max-w-sm mx-auto p-6 md:p-8 rounded-3xl bg-card/60 backdrop-blur-xl border border-white/10 shadow-2xl relative overflow-hidden">
       {/* Glow effect */}
       <div className="absolute -top-40 -right-40 w-80 h-80 bg-primary/20 rounded-full blur-[80px] pointer-events-none" />
       <div className="absolute -bottom-40 -left-40 w-80 h-80 bg-primary/10 rounded-full blur-[80px] pointer-events-none" />
 
-      <div className="relative z-10">
+      <div className="relative z-10 w-full">
         <div className="text-center mb-8">
           <h2 className="text-2xl font-bold text-foreground">
             {mode === 'login' ? 'Bem-vindo de volta' : 'Crie sua conta'}
@@ -63,12 +118,12 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
         </div>
 
         {/* Social Auth */}
-        <div className="mb-6">
+        <div className="mb-6 w-full">
           <Button
             type="button"
             variant="outline"
             className="w-full h-12 rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-foreground transition-all duration-300 shadow-sm"
-            onClick={() => onSuccess()}
+            onClick={handleGoogleLogin}
           >
             <GoogleIcon />
             {mode === 'login' ? 'Entrar com Google' : 'Cadastrar com Google'}
@@ -84,88 +139,122 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
           </div>
         </div>
 
-        {/* Standard Auth */}
-        <form onSubmit={handleSubmit} className="space-y-4">
-          <AnimatePresence mode="popLayout" initial={false}>
-            {mode === 'register' && (
-              <motion.div
-                initial={{ opacity: 0, height: 0, y: -20 }}
-                animate={{ opacity: 1, height: 'auto', y: 0 }}
-                exit={{ opacity: 0, height: 0, y: -20 }}
-                transition={{ duration: 0.3, ease: 'easeInOut' }}
-                className="space-y-2"
-              >
-                <Label htmlFor="name" className="text-xs text-muted-foreground ml-1">Nome completo</Label>
+        {!showEmailForm && (
+          <Button
+            type="button"
+            variant="ghost"
+            className="w-full h-12 mb-4 rounded-xl border border-white/10 bg-black/20 text-foreground hover:bg-black/40 transition-all font-medium"
+            onClick={() => setShowEmailForm(true)}
+          >
+            Continuar com e-mail
+          </Button>
+        )}
+
+        {/* Standard Auth Form */}
+        <AnimatePresence>
+          {showEmailForm && (
+            <motion.form 
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="space-y-4 w-full"
+              onSubmit={handleSubmit}
+            >
+              {errorMsg && (
+                <div className="bg-destructive/10 border border-destructive/20 text-destructive text-sm p-3 rounded-lg flex items-center gap-2">
+                  <AlertCircle className="w-4 h-4 flex-shrink-0" />
+                  <p>{errorMsg}</p>
+                </div>
+              )}
+
+              <AnimatePresence mode="popLayout" initial={false}>
+                {mode === 'register' && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0, y: -20 }}
+                    animate={{ opacity: 1, height: 'auto', y: 0 }}
+                    exit={{ opacity: 0, height: 0, y: -20 }}
+                    transition={{ duration: 0.3, ease: 'easeInOut' }}
+                    className="space-y-2"
+                  >
+                    <Label htmlFor="name" className="text-xs text-muted-foreground ml-1">Nome completo</Label>
+                    <div className="relative">
+                      <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                      <Input
+                        id="name"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        placeholder="João Silva"
+                        required={mode === 'register'}
+                        className="h-12 w-full pl-10 rounded-xl bg-black/20 border-white/10 focus:border-primary/50 focus:ring-primary/20 transition-all text-sm"
+                      />
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              <div className="space-y-2">
+                <Label htmlFor="email" className="text-xs text-muted-foreground ml-1">E-mail</Label>
                 <div className="relative">
-                  <User className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                   <Input
-                    id="name"
-                    placeholder="João Silva"
-                    required={mode === 'register'}
-                    className="h-12 pl-10 rounded-xl bg-black/20 border-white/10 focus:border-primary/50 focus:ring-primary/20 transition-all text-sm"
+                    id="email"
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    placeholder="seu@email.com"
+                    required
+                    className="h-12 w-full pl-10 rounded-xl bg-black/20 border-white/10 focus:border-primary/50 focus:ring-primary/20 transition-all text-sm"
                   />
                 </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+              </div>
 
-          <div className="space-y-2">
-            <Label htmlFor="email" className="text-xs text-muted-foreground ml-1">E-mail</Label>
-            <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="email"
-                type="email"
-                placeholder="seu@email.com"
-                required
-                className="h-12 pl-10 rounded-xl bg-black/20 border-white/10 focus:border-primary/50 focus:ring-primary/20 transition-all text-sm"
-              />
-            </div>
-          </div>
+              <div className="space-y-2">
+                <div className="flex items-center justify-between">
+                  <Label htmlFor="password" className="text-xs text-muted-foreground ml-1">Senha</Label>
+                  {mode === 'login' && (
+                    <button type="button" className="text-xs text-primary/80 hover:text-primary transition-colors">
+                      Esqueci minha senha
+                    </button>
+                  )}
+                </div>
+                <div className="relative">
+                  <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+                  <Input
+                    id="password"
+                    type="password"
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    placeholder="••••••••"
+                    required
+                    className="h-12 w-full pl-10 rounded-xl bg-black/20 border-white/10 focus:border-primary/50 focus:ring-primary/20 transition-all text-sm"
+                  />
+                </div>
+              </div>
 
-          <div className="space-y-2">
-            <div className="flex items-center justify-between">
-              <Label htmlFor="password" className="text-xs text-muted-foreground ml-1">Senha</Label>
-              {mode === 'login' && (
-                <button type="button" className="text-xs text-primary/80 hover:text-primary transition-colors">
-                  Esqueci minha senha
-                </button>
-              )}
-            </div>
-            <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
-              <Input
-                id="password"
-                type="password"
-                placeholder="••••••••"
-                required
-                className="h-12 pl-10 rounded-xl bg-black/20 border-white/10 focus:border-primary/50 focus:ring-primary/20 transition-all text-sm"
-              />
-            </div>
-          </div>
-
-          <Button
-            type="submit"
-            disabled={isLoading}
-            className="w-full h-12 mt-2 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(20,184,105,0.4)] transition-all duration-300 font-medium group"
-          >
-            {isLoading ? (
-              <span className="flex items-center gap-2">
-                <motion.div
-                  animate={{ rotate: 360 }}
-                  transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
-                  className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full"
-                />
-                Autenticando...
-              </span>
-            ) : (
-              <span className="flex items-center justify-center gap-2 w-full">
-                {mode === 'login' ? 'Entrar na plataforma' : 'Criar minha conta'}
-                <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
-              </span>
-            )}
-          </Button>
-        </form>
+              <Button
+                type="submit"
+                disabled={isLoading}
+                className="w-full h-12 mt-4 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 hover:shadow-[0_0_20px_rgba(20,184,105,0.4)] transition-all duration-300 font-medium group"
+              >
+                {isLoading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <motion.div
+                      animate={{ rotate: 360 }}
+                      transition={{ repeat: Infinity, duration: 1, ease: 'linear' }}
+                      className="w-4 h-4 border-2 border-primary-foreground/30 border-t-primary-foreground rounded-full"
+                    />
+                    Autenticando...
+                  </span>
+                ) : (
+                  <span className="flex items-center justify-center gap-2 w-full">
+                    {mode === 'login' ? 'Entrar na plataforma' : 'Criar minha conta'}
+                    <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
+                  </span>
+                )}
+              </Button>
+            </motion.form>
+          )}
+        </AnimatePresence>
 
         <div className="mt-6 text-center">
           <button
