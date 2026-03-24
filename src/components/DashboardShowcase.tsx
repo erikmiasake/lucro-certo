@@ -1,18 +1,70 @@
 "use client";
 
-import React from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
+import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
 import { 
   TrendingUp, 
   ArrowUpRight, 
   DollarSign, 
-  Zap, 
-  PieChart, 
   LayoutDashboard,
   Sparkles
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
+
+interface BentoCardProps {
+  children: React.ReactNode;
+  className?: string;
+  delay?: number;
+}
+
+const BentoCard = ({ children, className, delay = 0 }: BentoCardProps) => {
+  const x = useMotionValue(0);
+  const y = useMotionValue(0);
+
+  const mouseXSpring = useSpring(x);
+  const mouseYSpring = useSpring(y);
+
+  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["5deg", "-5deg"]);
+  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-5deg", "5deg"]);
+
+  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
+    const rect = e.currentTarget.getBoundingClientRect();
+    x.set((e.clientX - rect.left) / rect.width - 0.5);
+    y.set((e.clientY - rect.top) / rect.height - 0.5);
+  };
+
+  const handleMouseLeave = () => {
+    x.set(0);
+    y.set(0);
+  };
+
+  return (
+    <motion.div
+      initial={{ opacity: 0, y: 20 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true }}
+      transition={{ duration: 0.5, delay }}
+      onMouseMove={handleMouseMove}
+      onMouseLeave={handleMouseLeave}
+      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
+      className={cn(
+        "relative rounded-[32px] bg-zinc-900/40 border border-white/10 backdrop-blur-xl overflow-hidden group",
+        className
+      )}
+    >
+      <div 
+        style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }}
+        className="h-full w-full"
+      >
+        {children}
+      </div>
+      
+      {/* Subtle border glow on hover */}
+      <div className="absolute inset-0 border border-primary/0 group-hover:border-primary/30 transition-colors pointer-events-none rounded-[32px]" />
+    </motion.div>
+  );
+};
 
 interface DashboardShowcaseProps {
   onCtaClick?: () => void;
@@ -20,18 +72,11 @@ interface DashboardShowcaseProps {
 
 export default function DashboardShowcase({ onCtaClick }: DashboardShowcaseProps) {
   return (
-    <section className="relative w-full min-h-screen bg-[#030303] overflow-hidden pt-32 pb-20 px-6">
+    <section className="relative w-full min-h-screen bg-[#030303] overflow-hidden pt-32 pb-24 px-6">
       {/* Background Effects */}
       <div className="absolute top-0 left-1/2 -translate-x-1/2 w-full h-full max-w-7xl">
         <div className="absolute top-[-10%] left-[-10%] w-[40%] h-[40%] bg-primary/20 rounded-full blur-[120px] opacity-50" />
         <div className="absolute bottom-[-10%] right-[-10%] w-[40%] h-[40%] bg-emerald-500/10 rounded-full blur-[120px] opacity-30" />
-        <div 
-          className="absolute inset-0 opacity-[0.05]" 
-          style={{ 
-            backgroundImage: `radial-gradient(circle at 2px 2px, white 1px, transparent 0)`,
-            backgroundSize: '40px 40px'
-          }} 
-        />
       </div>
 
       <div className="relative z-10 max-w-7xl mx-auto flex flex-col items-center">
@@ -79,7 +124,7 @@ export default function DashboardShowcase({ onCtaClick }: DashboardShowcaseProps
             <Button 
               onClick={onCtaClick}
               size="lg" 
-              className="w-full sm:w-auto h-12 px-8 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-[0_0_20px_rgba(20,184,105,0.3)] hover:shadow-[0_0_30px_rgba(20,184,105,0.5)] font-semibold group"
+              className="w-full sm:w-auto h-12 px-8 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-[0_0_20px_rgba(20,184,105,0.3)] font-semibold group"
             >
               Começar grátis
               <ArrowUpRight className="ml-2 w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
@@ -94,16 +139,11 @@ export default function DashboardShowcase({ onCtaClick }: DashboardShowcaseProps
           </motion.div>
         </div>
 
-        {/* Dashboard Visual Mockup - Bento Grid Style */}
-        <motion.div 
-          initial={{ opacity: 0, y: 40 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.8, delay: 0.4 }}
-          className="w-full grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 px-4"
-        >
+        {/* Interactive Bento Grid */}
+        <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 px-4">
+          
           {/* Main Chart Card */}
-          <div className="md:col-span-8 h-[300px] md:h-[450px] rounded-[32px] bg-zinc-900/40 border border-white/10 backdrop-blur-xl p-6 md:p-8 relative overflow-hidden group">
-            <div className="absolute top-0 left-0 w-full h-[1px] bg-gradient-to-r from-transparent via-primary/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
+          <BentoCard className="md:col-span-8 h-[300px] md:h-[450px] p-6 md:p-8" delay={0.4}>
             <div className="flex items-center justify-between mb-8">
               <div>
                 <h3 className="text-xl font-bold text-white flex items-center gap-2">
@@ -121,13 +161,13 @@ export default function DashboardShowcase({ onCtaClick }: DashboardShowcaseProps
               </div>
             </div>
             
-            {/* Fake Chart Illustration */}
+            {/* Chart Animation */}
             <div className="flex items-end justify-between h-[60%] w-full gap-2 md:gap-4 px-2">
               {[40, 60, 45, 75, 55, 90, 65, 85, 70, 95, 80, 100].map((h, i) => (
                 <div key={i} className="flex-1 group/bar relative">
                   <motion.div 
                     initial={{ height: 0 }}
-                    animate={{ height: `${h}%` }}
+                    whileInView={{ height: `${h}%` }}
                     transition={{ duration: 1, delay: 0.6 + (i * 0.05) }}
                     className={cn(
                       "w-full rounded-t-lg transition-all duration-300", 
@@ -137,71 +177,60 @@ export default function DashboardShowcase({ onCtaClick }: DashboardShowcaseProps
                 </div>
               ))}
             </div>
-          </div>
+          </BentoCard>
 
           {/* Right Column Bento Cards */}
           <div className="md:col-span-4 flex flex-col gap-4 md:gap-6">
-            {/* Metric Card 1 */}
-            <div className="flex-1 rounded-[32px] bg-zinc-900/40 border border-white/10 backdrop-blur-xl p-6 flex flex-col justify-between hover:bg-zinc-800/40 transition-colors cursor-default group">
+            
+            {/* Saldo Atual Card */}
+            <BentoCard className="flex-1 p-6 flex flex-col justify-between" delay={0.5}>
               <div className="flex items-start justify-between">
-                <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20">
-                  <DollarSign className="w-5 h-5 text-primary" />
+                <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 text-primary">
+                  <DollarSign className="w-5 h-5" />
                 </div>
-                <span className="text-[10px] font-medium text-primary bg-primary/10 px-2 py-0.5 rounded-full">+12.4%</span>
+                <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">+12.4%</span>
               </div>
               <div>
-                <p className="text-zinc-500 text-sm mb-1 uppercase tracking-wider font-semibold">Saldo Atual</p>
-                <h4 className="text-3xl font-bold text-white tracking-tight">R$ 124.500</h4>
+                <p className="text-zinc-500 text-[10px] mb-1 uppercase tracking-widest font-bold">Saldo Atual</p>
+                <h4 className="text-3xl md:text-4xl font-bold text-white tracking-tight">R$ 124.500</h4>
               </div>
-            </div>
+            </BentoCard>
 
-            {/* Metric Card 2 - AI Insight */}
-            <div className="flex-1 rounded-[32px] bg-primary/10 border border-primary/20 backdrop-blur-xl p-6 relative overflow-hidden group">
-              <div className="absolute -right-8 -bottom-8 w-24 h-24 bg-primary/20 rounded-full blur-3xl" />
+            {/* AI Insight Card */}
+            <BentoCard className="flex-1 p-6 bg-primary/5 border-primary/20" delay={0.6}>
               <div className="flex items-center gap-3 mb-4">
                 <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center">
                   <Sparkles className="w-4 h-4 text-primary" />
                 </div>
-                <span className="text-xs font-bold text-primary uppercase tracking-wider">Insight da IA</span>
+                <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Insight da IA</span>
               </div>
-              <p className="text-white text-sm leading-relaxed font-medium">
+              <p className="text-white text-sm md:text-base leading-relaxed font-medium italic">
                 "Sua margem de lucro cresceu 15% após o corte de custos fixos no último trimestre."
               </p>
-            </div>
+            </BentoCard>
           </div>
 
-          {/* Bottom Row Bento Cards */}
-          {/* Quick Stats */}
-          <div className="md:col-span-4 rounded-[32px] bg-zinc-900/40 border border-white/10 backdrop-blur-xl p-6 flex items-center gap-4 group">
-            <div className="w-12 h-12 rounded-2xl bg-blue-500/10 flex items-center justify-center border border-blue-500/20 group-hover:scale-110 transition-transform">
-              <LayoutDashboard className="w-6 h-6 text-blue-400" />
+          {/* Bottom Row Highlights (Optional but adds to the bento feel) */}
+          <BentoCard className="md:col-span-4 p-6 flex items-center gap-4" delay={0.7}>
+            <div className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center border border-white/5">
+              <LayoutDashboard className="w-6 h-6 text-zinc-400" />
             </div>
             <div>
-              <p className="text-white font-bold">12 Projetos</p>
-              <p className="text-zinc-500 text-xs">Ativos simultaneamente</p>
+              <p className="text-white font-bold text-sm">Controle Total</p>
+              <p className="text-zinc-500 text-[10px]">Visibilidade 360 do seu caixa</p>
             </div>
-          </div>
+          </BentoCard>
+          
+          <motion.div 
+            initial={{ opacity: 0 }}
+            whileInView={{ opacity: 1 }}
+            transition={{ delay: 1 }}
+            className="md:col-span-8 flex items-center justify-center text-zinc-600 text-[10px] uppercase tracking-widest font-medium"
+          >
+            Utilizado por mais de 500 empresas para gestão inteligente
+          </motion.div>
 
-          <div className="md:col-span-4 rounded-[32px] bg-zinc-900/40 border border-white/10 backdrop-blur-xl p-6 flex items-center gap-4 group">
-            <div className="w-12 h-12 rounded-2xl bg-purple-500/10 flex items-center justify-center border border-purple-500/20 group-hover:scale-110 transition-transform">
-              <PieChart className="w-6 h-6 text-purple-400" />
-            </div>
-            <div>
-              <p className="text-white font-bold">Distribuição IA</p>
-              <p className="text-zinc-500 text-xs">Otimização de recursos</p>
-            </div>
-          </div>
-
-          <div className="md:col-span-4 rounded-[32px] bg-zinc-900/40 border border-white/10 backdrop-blur-xl p-6 flex items-center gap-4 group">
-            <div className="w-12 h-12 rounded-2xl bg-orange-500/10 flex items-center justify-center border border-orange-500/20 group-hover:scale-110 transition-transform">
-              <Zap className="w-6 h-6 text-orange-400" />
-            </div>
-            <div>
-              <p className="text-white font-bold">Alta Performance</p>
-              <p className="text-zinc-500 text-xs">Respostas em milissegundos</p>
-            </div>
-          </div>
-        </motion.div>
+        </div>
       </div>
     </section>
   );
