@@ -1,4 +1,5 @@
 import { useEffect, useRef } from 'react';
+import { motion } from 'framer-motion';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { DollarSign, BarChart3, TrendingUp, Sparkles, Utensils, Scissors, PawPrint, ShoppingBag, ArrowRight, AlertTriangle, Brain, Target } from 'lucide-react';
@@ -177,30 +178,93 @@ export function LandingNarrative({ onCtaClick }: Props) {
       </section>
 
       {/* Section 5 — Who it's for */}
-      <section className="py-24 md:py-32 px-6 border-t border-border">
-        <div className="mx-auto max-w-4xl text-center">
-          <NarrativeSection>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-8">
-              <Sparkles className="w-4 h-4" />
-              Para quem é
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground leading-tight mb-12">
-              Feito para todos os tipos de negócio.
-            </h2>
-          </NarrativeSection>
-          <NarrativeSection className="grid grid-cols-2 sm:grid-cols-4 gap-4 md:gap-6">
-            {[
-              { icon: Utensils, name: 'Restaurante' },
-              { icon: Scissors, name: 'Salão' },
-              { icon: PawPrint, name: 'Pet Shop' },
-              { icon: ShoppingBag, name: 'Loja' },
-            ].map((biz) => (
-              <div key={biz.name} className="flex flex-col items-center gap-3 rounded-2xl bg-card border border-border p-6 hover:border-primary/30 transition-colors">
-                <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center">
-                  <biz.icon className="h-6 w-6 text-primary" />
-                </div>
-                <span className="text-sm font-medium text-foreground">{biz.name}</span>
+      <section className="py-24 md:py-32 px-6 border-t border-border bg-zinc-900/20">
+        <div className="mx-auto max-w-6xl">
+          <div className="text-center mb-16 px-4">
+            <NarrativeSection>
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium mb-8">
+                <Sparkles className="w-4 h-4" />
+                Para quem é
               </div>
+              <h2 className="text-3xl md:text-6xl font-bold text-foreground leading-tight tracking-tight">
+                Seu negócio merece essa <span className="text-primary">clareza</span>.
+              </h2>
+              <p className="text-muted-foreground text-lg mt-6 max-w-2xl mx-auto">
+                Do balcão ao lucro real, o app foi feito para quem vive o dia a dia da operação.
+              </p>
+            </NarrativeSection>
+          </div>
+
+          <NarrativeSection className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[
+              { 
+                name: 'Restaurante', 
+                image: 'https://images.unsplash.com/photo-1552566626-52f8b828add9?q=80&w=800&auto=format&fit=crop',
+                phrase: 'Controle insumos e saiba sua margem por prato.' 
+              },
+              { 
+                name: 'Salão & Barbearia', 
+                image: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=800&auto=format&fit=crop',
+                phrase: 'Organize comissões e veja o lucro da cadeira.' 
+              },
+              { 
+                name: 'Pet Shop', 
+                image: 'https://images.unsplash.com/photo-1516734212186-a967f81ad0d7?q=80&w=800&auto=format&fit=crop',
+                phrase: 'Acompanhe banho, tosa e venda de produtos.' 
+              },
+              { 
+                name: 'Comércio & Loja', 
+                image: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=800&auto=format&fit=crop',
+                phrase: 'Gestão de estoque e vendas em tempo real.' 
+              },
+            ].map((biz) => (
+              <motion.div 
+                key={biz.name} 
+                whileHover="hover"
+                initial="initial"
+                className="group relative h-[380px] rounded-3xl overflow-hidden border border-white/5 cursor-pointer"
+              >
+                {/* Background Image */}
+                <motion.img 
+                  src={biz.image}
+                  alt={biz.name}
+                  variants={{
+                    hover: { scale: 1.1, filter: 'blur(2px)' },
+                    initial: { scale: 1, filter: 'blur(0px)' }
+                  }}
+                  transition={{ duration: 0.6, ease: 'easeOut' }}
+                  className="absolute inset-0 w-full h-full object-cover"
+                />
+                
+                {/* Gradient Overlays */}
+                <div className="absolute inset-0 bg-gradient-to-t from-black/95 via-black/40 to-transparent transition-opacity duration-300 group-hover:opacity-90" />
+                <div className="absolute inset-0 bg-primary/10 opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+
+                {/* Content */}
+                <div className="absolute inset-0 p-8 flex flex-col justify-end">
+                  <div className="relative z-10 transition-transform duration-500 group-hover:-translate-y-2">
+                    <h3 className="text-2xl font-bold text-white mb-2 leading-tight">
+                      {biz.name}
+                    </h3>
+                    <motion.p 
+                      variants={{
+                        hover: { opacity: 1, y: 0, height: 'auto' },
+                        initial: { opacity: 0, y: 10, height: 0 }
+                      }}
+                      transition={{ duration: 0.3 }}
+                      className="text-primary-foreground/80 text-sm leading-relaxed font-medium"
+                    >
+                      {biz.phrase}
+                    </motion.p>
+                  </div>
+                  
+                  {/* Decorative bar */}
+                  <div className="absolute left-8 bottom-6 w-8 h-1 bg-primary rounded-full transition-all duration-500 group-hover:w-16" />
+                </div>
+
+                {/* Subtle border glow on hover */}
+                <div className="absolute inset-0 border border-primary/0 group-hover:border-primary/20 rounded-3xl transition-colors duration-500" />
+              </motion.div>
             ))}
           </NarrativeSection>
         </div>
