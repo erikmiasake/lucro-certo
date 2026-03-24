@@ -18,7 +18,7 @@ export default function Login() {
       if (error) throw error;
 
       toast.success('Login realizado com sucesso!');
-      navigate('/');
+      navigate('/dashboard');
     } catch (err: any) {
       toast.error('Erro ao entrar', {
         description: err.message

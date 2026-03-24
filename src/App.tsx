@@ -20,11 +20,12 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
-          <Route path="/landing" element={<Landing />} />
+          <Route path="/" element={<Landing />} />
           <Route path="/login" element={<Login />} />
+          <Route path="/dashboard/*" element={<Index />} />
           <Route path="/como-funciona" element={<ComoFunciona />} />
           <Route path="/generative-art-demo" element={<GenerativeArtDemo />} />
-          <Route path="/*" element={<Index />} />
+          <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>

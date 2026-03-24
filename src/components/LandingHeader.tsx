@@ -29,7 +29,7 @@ export function LandingHeader({ onCtaClick }: { onCtaClick?: () => void }) {
         )}
       >
         <div className="mx-auto max-w-7xl px-6 py-3 flex items-center justify-between">
-          <Link to="/landing" className="flex items-center gap-2">
+          <Link to="/" className="flex items-center gap-2">
             <div className="w-8 h-8 rounded-lg bg-primary/15 flex items-center justify-center">
               <Sparkles className="h-4 w-4 text-primary" />
             </div>
