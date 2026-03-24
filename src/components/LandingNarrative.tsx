@@ -45,7 +45,7 @@ export function LandingNarrative({ onCtaClick }: Props) {
   return (
     <div className="relative z-10 bg-background">
       {/* Section 1 — Problem */}
-      <section className="py-24 md:py-32 px-6">
+      <section className="pt-24 md:pt-32 pb-8 px-6">
         <div className="mx-auto max-w-4xl text-center">
           <NarrativeSection>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-destructive/30 bg-destructive/10 text-destructive text-sm font-medium mb-8">
@@ -64,7 +64,7 @@ export function LandingNarrative({ onCtaClick }: Props) {
       </section>
 
       {/* Divider — "Veja como funciona" */}
-      <section className="py-16 md:py-20 px-6">
+      <section className="pt-4 pb-16 px-6">
         <NarrativeSection>
           <div className="mx-auto max-w-3xl flex flex-col items-center text-center gap-4">
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium">
