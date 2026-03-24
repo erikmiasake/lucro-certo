@@ -45,28 +45,19 @@ function NarrativeSection({ children, className = '' }: { children: React.ReactN
 export function LandingNarrative({ onCtaClick }: Props) {
   return (
     <div className="relative z-10 bg-background">
-      {/* Section 1 — Problem & Divider */}
-      <section className="pt-24 md:pt-32 pb-20 px-6">
+      {/* Divider — "Veja como funciona" */}
+      <section className="pt-24 pb-20 px-6">
         <div className="mx-auto max-w-4xl text-center">
           <NarrativeSection>
-            <div className="h-4" /> {/* Spacer */}
-            <h2 className="text-3xl md:text-6xl font-bold text-foreground leading-tight tracking-tight px-4">
-              Você vende bem, mas <br/>
-              <span className="text-primary text-4xl md:text-7xl">não vê a cor do dinheiro?</span>
-            </h2>
-            <p className="text-muted-foreground text-lg mt-8 max-w-2xl mx-auto leading-relaxed mb-16 px-4">
-              Custos escondidos, taxas de cartão e desperdícios invisíveis são os verdadeiros ladrões do seu negócio. Isso acaba agora.
-            </p>
-
-            <div className="w-full flex flex-col items-center gap-8 pt-16 border-t border-white/5">
+            <div className="w-full flex flex-col items-center gap-8">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium">
                 <TrendingUp className="w-4 h-4" />
                 Como funciona
               </div>
-              <h2 className="text-3xl md:text-6xl font-bold text-foreground leading-tight">
+              <h2 className="text-3xl md:text-6xl font-bold text-foreground leading-tight px-4">
                 Veja como funciona.
               </h2>
-              <p className="text-muted-foreground text-lg max-w-xl">
+              <p className="text-muted-foreground text-lg max-w-xl px-4">
                 Você registra, a IA organiza — e o <span className="text-foreground font-medium">lucro real aparece</span>.
               </p>
             </div>
