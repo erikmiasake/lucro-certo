@@ -37,10 +37,18 @@ export interface BusinessProfile {
   objective: 'increase_profit' | 'reduce_costs' | 'organize' | '';
 }
 
+export interface CostMapItem {
+  id: string;
+  name: string;
+  classification: CostClassification;
+  value: number;
+}
+
 export interface AppState {
   businessType: BusinessType | null;
   entries: Entry[];
   costs: Cost[];
+  costMap: CostMapItem[];
   averageSales?: number;
   mainCosts?: string[];
   goals: Goals;
