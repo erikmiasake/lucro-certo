@@ -26,7 +26,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
       const { error } = await supabase.auth.signInWithOAuth({
         provider: 'google',
         options: {
-          redirectTo: window.location.origin
+          redirectTo: `${window.location.origin}/landing`
         }
       });
       if (error) throw error;
