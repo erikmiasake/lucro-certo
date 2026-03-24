@@ -63,14 +63,14 @@ export default function AuthOverlay({ isOpen, onClose, onSuccess }: AuthOverlayP
                 </div>
 
                 <div className="max-w-md">
-                  <h1 className="text-4xl lg:text-5xl font-extrabold text-white leading-[1.1] tracking-tight mb-6">
+                  <h1 className="text-5xl lg:text-7xl font-extrabold text-white leading-[1.05] tracking-tight mb-8">
                     Descubra quanto <br />
                     <span className="text-transparent bg-clip-text bg-gradient-to-r from-primary to-emerald-300">
                       realmente sobra
                     </span>{' '}
                     no seu bolso.
                   </h1>
-                  <p className="text-lg text-zinc-400 leading-relaxed">
+                  <p className="text-xl text-zinc-400 leading-relaxed max-w-sm">
                     Nossa IA analisa seu negócio e mostra exatamente onde você ganha e perde dinheiro. Em segundos.
                   </p>
                 </div>
