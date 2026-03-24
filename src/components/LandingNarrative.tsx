@@ -44,8 +44,8 @@ function NarrativeSection({ children, className = '' }: { children: React.ReactN
 export function LandingNarrative({ onCtaClick }: Props) {
   return (
     <div className="relative z-10 bg-background">
-      {/* Section 1 — Problem */}
-      <section className="pt-24 md:pt-32 pb-8 px-6">
+      {/* Section 1 — Problem & Divider */}
+      <section className="pt-24 md:pt-32 pb-20 px-6">
         <div className="mx-auto max-w-4xl text-center">
           <NarrativeSection>
             <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-destructive/30 bg-destructive/10 text-destructive text-sm font-medium mb-8">
@@ -56,29 +56,24 @@ export function LandingNarrative({ onCtaClick }: Props) {
               Você vende todos os dias, mas nem sempre sabe quanto{' '}
               <span className="text-primary">realmente lucra</span>.
             </h2>
-            <p className="text-muted-foreground text-lg mt-6 max-w-2xl mx-auto leading-relaxed">
+            <p className="text-muted-foreground text-lg mt-6 max-w-2xl mx-auto leading-relaxed mb-16">
               Custos escondidos, contas misturadas e a sensação de que o dinheiro some sem explicação. Isso acaba agora.
             </p>
+
+            <div className="w-full flex flex-col items-center gap-6 pt-12 border-t border-white/5">
+              <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium">
+                <TrendingUp className="w-4 h-4" />
+                Como funciona
+              </div>
+              <h2 className="text-3xl md:text-5xl font-bold text-foreground leading-tight">
+                Veja como funciona
+              </h2>
+              <p className="text-muted-foreground text-base max-w-xl">
+                Em três passos simples, você descobre exatamente quanto está sobrando no seu negócio.
+              </p>
+            </div>
           </NarrativeSection>
         </div>
-      </section>
-
-      {/* Divider — "Veja como funciona" */}
-      <section className="pt-4 pb-16 px-6">
-        <NarrativeSection>
-          <div className="mx-auto max-w-3xl flex flex-col items-center text-center gap-4">
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium">
-              <TrendingUp className="w-4 h-4" />
-              Como funciona
-            </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground leading-tight">
-              Veja como funciona
-            </h2>
-            <p className="text-muted-foreground text-base max-w-xl">
-              Em três passos simples, você descobre exatamente quanto está sobrando no seu negócio.
-            </p>
-          </div>
-        </NarrativeSection>
       </section>
 
       {/* Section 2 — Simple Registration */}
