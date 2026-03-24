@@ -49,8 +49,8 @@ export default function Landing() {
   return (
     <div className="bg-background relative">
       <LandingHeader onCtaClick={handleCtaClick} />
-      <GenerativeArtGallery />
       <DashboardShowcase onCtaClick={handleCtaClick} />
+      <GenerativeArtGallery />
       <LandingNarrative onCtaClick={handleCtaClick} />
 
       <AuthOverlay
