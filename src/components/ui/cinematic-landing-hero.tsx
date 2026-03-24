@@ -173,7 +173,7 @@ export function CinematicHero({
   metricValue = 87,
   metricLabel = "% Margem",
   ctaHeading = "Comece agora.",
-  ctaDescription = "Descubra quanto realmente sobra no seu negócio. Grátis, sem cadastro, resultados em segundos.",
+  ctaDescription = "Descubra quanto realmente sobra no seu negócio. Simples, sem cadastro, resultados em segundos.",
   onCtaClick,
   className,
   ...props
@@ -413,7 +413,7 @@ export function CinematicHero({
               onClick={onCtaClick}
               className="btn-modern-light px-8 py-3.5 rounded-xl text-sm font-semibold"
             >
-              Começar grátis →
+              Começar agora →
             </button>
             <a
               href="/como-funciona"

@@ -277,11 +277,11 @@ export function LandingNarrative({ onCtaClick }: Props) {
                 onClick={onCtaClick}
                 className="inline-flex items-center gap-2 px-10 py-5 rounded-2xl bg-primary text-primary-foreground font-bold text-lg shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all hover:scale-105 active:scale-95"
               >
-                Começar grátis agora
+                Começar agora
                 <ArrowRight className="w-5 h-5" />
               </button>
               <p className="text-zinc-500 text-sm">
-                Grátis, sem planilhas e sem complicação.
+                Simples, sem planilhas e sem complicação.
               </p>
             </div>
           </NarrativeSection>

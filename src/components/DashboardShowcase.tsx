@@ -174,7 +174,7 @@ export default function DashboardShowcase({ onCtaClick }: DashboardShowcaseProps
               size="lg" 
               className="w-full sm:w-auto h-12 px-8 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-[0_0_20px_rgba(20,184,105,0.3)] font-semibold group"
             >
-              Começar grátis
+              Ver demonstração
               <ArrowUpRight className="ml-2 w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
             </Button>
             <Button 

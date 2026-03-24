@@ -121,7 +121,7 @@ export function HeroSection() {
               transition={{ delay: 1.4, duration: 0.8 }}
               className="mt-10 text-muted-foreground/40 text-xs tracking-wide"
             >
-              Grátis • Sem cadastro • Resultados em segundos
+              Analise agora • Sem cadastro • Resultados em segundos
             </motion.p>
 
             {/* Hero Image */}
@@ -255,7 +255,7 @@ const HeroHeader = () => {
               </Link>
             ))}
             <Button size="sm" className="rounded-xl" asChild>
-              <Link to="/">Começar grátis</Link>
+              <Link to="/">Começar agora</Link>
             </Button>
           </div>
 
@@ -274,7 +274,7 @@ const HeroHeader = () => {
                 ))}
                 <Button size="lg" className="rounded-xl mt-4" asChild>
                   <Link to="/" onClick={() => setMenuState(false)}>
-                    Começar grátis
+                    Começar agora
                   </Link>
                 </Button>
               </div>

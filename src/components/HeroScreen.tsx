@@ -103,7 +103,7 @@ export default function HeroScreen({ onStart, onLearnMore }: HeroScreenProps) {
           transition={{ delay: 1.4, duration: 0.8 }}
           className="mt-12 text-muted-foreground/40 text-xs tracking-wide"
         >
-          Grátis • Sem cadastro • Resultados em segundos
+          Analise agora • Sem cadastro • Resultados em segundos
         </motion.p>
       </div>
     </div>

@@ -51,7 +51,7 @@ export function LandingHeader({ onCtaClick }: { onCtaClick?: () => void }) {
               </Link>
             ))}
             <Button size="sm" className="rounded-xl" onClick={onCtaClick}>
-              Começar grátis
+              Começar agora
             </Button>
           </div>
 
@@ -64,7 +64,7 @@ export function LandingHeader({ onCtaClick }: { onCtaClick?: () => void }) {
                   </Link>
                 ))}
                 <Button size="lg" className="rounded-xl mt-4" onClick={() => { setMenuState(false); onCtaClick?.(); }}>
-                  Começar grátis
+                  Começar agora
                 </Button>
               </div>
             </div>

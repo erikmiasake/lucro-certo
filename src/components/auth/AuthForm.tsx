@@ -263,7 +263,7 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
             className="text-sm text-muted-foreground hover:text-foreground transition-colors"
           >
             {mode === 'login' ? (
-              <>Não possui conta? <span className="text-primary font-medium">Cadastre-se grátis</span></>
+              <>Não possui conta? <span className="text-primary font-medium">Cadastre-se para começar</span></>
             ) : (
               <>Já possui uma conta? <span className="text-primary font-medium">Faça login</span></>
             )}
