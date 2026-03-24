@@ -49,10 +49,7 @@ export function LandingNarrative({ onCtaClick }: Props) {
       <section className="pt-24 md:pt-32 pb-20 px-6">
         <div className="mx-auto max-w-4xl text-center">
           <NarrativeSection>
-            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-destructive/30 bg-destructive/10 text-destructive text-sm font-medium mb-8">
-              <AlertTriangle className="w-4 h-4" />
-              O problema
-            </div>
+            <div className="h-4" /> {/* Spacer */}
             <h2 className="text-3xl md:text-6xl font-bold text-foreground leading-tight tracking-tight px-4">
               Você vende bem, mas <br/>
               <span className="text-primary text-4xl md:text-7xl">não vê a cor do dinheiro?</span>
