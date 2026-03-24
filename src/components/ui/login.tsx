@@ -17,9 +17,11 @@ import {
 import { Input } from "@/components/ui/input";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Loader2 } from "lucide-react";
+import { Link } from "react-router-dom";
 
 // Validation schema for the form
 const formSchema = z.object({
+  name: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres." }).optional(),
   email: z.string().email({ message: "Por favor, insira um e-mail válido." }),
   password: z
     .string()
@@ -30,6 +32,7 @@ const formSchema = z.object({
 export type FormValues = z.infer<typeof formSchema>;
 
 interface AuthFormSplitScreenProps {
+  mode?: 'login' | 'register';
   logo: React.ReactNode;
   title: string;
   description: string;
@@ -38,12 +41,14 @@ interface AuthFormSplitScreenProps {
   onSubmit: (data: FormValues) => Promise<void>;
   forgotPasswordHref: string;
   createAccountHref: string;
+  toggleModeHref: string;
 }
 
 /**
  * A responsive, split-screen authentication form component.
  */
 export function AuthFormSplitScreen({
+  mode = 'login',
   logo,
   title,
   description,
@@ -52,12 +57,14 @@ export function AuthFormSplitScreen({
   onSubmit,
   forgotPasswordHref,
   createAccountHref,
+  toggleModeHref,
 }: AuthFormSplitScreenProps) {
   const [isLoading, setIsLoading] = React.useState(false);
 
   const form = useForm<FormValues>({
     resolver: zodResolver(formSchema),
     defaultValues: {
+      name: "",
       email: "",
       password: "",
       rememberMe: false,
@@ -113,8 +120,31 @@ export function AuthFormSplitScreen({
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleFormSubmit)}
-                className="space-y-5"
+                className="space-y-4"
               >
+                {mode === 'register' && (
+                  <motion.div variants={itemVariants}>
+                    <FormField
+                      control={form.control}
+                      name="name"
+                      render={({ field }) => (
+                        <FormItem>
+                          <FormLabel>Nome Completo</FormLabel>
+                          <FormControl>
+                            <Input
+                              placeholder="Seu nome"
+                              className="h-12 bg-black/20 border-white/10"
+                              {...field}
+                              disabled={isLoading}
+                            />
+                          </FormControl>
+                          <FormMessage />
+                        </FormItem>
+                      )}
+                    />
+                  </motion.div>
+                )}
+
                 <motion.div variants={itemVariants}>
                   <FormField
                     control={form.control}
@@ -180,12 +210,12 @@ export function AuthFormSplitScreen({
                       </FormItem>
                     )}
                   />
-                  <a
-                    href={forgotPasswordHref}
+                  <Link
+                    to={forgotPasswordHref}
                     className="text-sm font-medium text-primary hover:text-primary/80 transition-colors"
                   >
                     Esqueceu a senha?
-                  </a>
+                  </Link>
                 </motion.div>
 
                 <motion.div variants={itemVariants}>
@@ -193,7 +223,7 @@ export function AuthFormSplitScreen({
                     {isLoading && (
                       <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                     )}
-                    Entrar na plataforma
+                    {mode === 'login' ? 'Entrar na plataforma' : 'Criar minha conta'}
                   </Button>
                 </motion.div>
               </form>
@@ -201,16 +231,29 @@ export function AuthFormSplitScreen({
 
             <motion.p
               variants={itemVariants}
-              className="text-center text-sm text-muted-foreground"
+              className="text-center text-[15px] text-muted-foreground mt-2"
             >
-              Não possui uma conta?{" "}
-              <a
-                href={createAccountHref}
-                className="font-medium text-primary hover:text-primary/80 transition-colors"
-              >
-                Cadastre-se aqui
-              </a>
-              .
+              {mode === 'login' ? (
+                <>
+                  Não possui uma conta?{" "}
+                  <Link
+                    to={toggleModeHref}
+                    className="font-semibold text-primary hover:text-primary/80 transition-colors"
+                  >
+                    Cadastre-se aqui
+                  </Link>
+                </>
+              ) : (
+                <>
+                  Já possui uma conta?{" "}
+                  <Link
+                    to={toggleModeHref}
+                    className="font-semibold text-primary hover:text-primary/80 transition-colors"
+                  >
+                    Faça login
+                  </Link>
+                </>
+              )}
             </motion.p>
           </motion.div>
         </div>
