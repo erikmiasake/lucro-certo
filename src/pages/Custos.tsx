@@ -205,6 +205,15 @@ export default function Custos() {
       {/* Tabs */}
       <div className="flex gap-1 mb-4 p-0.5 rounded-lg bg-secondary/50">
         <button
+          onClick={() => setViewTab('map')}
+          className={`flex-1 py-2 rounded-md font-medium text-xs transition-all flex items-center justify-center gap-1.5 ${
+            viewTab === 'map' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <Map className="h-3.5 w-3.5" />
+          Mapa
+        </button>
+        <button
           onClick={() => setViewTab('overview')}
           className={`flex-1 py-2 rounded-md font-medium text-xs transition-all flex items-center justify-center gap-1.5 ${
             viewTab === 'overview' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
