@@ -204,32 +204,38 @@ export const GenerativeArtGallery = () => {
     { 
       title: "Você pode estar vendendo bem… e lucrando mal.", 
       category: "Faturamento alto não significa dinheiro no bolso.", 
-      image: "https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=800&auto=format&fit=crop" 
+      // Cash register / point of sale
+      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=800&auto=format&fit=crop" 
     },
     { 
       title: "O problema não é só vender.", 
       category: "É tudo que você não vê acontecendo no meio.", 
-      image: "https://images.unsplash.com/photo-1554224154-26032ffc0d07?q=80&w=800&auto=format&fit=crop" 
+      // Business owner looking at documents/receipts
+      image: "https://images.unsplash.com/photo-1450101499163-c8848c66ca85?q=80&w=800&auto=format&fit=crop" 
     },
     { 
       title: "Pequenos custos estão comendo seu lucro.", 
       category: "E eles se acumulam todos os dias.", 
-      image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=800&auto=format&fit=crop" 
+      // Coins / counting money
+      image: "https://images.unsplash.com/photo-1604594849809-dfedbc827105?q=80&w=800&auto=format&fit=crop" 
     },
     { 
       title: "Sem clareza, toda decisão vira aposta.", 
       category: "Você acha que está indo bem… mas não tem certeza.", 
-      image: "https://images.unsplash.com/photo-1454165833767-13143896b16d?q=80&w=800&auto=format&fit=crop" 
+      // Person analyzing charts on laptop
+      image: "https://images.unsplash.com/photo-1551288049-bebda4e38f71?q=80&w=800&auto=format&fit=crop" 
     },
     { 
       title: "Aqui você vê a verdade do seu negócio.", 
       category: "Sem planilha, sem achismo, sem complicação.", 
-      image: "https://images.unsplash.com/photo-1581291518857-4e27f48ff24e?q=80&w=800&auto=format&fit=crop" 
+      // Clean dashboard / mobile app on phone
+      image: "https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?q=80&w=800&auto=format&fit=crop" 
     },
     { 
       title: "No final, só uma coisa importa: quanto sobra.", 
       category: "E agora você finalmente sabe.", 
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop" 
+      // Entrepreneur relaxed, in control
+      image: "https://images.unsplash.com/photo-1559526324-593bc073d938?q=80&w=800&auto=format&fit=crop" 
     },
   ];
 
