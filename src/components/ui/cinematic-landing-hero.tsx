@@ -304,20 +304,26 @@ export function CinematicHero({
       >
         <div className="card-sheen" />
 
-        {/* Card Left Text */}
-        <div className="card-left-text absolute left-6 right-6 md:right-auto md:left-12 top-[12%] md:top-1/2 -translate-y-0 md:-translate-y-1/2 z-30 max-w-none md:max-w-sm text-center md:text-left">
-          <h2 className="text-card-silver-matte text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
+        {/* Card Left Text - Tightly positioned for Mobile */}
+        <div className="card-left-text absolute top-10 sm:top-16 md:top-1/2 left-6 right-6 md:right-auto md:left-12 md:-translate-y-1/2 z-30 w-auto md:max-w-sm text-center md:text-left">
+          <h2 className="text-card-silver-matte text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-extrabold leading-tight tracking-tight">
             {cardHeading}
           </h2>
-          <p className="text-zinc-400 text-sm md:text-base mt-3 md:mt-4 leading-relaxed max-w-md mx-auto md:mx-0">
+          <p className="text-zinc-400 text-sm md:text-base mt-3 md:mt-4 leading-relaxed max-w-[280px] sm:max-w-md mx-auto md:mx-0">
             {cardDescription}
           </p>
         </div>
 
-        {/* Card Right - Phone Mockup */}
-        <div className="card-right-text absolute left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-4 lg:right-12 bottom-[-10%] md:top-1/2 md:-translate-y-1/2 z-30 scale-[0.8] sm:scale-90 md:scale-100 origin-bottom md:origin-center">
+        {/* Card Right - Floating Phone Mockup */}
+        <div className="card-right-text absolute bottom-[-15%] sm:bottom-[-10%] left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-4 lg:right-12 md:top-1/2 md:-translate-y-1/2 z-30 scale-[0.6] sm:scale-[0.7] md:scale-[0.9] lg:scale-100 origin-bottom md:origin-center pointer-events-none md:pointer-events-auto">
           <div ref={mockupRef} className="mockup-scroll-wrapper" style={{ perspective: "1200px" }}>
-            <div className="iphone-bezel relative w-[240px] md:w-[280px] h-[480px] md:h-[560px] rounded-[40px] md:rounded-[50px] p-[8px] md:p-[10px]">
+            <div 
+              className="iphone-bezel relative w-[240px] md:w-[280px] h-[480px] md:h-[560px] rounded-[40px] md:rounded-[50px] p-[8px] md:p-[10px]"
+              style={{
+                maskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
+                WebkitMaskImage: 'linear-gradient(to bottom, black 80%, transparent 100%)',
+              }}
+            >
               {/* Hardware buttons */}
               <div className="hardware-btn absolute -right-[3px] top-[120px] md:top-[160px] w-[3px] h-[60px] md:h-[80px] rounded-r-sm" />
               <div className="hardware-btn absolute -left-[3px] top-[100px] md:top-[130px] w-[3px] h-[30px] md:h-[40px] rounded-l-sm" />
