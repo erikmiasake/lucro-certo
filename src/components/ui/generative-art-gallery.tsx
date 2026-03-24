@@ -202,34 +202,34 @@ const GalleryCard = ({ item, index }: GalleryCardProps) => {
 export const GenerativeArtGallery = () => {
   const galleryItems: GalleryItem[] = [
     { 
-      title: "Venda ≠ Lucro", 
-      category: "Você sabe quanto realmente sobra?", 
-      image: "https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=600&auto=format&fit=crop" 
+      title: "Você pode estar vendendo bem… e lucrando mal.", 
+      category: "Faturamento alto não significa dinheiro no bolso.", 
+      image: "https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=800&auto=format&fit=crop" 
     },
     { 
-      title: "Custos Invisíveis", 
-      category: "Pequenos gastos, grandes perdas", 
-      image: "https://images.unsplash.com/photo-1554224154-26032ffc0d07?q=80&w=600&auto=format&fit=crop" 
+      title: "O problema não é só vender.", 
+      category: "É tudo que você não vê acontecendo no meio.", 
+      image: "https://images.unsplash.com/photo-1554224154-26032ffc0d07?q=80&w=800&auto=format&fit=crop" 
     },
     { 
-      title: "Clareza Financeira", 
-      category: "Veja para onde seu dinheiro vai", 
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop" 
+      title: "Pequenos custos estão comendo seu lucro.", 
+      category: "E eles se acumulam todos os dias.", 
+      image: "https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=800&auto=format&fit=crop" 
     },
     { 
-      title: "Decisões Reais", 
-      category: "Entenda o que pesa no resultado", 
-      image: "https://images.unsplash.com/photo-1543286386-712258623cc2?q=80&w=600&auto=format&fit=crop" 
+      title: "Sem clareza, toda decisão vira aposta.", 
+      category: "Você acha que está indo bem… mas não tem certeza.", 
+      image: "https://images.unsplash.com/photo-1454165833767-13143896b16d?q=80&w=800&auto=format&fit=crop" 
     },
     { 
-      title: "Menos Achismo", 
-      category: "Mais controle, menos surpresas", 
-      image: "https://images.unsplash.com/photo-1581291518857-4e27f48ff24e?q=80&w=600&auto=format&fit=crop" 
+      title: "Aqui você vê a verdade do seu negócio.", 
+      category: "Sem planilha, sem achismo, sem complicação.", 
+      image: "https://images.unsplash.com/photo-1581291518857-4e27f48ff24e?q=80&w=800&auto=format&fit=crop" 
     },
     { 
-      title: "Resultado Real", 
-      category: "Saiba quanto ficou no seu bolso", 
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop" 
+      title: "No final, só uma coisa importa: quanto sobra.", 
+      category: "E agora você finalmente sabe.", 
+      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=800&auto=format&fit=crop" 
     },
   ];
 
