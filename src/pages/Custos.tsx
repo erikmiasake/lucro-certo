@@ -234,7 +234,11 @@ export default function Custos() {
       </div>
 
       <AnimatePresence mode="wait">
-        {viewTab === 'overview' ? (
+        {viewTab === 'map' ? (
+          <motion.div key="map" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <CostMapSection />
+          </motion.div>
+        ) : viewTab === 'overview' ? (
           <motion.div key="overview" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-3">
 
             {/* Donut Chart + Benchmark */}
