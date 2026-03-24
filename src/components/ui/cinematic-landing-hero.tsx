@@ -34,14 +34,14 @@ const INJECTED_STYLES = `
   }
 
   .text-silver-matte {
-    background: linear-gradient(180deg, var(--color-foreground) 0%, color-mix(in srgb, var(--color-foreground) 40%, transparent) 100%);
+    background: linear-gradient(180deg, hsl(210 20% 96%) 0%, hsl(210 20% 55%) 100%);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
     transform: translateZ(0);
     filter: 
-      drop-shadow(0px 10px 20px color-mix(in srgb, var(--color-foreground) 15%, transparent)) 
-      drop-shadow(0px 2px 4px color-mix(in srgb, var(--color-foreground) 10%, transparent));
+      drop-shadow(0px 10px 30px rgba(255,255,255,0.08)) 
+      drop-shadow(0px 4px 12px rgba(255,255,255,0.05));
   }
 
   .text-card-silver-matte {
