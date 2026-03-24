@@ -8,6 +8,8 @@ import Landing from "./pages/Landing.tsx";
 import ComoFunciona from "./pages/ComoFunciona.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
+import GenerativeArtDemo from "./pages/GenerativeArtDemo.tsx";
+
 const queryClient = new QueryClient();
 
 const App = () => (
@@ -19,6 +21,7 @@ const App = () => (
         <Routes>
           <Route path="/landing" element={<Landing />} />
           <Route path="/como-funciona" element={<ComoFunciona />} />
+          <Route path="/generative-art-demo" element={<GenerativeArtDemo />} />
           <Route path="/*" element={<Index />} />
         </Routes>
       </BrowserRouter>
