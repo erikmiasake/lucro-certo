@@ -1,8 +1,8 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { CinematicHero } from '@/components/ui/cinematic-landing-hero';
-import { LandingNarrative } from '@/components/LandingNarrative';
 import { LandingHeader } from '@/components/LandingHeader';
+import { LandingNarrative } from '@/components/LandingNarrative';
+import DashboardShowcase from '@/components/DashboardShowcase';
 import AuthOverlay from '@/components/auth/AuthOverlay';
 import TransitionScreen from '@/components/auth/TransitionScreen';
 import { supabase } from '@/integrations/supabase/client';
@@ -48,7 +48,7 @@ export default function Landing() {
   return (
     <div className="bg-background relative">
       <LandingHeader onCtaClick={handleCtaClick} />
-      <CinematicHero onCtaClick={handleCtaClick} />
+      <DashboardShowcase onCtaClick={handleCtaClick} />
       <LandingNarrative onCtaClick={handleCtaClick} />
 
       <AuthOverlay
