@@ -12,7 +12,7 @@ interface HeroScreenProps {
 export default function HeroScreen({ onStart, onLearnMore }: HeroScreenProps) {
   const navigate = useNavigate();
   return (
-    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+    <div className="relative min-h-screen w-full flex items-center justify-center overflow-hidden">
       {/* Full-screen background image with slow zoom */}
       <motion.div
         className="absolute inset-0 z-0"
