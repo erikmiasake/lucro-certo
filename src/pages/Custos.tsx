@@ -66,7 +66,7 @@ export default function Custos() {
   const month = getMonthSummary();
   const [showCost, setShowCost] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [viewTab, setViewTab] = useState<'overview' | 'list'>('overview');
+  const [viewTab, setViewTab] = useState<'map' | 'overview' | 'list'>('map');
 
   const bType = state.businessType || 'outro';
   const bench = benchmarks[bType];
