@@ -5,9 +5,10 @@ import { businessConfigs, BusinessType } from '@/lib/business-config';
 import { getRecentCosts, addCost, deleteCost, getCostBreakdown, getWeekSummary, getMonthSummary, CostClassification } from '@/lib/store';
 import {
   Trash2, Plus, Package, Building2, AlertTriangle, PieChart, TrendingDown,
-  BarChart3, Layers, Target, Brain, ArrowDownRight, Lightbulb, Scale, ChevronRight
+  BarChart3, Layers, Target, Brain, ArrowDownRight, Lightbulb, Scale, ChevronRight, Map
 } from 'lucide-react';
 import CostModal from '@/components/CostModal';
+import CostMapSection from '@/components/CostMapSection';
 import FeedbackToast from '@/components/FeedbackToast';
 import AIInsightsPanel from '@/components/AIInsightsPanel';
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
@@ -65,7 +66,7 @@ export default function Custos() {
   const month = getMonthSummary();
   const [showCost, setShowCost] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
-  const [viewTab, setViewTab] = useState<'overview' | 'list'>('overview');
+  const [viewTab, setViewTab] = useState<'map' | 'overview' | 'list'>('map');
 
   const bType = state.businessType || 'outro';
   const bench = benchmarks[bType];
@@ -204,6 +205,15 @@ export default function Custos() {
       {/* Tabs */}
       <div className="flex gap-1 mb-4 p-0.5 rounded-lg bg-secondary/50">
         <button
+          onClick={() => setViewTab('map')}
+          className={`flex-1 py-2 rounded-md font-medium text-xs transition-all flex items-center justify-center gap-1.5 ${
+            viewTab === 'map' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
+          }`}
+        >
+          <Map className="h-3.5 w-3.5" />
+          Mapa
+        </button>
+        <button
           onClick={() => setViewTab('overview')}
           className={`flex-1 py-2 rounded-md font-medium text-xs transition-all flex items-center justify-center gap-1.5 ${
             viewTab === 'overview' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
@@ -224,7 +234,11 @@ export default function Custos() {
       </div>
 
       <AnimatePresence mode="wait">
-        {viewTab === 'overview' ? (
+        {viewTab === 'map' ? (
+          <motion.div key="map" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+            <CostMapSection />
+          </motion.div>
+        ) : viewTab === 'overview' ? (
           <motion.div key="overview" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-3">
 
             {/* Donut Chart + Benchmark */}
