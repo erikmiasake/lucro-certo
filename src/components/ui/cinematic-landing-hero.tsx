@@ -305,19 +305,19 @@ export function CinematicHero({
         <div className="card-sheen" />
 
         {/* Card Left Text */}
-        <div className="card-left-text absolute left-6 md:left-12 top-1/2 -translate-y-1/2 z-30 max-w-xs md:max-w-sm">
-          <h2 className="text-card-silver-matte text-2xl md:text-4xl lg:text-5xl font-bold leading-tight">
+        <div className="card-left-text absolute left-6 right-6 md:right-auto md:left-12 top-[12%] md:top-1/2 -translate-y-0 md:-translate-y-1/2 z-30 max-w-none md:max-w-sm text-center md:text-left">
+          <h2 className="text-card-silver-matte text-3xl md:text-4xl lg:text-5xl font-bold leading-tight">
             {cardHeading}
           </h2>
-          <p className="text-zinc-400 text-sm md:text-base mt-4 leading-relaxed">
+          <p className="text-zinc-400 text-sm md:text-base mt-3 md:mt-4 leading-relaxed max-w-md mx-auto md:mx-0">
             {cardDescription}
           </p>
         </div>
 
         {/* Card Right - Phone Mockup */}
-        <div className="card-right-text absolute right-4 md:right-12 top-1/2 -translate-y-1/2 z-30">
+        <div className="card-right-text absolute left-1/2 -translate-x-1/2 md:left-auto md:translate-x-0 md:right-4 lg:right-12 bottom-[-10%] md:top-1/2 md:-translate-y-1/2 z-30 scale-[0.8] sm:scale-90 md:scale-100 origin-bottom md:origin-center">
           <div ref={mockupRef} className="mockup-scroll-wrapper" style={{ perspective: "1200px" }}>
-            <div className="iphone-bezel relative w-[220px] md:w-[280px] h-[440px] md:h-[560px] rounded-[40px] md:rounded-[50px] p-[8px] md:p-[10px]">
+            <div className="iphone-bezel relative w-[240px] md:w-[280px] h-[480px] md:h-[560px] rounded-[40px] md:rounded-[50px] p-[8px] md:p-[10px]">
               {/* Hardware buttons */}
               <div className="hardware-btn absolute -right-[3px] top-[120px] md:top-[160px] w-[3px] h-[60px] md:h-[80px] rounded-r-sm" />
               <div className="hardware-btn absolute -left-[3px] top-[100px] md:top-[130px] w-[3px] h-[30px] md:h-[40px] rounded-l-sm" />
@@ -385,13 +385,13 @@ export function CinematicHero({
         </div>
 
         {/* Floating Badges */}
-        <div className="floating-badge floating-ui-badge absolute top-8 md:top-12 right-8 md:right-16 z-40 px-4 py-2 rounded-full flex items-center gap-2">
+        <div className="floating-badge floating-ui-badge absolute top-4 md:top-12 right-4 md:right-16 z-40 px-3 md:px-4 py-1.5 md:py-2 rounded-full flex items-center gap-2">
           <div className="w-2 h-2 rounded-full animate-pulse" style={{ background: "hsl(152 76% 52%)" }} />
-          <span className="text-white text-xs font-medium">Custos organizados</span>
+          <span className="text-white text-[10px] md:text-xs font-medium">Custos organizados</span>
         </div>
-        <div className="floating-badge floating-ui-badge absolute bottom-12 md:bottom-16 left-8 md:left-16 z-40 px-4 py-2 rounded-full flex items-center gap-2">
+        <div className="floating-badge floating-ui-badge absolute bottom-4 md:bottom-16 left-4 md:left-16 z-40 px-3 md:px-4 py-1.5 md:py-2 rounded-full flex items-center gap-2">
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="hsl(152 76% 52%)" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round"><path d="m5 12 5 5L20 7"/></svg>
-          <span className="text-white text-xs font-medium">IA analisa tudo</span>
+          <span className="text-white text-[10px] md:text-xs font-medium">IA analisa tudo</span>
         </div>
 
         {/* CTA Wrapper */}
