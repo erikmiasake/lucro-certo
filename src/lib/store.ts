@@ -743,6 +743,6 @@ export function suggestCategory(description: string, businessType: BusinessType)
 }
 
 export function resetAll() {
-  state = { businessType: null, entries: [], costs: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
+  state = { businessType: null, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
   notify();
 }
