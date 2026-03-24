@@ -259,23 +259,31 @@ export function LandingNarrative({ onCtaClick }: Props) {
       </section>
 
       {/* Section 6 — Final CTA */}
-      <section className="py-24 md:py-32 px-6 border-t border-border">
-        <div className="mx-auto max-w-3xl text-center">
+      <section className="py-24 md:py-32 px-6 border-t border-border bg-background relative overflow-hidden">
+        {/* Subtle glow effect */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-primary/10 blur-[120px] rounded-full pointer-events-none" />
+
+        <div className="mx-auto max-w-4xl text-center relative z-10">
           <NarrativeSection>
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground leading-tight">
-              Comece agora e descubra seu{' '}
-              <span className="text-primary">lucro real</span>.
+            <h2 className="text-3xl md:text-6xl font-bold text-foreground leading-tight tracking-tight">
+              Você vende bem, mas <br/>
+              <span className="text-primary">não vê a cor do dinheiro?</span>
             </h2>
-            <p className="text-muted-foreground text-lg mt-6 max-w-xl mx-auto leading-relaxed">
-              Grátis, sem cadastro, resultados em segundos.
+            <p className="text-muted-foreground text-lg mt-8 max-w-xl mx-auto leading-relaxed">
+              Chega de dúvidas. Comece agora, registre suas vendas em segundos e descubra o seu <span className="text-foreground font-medium">lucro real</span>.
             </p>
-            <button
-              onClick={onCtaClick}
-              className="mt-10 inline-flex items-center gap-2 px-8 py-4 rounded-xl bg-primary text-primary-foreground font-semibold text-base shadow-lg shadow-primary/25 hover:shadow-primary/40 transition-shadow"
-            >
-              Começar grátis
-              <ArrowRight className="w-5 h-5" />
-            </button>
+            <div className="mt-12 flex flex-col items-center gap-4">
+              <button
+                onClick={onCtaClick}
+                className="inline-flex items-center gap-2 px-10 py-5 rounded-2xl bg-primary text-primary-foreground font-bold text-lg shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all hover:scale-105 active:scale-95"
+              >
+                Começar grátis agora
+                <ArrowRight className="w-5 h-5" />
+              </button>
+              <p className="text-zinc-500 text-sm">
+                Grátis, sem planilhas e sem complicação.
+              </p>
+            </div>
           </NarrativeSection>
         </div>
       </section>
