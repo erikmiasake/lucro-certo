@@ -202,47 +202,56 @@ const GalleryCard = ({ item, index }: GalleryCardProps) => {
   );
 };
 
-// The main Gallery component
+// The main Strategic Insights component
 export const GenerativeArtGallery = () => {
   const galleryItems: GalleryItem[] = [
     { 
-      title: "Registre vendas em segundos", 
-      category: "Agilidade no dia a dia", 
-      image: "https://images.unsplash.com/photo-1556740738-b6a63e27c4df?q=80&w=600&auto=format&fit=crop" 
+      title: "Venda ≠ Lucro", 
+      category: "Você sabe quanto realmente sobra?", 
+      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=600&auto=format&fit=crop" 
     },
     { 
-      title: "Organize custos fixos e variáveis", 
-      category: "Gestão financeira clara", 
-      image: "https://images.unsplash.com/photo-1554224155-8d04cb21cd6c?q=80&w=600&auto=format&fit=crop" 
+      title: "Custos Invisíveis", 
+      category: "Pequenos gastos, grandes perdas", 
+      image: "https://images.unsplash.com/photo-1554224155-1697b59e75d4?q=80&w=600&auto=format&fit=crop" 
     },
     { 
-      title: "Veja para onde seu dinheiro vai", 
-      category: "Mapa de custos detalhado", 
-      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop" 
+      title: "Clareza Financeira", 
+      category: "Veja para onde seu dinheiro está indo", 
+      image: "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?q=80&w=600&auto=format&fit=crop" 
     },
     { 
-      title: "Descubra seu lucro real", 
-      category: "O que sobra no seu bolso", 
-      image: "https://images.unsplash.com/photo-1543286386-712258623cc2?q=80&w=600&auto=format&fit=crop" 
+      title: "Decisão Inteligente", 
+      category: "Entenda o que pesa no seu resultado", 
+      image: "https://images.unsplash.com/photo-1454165833767-13143896b16d?q=80&w=600&auto=format&fit=crop" 
     },
     { 
-      title: "Insights inteligentes", 
-      category: "IA analisando seu negócio", 
-      image: "https://images.unsplash.com/photo-1581291518633-83b4ebd1d83e?q=80&w=600&auto=format&fit=crop" 
+      title: "Menos Achismo", 
+      category: "Mais controle, menos surpresas", 
+      image: "https://images.unsplash.com/photo-1507679799987-c71d64bcbd51?q=80&w=600&auto=format&fit=crop" 
     },
     { 
-      title: "Tenha controle total", 
-      category: "Tranquilidade para crescer", 
-      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop" 
+      title: "Resultado Real", 
+      category: "Saiba quanto ficou no seu bolso", 
+      image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=600&auto=format&fit=crop" 
     },
   ];
 
   return (
-    <div className="relative w-full min-h-screen bg-[#030303] flex flex-col items-center justify-center p-8 md:p-16 overflow-hidden">
+    <div className="relative w-full min-h-screen bg-[#030303] flex flex-col items-center justify-center p-8 md:p-16 overflow-hidden border-t border-white/5">
       {/* Background radial glow */}
-      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-4xl bg-primary/20 rounded-full blur-[120px] pointer-events-none opacity-40" />
+      <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full h-full max-w-5xl bg-emerald-500/10 rounded-full blur-[140px] pointer-events-none opacity-40" />
 
       <div className="relative z-10 flex flex-col items-center text-center mb-16 max-w-3xl">
+        <motion.div
+          initial={{ opacity: 0, scale: 0.9 }}
+          whileInView={{ opacity: 1, scale: 1 }}
+          viewport={{ once: true }}
+          className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary/10 border border-primary/20 text-primary text-xs font-bold mb-6 tracking-widest uppercase"
+        >
+          Visão Estratégica
+        </motion.div>
+        
         <motion.h2
           initial={{ opacity: 0, y: -20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -250,7 +259,7 @@ export const GenerativeArtGallery = () => {
           transition={{ delay: 0.2, duration: 0.8, ease: "easeInOut" }}
           className="text-4xl md:text-5xl lg:text-6xl font-bold tracking-tight mb-6 text-white leading-tight"
         >
-          Como o <span className="text-primary">Lucro Real</span> funciona na prática
+          O que o <span className="text-primary">Lucro Real</span> te permite enxergar
         </motion.h2>
         <motion.p
           initial={{ opacity: 0, y: -20 }}
@@ -259,7 +268,7 @@ export const GenerativeArtGallery = () => {
           transition={{ delay: 0.4, duration: 0.8, ease: "easeInOut" }}
           className="text-lg text-zinc-400 max-w-2xl"
         >
-          Do registro de vendas até o lucro real, veja como o app ajuda você a tomar melhores decisões.
+          Seu lucro não é apenas faturamento. Entenda o que está por trás dos números e tome o controle total do seu negócio.
         </motion.p>
       </div>
 

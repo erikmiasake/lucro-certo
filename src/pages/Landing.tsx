@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { LandingHeader } from '@/components/LandingHeader';
 import { LandingNarrative } from '@/components/LandingNarrative';
 import DashboardShowcase from '@/components/DashboardShowcase';
+import { GenerativeArtGallery } from '@/components/ui/generative-art-gallery';
 import AuthOverlay from '@/components/auth/AuthOverlay';
 import TransitionScreen from '@/components/auth/TransitionScreen';
 import { supabase } from '@/integrations/supabase/client';
@@ -50,6 +51,7 @@ export default function Landing() {
       <LandingHeader onCtaClick={handleCtaClick} />
       <DashboardShowcase onCtaClick={handleCtaClick} />
       <LandingNarrative onCtaClick={handleCtaClick} />
+      <GenerativeArtGallery />
 
       <AuthOverlay
         isOpen={isAuthOpen}
