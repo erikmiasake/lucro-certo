@@ -1,13 +1,15 @@
 "use client";
 
 import React, { useState } from "react";
-import { motion, useMotionValue, useTransform, useSpring } from "framer-motion";
+import { motion } from "framer-motion";
 import { 
   TrendingUp, 
   ArrowUpRight, 
   DollarSign, 
   LayoutDashboard,
-  Sparkles
+  Sparkles,
+  AlertTriangle,
+  Target
 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
@@ -19,50 +21,96 @@ interface BentoCardProps {
 }
 
 const BentoCard = ({ children, className, delay = 0 }: BentoCardProps) => {
-  const x = useMotionValue(0);
-  const y = useMotionValue(0);
-
-  const mouseXSpring = useSpring(x);
-  const mouseYSpring = useSpring(y);
-
-  const rotateX = useTransform(mouseYSpring, [-0.5, 0.5], ["5deg", "-5deg"]);
-  const rotateY = useTransform(mouseXSpring, [-0.5, 0.5], ["-5deg", "5deg"]);
-
-  const handleMouseMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const rect = e.currentTarget.getBoundingClientRect();
-    x.set((e.clientX - rect.left) / rect.width - 0.5);
-    y.set((e.clientY - rect.top) / rect.height - 0.5);
-  };
-
-  const handleMouseLeave = () => {
-    x.set(0);
-    y.set(0);
-  };
-
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
       whileInView={{ opacity: 1, y: 0 }}
       viewport={{ once: true }}
       transition={{ duration: 0.5, delay }}
-      onMouseMove={handleMouseMove}
-      onMouseLeave={handleMouseLeave}
-      style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
       className={cn(
-        "relative rounded-[32px] bg-zinc-900/40 border border-white/10 backdrop-blur-xl overflow-hidden group",
+        "relative rounded-[28px] bg-zinc-900/50 border border-white/8 backdrop-blur-xl overflow-hidden group",
         className
       )}
     >
-      <div 
-        style={{ transform: "translateZ(30px)", transformStyle: "preserve-3d" }}
-        className="h-full w-full"
-      >
-        {children}
-      </div>
-      
-      {/* Subtle border glow on hover */}
-      <div className="absolute inset-0 border border-primary/0 group-hover:border-primary/30 transition-colors pointer-events-none rounded-[32px]" />
+      {children}
+      <div className="absolute inset-0 border border-primary/0 group-hover:border-primary/20 transition-colors pointer-events-none rounded-[28px]" />
     </motion.div>
+  );
+};
+
+// Profit waterfall data
+const waterfallData = [
+  { label: "Faturamento",    value: 100, type: "total",    color: "bg-zinc-600",  textColor: "text-zinc-300", amount: "R$ 32.000" },
+  { label: "Custos Fixos",   value: 28,  type: "cost",     color: "bg-red-900/70", textColor: "text-red-400",  amount: "−R$ 9.000" },
+  { label: "Custos Variáveis", value: 22, type: "cost",    color: "bg-orange-900/70", textColor: "text-orange-400", amount: "−R$ 7.000" },
+  { label: "Desperdícios",   value: 12,  type: "cost",     color: "bg-yellow-900/60", textColor: "text-yellow-500", amount: "−R$ 3.800" },
+  { label: "Lucro Real",     value: 38,  type: "profit",   color: "bg-primary",   textColor: "text-primary",  amount: "R$ 12.200" },
+];
+
+const WaterfallChart = () => {
+  const [hovered, setHovered] = useState<number | null>(null);
+
+  return (
+    <div className="w-full h-full flex flex-col gap-3 justify-center">
+      {waterfallData.map((item, i) => (
+        <motion.div
+          key={item.label}
+          initial={{ opacity: 0, x: -20 }}
+          animate={{ opacity: 1, x: 0 }}
+          transition={{ duration: 0.6, delay: 0.9 + i * 0.12, ease: "easeOut" }}
+          className="flex items-center gap-3 cursor-default"
+          onMouseEnter={() => setHovered(i)}
+          onMouseLeave={() => setHovered(null)}
+        >
+          {/* Label */}
+          <div className="w-[130px] shrink-0 text-right">
+            <span className={cn(
+              "text-[11px] font-semibold transition-colors duration-200",
+              item.type === "profit" ? "text-primary" : hovered === i ? "text-white" : "text-zinc-500"
+            )}>
+              {item.label}
+            </span>
+          </div>
+
+          {/* Bar track */}
+          <div className="flex-1 relative h-7 bg-white/5 rounded-full overflow-hidden">
+            <motion.div
+              initial={{ width: 0 }}
+              animate={{ width: `${item.value}%` }}
+              transition={{ duration: 1.1, delay: 1.0 + i * 0.12, ease: "easeOut" }}
+              className={cn(
+                "h-full rounded-full",
+                item.type === "profit"
+                  ? "bg-primary shadow-[0_0_20px_rgba(16,185,129,0.55)]"
+                  : item.color,
+                hovered === i && item.type !== "profit" ? "brightness-125" : ""
+              )}
+            />
+          </div>
+
+          {/* Amount */}
+          <div className="w-[80px] shrink-0">
+            <span className={cn(
+              "text-[11px] font-bold tabular-nums",
+              item.type === "profit" ? "text-primary" : item.textColor
+            )}>
+              {item.amount}
+            </span>
+          </div>
+        </motion.div>
+      ))}
+
+      {/* Bottom margin note */}
+      <motion.div
+        initial={{ opacity: 0 }}
+        animate={{ opacity: 1 }}
+        transition={{ delay: 2, duration: 0.6 }}
+        className="flex justify-end items-center gap-2 pt-2 border-t border-white/5 mt-1"
+      >
+        <span className="text-zinc-600 text-[10px] uppercase tracking-widest">Margem de lucro</span>
+        <span className="text-primary text-[11px] font-bold">38%</span>
+      </motion.div>
+    </div>
   );
 };
 
@@ -142,92 +190,88 @@ export default function DashboardShowcase({ onCtaClick }: DashboardShowcaseProps
         {/* Interactive Bento Grid */}
         <div className="w-full grid grid-cols-1 md:grid-cols-12 gap-4 md:gap-6 px-4">
           
-          {/* Main Chart Card */}
-          <BentoCard className="md:col-span-8 h-[300px] md:h-[450px] p-6 md:p-8" delay={0.4}>
-            <div className="flex items-center justify-between mb-8">
+          {/* Main Waterfall Chart Card */}
+          <BentoCard className="md:col-span-8 h-auto min-h-[340px] md:min-h-[420px] p-6 md:p-8" delay={0.4}>
+            <div className="flex items-start justify-between mb-6 md:mb-8">
               <div>
-                <h3 className="text-xl font-bold text-white flex items-center gap-2">
-                  <TrendingUp className="w-5 h-5 text-primary" />
-                  Visão Geral de Lucro
+                <h3 className="text-base md:text-xl font-bold text-white flex items-center gap-2">
+                  <TrendingUp className="w-4 h-4 md:w-5 md:h-5 text-primary shrink-0" />
+                  De onde vem o seu lucro real?
                 </h3>
-                <p className="text-zinc-500 text-sm mt-1">Comparativo dos últimos 30 dias</p>
+                <p className="text-zinc-500 text-xs md:text-sm mt-1">Decomposição do faturamento — últimos 30 dias</p>
               </div>
-              <div className="flex gap-2">
-                {[7, 30, 90].map((d) => (
-                  <button key={d} className={cn("px-3 py-1 rounded-lg text-[10px] font-medium transition-colors", d === 30 ? "bg-primary/20 text-primary border border-primary/30" : "bg-white/5 text-zinc-500 border border-transparent")}>
-                    {d}D
-                  </button>
-                ))}
+              <div className="shrink-0 text-[10px] font-bold text-primary bg-primary/10 px-2.5 py-1 rounded-full border border-primary/20">
+                30 dias
               </div>
             </div>
             
-            {/* Chart Animation */}
-            <div className="flex items-end justify-between h-[60%] w-full gap-2 md:gap-4 px-2">
-              {[40, 60, 45, 75, 55, 90, 65, 85, 70, 95, 80, 100].map((h, i) => (
-                <div key={i} className="flex-1 group/bar relative flex items-end" style={{ height: '100%' }}>
-                  <motion.div 
-                    initial={{ height: 0 }}
-                    animate={{ height: `${h}%` }}
-                    transition={{ duration: 1.2, delay: 0.8 + (i * 0.06), ease: 'easeOut' }}
-                    className={cn(
-                      "w-full rounded-t-lg transition-colors duration-300", 
-                      i === 11 ? "bg-primary shadow-[0_0_20px_rgba(20,184,105,0.5)]" : "bg-zinc-800 group-hover/bar:bg-zinc-700"
-                    )} 
-                  />
-                </div>
-              ))}
-            </div>
+            <WaterfallChart />
           </BentoCard>
 
-          {/* Right Column Bento Cards */}
+          {/* Right Column */}
           <div className="md:col-span-4 flex flex-col gap-4 md:gap-6">
             
             {/* Saldo Atual Card */}
-            <BentoCard className="flex-1 p-6 flex flex-col justify-between" delay={0.5}>
+            <BentoCard className="flex-1 p-5 md:p-6 flex flex-col justify-between" delay={0.5}>
               <div className="flex items-start justify-between">
                 <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 text-primary">
                   <DollarSign className="w-5 h-5" />
                 </div>
-                <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full">+12.4%</span>
+                <span className="text-[10px] font-bold text-primary bg-primary/10 px-2 py-0.5 rounded-full border border-primary/20">+12.4%</span>
               </div>
-              <div>
-                <p className="text-zinc-500 text-[10px] mb-1 uppercase tracking-widest font-bold">Saldo Atual</p>
-                <h4 className="text-3xl md:text-4xl font-bold text-white tracking-tight">R$ 124.500</h4>
+              <div className="mt-4">
+                <p className="text-zinc-500 text-[10px] mb-1 uppercase tracking-widest font-bold">Lucro Real do Mês</p>
+                <h4 className="text-3xl md:text-4xl font-bold text-white tracking-tight">R$ 12.200</h4>
               </div>
             </BentoCard>
 
-            {/* AI Insight Card */}
-            <BentoCard className="flex-1 p-6 bg-primary/5 border-primary/20" delay={0.6}>
-              <div className="flex items-center gap-3 mb-4">
-                <div className="w-8 h-8 rounded-xl bg-primary/20 flex items-center justify-center">
-                  <Sparkles className="w-4 h-4 text-primary" />
+            {/* Actionable AI Insight Card */}
+            <BentoCard className="flex-1 p-5 md:p-6 bg-primary/5 border-primary/20" delay={0.6}>
+              <div className="flex items-center gap-3 mb-3">
+                <div className="w-7 h-7 rounded-xl bg-primary/20 flex items-center justify-center shrink-0">
+                  <Sparkles className="w-3.5 h-3.5 text-primary" />
                 </div>
                 <span className="text-[10px] font-bold text-primary uppercase tracking-widest">Insight da IA</span>
               </div>
-              <p className="text-white text-sm md:text-base leading-relaxed font-medium italic">
-                "Sua margem de lucro cresceu 15% após o corte de custos fixos no último trimestre."
+              <p className="text-white text-sm leading-relaxed font-medium italic mb-3">
+                "Seus desperdícios consomem 12% do faturamento. Reduzir 30% disso adicionaria R$ 1.140 ao seu lucro."
               </p>
+              <div className="flex items-center gap-1.5 text-[10px] text-primary/70 font-medium">
+                <Target className="w-3 h-3" />
+                Meta: aumentar margem para 42%
+              </div>
             </BentoCard>
           </div>
 
-          {/* Bottom Row Highlights (Optional but adds to the bento feel) */}
-          <BentoCard className="md:col-span-4 p-6 flex items-center gap-4" delay={0.7}>
-            <div className="w-12 h-12 rounded-2xl bg-zinc-800 flex items-center justify-center border border-white/5">
-              <LayoutDashboard className="w-6 h-6 text-zinc-400" />
+          {/* Bottom Row */}
+          <BentoCard className="md:col-span-4 p-5 md:p-6 flex items-center gap-4" delay={0.7}>
+            <div className="w-10 h-10 rounded-2xl bg-red-500/10 flex items-center justify-center border border-red-500/20 shrink-0">
+              <AlertTriangle className="w-5 h-5 text-red-400" />
+            </div>
+            <div>
+              <p className="text-white font-bold text-sm">Alerta de custo</p>
+              <p className="text-zinc-500 text-[10px]">Embalagens 18% acima da média</p>
+            </div>
+          </BentoCard>
+
+          <BentoCard className="md:col-span-4 p-5 md:p-6 flex items-center gap-4" delay={0.75}>
+            <div className="w-10 h-10 rounded-2xl bg-primary/10 flex items-center justify-center border border-primary/20 shrink-0">
+              <LayoutDashboard className="w-5 h-5 text-primary" />
             </div>
             <div>
               <p className="text-white font-bold text-sm">Controle Total</p>
-              <p className="text-zinc-500 text-[10px]">Visibilidade 360 do seu caixa</p>
+              <p className="text-zinc-500 text-[10px]">Visibilidade 360° do seu caixa</p>
             </div>
           </BentoCard>
-          
+
           <motion.div 
             initial={{ opacity: 0 }}
             whileInView={{ opacity: 1 }}
             transition={{ delay: 1 }}
-            className="md:col-span-8 flex items-center justify-center text-zinc-600 text-[10px] uppercase tracking-widest font-medium"
+            viewport={{ once: true }}
+            className="md:col-span-4 flex items-center justify-center text-zinc-600 text-[10px] uppercase tracking-widest font-medium"
           >
-            Utilizado por mais de 500 empresas para gestão inteligente
+            +500 empresas gerenciam com Lucro Real
           </motion.div>
 
         </div>
