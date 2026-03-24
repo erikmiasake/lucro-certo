@@ -5,9 +5,10 @@ import { businessConfigs, BusinessType } from '@/lib/business-config';
 import { getRecentCosts, addCost, deleteCost, getCostBreakdown, getWeekSummary, getMonthSummary, CostClassification } from '@/lib/store';
 import {
   Trash2, Plus, Package, Building2, AlertTriangle, PieChart, TrendingDown,
-  BarChart3, Layers, Target, Brain, ArrowDownRight, Lightbulb, Scale, ChevronRight
+  BarChart3, Layers, Target, Brain, ArrowDownRight, Lightbulb, Scale, ChevronRight, Map
 } from 'lucide-react';
 import CostModal from '@/components/CostModal';
+import CostMapSection from '@/components/CostMapSection';
 import FeedbackToast from '@/components/FeedbackToast';
 import AIInsightsPanel from '@/components/AIInsightsPanel';
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
