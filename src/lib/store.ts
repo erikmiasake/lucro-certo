@@ -742,6 +742,60 @@ export function suggestCategory(description: string, businessType: BusinessType)
   return null;
 }
 
+// ─── Cost Map ──────────────────────────────────────────────────────
+
+const VARIABLE_COST_NAMES = ['Ingredientes', 'Bebidas', 'Embalagens', 'Descartáveis', 'Produtos', 'Tintas', 'Cremes', 'Lâminas', 'Ração', 'Produtos pet', 'Medicamentos', 'Acessórios', 'Mercadoria', 'Estoque', 'Equipamentos', 'Suplementos', 'Manutenção', 'Limpeza', 'Materiais', 'Insumos'];
+const FIXED_COST_NAMES = ['Aluguel', 'Energia', 'Água', 'Funcionários', 'Gás', 'Sistema/Software', 'Contas', 'Internet'];
+
+export function classifyCostName(name: string): CostClassification {
+  if (FIXED_COST_NAMES.some(f => name.toLowerCase() === f.toLowerCase())) return 'fixed';
+  if (VARIABLE_COST_NAMES.some(v => name.toLowerCase() === v.toLowerCase())) return 'variable';
+  return 'variable';
+}
+
+export function initCostMapFromOnboarding(selectedCosts: string[]) {
+  const items: CostMapItem[] = selectedCosts.map(name => ({
+    id: crypto.randomUUID(),
+    name,
+    classification: classifyCostName(name),
+    value: 0,
+  }));
+  state = { ...state, costMap: items };
+  notify();
+}
+
+export function updateCostMapItem(id: string, updates: Partial<Pick<CostMapItem, 'name' | 'classification' | 'value'>>) {
+  state = {
+    ...state,
+    costMap: state.costMap.map(item => item.id === id ? { ...item, ...updates } : item),
+  };
+  notify();
+}
+
+export function deleteCostMapItem(id: string) {
+  state = { ...state, costMap: state.costMap.filter(item => item.id !== id) };
+  notify();
+}
+
+export function addCostMapItem(name: string, classification: CostClassification) {
+  const item: CostMapItem = {
+    id: crypto.randomUUID(),
+    name,
+    classification,
+    value: 0,
+  };
+  state = { ...state, costMap: [...state.costMap, item] };
+  notify();
+}
+
+export function getCostMap() {
+  const fixed = state.costMap.filter(i => i.classification === 'fixed');
+  const variable = state.costMap.filter(i => i.classification === 'variable');
+  const totalFixed = fixed.reduce((s, i) => s + i.value, 0);
+  const totalVariable = variable.reduce((s, i) => s + i.value, 0);
+  return { fixed, variable, totalFixed, totalVariable, total: totalFixed + totalVariable };
+}
+
 export function resetAll() {
   state = { businessType: null, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
   notify();

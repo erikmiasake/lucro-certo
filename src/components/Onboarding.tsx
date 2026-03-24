@@ -63,6 +63,10 @@ export default function Onboarding() {
     if (finishData.profile) {
       setBusinessProfile(finishData.profile);
     }
+    // Auto-create cost map from onboarding selections
+    if (finishData.selectedCosts.length > 0) {
+      initCostMapFromOnboarding(finishData.selectedCosts);
+    }
     navigate('/', { replace: true });
     setBusinessType(selectedType);
     setTimeout(() => {
