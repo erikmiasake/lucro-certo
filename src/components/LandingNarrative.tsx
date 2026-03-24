@@ -63,6 +63,24 @@ export function LandingNarrative({ onCtaClick }: Props) {
         </div>
       </section>
 
+      {/* Divider — "Veja como funciona" */}
+      <section className="py-16 md:py-20 px-6">
+        <NarrativeSection>
+          <div className="mx-auto max-w-3xl flex flex-col items-center text-center gap-4">
+            <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium">
+              <TrendingUp className="w-4 h-4" />
+              Como funciona
+            </div>
+            <h2 className="text-3xl md:text-5xl font-bold text-foreground leading-tight">
+              Veja como funciona
+            </h2>
+            <p className="text-muted-foreground text-base max-w-xl">
+              Em três passos simples, você descobre exatamente quanto está sobrando no seu negócio.
+            </p>
+          </div>
+        </NarrativeSection>
+      </section>
+
       {/* Section 2 — Simple Registration */}
       <section className="py-24 md:py-32 px-6 border-t border-border">
         <div className="mx-auto max-w-5xl">
