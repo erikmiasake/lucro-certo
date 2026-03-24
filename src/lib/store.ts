@@ -64,7 +64,7 @@ function loadState(): AppState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, ...parsed };
+      return { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, costMap: [], ...parsed };
     }
   } catch {}
   return { businessType: null, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
