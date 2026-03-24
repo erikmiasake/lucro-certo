@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { BusinessType } from '@/lib/business-config';
-import { setBusinessType, setOnboardingData, setBusinessProfile } from '@/lib/store';
+import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding } from '@/lib/store';
 import HeroScreen from '@/components/HeroScreen';
 import AILoadingScreen from '@/components/AILoadingScreen';
 import OnboardingDetails, { OnboardingFinishData } from '@/components/OnboardingDetails';
