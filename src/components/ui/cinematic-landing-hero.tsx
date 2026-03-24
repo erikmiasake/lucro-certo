@@ -34,14 +34,11 @@ const INJECTED_STYLES = `
   }
 
   .text-silver-matte {
-    background: linear-gradient(180deg, hsl(210 20% 96%) 0%, hsl(210 20% 55%) 100%);
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    transform: translateZ(0);
-    filter: 
-      drop-shadow(0px 10px 30px rgba(255,255,255,0.08)) 
-      drop-shadow(0px 4px 12px rgba(255,255,255,0.05));
+    color: #FFFFFF !important;
+    -webkit-text-fill-color: #FFFFFF !important;
+    text-shadow: 
+      0 0 40px rgba(255,255,255,0.15),
+      0 4px 12px rgba(0,0,0,0.5);
   }
 
   .text-card-silver-matte {
