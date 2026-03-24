@@ -171,6 +171,34 @@ export function addCost(
     subcategory,
   };
   state = { ...state, costs: [...state.costs, cost] };
+  
+  // Sync to cost map
+  const mapName = category || description || (type === 'product' ? 'Produto' : 'Negócio');
+  const existingMapItem = state.costMap.find(
+    i => i.name.toLowerCase() === mapName.toLowerCase()
+  );
+  if (existingMapItem) {
+    // Update existing map item value (sum all costs with same category)
+    const totalForCategory = state.costs
+      .filter(c => (c.category || c.description || (c.type === 'product' ? 'Produto' : 'Negócio')).toLowerCase() === mapName.toLowerCase())
+      .reduce((s, c) => s + c.amount, 0);
+    state = {
+      ...state,
+      costMap: state.costMap.map(i =>
+        i.id === existingMapItem.id ? { ...i, value: totalForCategory } : i
+      ),
+    };
+  } else {
+    // Create new map item
+    const newItem: CostMapItem = {
+      id: crypto.randomUUID(),
+      name: mapName,
+      classification: inferredClassification,
+      value: amount,
+    };
+    state = { ...state, costMap: [...state.costMap, newItem] };
+  }
+  
   notify();
 }
 
