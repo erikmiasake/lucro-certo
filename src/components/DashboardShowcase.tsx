@@ -164,14 +164,14 @@ export default function DashboardShowcase({ onCtaClick }: DashboardShowcaseProps
             {/* Chart Animation */}
             <div className="flex items-end justify-between h-[60%] w-full gap-2 md:gap-4 px-2">
               {[40, 60, 45, 75, 55, 90, 65, 85, 70, 95, 80, 100].map((h, i) => (
-                <div key={i} className="flex-1 group/bar relative">
+                <div key={i} className="flex-1 group/bar relative flex items-end" style={{ height: '100%' }}>
                   <motion.div 
                     initial={{ height: 0 }}
-                    whileInView={{ height: `${h}%` }}
-                    transition={{ duration: 1, delay: 0.6 + (i * 0.05) }}
+                    animate={{ height: `${h}%` }}
+                    transition={{ duration: 1.2, delay: 0.8 + (i * 0.06), ease: 'easeOut' }}
                     className={cn(
-                      "w-full rounded-t-lg transition-all duration-300", 
-                      i === 11 ? "bg-primary shadow-[0_0_15px_rgba(20,184,105,0.4)]" : "bg-zinc-800 group-hover/bar:bg-zinc-700"
+                      "w-full rounded-t-lg transition-colors duration-300", 
+                      i === 11 ? "bg-primary shadow-[0_0_20px_rgba(20,184,105,0.5)]" : "bg-zinc-800 group-hover/bar:bg-zinc-700"
                     )} 
                   />
                 </div>

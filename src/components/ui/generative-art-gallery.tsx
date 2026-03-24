@@ -228,8 +228,8 @@ export const GenerativeArtGallery = () => {
     { 
       title: "Aqui você vê a verdade do seu negócio.", 
       category: "Sem planilha, sem achismo, sem complicação.", 
-      // Clean dashboard / mobile app on phone
-      image: "https://images.unsplash.com/photo-1607252650355-f7fd0460ccdb?q=80&w=800&auto=format&fit=crop" 
+      // Person using fintech / mobile finance app
+      image: "https://images.unsplash.com/photo-1512941937669-90a1b58e7e9c?q=80&w=800&auto=format&fit=crop" 
     },
     { 
       title: "No final, só uma coisa importa: quanto sobra.", 
