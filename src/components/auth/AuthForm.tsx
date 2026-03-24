@@ -31,9 +31,15 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
       });
       if (error) throw error;
     } catch (err: any) {
-      toast.error('Erro ao conectar com Google', {
-        description: err.message
-      });
+      if (err.message && err.message.includes('provider is not enabled')) {
+        toast.info('Em breve!', {
+          description: 'O login por Google ainda não foi configurado no servidor. Por favor, use a opção "Continuar com e-mail" por enquanto.'
+        });
+      } else {
+        toast.error('Erro ao conectar com Google', {
+          description: err.message
+        });
+      }
     }
   };
 
