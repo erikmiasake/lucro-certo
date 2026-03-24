@@ -53,12 +53,12 @@ export function LandingNarrative({ onCtaClick }: Props) {
               <AlertTriangle className="w-4 h-4" />
               O problema
             </div>
-            <h2 className="text-3xl md:text-6xl font-bold text-foreground leading-tight tracking-tight">
-              O problema não é o quanto entra. <br/>
-              É o que <span className="text-primary">fica no caminho</span>.
+            <h2 className="text-3xl md:text-6xl font-bold text-foreground leading-tight tracking-tight px-4">
+              Você vende bem, mas <br/>
+              <span className="text-primary text-4xl md:text-7xl">não vê a cor do dinheiro?</span>
             </h2>
-            <p className="text-muted-foreground text-lg mt-6 max-w-2xl mx-auto leading-relaxed mb-16 italic">
-              "Você vende todos os dias, mas nem sempre sabe para onde o dinheiro está indo. Custos escondidos e contas misturadas são os verdadeiros ladrões do seu lucro."
+            <p className="text-muted-foreground text-lg mt-8 max-w-2xl mx-auto leading-relaxed mb-16 px-4">
+              Custos escondidos, taxas de cartão e desperdícios invisíveis são os verdadeiros ladrões do seu negócio. Isso acaba agora.
             </p>
 
             <div className="w-full flex flex-col items-center gap-8 pt-16 border-t border-white/5">
@@ -66,8 +66,8 @@ export function LandingNarrative({ onCtaClick }: Props) {
                 <TrendingUp className="w-4 h-4" />
                 Como funciona
               </div>
-              <h2 className="text-3xl md:text-5xl font-bold text-foreground leading-tight">
-                Como você assume o <span className="text-primary">controle</span> do seu lucro
+              <h2 className="text-3xl md:text-6xl font-bold text-foreground leading-tight">
+                Veja como funciona.
               </h2>
               <p className="text-muted-foreground text-lg max-w-xl">
                 Você registra, a IA organiza — e o <span className="text-foreground font-medium">lucro real aparece</span>.
