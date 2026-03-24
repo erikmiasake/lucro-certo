@@ -4,13 +4,11 @@ import { LandingHeader } from '@/components/LandingHeader';
 import { LandingNarrative } from '@/components/LandingNarrative';
 import DashboardShowcase from '@/components/DashboardShowcase';
 import { GenerativeArtGallery } from '@/components/ui/generative-art-gallery';
-import AuthOverlay from '@/components/auth/AuthOverlay';
 import TransitionScreen from '@/components/auth/TransitionScreen';
 import { supabase } from '@/integrations/supabase/client';
 
 export default function Landing() {
   const navigate = useNavigate();
-  const [isAuthOpen, setIsAuthOpen] = useState(false);
   const [isTransitioning, setIsTransitioning] = useState(false);
 
   useEffect(() => {
@@ -24,7 +22,6 @@ export default function Landing() {
     // Listen for auth state changes (e.g. user finishes OAuth flow)
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (event === 'SIGNED_IN' && session) {
-        setIsAuthOpen(false);
         setIsTransitioning(true);
       }
     });
@@ -32,12 +29,7 @@ export default function Landing() {
     return () => subscription.unsubscribe();
   }, [navigate]);
 
-  const handleCtaClick = () => {
-    setIsAuthOpen(true);
-  };
-
   const handleAuthSuccess = () => {
-    setIsAuthOpen(false);
     setIsTransitioning(true);
   };
 
@@ -48,16 +40,10 @@ export default function Landing() {
 
   return (
     <div className="bg-background relative">
-      <LandingHeader onCtaClick={handleCtaClick} />
-      <DashboardShowcase onCtaClick={handleCtaClick} />
+      <LandingHeader />
+      <DashboardShowcase />
       <GenerativeArtGallery />
-      <LandingNarrative onCtaClick={handleCtaClick} />
-
-      <AuthOverlay
-        isOpen={isAuthOpen}
-        onClose={() => setIsAuthOpen(false)}
-        onSuccess={handleAuthSuccess}
-      />
+      <LandingNarrative />
 
       {isTransitioning && (
         <TransitionScreen onComplete={handleTransitionComplete} />

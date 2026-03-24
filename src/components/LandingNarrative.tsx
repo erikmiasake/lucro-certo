@@ -1,5 +1,6 @@
 import { useEffect, useRef } from 'react';
 import { motion } from 'framer-motion';
+import { Link } from 'react-router-dom';
 import { gsap } from 'gsap';
 import { ScrollTrigger } from 'gsap/ScrollTrigger';
 import { DollarSign, BarChart3, TrendingUp, Sparkles, Utensils, Scissors, PawPrint, ShoppingBag, ArrowRight, AlertTriangle, Brain, Target } from 'lucide-react';
@@ -9,7 +10,7 @@ if (typeof window !== 'undefined') {
 }
 
 interface Props {
-  onCtaClick: () => void;
+  onCtaClick?: () => void;
 }
 
 function NarrativeSection({ children, className = '' }: { children: React.ReactNode; className?: string }) {
@@ -273,13 +274,13 @@ export function LandingNarrative({ onCtaClick }: Props) {
               Chega de dúvidas. Comece agora, registre suas vendas em segundos e descubra o seu <span className="text-foreground font-medium">lucro real</span>.
             </p>
             <div className="mt-12 flex flex-col items-center gap-4">
-              <button
-                onClick={onCtaClick}
+              <Link
+                to="/login"
                 className="inline-flex items-center gap-2 px-10 py-5 rounded-2xl bg-primary text-primary-foreground font-bold text-lg shadow-xl shadow-primary/30 hover:shadow-primary/50 transition-all hover:scale-105 active:scale-95"
               >
                 Começar agora
                 <ArrowRight className="w-5 h-5" />
-              </button>
+              </Link>
               <p className="text-zinc-500 text-sm">
                 Simples, sem planilhas e sem complicação.
               </p>

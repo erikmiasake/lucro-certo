@@ -5,6 +5,7 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import Index from "./pages/Index.tsx";
 import Landing from "./pages/Landing.tsx";
+import Login from "./pages/Login.tsx";
 import ComoFunciona from "./pages/ComoFunciona.tsx";
 import NotFound from "./pages/NotFound.tsx";
 
@@ -20,6 +21,7 @@ const App = () => (
       <BrowserRouter>
         <Routes>
           <Route path="/landing" element={<Landing />} />
+          <Route path="/login" element={<Login />} />
           <Route path="/como-funciona" element={<ComoFunciona />} />
           <Route path="/generative-art-demo" element={<GenerativeArtDemo />} />
           <Route path="/*" element={<Index />} />

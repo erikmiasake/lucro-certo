@@ -170,19 +170,22 @@ export default function DashboardShowcase({ onCtaClick }: DashboardShowcaseProps
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Button 
-              onClick={onCtaClick}
+              asChild
               size="lg" 
               className="w-full sm:w-auto h-12 px-8 rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 transition-all shadow-[0_0_20px_rgba(20,184,105,0.3)] font-semibold group"
             >
-              Ver demonstração
-              <ArrowUpRight className="ml-2 w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              <Link to="/login">
+                Começar agora
+                <ArrowUpRight className="ml-2 w-4 h-4 group-hover:translate-x-0.5 group-hover:-translate-y-0.5 transition-transform" />
+              </Link>
             </Button>
             <Button 
               variant="outline" 
               size="lg" 
               className="w-full sm:w-auto h-12 px-8 rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-white transition-all backdrop-blur-md"
+              asChild
             >
-              Ver demonstração
+              <Link to="/login">Ver demonstração</Link>
             </Button>
           </motion.div>
         </div>

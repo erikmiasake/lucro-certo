@@ -50,8 +50,8 @@ export function LandingHeader({ onCtaClick }: { onCtaClick?: () => void }) {
                 {item.name}
               </Link>
             ))}
-            <Button size="sm" className="rounded-xl" onClick={onCtaClick}>
-              Começar agora
+            <Button size="sm" className="rounded-xl" asChild>
+              <Link to="/login">Começar agora</Link>
             </Button>
           </div>
 
@@ -63,8 +63,10 @@ export function LandingHeader({ onCtaClick }: { onCtaClick?: () => void }) {
                     {item.name}
                   </Link>
                 ))}
-                <Button size="lg" className="rounded-xl mt-4" onClick={() => { setMenuState(false); onCtaClick?.(); }}>
-                  Começar agora
+                <Button size="lg" className="rounded-xl mt-4" asChild>
+                  <Link to="/login" onClick={() => setMenuState(false)}>
+                    Começar agora
+                  </Link>
                 </Button>
               </div>
             </div>
