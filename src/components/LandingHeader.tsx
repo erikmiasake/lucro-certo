@@ -8,7 +8,7 @@ const menuItems = [
   { name: 'Como funciona', href: '/como-funciona' },
 ];
 
-export function LandingHeader() {
+export function LandingHeader({ onCtaClick }: { onCtaClick?: () => void }) {
   const [menuState, setMenuState] = React.useState(false);
   const [isScrolled, setIsScrolled] = React.useState(false);
 
@@ -50,8 +50,8 @@ export function LandingHeader() {
                 {item.name}
               </Link>
             ))}
-            <Button size="sm" className="rounded-xl" asChild>
-              <Link to="/">Começar grátis</Link>
+            <Button size="sm" className="rounded-xl" onClick={onCtaClick}>
+              Começar grátis
             </Button>
           </div>
 
@@ -63,8 +63,8 @@ export function LandingHeader() {
                     {item.name}
                   </Link>
                 ))}
-                <Button size="lg" className="rounded-xl mt-4" asChild>
-                  <Link to="/" onClick={() => setMenuState(false)}>Começar grátis</Link>
+                <Button size="lg" className="rounded-xl mt-4" onClick={() => { setMenuState(false); onCtaClick?.(); }}>
+                  Começar grátis
                 </Button>
               </div>
             </div>
