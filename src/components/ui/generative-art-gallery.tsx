@@ -157,45 +157,41 @@ const GalleryCard = ({ item, index }: GalleryCardProps) => {
       onHoverStart={() => setIsHovered(true)}
       onHoverEnd={() => setIsHovered(false)}
       style={{ rotateX, rotateY, transformStyle: "preserve-3d" }}
-      className="group relative h-80 w-full rounded-xl bg-slate-900 border border-slate-800"
+      className="group relative h-80 w-full rounded-[24px] bg-zinc-900 border border-white/10"
     >
       <div
         style={{ transform: "translateZ(50px)", transformStyle: "preserve-3d" }}
-        className="absolute inset-4 flex flex-col justify-end p-6 rounded-lg overflow-hidden cursor-pointer"
+        className="absolute inset-4 flex flex-col justify-end p-6 rounded-[18px] overflow-hidden cursor-pointer"
       >
         <img
           src={item.image}
           alt={item.title}
-          className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-500 group-hover:scale-110"
+          className="absolute inset-0 w-full h-full object-cover object-center transition-transform duration-700 group-hover:scale-110"
           onError={(e) => {
             const target = e.target as HTMLImageElement;
             target.onerror = null;
-            target.src = 'https://placehold.co/400x400/000000/ffffff?text=Error';
+            target.src = `https://images.unsplash.com/photo-1542601906990-b4d3fb778b09?q=80&w=400&auto=format&fit=crop`;
           }}
         />
         <GenerativeArtCanvas isHovered={isHovered} />
-        <div className="absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent pointer-events-none"></div>
+        <div className="absolute inset-0 bg-gradient-to-t from-black/90 via-black/40 to-transparent pointer-events-none transition-opacity duration-300 group-hover:opacity-80"></div>
 
         <div className="relative z-10 pointer-events-none">
           <motion.h3
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: isHovered ? 0 : 20, opacity: isHovered ? 1 : 0 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 15 }}
-            className="text-xl font-bold text-white mb-1"
+            className="text-xl font-bold text-white mb-1 tracking-tight"
           >
             {item.title}
           </motion.h3>
           <motion.p
-            initial={{ y: 20, opacity: 0 }}
-            animate={{ y: isHovered ? 0 : 20, opacity: isHovered ? 1 : 0 }}
-            transition={{ type: 'spring', stiffness: 200, damping: 15, delay: 0.05 }}
-            className="text-sm text-slate-400"
+            className="text-sm text-primary/90 font-medium"
           >
             {item.category}
           </motion.p>
         </div>
         <div className="absolute top-4 right-4 text-white opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none">
-          <ArrowUpRight className="w-5 h-5" />
+          <div className="w-8 h-8 rounded-full bg-white/10 backdrop-blur-sm flex items-center justify-center border border-white/20">
+            <ArrowUpRight className="w-4 h-4 text-primary" />
+          </div>
         </div>
       </div>
     </motion.div>
@@ -208,32 +204,32 @@ export const GenerativeArtGallery = () => {
     { 
       title: "Venda ≠ Lucro", 
       category: "Você sabe quanto realmente sobra?", 
-      image: "https://images.unsplash.com/photo-1556742049-0cfed4f6a45d?q=80&w=600&auto=format&fit=crop" 
+      image: "https://images.unsplash.com/photo-1556740758-90de374c12ad?q=80&w=600&auto=format&fit=crop" 
     },
     { 
       title: "Custos Invisíveis", 
       category: "Pequenos gastos, grandes perdas", 
-      image: "https://images.unsplash.com/photo-1554224155-1697b59e75d4?q=80&w=600&auto=format&fit=crop" 
+      image: "https://images.unsplash.com/photo-1554224154-26032ffc0d07?q=80&w=600&auto=format&fit=crop" 
     },
     { 
       title: "Clareza Financeira", 
-      category: "Veja para onde seu dinheiro está indo", 
-      image: "https://images.unsplash.com/photo-1628155930542-3c7a64e2c833?q=80&w=600&auto=format&fit=crop" 
+      category: "Veja para onde seu dinheiro vai", 
+      image: "https://images.unsplash.com/photo-1460925895917-afdab827c52f?q=80&w=600&auto=format&fit=crop" 
     },
     { 
-      title: "Decisão Inteligente", 
-      category: "Entenda o que pesa no seu resultado", 
-      image: "https://images.unsplash.com/photo-1454165833767-13143896b16d?q=80&w=600&auto=format&fit=crop" 
+      title: "Decisões Reais", 
+      category: "Entenda o que pesa no resultado", 
+      image: "https://images.unsplash.com/photo-1543286386-712258623cc2?q=80&w=600&auto=format&fit=crop" 
     },
     { 
       title: "Menos Achismo", 
       category: "Mais controle, menos surpresas", 
-      image: "https://images.unsplash.com/photo-1507679799987-c71d64bcbd51?q=80&w=600&auto=format&fit=crop" 
+      image: "https://images.unsplash.com/photo-1581291518857-4e27f48ff24e?q=80&w=600&auto=format&fit=crop" 
     },
     { 
       title: "Resultado Real", 
       category: "Saiba quanto ficou no seu bolso", 
-      image: "https://images.unsplash.com/photo-1579621970563-ebec7560ff3e?q=80&w=600&auto=format&fit=crop" 
+      image: "https://images.unsplash.com/photo-1486406146926-c627a92ad1ab?q=80&w=600&auto=format&fit=crop" 
     },
   ];
 

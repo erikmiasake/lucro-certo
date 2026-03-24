@@ -50,8 +50,8 @@ export default function Landing() {
     <div className="bg-background relative">
       <LandingHeader onCtaClick={handleCtaClick} />
       <DashboardShowcase onCtaClick={handleCtaClick} />
-      <LandingNarrative onCtaClick={handleCtaClick} />
       <GenerativeArtGallery />
+      <LandingNarrative onCtaClick={handleCtaClick} />
 
       <AuthOverlay
         isOpen={isAuthOpen}
