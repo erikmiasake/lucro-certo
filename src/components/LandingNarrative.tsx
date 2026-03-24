@@ -53,24 +53,24 @@ export function LandingNarrative({ onCtaClick }: Props) {
               <AlertTriangle className="w-4 h-4" />
               O problema
             </div>
-            <h2 className="text-3xl md:text-5xl font-bold text-foreground leading-tight">
-              Você vende todos os dias, mas nem sempre sabe quanto{' '}
-              <span className="text-primary">realmente lucra</span>.
+            <h2 className="text-3xl md:text-6xl font-bold text-foreground leading-tight tracking-tight">
+              O problema não é o quanto entra. <br/>
+              É o que <span className="text-primary">fica no caminho</span>.
             </h2>
-            <p className="text-muted-foreground text-lg mt-6 max-w-2xl mx-auto leading-relaxed mb-16">
-              Custos escondidos, contas misturadas e a sensação de que o dinheiro some sem explicação. Isso acaba agora.
+            <p className="text-muted-foreground text-lg mt-6 max-w-2xl mx-auto leading-relaxed mb-16 italic">
+              "Você vende todos os dias, mas nem sempre sabe para onde o dinheiro está indo. Custos escondidos e contas misturadas são os verdadeiros ladrões do seu lucro."
             </p>
 
-            <div className="w-full flex flex-col items-center gap-6 pt-12 border-t border-white/5">
+            <div className="w-full flex flex-col items-center gap-8 pt-16 border-t border-white/5">
               <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full border border-primary/30 bg-primary/10 text-primary text-sm font-medium">
                 <TrendingUp className="w-4 h-4" />
                 Como funciona
               </div>
               <h2 className="text-3xl md:text-5xl font-bold text-foreground leading-tight">
-                Veja como funciona
+                Como você assume o <span className="text-primary">controle</span> do seu lucro
               </h2>
-              <p className="text-muted-foreground text-base max-w-xl">
-                Em três passos simples, você descobre exatamente quanto está sobrando no seu negócio.
+              <p className="text-muted-foreground text-lg max-w-xl">
+                Você registra, a IA organiza — e o <span className="text-foreground font-medium">lucro real aparece</span>.
               </p>
             </div>
           </NarrativeSection>
