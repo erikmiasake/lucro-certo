@@ -67,7 +67,7 @@ function loadState(): AppState {
       return { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, ...parsed };
     }
   } catch {}
-  return { businessType: null, entries: [], costs: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
+  return { businessType: null, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
 }
 
 function saveState(state: AppState) {
