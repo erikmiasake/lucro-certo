@@ -57,9 +57,10 @@ export default function Auth() {
       } else {
         // If "remember me" is unchecked, use a shorter session approach
         if (!data.rememberMe) {
-          // Store flag to clear session on browser close
+          localStorage.setItem('lucro-real-session-only', 'true');
           sessionStorage.setItem('lucro-real-session-only', 'true');
         } else {
+          localStorage.removeItem('lucro-real-session-only');
           sessionStorage.removeItem('lucro-real-session-only');
         }
 
