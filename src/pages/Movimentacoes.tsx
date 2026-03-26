@@ -38,9 +38,9 @@ function formatDateLabel(dateStr: string) {
   return `${d}/${m}`;
 }
 
-function getLast7Days(): string[] {
+function getLast14Days(): string[] {
   const days: string[] = [];
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 14; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i);
     days.push(getDateString(d));
