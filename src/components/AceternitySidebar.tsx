@@ -164,14 +164,9 @@ function MobileSidebar() {
           >
             <Menu className="h-5 w-5" />
           </button>
-          <div className="flex items-center gap-2">
-            <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center shadow-md shadow-primary/30">
-              <Activity className="h-3.5 w-3.5 text-primary-foreground" />
-            </div>
-            <span className="text-sm font-extrabold text-foreground tracking-tight">
-              Lucro<span className="text-primary">Real</span>
-            </span>
-          </div>
+          <span className="text-sm font-extrabold text-foreground tracking-tight">
+            Lucro<span className="text-primary">Real</span>
+          </span>
         </div>
         <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-sm shadow-primary/50" />
       </div>
