@@ -15,6 +15,7 @@ import ComoFunciona from "./pages/ComoFunciona.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import GenerativeArtDemo from "./pages/GenerativeArtDemo.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
+import ForgotPassword from "./pages/ForgotPassword.tsx";
 import AuthGuard from "./components/auth/AuthGuard.tsx";
 
 const queryClient = new QueryClient();
