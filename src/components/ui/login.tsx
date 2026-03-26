@@ -21,7 +21,9 @@ import { Link } from "react-router-dom";
 
 // Validation schema for the form
 const formSchema = z.object({
-  name: z.string().min(2, { message: "Nome deve ter pelo menos 2 caracteres." }).optional(),
+  name: z.string().optional().refine((val) => !val || val.length >= 2, {
+    message: "Nome deve ter pelo menos 2 caracteres.",
+  }),
   email: z.string().email({ message: "Por favor, insira um e-mail válido." }),
   password: z
     .string()
