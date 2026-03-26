@@ -18,7 +18,7 @@ export default function Auth() {
   const handleAuth = async (data: FormValues) => {
     try {
       if (mode === 'register') {
-        const { error } = await supabase.auth.signUp({
+        const { data: signUpData, error } = await supabase.auth.signUp({
           email: data.email,
           password: data.password,
           options: {
@@ -28,6 +28,17 @@ export default function Auth() {
           },
         });
         if (error) throw error;
+        
+        // Detect existing account (Supabase returns empty identities)
+        if (signUpData.user && signUpData.user.identities && signUpData.user.identities.length === 0) {
+          toast.info('Esta conta já existe!', {
+            description: 'Faça login para acessar sua conta.',
+            duration: 5000,
+          });
+          navigate('/login');
+          return;
+        }
+        
         toast.success('Conta criada! Verifique seu e-mail para ativar.');
         navigate('/verify-email');
       } else {
