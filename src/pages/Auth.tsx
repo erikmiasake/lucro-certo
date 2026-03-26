@@ -55,6 +55,14 @@ export default function Auth() {
         toast.success('Conta criada! Verifique seu e-mail para ativar.');
         navigate('/verify-email');
       } else {
+        // If "remember me" is unchecked, use a shorter session approach
+        if (!data.rememberMe) {
+          // Store flag to clear session on browser close
+          sessionStorage.setItem('lucro-real-session-only', 'true');
+        } else {
+          sessionStorage.removeItem('lucro-real-session-only');
+        }
+
         const { error } = await supabase.auth.signInWithPassword({
           email: data.email,
           password: data.password,
