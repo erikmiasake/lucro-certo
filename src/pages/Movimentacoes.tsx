@@ -562,30 +562,65 @@ export default function Movimentacoes() {
                 </motion.div>
               ))}
             </div>
+
+            {/* Editable daily list for month */}
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 mt-4 px-1">Últimos 30 dias</p>
+            <div className="flex flex-col gap-1.5 max-h-[400px] overflow-y-auto">
+              {getLast30Days().map((date, i) => {
+                const revenue = getDayRevenue(date);
+                const summary = getDaySummary(date);
+                const isEditing = editingDate === date;
+                return (
+                  <motion.div
+                    key={date}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: Math.min(i * 0.02, 0.3) }}
+                    className="flex items-center justify-between p-3 rounded-xl card-elevated group hover:border-primary/20 transition-all"
+                  >
+                    {isEditing ? (
+                      <div className="flex items-center gap-2 flex-1">
+                        <span className="text-sm font-bold text-muted-foreground">R$</span>
+                        <input
+                          ref={inputRef}
+                          type="number"
+                          inputMode="decimal"
+                          placeholder="0,00"
+                          value={editValue}
+                          onChange={(e) => setEditValue(e.target.value)}
+                          onKeyDown={(e) => e.key === 'Enter' && handleSaveDayRevenue(date)}
+                          className="flex-1 text-base font-bold bg-transparent outline-none text-foreground placeholder:text-muted"
+                        />
+                        <button onClick={() => handleSaveDayRevenue(date)} className="p-1.5 rounded-lg bg-primary text-primary-foreground active:scale-95">
+                          <Check className="h-3.5 w-3.5" />
+                        </button>
+                      </div>
+                    ) : (
+                      <>
+                        <div className="flex items-center gap-2.5 cursor-pointer flex-1" onClick={() => startEditing(date)}>
+                          <div className="w-8 h-8 rounded-lg bg-primary/10 flex items-center justify-center">
+                            <span className="text-[10px] font-bold text-primary">{formatDateLabel(date)}</span>
+                          </div>
+                          <div>
+                            <p className="text-sm font-semibold text-foreground">
+                              {revenue > 0 ? fmt(revenue) : <span className="text-muted-foreground text-xs">—</span>}
+                            </p>
+                            {revenue > 0 && (
+                              <p className="text-[10px] text-muted-foreground">
+                                Lucro: <span className={summary.profit >= 0 ? 'text-primary' : 'text-destructive'}>{fmt(summary.profit)}</span>
+                              </p>
+                            )}
+                          </div>
+                        </div>
+                        <Edit2 className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity cursor-pointer" onClick={() => startEditing(date)} />
+                      </>
+                    )}
+                  </motion.div>
+                );
+              })}
+            </div>
           </motion.div>
         )}
-      </AnimatePresence>
-
-      {/* Costs Section */}
-      <div className="mt-5">
-        <div className="flex items-center justify-between mb-2 px-1">
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Custos recentes</p>
-          <span className="text-[10px] text-muted-foreground">{costs.length} registros</span>
-        </div>
-        {costs.length > 0 ? (
-          <div className="flex flex-col gap-1.5">
-            {costs.slice(0, 5).map((c, i) => (
-              <motion.div
-                key={c.id}
-                initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
-                transition={{ delay: i * 0.03 }}
-                className="flex items-center justify-between p-3 rounded-xl card-elevated group"
-              >
-                <div className="flex items-center gap-2.5">
-                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${c.type === 'product' ? 'bg-accent/10' : 'bg-purple-500/10'}`}>
-                    {c.type === 'product' ? <Package className="h-3.5 w-3.5 text-accent" /> : <Building2 className="h-3.5 w-3.5 text-purple-400" />}
-                  </div>
                   <div>
                     <p className="font-semibold text-xs text-foreground">{fmt(c.amount)}</p>
                     <p className="text-[10px] text-muted-foreground">
