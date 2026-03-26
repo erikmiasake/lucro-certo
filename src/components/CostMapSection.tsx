@@ -149,6 +149,10 @@ export default function CostMapSection() {
     updateCostMapItem(id, { value });
   };
 
+  const handleRename = (id: string, name: string) => {
+    updateCostMapItem(id, { name });
+  };
+
   const handleDelete = (id: string) => {
     deleteCostMapItem(id);
   };
