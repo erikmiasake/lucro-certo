@@ -156,14 +156,29 @@ function MobileSidebar() {
   return (
     <div className="md:hidden">
       {/* Top bar with logo */}
-      <div className="fixed top-0 left-0 right-0 z-40 flex items-center gap-3 px-4 h-14 bg-background/60 backdrop-blur-xl border-b border-border/20">
-        <button
-          onClick={() => setOpen(!open)}
-          className="p-2 rounded-xl bg-background/40 border border-border/30 text-muted-foreground hover:text-foreground hover:bg-background/60 transition-all"
-        >
-          <Menu className="h-5 w-5" />
-        </button>
-        <span className="text-base font-bold text-foreground tracking-tight">Lucro Real</span>
+      <div className="fixed top-0 left-0 right-0 z-40 flex items-center justify-between px-4 h-14 bg-background/80 backdrop-blur-2xl border-b border-border/10">
+        <div className="flex items-center gap-3">
+          <button
+            onClick={() => setOpen(!open)}
+            className="p-2 rounded-xl bg-primary/10 border border-primary/20 text-primary hover:bg-primary/20 transition-all"
+          >
+            <Menu className="h-5 w-5" />
+          </button>
+          <div className="flex items-center gap-2">
+            <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center shadow-md shadow-primary/30">
+              <Activity className="h-3.5 w-3.5 text-primary-foreground" />
+            </div>
+            <div className="flex flex-col">
+              <span className="text-sm font-extrabold text-foreground tracking-tight leading-none">
+                Lucro<span className="text-primary">Real</span>
+              </span>
+              <span className="text-[8px] font-semibold text-primary/60 uppercase tracking-[0.2em] leading-none mt-0.5">
+                powered by AI
+              </span>
+            </div>
+          </div>
+        </div>
+        <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-sm shadow-primary/50" />
       </div>
 
       <AnimatePresence>
