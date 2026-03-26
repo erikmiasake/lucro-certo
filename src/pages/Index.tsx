@@ -12,8 +12,8 @@ export default function Index() {
   const location = useLocation();
 
   // Guard: redirect to onboarding if not complete
-  if (!state.onboardingComplete && !state.businessType) {
-    return <Navigate to="/onboarding" replace />;
+  if (!state.onboardingComplete) {
+    return <Navigate to="/welcome" replace />;
   }
 
   const renderPage = () => {

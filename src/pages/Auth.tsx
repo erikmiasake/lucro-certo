@@ -4,7 +4,8 @@ import { AuthFormSplitScreen, FormValues } from '@/components/ui/login';
 import { Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
-import { getState } from '@/lib/store';
+import { getState, mergeState } from '@/lib/store';
+import { loadProfileFromDB } from '@/lib/profile-sync';
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -48,6 +49,13 @@ export default function Auth() {
         });
         if (error) throw error;
         toast.success('Login realizado com sucesso!');
+        
+        // Load profile from database
+        const dbProfile = await loadProfileFromDB();
+        if (dbProfile) {
+          mergeState(dbProfile);
+        }
+        
         const appState = getState();
         if (appState.onboardingComplete) {
           navigate('/dashboard', { replace: true });

@@ -69,6 +69,7 @@ export default function Configuracoes() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
+    // Don't clear localStorage — data stays synced with DB
     navigate('/');
   };
 
@@ -85,14 +86,26 @@ export default function Configuracoes() {
     }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     if (confirmReset) {
       resetAll();
+      // Also clear in database
+      const { saveProfileToDB } = await import('@/lib/profile-sync');
+      const { getState: gs } = await import('@/lib/store');
+      await saveProfileToDB(gs());
+      await supabase.auth.signOut();
+      navigate('/');
       setConfirmReset(false);
     } else {
       setConfirmReset(true);
       setTimeout(() => setConfirmReset(false), 3000);
     }
+  };
+
+  const syncToDB = async () => {
+    const { saveProfileToDB } = await import('@/lib/profile-sync');
+    const { getState: gs } = await import('@/lib/store');
+    await saveProfileToDB(gs());
   };
 
   const handleSaveGoals = () => {
@@ -104,6 +117,7 @@ export default function Configuracoes() {
     });
     setGoalsSaved(true);
     setTimeout(() => setGoalsSaved(false), 2000);
+    syncToDB();
   };
 
   const handleSaveProfile = () => {
@@ -116,6 +130,7 @@ export default function Configuracoes() {
     });
     setProfileSaved(true);
     setTimeout(() => setProfileSaved(false), 2000);
+    syncToDB();
   };
 
   const config = state.businessType ? businessConfigs[state.businessType] : null;
