@@ -251,6 +251,7 @@ export default function CostMapSection() {
                   onUpdate={handleUpdate}
                   onDelete={handleDelete}
                   onToggle={handleToggle}
+                  onRename={handleRename}
                 />
               ))}
             </AnimatePresence>
