@@ -28,10 +28,10 @@ const useSidebarContext = () => {
 
 const links: SidebarLink[] = [
   { label: "Visão geral", href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5 shrink-0" /> },
-  { label: "Movimentações", href: "/dashboard/movimentacoes", icon: <ArrowLeftRight className="h-5 w-5 shrink-0" /> },
-  { label: "Custos", href: "/dashboard/custos", icon: <Wallet className="h-5 w-5 shrink-0" /> },
-  { label: "Desempenho", href: "/dashboard/desempenho", icon: <TrendingUp className="h-5 w-5 shrink-0" /> },
-  { label: "Meu Negócio", href: "/dashboard/configuracoes", icon: <Settings className="h-5 w-5 shrink-0" /> },
+  { label: "Movimentações", href: "/movimentacoes", icon: <ArrowLeftRight className="h-5 w-5 shrink-0" /> },
+  { label: "Custos", href: "/custos", icon: <Wallet className="h-5 w-5 shrink-0" /> },
+  { label: "Desempenho", href: "/desempenho", icon: <TrendingUp className="h-5 w-5 shrink-0" /> },
+  { label: "Meu Negócio", href: "/configuracoes", icon: <Settings className="h-5 w-5 shrink-0" /> },
 ];
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
