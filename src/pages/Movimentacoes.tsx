@@ -548,7 +548,31 @@ export default function Movimentacoes() {
           <motion.div key="mes" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
             {/* Month summary */}
             <div className="rounded-xl p-4 card-elevated mb-3">
-              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-3">Resumo mensal (30 dias)</p>
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-3 flex items-center justify-between">
+                Resumo mensal (30 dias)
+                <button onClick={() => startPeriodEdit('mes')} className="text-primary text-[10px] font-medium hover:underline flex items-center gap-1">
+                  <Edit2 className="h-2.5 w-2.5" /> Editar receita total
+                </button>
+              </p>
+
+              {editingPeriod === 'mes' && (
+                <div className="flex items-center gap-2 mb-3 p-3 rounded-xl bg-primary/5 border border-primary/15">
+                  <span className="text-sm font-bold text-muted-foreground">R$</span>
+                  <input
+                    ref={periodInputRef}
+                    type="number"
+                    inputMode="decimal"
+                    placeholder="Receita total do mês"
+                    value={periodEditValue}
+                    onChange={(e) => setPeriodEditValue(e.target.value)}
+                    onKeyDown={(e) => e.key === 'Enter' && handleSavePeriodRevenue()}
+                    className="flex-1 text-lg font-bold bg-transparent outline-none text-foreground placeholder:text-muted"
+                  />
+                  <button onClick={handleSavePeriodRevenue} className="p-2 rounded-lg bg-primary text-primary-foreground active:scale-95 transition-all">
+                    <Check className="h-4 w-4" />
+                  </button>
+                </div>
+              )}
               <div className="grid grid-cols-3 gap-3 mb-3">
                 <div>
                   <p className="text-[10px] text-muted-foreground">Receita</p>
