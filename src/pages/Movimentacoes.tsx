@@ -146,10 +146,10 @@ export default function Movimentacoes() {
 
   // Average revenue for comparison
   const avgRevenue = useMemo(() => {
-    const daysWithRevenue = days7.filter(d => getDayRevenue(d) > 0);
+    const daysWithRevenue = days14.filter(d => getDayRevenue(d) > 0);
     if (daysWithRevenue.length === 0) return 0;
     return daysWithRevenue.reduce((s, d) => s + getDayRevenue(d), 0) / daysWithRevenue.length;
-  }, [days7]);
+  }, [days14]);
 
   const weeksOfMonth = useMemo(() => getWeeksOfMonth(), []);
 
