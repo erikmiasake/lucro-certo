@@ -273,7 +273,7 @@ export default function ComoFunciona() {
             <h2 className="text-xl sm:text-2xl font-bold mb-2">Pronto para começar?</h2>
             <p className="text-muted-foreground text-sm mb-6">Leva menos de 1 minuto</p>
             <Button size="lg" className="rounded-xl px-8 text-sm font-semibold shadow-lg shadow-primary/20" asChild>
-              <Link to="/">
+              <Link to="/login">
                 Analisar meu negócio
                 <ArrowRight className="ml-2 h-4 w-4" />
               </Link>
