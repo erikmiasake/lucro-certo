@@ -99,6 +99,11 @@ export function setBusinessType(type: BusinessType) {
   notify();
 }
 
+export function setOnboardingComplete(complete: boolean) {
+  state = { ...state, onboardingComplete: complete };
+  notify();
+}
+
 export function setOnboardingData(data: { averageSales?: number; mainCosts?: string[] }) {
   state = { ...state, ...data };
   notify();
