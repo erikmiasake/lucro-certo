@@ -84,8 +84,22 @@ export default function Movimentacoes() {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
+  const [, setTick] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
   const today = getDateString();
+
+  // Auto-refresh when the date changes (e.g. app open at midnight)
+  useEffect(() => {
+    let currentDate = getDateString();
+    const interval = setInterval(() => {
+      const now = getDateString();
+      if (now !== currentDate) {
+        currentDate = now;
+        setTick(t => t + 1); // force re-render with new date
+      }
+    }, 30000); // check every 30 seconds
+    return () => clearInterval(interval);
+  }, []);
 
   const todaySummary = getDaySummary(today);
   const weekSummary = getWeekSummary();
