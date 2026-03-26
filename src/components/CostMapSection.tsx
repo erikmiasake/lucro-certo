@@ -265,15 +265,6 @@ export default function CostMapSection() {
         )}
       </AnimatePresence>
 
-      {!showAdd && (
-        <motion.button
-          whileTap={{ scale: 0.97 }}
-          onClick={() => { setShowAdd(true); setTimeout(() => addRef.current?.focus(), 50); }}
-          className="w-full py-2.5 rounded-xl border border-dashed border-border text-muted-foreground text-xs font-medium hover:border-primary/30 hover:text-primary transition-all flex items-center justify-center gap-1.5"
-        >
-          <Plus className="h-3.5 w-3.5" /> Adicionar novo custo
-        </motion.button>
-      )}
 
       {/* Total */}
       {costMap.total > 0 && (
