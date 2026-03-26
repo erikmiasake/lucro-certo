@@ -92,7 +92,7 @@ export function BeamsBackground({
                 (Math.random() - 0.5) * spacing * 0.5;
             beam.width = 100 + Math.random() * 100;
             beam.speed = 0.5 + Math.random() * 0.4;
-            beam.hue = 190 + (index * 70) / totalBeams;
+            beam.hue = 140 + (index * 40) / totalBeams;
             beam.opacity = 0.2 + Math.random() * 0.1;
             return beam;
         }
