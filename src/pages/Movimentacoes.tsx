@@ -84,8 +84,11 @@ export default function Movimentacoes() {
   const [feedback, setFeedback] = useState<string | null>(null);
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
+  const [editingPeriod, setEditingPeriod] = useState<'semana' | 'mes' | null>(null);
+  const [periodEditValue, setPeriodEditValue] = useState('');
   const [, setTick] = useState(0);
   const inputRef = useRef<HTMLInputElement>(null);
+  const periodInputRef = useRef<HTMLInputElement>(null);
   const today = getDateString();
 
   // Auto-refresh when the date changes (e.g. app open at midnight)
@@ -95,9 +98,9 @@ export default function Movimentacoes() {
       const now = getDateString();
       if (now !== currentDate) {
         currentDate = now;
-        setTick(t => t + 1); // force re-render with new date
+        setTick(t => t + 1);
       }
-    }, 30000); // check every 30 seconds
+    }, 30000);
     return () => clearInterval(interval);
   }, []);
 
@@ -116,6 +119,10 @@ export default function Movimentacoes() {
     if (editingDate) setTimeout(() => inputRef.current?.focus(), 50);
   }, [editingDate]);
 
+  useEffect(() => {
+    if (editingPeriod) setTimeout(() => periodInputRef.current?.focus(), 50);
+  }, [editingPeriod]);
+
   const handleSaveDayRevenue = (date: string) => {
     const num = parseFloat(editValue.replace(',', '.'));
     if (num >= 0 && !isNaN(num)) {
@@ -128,10 +135,33 @@ export default function Movimentacoes() {
     setEditValue('');
   };
 
+  const handleSavePeriodRevenue = () => {
+    const num = parseFloat(periodEditValue.replace(',', '.'));
+    if (num >= 0 && !isNaN(num) && editingPeriod) {
+      const days = editingPeriod === 'semana' ? 7 : 30;
+      const perDay = num / days;
+      for (let i = 0; i < days; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        setDayRevenue(getDateString(d), perDay);
+      }
+      setFeedback(`Receita ${editingPeriod === 'semana' ? 'semanal' : 'mensal'} de ${fmt(num)} distribuída em ${days} dias (${fmt(perDay)}/dia)`);
+      setTimeout(() => setFeedback(null), 4000);
+    }
+    setEditingPeriod(null);
+    setPeriodEditValue('');
+  };
+
   const startEditing = (date: string) => {
     const current = getDayRevenue(date);
     setEditingDate(date);
     setEditValue(current > 0 ? current.toString() : '');
+  };
+
+  const startPeriodEdit = (p: 'semana' | 'mes') => {
+    const current = p === 'semana' ? weekSummary.totalRevenue : monthSummary.totalRevenue;
+    setEditingPeriod(p);
+    setPeriodEditValue(current > 0 ? current.toFixed(0) : '');
   };
 
   const handleCost = (amount: number, type: 'product' | 'business', spreadDays: number, description?: string, category?: string, subcategory?: string, classification?: any) => {
