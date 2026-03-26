@@ -49,6 +49,13 @@ export default function Auth() {
         });
         if (error) throw error;
         toast.success('Login realizado com sucesso!');
+        
+        // Load profile from database
+        const dbProfile = await loadProfileFromDB();
+        if (dbProfile) {
+          mergeState(dbProfile);
+        }
+        
         const appState = getState();
         if (appState.onboardingComplete) {
           navigate('/dashboard', { replace: true });

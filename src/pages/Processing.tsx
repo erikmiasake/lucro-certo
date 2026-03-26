@@ -8,8 +8,12 @@ import { toast } from 'sonner';
 export default function Processing() {
   const navigate = useNavigate();
 
-  const handleComplete = useCallback(() => {
+  const handleComplete = useCallback(async () => {
     setOnboardingComplete(true);
+    
+    // Persist to database
+    await saveProfileToDB(getState());
+    
     navigate('/dashboard', { replace: true });
     setTimeout(() => {
       toast.success('Sua personalização foi realizada com sucesso!', {
