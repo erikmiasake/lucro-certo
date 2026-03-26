@@ -35,6 +35,7 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/reset-password" element={<ResetPassword />} />
+          <Route path="/forgot-password" element={<ForgotPassword />} />
           <Route path="/como-funciona" element={<ComoFunciona />} />
           <Route path="/generative-art-demo" element={<GenerativeArtDemo />} />
 
