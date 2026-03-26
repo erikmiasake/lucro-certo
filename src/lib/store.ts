@@ -831,6 +831,6 @@ export function getCostMap() {
 }
 
 export function resetAll() {
-  state = { businessType: null, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
+  state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
   notify();
 }
