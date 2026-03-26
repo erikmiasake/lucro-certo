@@ -1,6 +1,7 @@
 import { useNavigate } from 'react-router-dom';
 import { useCallback } from 'react';
-import { setOnboardingComplete } from '@/lib/store';
+import { setOnboardingComplete, getState } from '@/lib/store';
+import { saveProfileToDB } from '@/lib/profile-sync';
 import OnboardingProcessing from '@/components/OnboardingProcessing';
 import { toast } from 'sonner';
 
