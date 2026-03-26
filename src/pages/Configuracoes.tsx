@@ -69,8 +69,9 @@ export default function Configuracoes() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    // Don't clear localStorage — data stays synced with DB
+    localStorage.removeItem('lucro-real-data');
     navigate('/');
+    window.location.reload();
   };
 
   const handlePasswordReset = async () => {

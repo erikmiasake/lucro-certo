@@ -98,7 +98,7 @@ export default function Auth() {
       imageSrc="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1200"
       imageAlt="Escritório moderno com dashboard financeiro"
       onSubmit={handleAuth}
-      forgotPasswordHref="#"
+      forgotPasswordHref="/forgot-password"
       createAccountHref="/register"
       toggleModeHref={mode === 'login' ? "/register" : "/login"}
     />
