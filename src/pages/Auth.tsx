@@ -1,5 +1,5 @@
-import { useState } from 'react';
-import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
+import { useState, useEffect } from 'react';
+import { useNavigate, useSearchParams, useLocation, Navigate } from 'react-router-dom';
 import { AuthFormSplitScreen, FormValues } from '@/components/ui/login';
 import { Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
@@ -11,7 +11,19 @@ export default function Auth() {
   const navigate = useNavigate();
   const location = useLocation();
   const [searchParams] = useSearchParams();
-  
+  const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
+
+  useEffect(() => {
+    supabase.auth.getSession().then(({ data: { session } }) => {
+      setIsAuthenticated(!!session);
+    });
+  }, []);
+
+  // Redirect authenticated users to dashboard
+  if (isAuthenticated === true) {
+    return <Navigate to="/dashboard" replace />;
+  }
+
   // Determine mode from path or query param
   const isRegisterPath = location.pathname === '/register';
   const mode = isRegisterPath ? 'register' : (searchParams.get('mode') as 'login' | 'register') || 'login';
