@@ -182,6 +182,36 @@ export default function Movimentacoes() {
   }, [days14]);
 
   const weeksOfMonth = useMemo(() => getWeeksOfMonth(), []);
+  const [editingWeekIdx, setEditingWeekIdx] = useState<number | null>(null);
+  const [weekEditValue, setWeekEditValue] = useState('');
+  const weekInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editingWeekIdx !== null) setTimeout(() => weekInputRef.current?.focus(), 50);
+  }, [editingWeekIdx]);
+
+  const startWeekEdit = (idx: number) => {
+    const week = weeksOfMonth[idx];
+    setEditingWeekIdx(idx);
+    setWeekEditValue(week.revenue > 0 ? week.revenue.toFixed(0) : '');
+  };
+
+  const handleSaveWeekRevenue = () => {
+    const num = parseFloat(weekEditValue.replace(',', '.'));
+    if (num >= 0 && !isNaN(num) && editingWeekIdx !== null) {
+      const perDay = num / 7;
+      const weekOffset = (3 - editingWeekIdx) * 7; // weeks are ordered 1-4, index 0=week1(oldest)
+      for (let d = 0; d < 7; d++) {
+        const date = new Date();
+        date.setDate(date.getDate() - (weekOffset + d));
+        setDayRevenue(getDateString(date), perDay);
+      }
+      setFeedback(`Semana ${editingWeekIdx + 1}: ${fmt(num)} distribuída em 7 dias (${fmt(perDay)}/dia)`);
+      setTimeout(() => setFeedback(null), 4000);
+    }
+    setEditingWeekIdx(null);
+    setWeekEditValue('');
+  };
 
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto safe-bottom pb-24">
