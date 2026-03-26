@@ -167,20 +167,14 @@ export function BeamsBackground({
     return (
         <div
             className={cn(
-                "relative min-h-screen w-full overflow-hidden bg-background",
+                "relative w-full",
                 className
             )}
         >
             <canvas
                 ref={canvasRef}
-                className="absolute inset-0 pointer-events-none"
+                className="fixed inset-0 pointer-events-none z-0"
                 style={{ filter: "blur(15px)" }}
-            />
-
-            <motion.div
-                className="absolute inset-0 bg-background/5"
-                animate={{ opacity: [0.05, 0.15, 0.05] }}
-                transition={{ duration: 10, repeat: Infinity, ease: "linear" }}
             />
 
             <div className="relative z-10">
