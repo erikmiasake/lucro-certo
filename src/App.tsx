@@ -6,6 +6,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import Landing from "./pages/Landing.tsx";
 import Auth from "./pages/Auth.tsx";
 import Welcome from "./pages/Welcome.tsx";
+import VerifyEmail from "./pages/VerifyEmail.tsx";
 import OnboardingPage from "./pages/OnboardingPage.tsx";
 import Summary from "./pages/Summary.tsx";
 import Processing from "./pages/Processing.tsx";

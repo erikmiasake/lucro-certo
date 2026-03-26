@@ -28,8 +28,8 @@ export default function Auth() {
           },
         });
         if (error) throw error;
-        toast.success('Conta criada com sucesso! Verifique seu e-mail.');
-        navigate('/welcome');
+        toast.success('Conta criada! Verifique seu e-mail para ativar.');
+        navigate('/verify-email');
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: data.email,
