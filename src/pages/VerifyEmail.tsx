@@ -103,11 +103,9 @@ export default function VerifyEmail() {
 
           <Button
             onClick={() => navigate('/login')}
-            variant="ghost"
-            className="w-full h-12 rounded-2xl text-muted-foreground hover:text-foreground"
+            className="w-full h-12 rounded-2xl bg-primary hover:bg-primary/90 text-primary-foreground font-semibold"
           >
-            <ArrowLeft className="w-4 h-4 mr-2" />
-            Voltar para o login
+            Já validei meu e-mail
           </Button>
         </div>
 
