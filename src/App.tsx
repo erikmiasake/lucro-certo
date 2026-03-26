@@ -15,6 +15,7 @@ import ComoFunciona from "./pages/ComoFunciona.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import GenerativeArtDemo from "./pages/GenerativeArtDemo.tsx";
 import ResetPassword from "./pages/ResetPassword.tsx";
+import AuthGuard from "./components/auth/AuthGuard.tsx";
 
 const queryClient = new QueryClient();
 
@@ -25,6 +26,7 @@ const App = () => (
       <Sonner />
       <BrowserRouter>
         <Routes>
+          {/* Public routes */}
           <Route path="/" element={<Landing />} />
           <Route path="/landing" element={<Navigate to="/" replace />} />
           <Route path="/login" element={<Auth />} />
@@ -32,17 +34,20 @@ const App = () => (
           <Route path="/auth" element={<Auth />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
           <Route path="/reset-password" element={<ResetPassword />} />
-          <Route path="/welcome" element={<Welcome />} />
-          <Route path="/onboarding" element={<OnboardingPage />} />
-          <Route path="/summary" element={<Summary />} />
-          <Route path="/processing" element={<Processing />} />
-          <Route path="/dashboard/*" element={<Index />} />
-          <Route path="/movimentacoes" element={<Index />} />
-          <Route path="/custos" element={<Index />} />
-          <Route path="/desempenho" element={<Index />} />
-          <Route path="/configuracoes" element={<Index />} />
           <Route path="/como-funciona" element={<ComoFunciona />} />
           <Route path="/generative-art-demo" element={<GenerativeArtDemo />} />
+
+          {/* Protected routes */}
+          <Route path="/welcome" element={<AuthGuard><Welcome /></AuthGuard>} />
+          <Route path="/onboarding" element={<AuthGuard><OnboardingPage /></AuthGuard>} />
+          <Route path="/summary" element={<AuthGuard><Summary /></AuthGuard>} />
+          <Route path="/processing" element={<AuthGuard><Processing /></AuthGuard>} />
+          <Route path="/dashboard/*" element={<AuthGuard><Index /></AuthGuard>} />
+          <Route path="/movimentacoes" element={<AuthGuard><Index /></AuthGuard>} />
+          <Route path="/custos" element={<AuthGuard><Index /></AuthGuard>} />
+          <Route path="/desempenho" element={<AuthGuard><Index /></AuthGuard>} />
+          <Route path="/configuracoes" element={<AuthGuard><Index /></AuthGuard>} />
+
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>

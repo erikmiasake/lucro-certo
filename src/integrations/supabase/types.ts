@@ -14,7 +14,60 @@ export type Database = {
   }
   public: {
     Tables: {
-      [_ in never]: never
+      profiles: {
+        Row: {
+          average_sales: number | null
+          business_name: string | null
+          business_type: string | null
+          city: string | null
+          cost_map: Json | null
+          created_at: string
+          employee_count: number | null
+          goals: Json | null
+          id: string
+          main_costs: string[] | null
+          objective: string | null
+          onboarding_complete: boolean
+          operating_days: number | null
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          average_sales?: number | null
+          business_name?: string | null
+          business_type?: string | null
+          city?: string | null
+          cost_map?: Json | null
+          created_at?: string
+          employee_count?: number | null
+          goals?: Json | null
+          id?: string
+          main_costs?: string[] | null
+          objective?: string | null
+          onboarding_complete?: boolean
+          operating_days?: number | null
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          average_sales?: number | null
+          business_name?: string | null
+          business_type?: string | null
+          city?: string | null
+          cost_map?: Json | null
+          created_at?: string
+          employee_count?: number | null
+          goals?: Json | null
+          id?: string
+          main_costs?: string[] | null
+          objective?: string | null
+          onboarding_complete?: boolean
+          operating_days?: number | null
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
