@@ -25,11 +25,11 @@ export default function OnboardingPage() {
   const [selectedType, setSelectedType] = useState<BusinessType | null>(null);
   const [clickedType, setClickedType] = useState<BusinessType | null>(null);
 
+  const handleLoadingComplete = useCallback(() => setStep('type'), []);
+
   if (getState().onboardingComplete) {
     return <Navigate to="/dashboard" replace />;
   }
-
-  const handleLoadingComplete = useCallback(() => setStep('type'), []);
 
   const handleSelectType = (type: BusinessType) => {
     setClickedType(type);
