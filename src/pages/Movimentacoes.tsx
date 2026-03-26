@@ -621,6 +621,28 @@ export default function Movimentacoes() {
             </div>
           </motion.div>
         )}
+      </AnimatePresence>
+
+      {/* Costs Section */}
+      <div className="mt-5">
+        <div className="flex items-center justify-between mb-2 px-1">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Custos recentes</p>
+          <span className="text-[10px] text-muted-foreground">{costs.length} registros</span>
+        </div>
+        {costs.length > 0 ? (
+          <div className="flex flex-col gap-1.5">
+            {costs.slice(0, 5).map((c, i) => (
+              <motion.div
+                key={c.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.03 }}
+                className="flex items-center justify-between p-3 rounded-xl card-elevated group"
+              >
+                <div className="flex items-center gap-2.5">
+                  <div className={`w-7 h-7 rounded-lg flex items-center justify-center ${c.type === 'product' ? 'bg-accent/10' : 'bg-purple-500/10'}`}>
+                    {c.type === 'product' ? <Package className="h-3.5 w-3.5 text-accent" /> : <Building2 className="h-3.5 w-3.5 text-purple-400" />}
+                  </div>
                   <div>
                     <p className="font-semibold text-xs text-foreground">{fmt(c.amount)}</p>
                     <p className="text-[10px] text-muted-foreground">
