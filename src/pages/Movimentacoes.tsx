@@ -142,7 +142,7 @@ export default function Movimentacoes() {
     setTimeout(() => setFeedback(null), 3000);
   };
 
-  const days7 = getLast7Days();
+  const days14 = getLast14Days();
 
   // Average revenue for comparison
   const avgRevenue = useMemo(() => {
