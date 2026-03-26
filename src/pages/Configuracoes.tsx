@@ -102,6 +102,12 @@ export default function Configuracoes() {
     }
   };
 
+  const syncToDB = async () => {
+    const { saveProfileToDB } = await import('@/lib/profile-sync');
+    const { getState: gs } = await import('@/lib/store');
+    await saveProfileToDB(gs());
+  };
+
   const handleSaveGoals = () => {
     const profit = parseFloat(profitGoal.replace(',', '.'));
     const margin = parseFloat(marginGoal.replace(',', '.'));
@@ -111,6 +117,7 @@ export default function Configuracoes() {
     });
     setGoalsSaved(true);
     setTimeout(() => setGoalsSaved(false), 2000);
+    syncToDB();
   };
 
   const handleSaveProfile = () => {
@@ -123,6 +130,7 @@ export default function Configuracoes() {
     });
     setProfileSaved(true);
     setTimeout(() => setProfileSaved(false), 2000);
+    syncToDB();
   };
 
   const config = state.businessType ? businessConfigs[state.businessType] : null;
