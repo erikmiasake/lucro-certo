@@ -38,9 +38,9 @@ function formatDateLabel(dateStr: string) {
   return `${d}/${m}`;
 }
 
-function getLast7Days(): string[] {
+function getLast14Days(): string[] {
   const days: string[] = [];
-  for (let i = 0; i < 7; i++) {
+  for (let i = 0; i < 14; i++) {
     const d = new Date();
     d.setDate(d.getDate() - i);
     days.push(getDateString(d));
@@ -142,14 +142,14 @@ export default function Movimentacoes() {
     setTimeout(() => setFeedback(null), 3000);
   };
 
-  const days7 = getLast7Days();
+  const days14 = getLast14Days();
 
   // Average revenue for comparison
   const avgRevenue = useMemo(() => {
-    const daysWithRevenue = days7.filter(d => getDayRevenue(d) > 0);
+    const daysWithRevenue = days14.filter(d => getDayRevenue(d) > 0);
     if (daysWithRevenue.length === 0) return 0;
     return daysWithRevenue.reduce((s, d) => s + getDayRevenue(d), 0) / daysWithRevenue.length;
-  }, [days7]);
+  }, [days14]);
 
   const weeksOfMonth = useMemo(() => getWeeksOfMonth(), []);
 
@@ -289,9 +289,9 @@ export default function Movimentacoes() {
             </div>
 
             {/* Recent days list */}
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 px-1">Últimos dias</p>
+            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 px-1">Últimos 14 dias</p>
             <div className="flex flex-col gap-1.5">
-              {days7.slice(1).map((date, i) => {
+              {days14.slice(1).map((date, i) => {
                 const revenue = getDayRevenue(date);
                 const summary = getDaySummary(date);
                 const isEditing = editingDate === date;
