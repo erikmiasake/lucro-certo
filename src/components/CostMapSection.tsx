@@ -13,15 +13,19 @@ function fmt(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
 }
 
-function CostItemRow({ item, onUpdate, onDelete, onToggle }: {
+function CostItemRow({ item, onUpdate, onDelete, onToggle, onRename }: {
   item: CostMapItem;
   onUpdate: (id: string, value: number) => void;
   onDelete: (id: string) => void;
   onToggle: (id: string) => void;
+  onRename: (id: string, name: string) => void;
 }) {
   const [editing, setEditing] = useState(false);
+  const [editingName, setEditingName] = useState(false);
   const [inputVal, setInputVal] = useState(item.value > 0 ? item.value.toString() : '');
+  const [nameVal, setNameVal] = useState(item.name);
   const inputRef = useRef<HTMLInputElement>(null);
+  const nameRef = useRef<HTMLInputElement>(null);
 
   const handleSave = () => {
     const num = parseFloat(inputVal.replace(',', '.')) || 0;
@@ -33,6 +37,22 @@ function CostItemRow({ item, onUpdate, onDelete, onToggle }: {
     setInputVal(item.value > 0 ? item.value.toString() : '');
     setEditing(true);
     setTimeout(() => inputRef.current?.focus(), 50);
+  };
+
+  const handleSaveName = () => {
+    const trimmed = nameVal.trim();
+    if (trimmed && trimmed !== item.name) {
+      onRename(item.id, trimmed);
+    } else {
+      setNameVal(item.name);
+    }
+    setEditingName(false);
+  };
+
+  const handleStartEditName = () => {
+    setNameVal(item.name);
+    setEditingName(true);
+    setTimeout(() => nameRef.current?.focus(), 50);
   };
 
   return (
@@ -53,7 +73,25 @@ function CostItemRow({ item, onUpdate, onDelete, onToggle }: {
       </div>
 
       <div className="flex-1 min-w-0">
-        <p className="text-xs font-medium text-foreground truncate">{item.name}</p>
+        {!editingName ? (
+          <button
+            onClick={handleStartEditName}
+            className="text-xs font-medium text-foreground truncate block hover:text-primary transition-colors cursor-text"
+            title="Clique para renomear"
+          >
+            {item.name}
+          </button>
+        ) : (
+          <input
+            ref={nameRef}
+            type="text"
+            value={nameVal}
+            onChange={e => setNameVal(e.target.value)}
+            onBlur={handleSaveName}
+            onKeyDown={e => e.key === 'Enter' && handleSaveName()}
+            className="w-full text-xs font-medium bg-secondary/50 rounded-lg px-2 py-1 outline-none border border-border focus:border-primary/40 text-foreground"
+          />
+        )}
         {!editing ? (
           <button
             onClick={handleStartEdit}
@@ -109,6 +147,10 @@ export default function CostMapSection() {
 
   const handleUpdate = (id: string, value: number) => {
     updateCostMapItem(id, { value });
+  };
+
+  const handleRename = (id: string, name: string) => {
+    updateCostMapItem(id, { name });
   };
 
   const handleDelete = (id: string) => {
@@ -184,6 +226,7 @@ export default function CostMapSection() {
                   onUpdate={handleUpdate}
                   onDelete={handleDelete}
                   onToggle={handleToggle}
+                  onRename={handleRename}
                 />
               ))}
             </AnimatePresence>
@@ -208,6 +251,7 @@ export default function CostMapSection() {
                   onUpdate={handleUpdate}
                   onDelete={handleDelete}
                   onToggle={handleToggle}
+                  onRename={handleRename}
                 />
               ))}
             </AnimatePresence>
