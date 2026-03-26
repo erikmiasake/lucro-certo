@@ -69,7 +69,7 @@ export default function Configuracoes() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    navigate('/landing');
+    navigate('/');
   };
 
   const handlePasswordReset = async () => {
@@ -222,7 +222,7 @@ export default function Configuracoes() {
             Crie uma conta ou faça login para proteger seus dados e sincronizá-los em todos os seus dispositivos.
           </p>
           <button
-            onClick={() => navigate('/landing')}
+            onClick={() => navigate('/auth?mode=login')}
             className="mt-5 px-6 py-2.5 rounded-xl text-sm font-semibold transition-all bg-primary text-primary-foreground hover:bg-primary/90"
           >
             Fazer login ou Cadastro

@@ -88,7 +88,7 @@ export default function ComoFunciona() {
       {/* ── Nav ── */}
       <nav className="fixed top-0 w-full z-50 bg-background/60 backdrop-blur-xl border-b border-border/40">
         <div className="max-w-5xl mx-auto flex items-center justify-between px-5 h-14">
-          <Link to="/landing" className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
+          <Link to="/" className="flex items-center gap-1.5 text-muted-foreground hover:text-foreground transition-colors">
             <ChevronLeft className="h-4 w-4" />
             <span className="text-sm font-medium">Voltar</span>
           </Link>
