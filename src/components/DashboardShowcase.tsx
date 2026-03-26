@@ -52,19 +52,35 @@ const WaterfallChart = () => {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
-    <div className="w-full h-full flex flex-col gap-3 justify-center">
+    <div className="w-full h-full flex flex-col gap-2.5 sm:gap-3 justify-center">
       {waterfallData.map((item, i) => (
         <motion.div
           key={item.label}
           initial={{ opacity: 0, x: -20 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.6, delay: 0.9 + i * 0.12, ease: "easeOut" }}
-          className="flex items-center gap-3 cursor-default"
+          className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 cursor-default"
           onMouseEnter={() => setHovered(i)}
           onMouseLeave={() => setHovered(null)}
         >
-          {/* Label */}
-          <div className="w-[130px] shrink-0 text-right">
+          {/* Label + Amount row on mobile */}
+          <div className="flex items-center justify-between sm:hidden">
+            <span className={cn(
+              "text-[11px] font-semibold transition-colors duration-200",
+              item.type === "profit" ? "text-primary" : hovered === i ? "text-white" : "text-zinc-500"
+            )}>
+              {item.label}
+            </span>
+            <span className={cn(
+              "text-[11px] font-bold tabular-nums",
+              item.type === "profit" ? "text-primary" : item.textColor
+            )}>
+              {item.amount}
+            </span>
+          </div>
+
+          {/* Desktop label */}
+          <div className="hidden sm:block w-[130px] shrink-0 text-right">
             <span className={cn(
               "text-[11px] font-semibold transition-colors duration-200",
               item.type === "profit" ? "text-primary" : hovered === i ? "text-white" : "text-zinc-500"
@@ -74,7 +90,7 @@ const WaterfallChart = () => {
           </div>
 
           {/* Bar track */}
-          <div className="flex-1 relative h-7 bg-white/5 rounded-full overflow-hidden">
+          <div className="flex-1 relative h-6 sm:h-7 bg-white/5 rounded-full overflow-hidden">
             <motion.div
               initial={{ width: 0 }}
               animate={{ width: `${item.value}%` }}
@@ -89,8 +105,8 @@ const WaterfallChart = () => {
             />
           </div>
 
-          {/* Amount */}
-          <div className="w-[80px] shrink-0">
+          {/* Desktop amount */}
+          <div className="hidden sm:block w-[80px] shrink-0">
             <span className={cn(
               "text-[11px] font-bold tabular-nums",
               item.type === "profit" ? "text-primary" : item.textColor
