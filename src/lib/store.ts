@@ -94,6 +94,11 @@ export function getState(): AppState {
   return state;
 }
 
+export function mergeState(partial: Partial<AppState>) {
+  state = { ...state, ...partial };
+  notify();
+}
+
 export function setBusinessType(type: BusinessType) {
   state = { ...state, businessType: type };
   notify();
