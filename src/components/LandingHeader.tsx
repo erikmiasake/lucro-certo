@@ -51,7 +51,7 @@ export function LandingHeader({ onCtaClick }: { onCtaClick?: () => void }) {
               </Link>
             ))}
             <Button size="sm" className="rounded-xl" asChild>
-              <Link to="/auth?mode=register">Começar agora</Link>
+              <Link to="/login">Começar agora</Link>
             </Button>
           </div>
 
