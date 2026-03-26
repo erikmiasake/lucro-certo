@@ -52,81 +52,99 @@ const WaterfallChart = () => {
   const [hovered, setHovered] = useState<number | null>(null);
 
   return (
-    <div className="w-full h-full flex flex-col gap-2.5 sm:gap-3 justify-center">
-      {waterfallData.map((item, i) => (
+    <div className="w-full h-full flex flex-col justify-center">
+      {/* Mobile: clean table layout */}
+      <div className="flex flex-col gap-0 sm:hidden">
+        {waterfallData.map((item, i) => (
+          <motion.div
+            key={item.label}
+            initial={{ opacity: 0, y: 10 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, delay: 0.9 + i * 0.1 }}
+            className={cn(
+              "flex items-center justify-between py-3 px-1",
+              i < waterfallData.length - 1 && "border-b border-white/5"
+            )}
+          >
+            <span className={cn(
+              "text-xs font-semibold",
+              item.type === "profit" ? "text-primary" : "text-zinc-400"
+            )}>
+              {item.label}
+            </span>
+            <span className={cn(
+              "text-sm font-bold tabular-nums",
+              item.type === "profit" ? "text-primary" : item.type === "cost" ? item.textColor : "text-zinc-300"
+            )}>
+              {item.amount}
+            </span>
+          </motion.div>
+        ))}
         <motion.div
-          key={item.label}
-          initial={{ opacity: 0, x: -20 }}
-          animate={{ opacity: 1, x: 0 }}
-          transition={{ duration: 0.6, delay: 0.9 + i * 0.12, ease: "easeOut" }}
-          className="flex flex-col sm:flex-row sm:items-center gap-1 sm:gap-3 cursor-default"
-          onMouseEnter={() => setHovered(i)}
-          onMouseLeave={() => setHovered(null)}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 1.8, duration: 0.6 }}
+          className="flex items-center justify-between pt-3 mt-1 border-t border-white/8"
         >
-          {/* Label + Amount row on mobile */}
-          <div className="flex items-center justify-between sm:hidden">
-            <span className={cn(
-              "text-[11px] font-semibold transition-colors duration-200",
-              item.type === "profit" ? "text-primary" : hovered === i ? "text-white" : "text-zinc-500"
-            )}>
-              {item.label}
-            </span>
-            <span className={cn(
-              "text-[11px] font-bold tabular-nums",
-              item.type === "profit" ? "text-primary" : item.textColor
-            )}>
-              {item.amount}
-            </span>
-          </div>
-
-          {/* Desktop label */}
-          <div className="hidden sm:block w-[130px] shrink-0 text-right">
-            <span className={cn(
-              "text-[11px] font-semibold transition-colors duration-200",
-              item.type === "profit" ? "text-primary" : hovered === i ? "text-white" : "text-zinc-500"
-            )}>
-              {item.label}
-            </span>
-          </div>
-
-          {/* Bar track */}
-          <div className="flex-1 relative h-6 sm:h-7 bg-white/5 rounded-full overflow-hidden">
-            <motion.div
-              initial={{ width: 0 }}
-              animate={{ width: `${item.value}%` }}
-              transition={{ duration: 1.1, delay: 1.0 + i * 0.12, ease: "easeOut" }}
-              className={cn(
-                "h-full rounded-full",
-                item.type === "profit"
-                  ? "bg-primary shadow-[0_0_20px_rgba(16,185,129,0.55)]"
-                  : item.color,
-                hovered === i && item.type !== "profit" ? "brightness-125" : ""
-              )}
-            />
-          </div>
-
-          {/* Desktop amount */}
-          <div className="hidden sm:block w-[80px] shrink-0">
-            <span className={cn(
-              "text-[11px] font-bold tabular-nums",
-              item.type === "profit" ? "text-primary" : item.textColor
-            )}>
-              {item.amount}
-            </span>
-          </div>
+          <span className="text-zinc-600 text-[10px] uppercase tracking-widest">Margem de lucro</span>
+          <span className="text-primary text-xs font-bold">38%</span>
         </motion.div>
-      ))}
+      </div>
 
-      {/* Bottom margin note */}
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 2, duration: 0.6 }}
-        className="flex justify-end items-center gap-2 pt-2 border-t border-white/5 mt-1"
-      >
-        <span className="text-zinc-600 text-[10px] uppercase tracking-widest">Margem de lucro</span>
-        <span className="text-primary text-[11px] font-bold">38%</span>
-      </motion.div>
+      {/* Desktop: bar chart layout */}
+      <div className="hidden sm:flex flex-col gap-3">
+        {waterfallData.map((item, i) => (
+          <motion.div
+            key={item.label}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.6, delay: 0.9 + i * 0.12, ease: "easeOut" }}
+            className="flex items-center gap-3 cursor-default"
+            onMouseEnter={() => setHovered(i)}
+            onMouseLeave={() => setHovered(null)}
+          >
+            <div className="w-[130px] shrink-0 text-right">
+              <span className={cn(
+                "text-[11px] font-semibold transition-colors duration-200",
+                item.type === "profit" ? "text-primary" : hovered === i ? "text-white" : "text-zinc-500"
+              )}>
+                {item.label}
+              </span>
+            </div>
+            <div className="flex-1 relative h-7 bg-white/5 rounded-full overflow-hidden">
+              <motion.div
+                initial={{ width: 0 }}
+                animate={{ width: `${item.value}%` }}
+                transition={{ duration: 1.1, delay: 1.0 + i * 0.12, ease: "easeOut" }}
+                className={cn(
+                  "h-full rounded-full",
+                  item.type === "profit"
+                    ? "bg-primary shadow-[0_0_20px_rgba(16,185,129,0.55)]"
+                    : item.color,
+                  hovered === i && item.type !== "profit" ? "brightness-125" : ""
+                )}
+              />
+            </div>
+            <div className="w-[80px] shrink-0">
+              <span className={cn(
+                "text-[11px] font-bold tabular-nums",
+                item.type === "profit" ? "text-primary" : item.textColor
+              )}>
+                {item.amount}
+              </span>
+            </div>
+          </motion.div>
+        ))}
+        <motion.div
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          transition={{ delay: 2, duration: 0.6 }}
+          className="flex justify-end items-center gap-2 pt-2 border-t border-white/5 mt-1"
+        >
+          <span className="text-zinc-600 text-[10px] uppercase tracking-widest">Margem de lucro</span>
+          <span className="text-primary text-[11px] font-bold">38%</span>
+        </motion.div>
+      </div>
     </div>
   );
 };
