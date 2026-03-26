@@ -86,9 +86,15 @@ export default function Configuracoes() {
     }
   };
 
-  const handleReset = () => {
+  const handleReset = async () => {
     if (confirmReset) {
       resetAll();
+      // Also clear in database
+      const { saveProfileToDB } = await import('@/lib/profile-sync');
+      const { getState: gs } = await import('@/lib/store');
+      await saveProfileToDB(gs());
+      await supabase.auth.signOut();
+      navigate('/');
       setConfirmReset(false);
     } else {
       setConfirmReset(true);
