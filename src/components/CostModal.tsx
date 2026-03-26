@@ -290,9 +290,16 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                   />
                 </div>
 
-                {costType === 'product' && (
+                {classification === 'fixed' ? (
+                  <div className="mb-5 p-3 rounded-xl bg-purple-500/5 border border-purple-400/15">
+                    <p className="text-xs font-medium text-purple-400 mb-1">📅 Custo mensal</p>
+                    <p className="text-[11px] text-muted-foreground">
+                      Este custo será distribuído ao longo de <span className="text-foreground font-semibold">30 dias</span> automaticamente.
+                    </p>
+                  </div>
+                ) : (
                   <div className="mb-5">
-                    <p className="text-sm text-muted-foreground mb-3">Distribuir em quantos dias?</p>
+                    <p className="text-sm text-muted-foreground mb-3">Esse custo dura quantos dias?</p>
                     <div className="flex gap-2">
                       {[3, 5, 7, 15, 30].map((d) => (
                         <button
@@ -308,6 +315,9 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                         </button>
                       ))}
                     </div>
+                    <p className="text-[10px] text-muted-foreground mt-2">
+                      Ex: uma compra de insumos que dura {spreadDays} dias será dividida igualmente nesse período.
+                    </p>
                   </div>
                 )}
 
