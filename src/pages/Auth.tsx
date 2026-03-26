@@ -1,14 +1,19 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useSearchParams } from 'react-router-dom';
+import { useState } from 'react';
+import { useNavigate, useSearchParams, useLocation } from 'react-router-dom';
 import { AuthFormSplitScreen, FormValues } from '@/components/ui/login';
 import { Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
+import { getState } from '@/lib/store';
 
 export default function Auth() {
   const navigate = useNavigate();
+  const location = useLocation();
   const [searchParams] = useSearchParams();
-  const mode = (searchParams.get('mode') as 'login' | 'register') || 'login';
+  
+  // Determine mode from path or query param
+  const isRegisterPath = location.pathname === '/register';
+  const mode = isRegisterPath ? 'register' : (searchParams.get('mode') as 'login' | 'register') || 'login';
 
   const handleAuth = async (data: FormValues) => {
     try {
@@ -24,6 +29,7 @@ export default function Auth() {
         });
         if (error) throw error;
         toast.success('Conta criada com sucesso! Verifique seu e-mail.');
+        navigate('/welcome');
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: data.email,
@@ -31,8 +37,15 @@ export default function Auth() {
         });
         if (error) throw error;
         toast.success('Login realizado com sucesso!');
+        
+        // If onboarding is complete, go to dashboard; otherwise, go to welcome
+        const appState = getState();
+        if (appState.onboardingComplete || appState.businessType) {
+          navigate('/dashboard');
+        } else {
+          navigate('/welcome');
+        }
       }
-      navigate('/dashboard');
     } catch (err: any) {
       toast.error('Erro na autenticação', {
         description: err.message
@@ -57,8 +70,8 @@ export default function Auth() {
       imageAlt="Escritório moderno com dashboard financeiro"
       onSubmit={handleAuth}
       forgotPasswordHref="#"
-      createAccountHref="/auth?mode=register"
-      toggleModeHref={mode === 'login' ? "/auth?mode=register" : "/auth?mode=login"}
+      createAccountHref="/register"
+      toggleModeHref={mode === 'login' ? "/register" : "/login"}
     />
   );
 }

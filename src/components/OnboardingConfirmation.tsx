@@ -129,7 +129,7 @@ export default function OnboardingConfirmation({ businessType, avgSales, selecte
           onClick={onEnter}
           className="w-full py-4 rounded-2xl gradient-primary text-primary-foreground font-semibold text-base shadow-lg shadow-primary/20 flex items-center justify-center gap-2 active:scale-[0.97] transition-transform"
         >
-          Entrar no meu painel
+          Gerar minha análise
           <ArrowRight className="h-5 w-5" />
         </button>
 

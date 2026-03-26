@@ -1,7 +1,6 @@
 import { useStore } from '@/hooks/use-store';
-import Onboarding from '@/components/Onboarding';
 import AppLayout from '@/components/AceternitySidebar';
-import { useLocation } from 'react-router-dom';
+import { useLocation, Navigate } from 'react-router-dom';
 import VisaoGeral from './VisaoGeral';
 import Movimentacoes from './Movimentacoes';
 import Custos from './Custos';
@@ -12,8 +11,9 @@ export default function Index() {
   const state = useStore();
   const location = useLocation();
 
-  if (!state.businessType) {
-    return <Onboarding />;
+  // Guard: redirect to onboarding if not complete
+  if (!state.onboardingComplete && !state.businessType) {
+    return <Navigate to="/onboarding" replace />;
   }
 
   const renderPage = () => {

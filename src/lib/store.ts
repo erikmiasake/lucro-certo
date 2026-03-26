@@ -46,6 +46,7 @@ export interface CostMapItem {
 
 export interface AppState {
   businessType: BusinessType | null;
+  onboardingComplete: boolean;
   entries: Entry[];
   costs: Cost[];
   costMap: CostMapItem[];
@@ -64,10 +65,10 @@ function loadState(): AppState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, costMap: [], ...parsed };
+      return { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, costMap: [], onboardingComplete: false, ...parsed };
     }
   } catch {}
-  return { businessType: null, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
+  return { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
 }
 
 function saveState(state: AppState) {
@@ -95,6 +96,11 @@ export function getState(): AppState {
 
 export function setBusinessType(type: BusinessType) {
   state = { ...state, businessType: type };
+  notify();
+}
+
+export function setOnboardingComplete(complete: boolean) {
+  state = { ...state, onboardingComplete: complete };
   notify();
 }
 
@@ -825,6 +831,6 @@ export function getCostMap() {
 }
 
 export function resetAll() {
-  state = { businessType: null, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
+  state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
   notify();
 }
