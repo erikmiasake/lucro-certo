@@ -25,8 +25,8 @@ export async function loadProfileFromDB(): Promise<Partial<AppState> | null> {
     },
     averageSales: data.average_sales ? Number(data.average_sales) : undefined,
     mainCosts: data.main_costs || [],
-    costMap: (data.cost_map as CostMapItem[]) || [],
-    goals: (data.goals as Goals) || { monthlyProfit: null, monthlyMargin: null },
+    costMap: (data.cost_map as unknown as CostMapItem[]) || [],
+    goals: (data.goals as unknown as Goals) || { monthlyProfit: null, monthlyMargin: null },
   };
 }
 
