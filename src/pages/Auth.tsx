@@ -37,7 +37,12 @@ export default function Auth() {
         });
         if (error) throw error;
         toast.success('Login realizado com sucesso!');
-        navigate('/welcome');
+        const appState = getState();
+        if (appState.onboardingComplete) {
+          navigate('/dashboard', { replace: true });
+        } else {
+          navigate('/welcome', { replace: true });
+        }
       }
     } catch (err: any) {
       toast.error('Erro na autenticação', {
