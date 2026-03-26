@@ -164,7 +164,7 @@ function MobileSidebar() {
           >
             <Menu className="h-5 w-5" />
           </button>
-          <span className="text-sm font-extrabold text-foreground tracking-tight">
+          <span className="text-lg font-extrabold text-foreground tracking-tight">
             Lucro<span className="text-primary">Real</span>
           </span>
         </div>
