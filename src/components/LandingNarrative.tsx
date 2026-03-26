@@ -76,17 +76,21 @@ export function LandingNarrative({ onCtaClick }: Props) {
                 Passo 1
               </div>
               <h3 className="text-2xl md:text-4xl font-bold text-foreground leading-tight">
-                Registre suas vendas em segundos.
+                Registre seu faturamento diário.
               </h3>
               <p className="text-muted-foreground text-base mt-4 leading-relaxed">
-                Sem planilhas, sem complicação. Basta informar o valor e pronto.
+                Sem planilhas, sem complicação. Informe o total do dia e pronto.
               </p>
             </div>
             <div className="rounded-2xl border border-border bg-card p-6 space-y-4">
-              {['Almoço executivo', 'Corte + Barba', 'Banho e tosa'].map((item, i) => (
+              {[
+                { day: 'Segunda, 24 Mar', value: 'R$ 2.450' },
+                { day: 'Terça, 25 Mar', value: 'R$ 3.120' },
+                { day: 'Quarta, 26 Mar', value: 'R$ 1.890' },
+              ].map((item, i) => (
                 <div key={i} className="flex items-center justify-between p-3 rounded-xl bg-secondary/50">
-                  <span className="text-foreground text-sm font-medium">{item}</span>
-                  <span className="text-primary font-bold text-sm">R$ {(Math.random() * 100 + 30).toFixed(0)}</span>
+                  <span className="text-foreground text-sm font-medium">{item.day}</span>
+                  <span className="text-primary font-bold text-sm">{item.value}</span>
                 </div>
               ))}
             </div>
