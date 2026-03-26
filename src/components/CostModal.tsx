@@ -95,7 +95,9 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
   const handleSubmit = () => {
     const num = parseFloat(value.replace(',', '.'));
     if (num > 0) {
-      onSubmit(num, costType, costType === 'product' ? spreadDays : 1, description, category, subcategory, classification);
+      // Fixed costs: always 30 days (monthly). Variable costs: user-selected spreadDays.
+      const finalSpreadDays = classification === 'fixed' ? 30 : spreadDays;
+      onSubmit(num, costType, finalSpreadDays, description, category, subcategory, classification);
     }
   };
 
