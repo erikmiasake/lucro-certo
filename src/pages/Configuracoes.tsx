@@ -69,7 +69,7 @@ export default function Configuracoes() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    navigate('/landing');
+    navigate('/');
   };
 
   const handlePasswordReset = async () => {
