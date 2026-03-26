@@ -39,13 +39,8 @@ export default function Auth() {
           return;
         }
         
-        toast.success('Conta criada com sucesso!');
-        const appState = getState();
-        if (appState.onboardingComplete) {
-          navigate('/dashboard', { replace: true });
-        } else {
-          navigate('/welcome', { replace: true });
-        }
+        toast.success('Conta criada! Verifique seu e-mail para ativar.');
+        navigate('/verify-email');
       } else {
         const { error } = await supabase.auth.signInWithPassword({
           email: data.email,
