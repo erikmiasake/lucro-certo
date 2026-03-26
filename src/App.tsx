@@ -14,6 +14,7 @@ import Index from "./pages/Index.tsx";
 import ComoFunciona from "./pages/ComoFunciona.tsx";
 import NotFound from "./pages/NotFound.tsx";
 import GenerativeArtDemo from "./pages/GenerativeArtDemo.tsx";
+import ResetPassword from "./pages/ResetPassword.tsx";
 
 const queryClient = new QueryClient();
 
@@ -30,6 +31,7 @@ const App = () => (
           <Route path="/register" element={<Auth />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/verify-email" element={<VerifyEmail />} />
+          <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/welcome" element={<Welcome />} />
           <Route path="/onboarding" element={<OnboardingPage />} />
           <Route path="/summary" element={<Summary />} />
