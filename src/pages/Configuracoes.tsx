@@ -69,8 +69,9 @@ export default function Configuracoes() {
 
   const handleSignOut = async () => {
     await supabase.auth.signOut();
-    // Don't clear localStorage — data stays synced with DB
+    localStorage.removeItem('lucro-real-data');
     navigate('/');
+    window.location.reload();
   };
 
   const handlePasswordReset = async () => {
@@ -277,7 +278,7 @@ export default function Configuracoes() {
                   return (
                     <button
                       key={type}
-                      onClick={() => { setBusinessType(type); setShowType(false); }}
+                      onClick={() => { setBusinessType(type); setShowType(false); syncToDB(); }}
                       className={`w-full flex items-center gap-3 p-3 rounded-xl text-left transition-all ${
                         isActive
                           ? 'bg-primary/10 border border-primary/30'
