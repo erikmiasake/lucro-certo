@@ -168,14 +168,9 @@ function MobileSidebar() {
             <div className="w-7 h-7 rounded-lg gradient-primary flex items-center justify-center shadow-md shadow-primary/30">
               <Activity className="h-3.5 w-3.5 text-primary-foreground" />
             </div>
-            <div className="flex flex-col">
-              <span className="text-sm font-extrabold text-foreground tracking-tight leading-none">
-                Lucro<span className="text-primary">Real</span>
-              </span>
-              <span className="text-[8px] font-semibold text-primary/60 uppercase tracking-[0.2em] leading-none mt-0.5">
-                powered by AI
-              </span>
-            </div>
+            <span className="text-sm font-extrabold text-foreground tracking-tight">
+              Lucro<span className="text-primary">Real</span>
+            </span>
           </div>
         </div>
         <div className="w-2 h-2 rounded-full bg-primary animate-pulse shadow-sm shadow-primary/50" />
