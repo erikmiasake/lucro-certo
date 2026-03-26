@@ -155,13 +155,16 @@ function MobileSidebar() {
 
   return (
     <div className="md:hidden">
-      {/* Transparent floating menu trigger */}
-      <button
-        onClick={() => setOpen(!open)}
-        className="fixed top-4 left-4 z-40 p-2.5 rounded-xl bg-background/40 backdrop-blur-md border border-border/30 text-muted-foreground hover:text-foreground hover:bg-background/60 transition-all shadow-lg shadow-black/10"
-      >
-        <Menu className="h-5 w-5" />
-      </button>
+      {/* Top bar with logo */}
+      <div className="fixed top-0 left-0 right-0 z-40 flex items-center gap-3 px-4 h-14 bg-background/60 backdrop-blur-xl border-b border-border/20">
+        <button
+          onClick={() => setOpen(!open)}
+          className="p-2 rounded-xl bg-background/40 border border-border/30 text-muted-foreground hover:text-foreground hover:bg-background/60 transition-all"
+        >
+          <Menu className="h-5 w-5" />
+        </button>
+        <span className="text-base font-bold text-foreground tracking-tight">Lucro Real</span>
+      </div>
 
       <AnimatePresence>
         {open && (
