@@ -182,6 +182,36 @@ export default function Movimentacoes() {
   }, [days14]);
 
   const weeksOfMonth = useMemo(() => getWeeksOfMonth(), []);
+  const [editingWeekIdx, setEditingWeekIdx] = useState<number | null>(null);
+  const [weekEditValue, setWeekEditValue] = useState('');
+  const weekInputRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    if (editingWeekIdx !== null) setTimeout(() => weekInputRef.current?.focus(), 50);
+  }, [editingWeekIdx]);
+
+  const startWeekEdit = (idx: number) => {
+    const week = weeksOfMonth[idx];
+    setEditingWeekIdx(idx);
+    setWeekEditValue(week.revenue > 0 ? week.revenue.toFixed(0) : '');
+  };
+
+  const handleSaveWeekRevenue = () => {
+    const num = parseFloat(weekEditValue.replace(',', '.'));
+    if (num >= 0 && !isNaN(num) && editingWeekIdx !== null) {
+      const perDay = num / 7;
+      const weekOffset = (3 - editingWeekIdx) * 7; // weeks are ordered 1-4, index 0=week1(oldest)
+      for (let d = 0; d < 7; d++) {
+        const date = new Date();
+        date.setDate(date.getDate() - (weekOffset + d));
+        setDayRevenue(getDateString(date), perDay);
+      }
+      setFeedback(`Semana ${editingWeekIdx + 1}: ${fmt(num)} distribuída em 7 dias (${fmt(perDay)}/dia)`);
+      setTimeout(() => setFeedback(null), 4000);
+    }
+    setEditingWeekIdx(null);
+    setWeekEditValue('');
+  };
 
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto safe-bottom pb-24">
@@ -625,18 +655,43 @@ export default function Movimentacoes() {
                   initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
                   transition={{ delay: i * 0.05 }}
-                  className="flex items-center justify-between p-3 rounded-xl card-elevated"
+                  className="flex items-center justify-between p-3 rounded-xl card-elevated group hover:border-primary/20 transition-all cursor-pointer"
+                  onClick={() => editingWeekIdx !== i && startWeekEdit(i)}
                 >
-                  <div>
-                    <p className="text-xs font-semibold text-foreground">{week.label}</p>
-                    <p className="text-[10px] text-muted-foreground">
-                      Receita: {fmtShort(week.revenue)} · Custo: {fmtShort(week.cost)}
-                    </p>
-                  </div>
-                  <div className="text-right">
-                    <p className={`text-sm font-bold ${week.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(week.profit)}</p>
-                    <p className="text-[10px] text-muted-foreground">lucro</p>
-                  </div>
+                  {editingWeekIdx === i ? (
+                    <div className="flex items-center gap-2 flex-1" onClick={(e) => e.stopPropagation()}>
+                      <span className="text-sm font-bold text-muted-foreground">R$</span>
+                      <input
+                        ref={weekInputRef}
+                        type="number"
+                        inputMode="decimal"
+                        placeholder="Receita total da semana"
+                        value={weekEditValue}
+                        onChange={(e) => setWeekEditValue(e.target.value)}
+                        onKeyDown={(e) => e.key === 'Enter' && handleSaveWeekRevenue()}
+                        className="flex-1 text-base font-bold bg-transparent outline-none text-foreground placeholder:text-muted"
+                      />
+                      <button onClick={handleSaveWeekRevenue} className="p-1.5 rounded-lg bg-primary text-primary-foreground active:scale-95">
+                        <Check className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  ) : (
+                    <>
+                      <div>
+                        <p className="text-xs font-semibold text-foreground">{week.label}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          Receita: {fmtShort(week.revenue)} · Custo: {fmtShort(week.cost)}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        <div className="text-right">
+                          <p className={`text-sm font-bold ${week.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(week.profit)}</p>
+                          <p className="text-[10px] text-muted-foreground">lucro</p>
+                        </div>
+                        <Edit2 className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+                      </div>
+                    </>
+                  )}
                 </motion.div>
               ))}
             </div>
