@@ -4,7 +4,8 @@ import { BusinessType, businessConfigs } from '@/lib/business-config';
 import { BusinessProfile } from '@/lib/store';
 import {
   ArrowRight, ArrowLeft, DollarSign, Tag, Brain, Plus, X, Sparkles,
-  Building2, MapPin, Calendar, Users, Crosshair, TrendingUp, Percent
+  Building2, MapPin, Calendar, Users, Crosshair, TrendingUp, Percent,
+  CheckCircle2
 } from 'lucide-react';
 
 const businessImages: Record<BusinessType, string> = {
@@ -58,7 +59,6 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
   const [aiHintIndex, setAiHintIndex] = useState(-1);
   const [showAiHint, setShowAiHint] = useState(false);
 
-  // Profile fields
   const [businessName, setBusinessName] = useState('');
   const [city, setCity] = useState('');
   const [operatingDays, setOperatingDays] = useState('6');
@@ -133,15 +133,17 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
   const filledFields = (avgSales.length > 0 ? 1 : 0) + (selectedCosts.length > 0 ? 1 : 0) + (businessName.length > 0 ? 0.5 : 0) + (objective ? 0.5 : 0);
   const progress = Math.min(filledFields / 3, 1);
 
-  return (
-    <motion.div
-      key="details-step"
-      initial={{ opacity: 0, x: 40 }}
-      animate={{ opacity: 1, x: 0 }}
-      exit={{ opacity: 0, x: -40 }}
-      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
-      className="w-full max-w-md px-4 sm:px-6 py-6 sm:py-8 max-h-[100dvh] overflow-y-auto"
-    >
+  // Checklist for the desktop side panel
+  const checklistItems = [
+    { label: 'Nome do negócio', done: businessName.length > 0 },
+    { label: 'Localização', done: city.length > 0 },
+    { label: 'Média de vendas', done: avgSales.length > 0 },
+    { label: 'Objetivo definido', done: objective.length > 0 },
+    { label: 'Custos selecionados', done: selectedCosts.length > 0 },
+  ];
+
+  const formContent = (
+    <>
       {/* Back + Progress */}
       <div className="flex items-center justify-between mb-5">
         <button
@@ -397,6 +399,117 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
         Gerar minha análise
         <ArrowRight className="h-4 w-4" />
       </motion.button>
+    </>
+  );
+
+  return (
+    <motion.div
+      key="details-step"
+      initial={{ opacity: 0, x: 40 }}
+      animate={{ opacity: 1, x: 0 }}
+      exit={{ opacity: 0, x: -40 }}
+      transition={{ duration: 0.4, ease: [0.22, 1, 0.36, 1] }}
+      className="w-full max-h-[100dvh] overflow-y-auto"
+    >
+      {/* Desktop: split layout */}
+      <div className="hidden lg:flex min-h-screen">
+        {/* Left - Form */}
+        <div className="w-1/2 flex items-start justify-center overflow-y-auto py-10 px-8">
+          <div className="w-full max-w-lg">
+            {formContent}
+          </div>
+        </div>
+
+        {/* Right - Contextual panel */}
+        <div className="w-1/2 relative border-l border-border/30">
+          {/* Background image */}
+          <div className="absolute inset-0 z-0">
+            <img
+              src={businessImages[selectedType]}
+              alt=""
+              className="w-full h-full object-cover opacity-20"
+              aria-hidden="true"
+            />
+            <div className="absolute inset-0 bg-gradient-to-r from-background via-background/95 to-background/80" />
+          </div>
+
+          {/* Content */}
+          <div className="relative z-10 flex flex-col justify-center h-full px-12 py-10">
+            <motion.div
+              initial={{ opacity: 0, x: 20 }}
+              animate={{ opacity: 1, x: 0 }}
+              transition={{ delay: 0.3, duration: 0.6 }}
+            >
+              <div className="mb-8">
+                <div className="w-12 h-12 rounded-2xl bg-primary/10 border border-primary/20 flex items-center justify-center mb-4">
+                  <Sparkles className="h-6 w-6 text-primary" />
+                </div>
+                <h3 className="text-2xl font-bold text-foreground mb-2">
+                  Sua análise personalizada
+                </h3>
+                <p className="text-muted-foreground text-sm leading-relaxed">
+                  Preencha os dados ao lado para que nossa IA gere um diagnóstico completo do seu {config.label.toLowerCase()}.
+                </p>
+              </div>
+
+              {/* Live checklist */}
+              <div className="space-y-3 mb-8">
+                <p className="text-xs font-semibold text-muted-foreground uppercase tracking-wider mb-2">Progresso</p>
+                {checklistItems.map((item, i) => (
+                  <motion.div
+                    key={item.label}
+                    initial={{ opacity: 0, x: 10 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.5 + i * 0.08 }}
+                    className={`flex items-center gap-3 px-4 py-2.5 rounded-xl transition-all duration-300 ${
+                      item.done
+                        ? 'bg-primary/10 border border-primary/20'
+                        : 'bg-card/40 border border-border/30'
+                    }`}
+                  >
+                    <CheckCircle2
+                      className={`h-4 w-4 transition-colors duration-300 ${
+                        item.done ? 'text-primary' : 'text-muted-foreground/30'
+                      }`}
+                    />
+                    <span
+                      className={`text-sm font-medium transition-colors duration-300 ${
+                        item.done ? 'text-foreground' : 'text-muted-foreground/50'
+                      }`}
+                    >
+                      {item.label}
+                    </span>
+                  </motion.div>
+                ))}
+              </div>
+
+              {/* AI Insight */}
+              <AnimatePresence mode="wait">
+                {showAiHint && aiHintIndex >= 0 && (
+                  <motion.div
+                    key={`desktop-hint-${aiHintIndex}`}
+                    initial={{ opacity: 0, y: 8 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -8 }}
+                    transition={{ duration: 0.3 }}
+                    className="flex items-center gap-2.5 px-4 py-3 rounded-xl bg-primary/5 border border-primary/10"
+                  >
+                    <Sparkles className="h-4 w-4 text-primary animate-pulse flex-shrink-0" />
+                    <span className="text-sm text-primary/80">{aiHints[aiHintIndex]}</span>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </motion.div>
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile: original single column */}
+      <div className="lg:hidden flex justify-center px-4 sm:px-6 py-6 sm:py-8">
+        <div className="w-full max-w-md">
+          {formContent}
+        </div>
+      </div>
     </motion.div>
   );
 }
