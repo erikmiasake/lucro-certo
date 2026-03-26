@@ -46,6 +46,7 @@ export interface CostMapItem {
 
 export interface AppState {
   businessType: BusinessType | null;
+  onboardingComplete: boolean;
   entries: Entry[];
   costs: Cost[];
   costMap: CostMapItem[];
