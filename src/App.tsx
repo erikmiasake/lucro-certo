@@ -25,6 +25,10 @@ const App = () => (
           <Route path="/register" element={<Auth />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/dashboard/*" element={<Index />} />
+          <Route path="/movimentacoes" element={<Index />} />
+          <Route path="/custos" element={<Index />} />
+          <Route path="/desempenho" element={<Index />} />
+          <Route path="/configuracoes" element={<Index />} />
           <Route path="/como-funciona" element={<ComoFunciona />} />
           <Route path="/generative-art-demo" element={<GenerativeArtDemo />} />
           <Route path="*" element={<NotFound />} />
