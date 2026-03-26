@@ -1,0 +1,158 @@
+import { useState, useCallback } from 'react';
+import { useNavigate } from 'react-router-dom';
+import { AnimatePresence, motion } from 'framer-motion';
+import { BusinessType, businessConfigs } from '@/lib/business-config';
+import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding } from '@/lib/store';
+import AILoadingScreen from '@/components/AILoadingScreen';
+import OnboardingDetails, { OnboardingFinishData } from '@/components/OnboardingDetails';
+import { Sparkles, Clock, Zap } from 'lucide-react';
+import { TextEffect } from '@/components/ui/text-effect';
+
+const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'academia', 'outro'];
+
+const businessImages: Record<BusinessType, string> = {
+  restaurante: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop',
+  salao: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=600&auto=format&fit=crop',
+  petshop: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=600&auto=format&fit=crop',
+  loja: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=600&auto=format&fit=crop',
+  academia: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&auto=format&fit=crop',
+  outro: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600&auto=format&fit=crop',
+};
+
+export default function OnboardingPage() {
+  const navigate = useNavigate();
+  const [step, setStep] = useState<'loading' | 'type' | 'details'>('loading');
+  const [selectedType, setSelectedType] = useState<BusinessType | null>(null);
+  const [clickedType, setClickedType] = useState<BusinessType | null>(null);
+
+  const handleLoadingComplete = useCallback(() => setStep('type'), []);
+
+  const handleSelectType = (type: BusinessType) => {
+    setClickedType(type);
+    setTimeout(() => {
+      setSelectedType(type);
+      setStep('details');
+      setClickedType(null);
+    }, 300);
+  };
+
+  const handleFinish = (data: OnboardingFinishData) => {
+    if (!selectedType) return;
+
+    // Save data to store
+    const avg = parseFloat(data.avgSales.replace(/\./g, '').replace(',', '.'));
+    setOnboardingData({
+      averageSales: avg > 0 ? avg : undefined,
+      mainCosts: data.selectedCosts.length > 0 ? data.selectedCosts : undefined,
+    });
+    if (data.profile) {
+      setBusinessProfile(data.profile);
+    }
+    if (data.selectedCosts.length > 0) {
+      initCostMapFromOnboarding(data.selectedCosts);
+    }
+    setBusinessType(selectedType);
+
+    // Navigate to summary with data in state
+    navigate('/summary', {
+      state: {
+        businessType: selectedType,
+        avgSales: data.avgSales,
+        selectedCosts: data.selectedCosts,
+      },
+    });
+  };
+
+  return (
+    <div className="min-h-screen bg-background flex flex-col items-center justify-center safe-bottom relative overflow-hidden">
+      <AnimatePresence mode="wait">
+        {step === 'loading' ? (
+          <AILoadingScreen key="loading" onComplete={handleLoadingComplete} />
+        ) : step === 'type' ? (
+          <motion.div
+            key="type-step"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-3xl px-4 sm:px-6 py-6 sm:py-10"
+          >
+            <div className="text-center mb-5 sm:mb-8">
+              <motion.div
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg glow-primary"
+              >
+                <Sparkles className="h-6 w-6 text-primary-foreground" />
+              </motion.div>
+
+              <TextEffect preset="blur" as="h1" className="text-xl sm:text-3xl font-extrabold text-foreground mb-2 tracking-tight leading-tight">
+                Descubra quanto você realmente lucra
+              </TextEffect>
+
+              <motion.div
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+              >
+                <p className="text-muted-foreground text-sm sm:text-base mb-2 max-w-md mx-auto">
+                  Escolha seu tipo de negócio e receba análises inteligentes personalizadas
+                </p>
+                <div className="flex items-center justify-center gap-2 text-muted-foreground/70 text-sm">
+                  <Clock className="h-3.5 w-3.5" />
+                  <span>Configuração rápida — menos de 30 segundos</span>
+                </div>
+              </motion.div>
+            </div>
+
+            <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
+              {types.map((type, index) => {
+                const c = businessConfigs[type];
+                const isClicked = clickedType === type;
+
+                return (
+                  <motion.button
+                    key={type}
+                    initial={{ opacity: 0, y: 40, scale: 0.95 }}
+                    animate={{ opacity: 1, y: 0, scale: isClicked ? 0.95 : 1 }}
+                    transition={{ delay: index * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+                    whileHover={{ scale: 1.03, y: -4 }}
+                    whileTap={{ scale: 0.97 }}
+                    onClick={() => handleSelectType(type)}
+                    className="group relative rounded-xl sm:rounded-2xl overflow-hidden border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--primary)/0.12)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40"
+                  >
+                    <div className="relative h-24 sm:h-36 overflow-hidden">
+                      <img src={businessImages[type]} alt={c.label} className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110" loading="lazy" />
+                      <div className="absolute inset-0 bg-gradient-to-t from-card via-card/50 to-transparent" />
+                      <div className="absolute inset-0 bg-primary/0 group-hover:bg-primary/5 transition-colors duration-300" />
+                    </div>
+                    <div className="px-3 pb-3 pt-1 sm:px-4 sm:pb-4">
+                      <h3 className="text-foreground font-bold text-xs sm:text-base leading-tight mb-0.5 sm:mb-1 group-hover:text-primary transition-colors duration-200">{c.label}</h3>
+                      <p className="text-muted-foreground text-xs flex items-center gap-1.5">
+                        <Zap className="h-3 w-3 text-primary/60" />
+                        {c.entryLabel}
+                      </p>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left" />
+                  </motion.button>
+                );
+              })}
+            </div>
+
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="text-center text-muted-foreground/50 text-xs mt-5 sm:mt-8">
+              Powered by inteligência artificial
+            </motion.p>
+          </motion.div>
+        ) : step === 'details' && selectedType ? (
+          <OnboardingDetails
+            key="details-step"
+            selectedType={selectedType}
+            onBack={() => setStep('type')}
+            onFinish={handleFinish}
+          />
+        ) : null}
+      </AnimatePresence>
+    </div>
+  );
+}
