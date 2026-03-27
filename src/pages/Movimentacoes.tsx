@@ -437,7 +437,7 @@ export default function Movimentacoes() {
                           <div>
                             <div className="flex items-center gap-1.5">
                               <p className="font-semibold text-sm text-foreground">
-                                {revenue > 0 ? fmt(revenue) : <span className="text-muted-foreground text-xs">—</span>}
+                                {!operating && revenue === 0 ? <span className="text-muted-foreground text-xs">Fechado</span> : revenue > 0 ? fmt(revenue) : <span className="text-muted-foreground text-xs">—</span>}
                               </p>
                               {aboveAvg && <TrendingUp className="h-3 w-3 text-primary" />}
                               {belowAvg && <TrendingDown className="h-3 w-3 text-destructive/60" />}
