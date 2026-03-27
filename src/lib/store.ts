@@ -62,7 +62,7 @@ export interface AppState {
 
 const STORAGE_KEY = 'lucro-real-data';
 
-const defaultProfile: BusinessProfile = { name: '', city: '', operatingDays: 6, employeeCount: 0, objective: '' };
+const defaultProfile: BusinessProfile = { name: '', city: '', operatingDays: 6, employeeCount: 0, objective: '', operatingWeekdays: [1, 2, 3, 4, 5, 6] };
 
 function loadState(): AppState {
   try {
