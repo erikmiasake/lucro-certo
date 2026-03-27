@@ -127,7 +127,7 @@ export function setBusinessProfile(profile: Partial<BusinessProfile>) {
   notify();
 }
 
-export function addEntry(amount: number, description?: string, category?: string) {
+export function addEntry(amount: number, description?: string, category?: string, source: EntrySource = 'manual') {
   const today = new Date().toISOString().split('T')[0];
   const entry: Entry = {
     id: crypto.randomUUID(),
@@ -136,6 +136,7 @@ export function addEntry(amount: number, description?: string, category?: string
     createdAt: Date.now(),
     description,
     category,
+    source,
   };
   state = { ...state, entries: [...state.entries, entry] };
   notify();
