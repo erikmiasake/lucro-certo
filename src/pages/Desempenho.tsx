@@ -19,7 +19,7 @@ function formatCurrency(value: number) {
 }
 
 function formatPercent(v: number) {
-  return `${v.toFixed(1)}%`;
+  return `${Math.round(v)}%`;
 }
 
 function formatDateBR(dateStr: string) {

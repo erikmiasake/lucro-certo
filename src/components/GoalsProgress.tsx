@@ -82,7 +82,7 @@ export default function GoalsProgress() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-foreground">
-                  {progress.margin.current.toFixed(1)}%
+                  {Math.round(progress.margin.current)}%
                 </span>
                 <span className="text-[10px] text-muted-foreground">
                   / {progress.margin.target}%

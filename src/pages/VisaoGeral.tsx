@@ -22,7 +22,7 @@ function formatCurrency(value: number) {
 }
 
 function formatPercent(value: number) {
-  return `${value.toFixed(1)}%`;
+  return `${Math.round(value)}%`;
 }
 
 const stagger = {

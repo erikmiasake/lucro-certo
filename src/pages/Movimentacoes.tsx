@@ -648,7 +648,7 @@ export default function Movimentacoes() {
               {monthSummary.totalRevenue > 0 && (
                 <div className="flex items-center justify-between pt-3 border-t border-border/50">
                   <span className="text-[10px] text-muted-foreground">Margem</span>
-                  <span className={`text-xs font-bold ${monthSummary.margin >= 20 ? 'text-primary' : 'text-destructive'}`}>{monthSummary.margin.toFixed(1)}%</span>
+                  <span className={`text-xs font-bold ${monthSummary.margin >= 20 ? 'text-primary' : 'text-destructive'}`}>{Math.round(monthSummary.margin)}%</span>
                 </div>
               )}
             </div>

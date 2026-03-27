@@ -395,7 +395,7 @@ export default function Custos() {
                         </div>
                         {week.totalRevenue > 0 && (
                           <p className="text-[9px] text-muted-foreground/50 mt-0.5 ml-5">
-                            {pctOfRevenue.toFixed(1)}% da receita
+                            {Math.round(pctOfRevenue)}% da receita
                           </p>
                         )}
                       </div>
