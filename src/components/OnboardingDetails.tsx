@@ -63,6 +63,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
   const [city, setCity] = useState('');
   const [operatingWeekdays, setOperatingWeekdays] = useState<number[]>([1, 2, 3, 4, 5, 6]);
   const [employeeCount, setEmployeeCount] = useState('');
+  const [averageSalary, setAverageSalary] = useState('');
   const [objective, setObjective] = useState('');
 
   const config = businessConfigs[selectedType];
