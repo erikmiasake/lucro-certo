@@ -885,7 +885,8 @@ export function getCostMap() {
   const variable = state.costMap.filter(i => i.classification === 'variable');
   const totalFixed = fixed.reduce((s, i) => s + i.value, 0);
   const totalVariable = variable.reduce((s, i) => s + i.value, 0);
-  return { fixed, variable, totalFixed, totalVariable, total: totalFixed + totalVariable };
+  const totalMonthly = state.costMap.reduce((s, i) => s + getMonthlyEquivalent(i), 0);
+  return { fixed, variable, totalFixed, totalVariable, total: totalFixed + totalVariable, totalMonthly };
 }
 
 export function resetAll() {
