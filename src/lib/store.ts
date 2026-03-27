@@ -823,7 +823,7 @@ export function suggestCategory(description: string, businessType: BusinessType)
 // ─── Cost Map ──────────────────────────────────────────────────────
 
 const VARIABLE_COST_NAMES = ['Ingredientes', 'Bebidas', 'Embalagens', 'Descartáveis', 'Produtos', 'Tintas', 'Cremes', 'Lâminas', 'Ração', 'Produtos pet', 'Medicamentos', 'Acessórios', 'Mercadoria', 'Estoque', 'Equipamentos', 'Suplementos', 'Manutenção', 'Limpeza', 'Materiais', 'Insumos'];
-const FIXED_COST_NAMES = ['Aluguel', 'Energia', 'Água', 'Funcionários', 'Gás', 'Sistema/Software', 'Contas', 'Internet'];
+const FIXED_COST_NAMES = ['Aluguel', 'Energia', 'Água', 'Gás', 'Sistema/Software', 'Contas', 'Internet', 'Folha de pagamento'];
 
 export function classifyCostName(name: string): CostClassification {
   if (FIXED_COST_NAMES.some(f => name.toLowerCase() === f.toLowerCase())) return 'fixed';

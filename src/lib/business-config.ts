@@ -23,7 +23,7 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
     entryVerb: 'venda',
     costCategories: {
       product: ['Ingredientes', 'Bebidas', 'Embalagens', 'Descartáveis'],
-      business: ['Aluguel', 'Energia', 'Gás', 'Funcionários', 'Água'],
+      business: ['Aluguel', 'Energia', 'Gás', 'Água'],
     },
     productCostLabel: 'Custo de insumos',
     productCostExample: 'ex: ingredientes, bebidas',
@@ -37,7 +37,7 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
     entryVerb: 'atendimento',
     costCategories: {
       product: ['Produtos', 'Tintas', 'Cremes', 'Lâminas'],
-      business: ['Aluguel', 'Energia', 'Água', 'Funcionários'],
+      business: ['Aluguel', 'Energia', 'Água'],
     },
     productCostLabel: 'Custo de produtos',
     productCostExample: 'ex: tintas, cremes',
@@ -51,7 +51,7 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
     entryVerb: 'venda',
     costCategories: {
       product: ['Ração', 'Produtos pet', 'Medicamentos', 'Acessórios'],
-      business: ['Aluguel', 'Energia', 'Água', 'Funcionários'],
+      business: ['Aluguel', 'Energia', 'Água'],
     },
     productCostLabel: 'Custo de produtos',
     productCostExample: 'ex: ração, medicamentos',
@@ -65,7 +65,7 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
     entryVerb: 'venda',
     costCategories: {
       product: ['Mercadoria', 'Estoque', 'Embalagens'],
-      business: ['Aluguel', 'Energia', 'Funcionários', 'Sistema/Software'],
+      business: ['Aluguel', 'Energia', 'Sistema/Software'],
     },
     productCostLabel: 'Custo de mercadoria',
     productCostExample: 'ex: estoque, mercadoria',
@@ -79,7 +79,7 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
     entryVerb: 'receita',
     costCategories: {
       product: ['Equipamentos', 'Suplementos', 'Manutenção', 'Limpeza'],
-      business: ['Aluguel', 'Energia', 'Água', 'Funcionários', 'Sistema/Software'],
+      business: ['Aluguel', 'Energia', 'Água', 'Sistema/Software'],
     },
     productCostLabel: 'Custo operacional',
     productCostExample: 'ex: equipamentos, manutenção',
@@ -93,7 +93,7 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
     entryVerb: 'entrada',
     costCategories: {
       product: ['Materiais', 'Produtos', 'Insumos'],
-      business: ['Aluguel', 'Energia', 'Funcionários', 'Contas'],
+      business: ['Aluguel', 'Energia', 'Contas'],
     },
     productCostLabel: 'Custo de produto',
     productCostExample: 'ex: estoque, materiais',
