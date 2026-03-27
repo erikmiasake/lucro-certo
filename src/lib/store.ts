@@ -227,6 +227,7 @@ export function addCost(
       name: mapName,
       classification: inferredClassification,
       value: amount,
+      spreadDays: inferredClassification === 'fixed' ? 30 : 7,
     };
     state = { ...state, costMap: [...state.costMap, newItem] };
   }
