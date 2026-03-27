@@ -69,7 +69,12 @@ function loadState(): AppState {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, costMap: [], onboardingComplete: false, ...parsed };
+      const loaded = { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, costMap: [], onboardingComplete: false, ...parsed };
+      // Ensure operatingWeekdays exists for older data
+      if (!loaded.businessProfile.operatingWeekdays) {
+        loaded.businessProfile.operatingWeekdays = [1, 2, 3, 4, 5, 6];
+      }
+      return loaded;
     }
   } catch {}
   return { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
