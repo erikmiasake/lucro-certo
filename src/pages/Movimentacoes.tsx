@@ -486,7 +486,7 @@ export default function Movimentacoes() {
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-3 flex items-center justify-between">
                 Resumo da semana
                 <button onClick={() => startPeriodEdit('semana')} className="text-primary text-[10px] font-medium hover:underline flex items-center gap-1">
-                  <Edit2 className="h-2.5 w-2.5" /> Editar receita total
+                  <Edit2 className="h-2.5 w-2.5" /> Editar faturamento semanal
                 </button>
               </p>
 
