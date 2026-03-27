@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
 import { BusinessType } from '@/lib/business-config';
-import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding } from '@/lib/store';
+import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, addCostMapItem } from '@/lib/store';
 import HeroScreen from '@/components/HeroScreen';
 import AILoadingScreen from '@/components/AILoadingScreen';
 import OnboardingDetails, { OnboardingFinishData } from '@/components/OnboardingDetails';
@@ -66,6 +66,10 @@ export default function Onboarding() {
     // Auto-create cost map from onboarding selections
     if (finishData.selectedCosts.length > 0) {
       initCostMapFromOnboarding(finishData.selectedCosts);
+    }
+    // Add employee payroll as fixed cost
+    if (finishData.employeePayroll && finishData.employeePayroll > 0) {
+      addCostMapItem('Folha de pagamento', 'fixed', finishData.employeePayroll);
     }
     navigate('/', { replace: true });
     setBusinessType(selectedType);

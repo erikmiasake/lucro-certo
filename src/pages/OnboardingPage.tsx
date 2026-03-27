@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BusinessType, businessConfigs } from '@/lib/business-config';
-import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState } from '@/lib/store';
+import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState, addCostMapItem } from '@/lib/store';
 import AILoadingScreen from '@/components/AILoadingScreen';
 import OnboardingDetails, { OnboardingFinishData } from '@/components/OnboardingDetails';
 import { Sparkles, Clock, Zap } from 'lucide-react';
@@ -54,6 +54,10 @@ export default function OnboardingPage() {
     }
     if (data.selectedCosts.length > 0) {
       initCostMapFromOnboarding(data.selectedCosts);
+    }
+    // Add employee payroll as fixed cost
+    if (data.employeePayroll && data.employeePayroll > 0) {
+      addCostMapItem('Folha de pagamento', 'fixed', data.employeePayroll);
     }
     setBusinessType(selectedType);
 
