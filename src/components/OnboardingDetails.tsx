@@ -223,39 +223,48 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
         </div>
       </motion.div>
 
-      {/* Operating days + employees */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }} className="grid grid-cols-2 gap-3 mb-4">
-        <div>
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <Calendar className="h-3.5 w-3.5 text-primary" />
-            <label className="text-xs font-medium text-foreground">Dias/semana</label>
-          </div>
-          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="6"
-              value={operatingDays}
-              onChange={e => setOperatingDays(e.target.value)}
-              className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
-            />
-          </div>
+      {/* Operating days */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.26 }} className="mb-4">
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <Calendar className="h-3.5 w-3.5 text-primary" />
+          <label className="text-xs font-medium text-foreground">Dias de funcionamento</label>
         </div>
-        <div>
-          <div className="flex items-center gap-1.5 mb-1.5">
-            <Users className="h-3.5 w-3.5 text-primary" />
-            <label className="text-xs font-medium text-foreground">Funcionários</label>
-          </div>
-          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
-            <input
-              type="number"
-              inputMode="numeric"
-              placeholder="0"
-              value={employeeCount}
-              onChange={e => setEmployeeCount(e.target.value)}
-              className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
-            />
-          </div>
+        <div className="flex gap-1.5">
+          {weekdayLabels.map((label, idx) => {
+            const isActive = operatingWeekdays.includes(idx);
+            return (
+              <button
+                key={idx}
+                type="button"
+                onClick={() => toggleWeekday(idx)}
+                className={`w-9 h-9 rounded-lg text-xs font-bold transition-all ${
+                  isActive
+                    ? 'bg-primary/20 text-primary border border-primary/30'
+                    : 'bg-secondary/40 text-muted-foreground border border-border hover:border-primary/20'
+                }`}
+              >
+                {label}
+              </button>
+            );
+          })}
+        </div>
+      </motion.div>
+
+      {/* Employees */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.28 }} className="mb-4">
+        <div className="flex items-center gap-1.5 mb-1.5">
+          <Users className="h-3.5 w-3.5 text-primary" />
+          <label className="text-xs font-medium text-foreground">Funcionários</label>
+        </div>
+        <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+          <input
+            type="number"
+            inputMode="numeric"
+            placeholder="0"
+            value={employeeCount}
+            onChange={e => setEmployeeCount(e.target.value)}
+            className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
+          />
         </div>
       </motion.div>
 
