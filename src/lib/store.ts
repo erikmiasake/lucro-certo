@@ -75,6 +75,11 @@ function loadState(): AppState {
       if (!loaded.businessProfile.operatingWeekdays) {
         loaded.businessProfile.operatingWeekdays = [1, 2, 3, 4, 5, 6];
       }
+      // Ensure spreadDays exists for older costMap items
+      loaded.costMap = (loaded.costMap || []).map((item: any) => ({
+        ...item,
+        spreadDays: item.spreadDays ?? (item.classification === 'fixed' ? 30 : 7),
+      }));
       return loaded;
     }
   } catch {}
