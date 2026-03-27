@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
-import { getDaySummary, getDateString, getInsight, addEntry, addCost } from '@/lib/store';
+import { getDaySummary, getDateString, getInsight, addEntry, addCost, getDayRevenueSource } from '@/lib/store';
 import EntryModal from './EntryModal';
 import CostModal from './CostModal';
 import FeedbackToast from './FeedbackToast';
@@ -62,6 +62,11 @@ export default function Dashboard() {
             <p className="text-3xl font-extrabold text-foreground">
               {formatCurrency(summary.totalRevenue)}
             </p>
+            {summary.totalRevenue > 0 && (
+              <p className={`text-[10px] mt-1 ${getDayRevenueSource(today) === 'manual' ? 'text-primary' : getDayRevenueSource(today) === 'distributed' ? 'text-accent' : 'text-muted-foreground'}`}>
+                {getDayRevenueSource(today) === 'manual' ? 'Informado pelo usuário' : getDayRevenueSource(today) === 'distributed' ? 'Calculado automaticamente' : 'Estimado com base na média'}
+              </p>
+            )}
           </motion.div>
 
           <motion.div
@@ -117,7 +122,7 @@ export default function Dashboard() {
           className="flex-1 py-4 rounded-2xl gradient-primary text-primary-foreground font-semibold text-base active:scale-[0.97] transition-transform flex items-center justify-center gap-2"
         >
           <Plus className="h-5 w-5" />
-          Registrar entrada
+          Registrar receita do dia
         </button>
         <button
           onClick={() => setShowCost(true)}

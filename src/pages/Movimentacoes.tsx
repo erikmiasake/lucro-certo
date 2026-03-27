@@ -8,9 +8,10 @@ import {
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
 import {
-  getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, addCost,
+  getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, getDayRevenueSource, addCost,
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
-  getWeekDailyData, getSmartInsights, getPreviousWeekSummary
+  getWeekDailyData, getSmartInsights, getPreviousWeekSummary,
+  type EntrySource
 } from '@/lib/store';
 import CostModal from '@/components/CostModal';
 import FeedbackToast from '@/components/FeedbackToast';
@@ -126,7 +127,7 @@ export default function Movimentacoes() {
   const handleSaveDayRevenue = (date: string) => {
     const num = parseFloat(editValue.replace(',', '.'));
     if (num >= 0 && !isNaN(num)) {
-      setDayRevenue(date, num);
+      setDayRevenue(date, num, 'manual');
       const summary = getDaySummary(date);
       setFeedback(`${formatDateLabel(date)}: ${fmt(num)} · Lucro: ${fmt(summary.profit)}`);
       setTimeout(() => setFeedback(null), 3000);
@@ -143,7 +144,7 @@ export default function Movimentacoes() {
       for (let i = 0; i < days; i++) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        setDayRevenue(getDateString(d), perDay);
+        setDayRevenue(getDateString(d), perDay, 'distributed');
       }
       setFeedback(`Receita ${editingPeriod === 'semana' ? 'semanal' : 'mensal'} de ${fmt(num)} distribuída em ${days} dias (${fmt(perDay)}/dia)`);
       setTimeout(() => setFeedback(null), 4000);
@@ -200,17 +201,35 @@ export default function Movimentacoes() {
     const num = parseFloat(weekEditValue.replace(',', '.'));
     if (num >= 0 && !isNaN(num) && editingWeekIdx !== null) {
       const perDay = num / 7;
-      const weekOffset = (3 - editingWeekIdx) * 7; // weeks are ordered 1-4, index 0=week1(oldest)
+      const weekOffset = (3 - editingWeekIdx) * 7;
       for (let d = 0; d < 7; d++) {
         const date = new Date();
         date.setDate(date.getDate() - (weekOffset + d));
-        setDayRevenue(getDateString(date), perDay);
+        setDayRevenue(getDateString(date), perDay, 'distributed');
       }
       setFeedback(`Semana ${editingWeekIdx + 1}: ${fmt(num)} distribuída em 7 dias (${fmt(perDay)}/dia)`);
       setTimeout(() => setFeedback(null), 4000);
     }
     setEditingWeekIdx(null);
     setWeekEditValue('');
+  };
+
+  const sourceLabel = (source: EntrySource): string => {
+    switch (source) {
+      case 'manual': return 'Informado pelo usuário';
+      case 'distributed': return 'Calculado automaticamente';
+      case 'estimated': return 'Estimado com base na média';
+      default: return '';
+    }
+  };
+
+  const sourceColor = (source: EntrySource): string => {
+    switch (source) {
+      case 'manual': return 'text-primary';
+      case 'distributed': return 'text-accent';
+      case 'estimated': return 'text-muted-foreground';
+      default: return 'text-muted-foreground';
+    }
   };
 
   return (
@@ -321,9 +340,16 @@ export default function Movimentacoes() {
                 <button onClick={() => startEditing(today)} className="w-full flex items-center justify-between p-2.5 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-all group">
                   <div className="flex items-center gap-2">
                     <ArrowUpRight className="h-4 w-4 text-primary" />
-                    <span className="text-base font-bold text-foreground">
-                      {getDayRevenue(today) > 0 ? fmt(getDayRevenue(today)) : 'Registrar receita'}
-                    </span>
+                    <div>
+                      <span className="text-base font-bold text-foreground">
+                        {getDayRevenue(today) > 0 ? fmt(getDayRevenue(today)) : 'Registrar receita do dia'}
+                      </span>
+                      {getDayRevenue(today) > 0 && (
+                        <p className={`text-[10px] ${sourceColor(getDayRevenueSource(today))}`}>
+                          {sourceLabel(getDayRevenueSource(today))}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <Edit2 className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
@@ -357,6 +383,7 @@ export default function Movimentacoes() {
                 const isEditing = editingDate === date;
                 const aboveAvg = avgRevenue > 0 && revenue > avgRevenue;
                 const belowAvg = avgRevenue > 0 && revenue > 0 && revenue < avgRevenue;
+                const source = getDayRevenueSource(date);
 
                 return (
                   <motion.div
@@ -402,6 +429,7 @@ export default function Movimentacoes() {
                                 Lucro: <span className={summary.profit >= 0 ? 'text-primary' : 'text-destructive'}>{fmt(summary.profit)}</span>
                                 {aboveAvg && <span className="ml-1 text-primary/60">acima da média</span>}
                                 {belowAvg && <span className="ml-1 text-destructive/50">abaixo da média</span>}
+                                <span className={`ml-1.5 ${sourceColor(source)}`}>· {sourceLabel(source)}</span>
                               </p>
                             )}
                           </div>
@@ -458,7 +486,7 @@ export default function Movimentacoes() {
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-3 flex items-center justify-between">
                 Resumo da semana
                 <button onClick={() => startPeriodEdit('semana')} className="text-primary text-[10px] font-medium hover:underline flex items-center gap-1">
-                  <Edit2 className="h-2.5 w-2.5" /> Editar receita total
+                  <Edit2 className="h-2.5 w-2.5" /> Editar faturamento semanal
                 </button>
               </p>
 
@@ -581,7 +609,7 @@ export default function Movimentacoes() {
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-3 flex items-center justify-between">
                 Resumo mensal (30 dias)
                 <button onClick={() => startPeriodEdit('mes')} className="text-primary text-[10px] font-medium hover:underline flex items-center gap-1">
-                  <Edit2 className="h-2.5 w-2.5" /> Editar receita total
+                  <Edit2 className="h-2.5 w-2.5" /> Editar faturamento mensal
                 </button>
               </p>
 
