@@ -855,12 +855,12 @@ export function deleteCostMapItem(id: string) {
   notify();
 }
 
-export function addCostMapItem(name: string, classification: CostClassification) {
+export function addCostMapItem(name: string, classification: CostClassification, value: number = 0) {
   const item: CostMapItem = {
     id: crypto.randomUUID(),
     name,
     classification,
-    value: 0,
+    value,
   };
   state = { ...state, costMap: [...state.costMap, item] };
   notify();
