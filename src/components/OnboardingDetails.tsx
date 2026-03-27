@@ -125,16 +125,26 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     );
   };
 
+  const parsedEmployees = parseInt(employeeCount) || 0;
+  const parsedSalary = parseInt(averageSalary.replace(/\D/g, '')) || 0;
+  const totalPayroll = parsedEmployees * parsedSalary;
+
+  const handleSalaryChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const formatted = formatCurrency(e.target.value);
+    setAverageSalary(formatted);
+  };
+
   const handleFinish = () => {
     onFinish({
       avgSales,
       selectedCosts,
+      employeePayroll: totalPayroll > 0 ? totalPayroll : undefined,
       profile: {
         name: businessName,
         city,
         operatingDays: operatingWeekdays.length,
         operatingWeekdays,
-        employeeCount: parseInt(employeeCount) || 0,
+        employeeCount: parsedEmployees,
         objective: objective as BusinessProfile['objective'],
       },
     });
