@@ -847,7 +847,7 @@ export function initCostMapFromOnboarding(selectedCosts: string[]) {
   notify();
 }
 
-export function updateCostMapItem(id: string, updates: Partial<Pick<CostMapItem, 'name' | 'classification' | 'value'>>) {
+export function updateCostMapItem(id: string, updates: Partial<Pick<CostMapItem, 'name' | 'classification' | 'value' | 'spreadDays'>>) {
   state = {
     ...state,
     costMap: state.costMap.map(item => item.id === id ? { ...item, ...updates } : item),
