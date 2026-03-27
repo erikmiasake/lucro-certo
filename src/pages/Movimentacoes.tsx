@@ -139,14 +139,27 @@ export default function Movimentacoes() {
   const handleSavePeriodRevenue = () => {
     const num = parseFloat(periodEditValue.replace(',', '.'));
     if (num >= 0 && !isNaN(num) && editingPeriod) {
-      const days = editingPeriod === 'semana' ? 7 : 30;
-      const perDay = num / days;
-      for (let i = 0; i < days; i++) {
+      const totalDays = editingPeriod === 'semana' ? 7 : 30;
+      // Collect operating days in range
+      const operatingDates: string[] = [];
+      for (let i = 0; i < totalDays; i++) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        setDayRevenue(getDateString(d), perDay, 'distributed');
+        const dateStr = getDateString(d);
+        if (isOperatingDay(dateStr)) operatingDates.push(dateStr);
       }
-      setFeedback(`Receita ${editingPeriod === 'semana' ? 'semanal' : 'mensal'} de ${fmt(num)} distribuída em ${days} dias (${fmt(perDay)}/dia)`);
+      const activeDays = operatingDates.length || 1;
+      const perDay = num / activeDays;
+      // Set operating days with value, closed days with 0
+      for (let i = 0; i < totalDays; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = getDateString(d);
+        if (isOperatingDay(dateStr)) {
+          setDayRevenue(dateStr, perDay, 'distributed');
+        }
+      }
+      setFeedback(`Receita distribuída em ${activeDays} dias úteis (${fmt(perDay)}/dia)`);
       setTimeout(() => setFeedback(null), 4000);
     }
     setEditingPeriod(null);
