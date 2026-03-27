@@ -376,6 +376,7 @@ export default function Movimentacoes() {
                 const isEditing = editingDate === date;
                 const aboveAvg = avgRevenue > 0 && revenue > avgRevenue;
                 const belowAvg = avgRevenue > 0 && revenue > 0 && revenue < avgRevenue;
+                const source = getDayRevenueSource(date);
 
                 return (
                   <motion.div
