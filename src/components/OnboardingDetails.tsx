@@ -43,6 +43,7 @@ export interface OnboardingFinishData {
   avgSales: string;
   selectedCosts: string[];
   profile: Partial<BusinessProfile>;
+  employeePayroll?: number;
 }
 
 interface Props {
