@@ -833,12 +833,16 @@ export function classifyCostName(name: string): CostClassification {
 }
 
 export function initCostMapFromOnboarding(selectedCosts: string[]) {
-  const items: CostMapItem[] = selectedCosts.map(name => ({
-    id: crypto.randomUUID(),
-    name,
-    classification: classifyCostName(name),
-    value: 0,
-  }));
+  const items: CostMapItem[] = selectedCosts.map(name => {
+    const classification = classifyCostName(name);
+    return {
+      id: crypto.randomUUID(),
+      name,
+      classification,
+      value: 0,
+      spreadDays: classification === 'fixed' ? 30 : 7,
+    };
+  });
   state = { ...state, costMap: items };
   notify();
 }
