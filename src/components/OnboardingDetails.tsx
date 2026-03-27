@@ -268,16 +268,39 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
           <Users className="h-3.5 w-3.5 text-primary" />
           <label className="text-xs font-medium text-foreground">Funcionários</label>
         </div>
-        <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
-          <input
-            type="number"
-            inputMode="numeric"
-            placeholder="0"
-            value={employeeCount}
-            onChange={e => setEmployeeCount(e.target.value)}
-            className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
-          />
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+            <label className="text-[10px] text-muted-foreground/60 mb-0.5 block">Quantidade</label>
+            <input
+              type="number"
+              inputMode="numeric"
+              placeholder="0"
+              value={employeeCount}
+              onChange={e => setEmployeeCount(e.target.value)}
+              className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
+            />
+          </div>
+          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+            <label className="text-[10px] text-muted-foreground/60 mb-0.5 block">Salário médio</label>
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-bold text-muted-foreground">R$</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="1.500"
+                value={averageSalary}
+                onChange={handleSalaryChange}
+                className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
+              />
+            </div>
+          </div>
         </div>
+        {totalPayroll > 0 && (
+          <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-xs text-primary mt-1.5 flex items-center gap-1.5">
+            <Sparkles className="h-3 w-3" />
+            Custo mensal com equipe: R$ {totalPayroll.toLocaleString('pt-BR')}
+          </motion.p>
+        )}
       </motion.div>
 
       {/* Revenue Input */}
