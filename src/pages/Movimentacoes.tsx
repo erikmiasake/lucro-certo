@@ -201,17 +201,35 @@ export default function Movimentacoes() {
     const num = parseFloat(weekEditValue.replace(',', '.'));
     if (num >= 0 && !isNaN(num) && editingWeekIdx !== null) {
       const perDay = num / 7;
-      const weekOffset = (3 - editingWeekIdx) * 7; // weeks are ordered 1-4, index 0=week1(oldest)
+      const weekOffset = (3 - editingWeekIdx) * 7;
       for (let d = 0; d < 7; d++) {
         const date = new Date();
         date.setDate(date.getDate() - (weekOffset + d));
-        setDayRevenue(getDateString(date), perDay);
+        setDayRevenue(getDateString(date), perDay, 'distributed');
       }
       setFeedback(`Semana ${editingWeekIdx + 1}: ${fmt(num)} distribuída em 7 dias (${fmt(perDay)}/dia)`);
       setTimeout(() => setFeedback(null), 4000);
     }
     setEditingWeekIdx(null);
     setWeekEditValue('');
+  };
+
+  const sourceLabel = (source: EntrySource): string => {
+    switch (source) {
+      case 'manual': return 'Informado pelo usuário';
+      case 'distributed': return 'Calculado automaticamente';
+      case 'estimated': return 'Estimado com base na média';
+      default: return '';
+    }
+  };
+
+  const sourceColor = (source: EntrySource): string => {
+    switch (source) {
+      case 'manual': return 'text-primary';
+      case 'distributed': return 'text-accent';
+      case 'estimated': return 'text-muted-foreground';
+      default: return 'text-muted-foreground';
+    }
   };
 
   return (
