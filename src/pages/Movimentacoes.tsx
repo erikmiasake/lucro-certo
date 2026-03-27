@@ -11,7 +11,7 @@ import {
   getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, getDayRevenueSource, addCost,
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
   getWeekDailyData, getSmartInsights, getPreviousWeekSummary,
-  type EntrySource
+  isOperatingDay, type EntrySource
 } from '@/lib/store';
 import CostModal from '@/components/CostModal';
 import FeedbackToast from '@/components/FeedbackToast';
