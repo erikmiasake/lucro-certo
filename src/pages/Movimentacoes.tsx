@@ -20,11 +20,11 @@ import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 
 type Period = 'dia' | 'semana' | 'mes';
 
 function fmt(value: number) {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 function fmtShort(value: number) {
-  if (Math.abs(value) >= 1000) return `R$ ${(value / 1000).toFixed(1)}k`;
+  if (Math.abs(value) >= 1000) return `R$ ${(value / 1000).toFixed(0)}k`;
   return fmt(value);
 }
 
@@ -526,7 +526,7 @@ export default function Movimentacoes() {
                 <div className="mt-3 pt-3 border-t border-border/50">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] text-muted-foreground">Margem de lucro</span>
-                    <span className={`text-xs font-bold ${weekSummary.margin >= 20 ? 'text-primary' : 'text-destructive'}`}>{weekSummary.margin.toFixed(1)}%</span>
+                    <span className={`text-xs font-bold ${weekSummary.margin >= 20 ? 'text-primary' : 'text-destructive'}`}>{Math.round(weekSummary.margin)}%</span>
                   </div>
                   <div className="w-full h-1.5 rounded-full bg-secondary mt-1.5 overflow-hidden">
                     <motion.div
@@ -648,7 +648,7 @@ export default function Movimentacoes() {
               {monthSummary.totalRevenue > 0 && (
                 <div className="flex items-center justify-between pt-3 border-t border-border/50">
                   <span className="text-[10px] text-muted-foreground">Margem</span>
-                  <span className={`text-xs font-bold ${monthSummary.margin >= 20 ? 'text-primary' : 'text-destructive'}`}>{monthSummary.margin.toFixed(1)}%</span>
+                  <span className={`text-xs font-bold ${monthSummary.margin >= 20 ? 'text-primary' : 'text-destructive'}`}>{Math.round(monthSummary.margin)}%</span>
                 </div>
               )}
             </div>

@@ -4,7 +4,7 @@ import { useStore } from '@/hooks/use-store';
 import { Target, TrendingUp, Percent } from 'lucide-react';
 
 function formatCurrency(v: number) {
-  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 export default function GoalsProgress() {
@@ -82,7 +82,7 @@ export default function GoalsProgress() {
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-foreground">
-                  {progress.margin.current.toFixed(1)}%
+                  {Math.round(progress.margin.current)}%
                 </span>
                 <span className="text-[10px] text-muted-foreground">
                   / {progress.margin.target}%

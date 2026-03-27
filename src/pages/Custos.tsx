@@ -14,11 +14,11 @@ import AIInsightsPanel from '@/components/AIInsightsPanel';
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 function fmt(value: number) {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 function fmtShort(value: number) {
-  if (Math.abs(value) >= 1000) return `R$ ${(value / 1000).toFixed(1)}k`;
+  if (Math.abs(value) >= 1000) return `R$ ${(value / 1000).toFixed(0)}k`;
   return fmt(value);
 }
 
@@ -395,7 +395,7 @@ export default function Custos() {
                         </div>
                         {week.totalRevenue > 0 && (
                           <p className="text-[9px] text-muted-foreground/50 mt-0.5 ml-5">
-                            {pctOfRevenue.toFixed(1)}% da receita
+                            {Math.round(pctOfRevenue)}% da receita
                           </p>
                         )}
                       </div>
