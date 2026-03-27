@@ -8,9 +8,10 @@ import {
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
 import {
-  getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, addCost,
+  getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, getDayRevenueSource, addCost,
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
-  getWeekDailyData, getSmartInsights, getPreviousWeekSummary
+  getWeekDailyData, getSmartInsights, getPreviousWeekSummary,
+  type EntrySource
 } from '@/lib/store';
 import CostModal from '@/components/CostModal';
 import FeedbackToast from '@/components/FeedbackToast';
