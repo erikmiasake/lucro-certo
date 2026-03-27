@@ -122,7 +122,7 @@ export default function Dashboard() {
           className="flex-1 py-4 rounded-2xl gradient-primary text-primary-foreground font-semibold text-base active:scale-[0.97] transition-transform flex items-center justify-center gap-2"
         >
           <Plus className="h-5 w-5" />
-          Registrar entrada
+          Registrar receita do dia
         </button>
         <button
           onClick={() => setShowCost(true)}
