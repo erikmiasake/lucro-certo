@@ -127,7 +127,7 @@ export default function Movimentacoes() {
   const handleSaveDayRevenue = (date: string) => {
     const num = parseFloat(editValue.replace(',', '.'));
     if (num >= 0 && !isNaN(num)) {
-      setDayRevenue(date, num);
+      setDayRevenue(date, num, 'manual');
       const summary = getDaySummary(date);
       setFeedback(`${formatDateLabel(date)}: ${fmt(num)} · Lucro: ${fmt(summary.profit)}`);
       setTimeout(() => setFeedback(null), 3000);
