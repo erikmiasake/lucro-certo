@@ -37,7 +37,7 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
     entryVerb: 'atendimento',
     costCategories: {
       product: ['Produtos', 'Tintas', 'Cremes', 'Lâminas'],
-      business: ['Aluguel', 'Energia', 'Água', 'Funcionários'],
+      business: ['Aluguel', 'Energia', 'Água'],
     },
     productCostLabel: 'Custo de produtos',
     productCostExample: 'ex: tintas, cremes',
