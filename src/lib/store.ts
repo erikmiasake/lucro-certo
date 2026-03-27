@@ -691,9 +691,9 @@ export function getSmartInsights(): string[] {
   if (yesterday.totalRevenue > 0 && today.totalRevenue > 0) {
     const diff = today.profit - yesterday.profit;
     if (diff > 0) {
-      insights.push(`Lucro subiu R$ ${diff.toFixed(2)} vs ontem — continue assim`);
+      insights.push(`Lucro subiu R$ ${Math.round(diff)} vs ontem — continue assim`);
     } else if (diff < -10) {
-      insights.push(`Lucro caiu R$ ${Math.abs(diff).toFixed(2)} vs ontem — verifique seus custos`);
+      insights.push(`Lucro caiu R$ ${Math.round(Math.abs(diff))} vs ontem — verifique seus custos`);
     }
   }
 
