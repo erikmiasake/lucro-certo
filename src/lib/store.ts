@@ -1,5 +1,7 @@
 import { BusinessType, businessConfigs } from './business-config';
 
+export type EntrySource = 'manual' | 'estimated' | 'distributed';
+
 export interface Entry {
   id: string;
   amount: number;
@@ -7,6 +9,7 @@ export interface Entry {
   createdAt: number;
   description?: string;
   category?: string;
+  source?: EntrySource;
 }
 
 export type CostClassification = 'fixed' | 'variable';
