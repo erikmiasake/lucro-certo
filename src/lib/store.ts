@@ -866,9 +866,18 @@ export function addCostMapItem(name: string, classification: CostClassification,
     name,
     classification,
     value,
+    spreadDays: classification === 'fixed' ? 30 : 7,
   };
   state = { ...state, costMap: [...state.costMap, item] };
   notify();
+}
+
+/** Get the monthly equivalent of a cost map item */
+export function getMonthlyEquivalent(item: CostMapItem): number {
+  if (item.value <= 0) return 0;
+  if (item.classification === 'fixed') return item.value; // already monthly
+  const days = item.spreadDays || 7;
+  return (item.value / days) * 30;
 }
 
 export function getCostMap() {
