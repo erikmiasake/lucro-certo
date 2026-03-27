@@ -3,22 +3,25 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import {
   getCostMap, updateCostMapItem, deleteCostMapItem, addCostMapItem,
-  CostClassification, CostMapItem
+  getMonthlyEquivalent, CostClassification, CostMapItem
 } from '@/lib/store';
 import {
-  Package, Building2, Trash2, Plus, ArrowRightLeft, Sparkles, X
+  Package, Building2, Trash2, Plus, ArrowRightLeft, Sparkles, X, Clock
 } from 'lucide-react';
 
 function fmt(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
-function CostItemRow({ item, onUpdate, onDelete, onToggle, onRename }: {
+const SPREAD_OPTIONS = [3, 5, 7, 15, 30];
+
+function CostItemRow({ item, onUpdate, onDelete, onToggle, onRename, onSpreadChange }: {
   item: CostMapItem;
   onUpdate: (id: string, value: number) => void;
   onDelete: (id: string) => void;
   onToggle: (id: string) => void;
   onRename: (id: string, name: string) => void;
+  onSpreadChange: (id: string, days: number) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -55,84 +58,120 @@ function CostItemRow({ item, onUpdate, onDelete, onToggle, onRename }: {
     setTimeout(() => nameRef.current?.focus(), 50);
   };
 
+  const isVariable = item.classification === 'variable';
+  const spreadDays = item.spreadDays || (isVariable ? 7 : 30);
+  const monthlyValue = getMonthlyEquivalent(item);
+
   return (
     <motion.div
       layout
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
-      className="flex items-center gap-2 p-3 rounded-xl card-elevated group"
+      className="p-3 rounded-xl card-elevated group"
     >
-      <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
-        item.classification === 'variable' ? 'bg-accent/10' : 'bg-purple-500/10'
-      }`}>
-        {item.classification === 'variable'
-          ? <Package className="h-3.5 w-3.5 text-accent" />
-          : <Building2 className="h-3.5 w-3.5 text-purple-400" />
-        }
-      </div>
+      <div className="flex items-center gap-2">
+        <div className={`w-8 h-8 rounded-lg flex items-center justify-center shrink-0 ${
+          isVariable ? 'bg-accent/10' : 'bg-purple-500/10'
+        }`}>
+          {isVariable
+            ? <Package className="h-3.5 w-3.5 text-accent" />
+            : <Building2 className="h-3.5 w-3.5 text-purple-400" />
+          }
+        </div>
 
-      <div className="flex-1 min-w-0">
-        {!editingName ? (
-          <button
-            onClick={handleStartEditName}
-            className="text-xs font-medium text-foreground truncate block hover:text-primary transition-colors cursor-text"
-            title="Clique para renomear"
-          >
-            {item.name}
-          </button>
-        ) : (
-          <input
-            ref={nameRef}
-            type="text"
-            value={nameVal}
-            onChange={e => setNameVal(e.target.value)}
-            onBlur={handleSaveName}
-            onKeyDown={e => e.key === 'Enter' && handleSaveName()}
-            className="w-full text-xs font-medium bg-secondary/50 rounded-lg px-2 py-1 outline-none border border-border focus:border-primary/40 text-foreground"
-          />
-        )}
-        {!editing ? (
-          <button
-            onClick={handleStartEdit}
-            className={`text-sm font-bold mt-0.5 transition-colors ${
-              item.value > 0 ? 'text-foreground' : 'text-muted-foreground/40'
-            }`}
-          >
-            {item.value > 0 ? fmt(item.value) : 'R$ 0,00 — toque para editar'}
-          </button>
-        ) : (
-          <div className="flex items-center gap-1.5 mt-0.5">
-            <span className="text-xs font-bold text-muted-foreground">R$</span>
+        <div className="flex-1 min-w-0">
+          {!editingName ? (
+            <button
+              onClick={handleStartEditName}
+              className="text-xs font-medium text-foreground truncate block hover:text-primary transition-colors cursor-text"
+              title="Clique para renomear"
+            >
+              {item.name}
+            </button>
+          ) : (
             <input
-              ref={inputRef}
-              type="number"
-              inputMode="decimal"
-              value={inputVal}
-              onChange={e => setInputVal(e.target.value)}
-              onBlur={handleSave}
-              onKeyDown={e => e.key === 'Enter' && handleSave()}
-              className="w-24 text-sm font-bold bg-secondary/50 rounded-lg px-2 py-1 outline-none border border-border focus:border-primary/40 text-foreground"
+              ref={nameRef}
+              type="text"
+              value={nameVal}
+              onChange={e => setNameVal(e.target.value)}
+              onBlur={handleSaveName}
+              onKeyDown={e => e.key === 'Enter' && handleSaveName()}
+              className="w-full text-xs font-medium bg-secondary/50 rounded-lg px-2 py-1 outline-none border border-border focus:border-primary/40 text-foreground"
             />
-          </div>
-        )}
+          )}
+          {!editing ? (
+            <button
+              onClick={handleStartEdit}
+              className={`text-sm font-bold mt-0.5 transition-colors ${
+                item.value > 0 ? 'text-foreground' : 'text-muted-foreground/40'
+              }`}
+            >
+              {item.value > 0 ? fmt(item.value) : 'R$ 0 — toque para editar'}
+            </button>
+          ) : (
+            <div className="flex items-center gap-1.5 mt-0.5">
+              <span className="text-xs font-bold text-muted-foreground">R$</span>
+              <input
+                ref={inputRef}
+                type="number"
+                inputMode="decimal"
+                value={inputVal}
+                onChange={e => setInputVal(e.target.value)}
+                onBlur={handleSave}
+                onKeyDown={e => e.key === 'Enter' && handleSave()}
+                className="w-24 text-sm font-bold bg-secondary/50 rounded-lg px-2 py-1 outline-none border border-border focus:border-primary/40 text-foreground"
+              />
+            </div>
+          )}
+        </div>
+
+        <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
+          <button
+            onClick={() => onToggle(item.id)}
+            title={item.classification === 'fixed' ? 'Mover para variável' : 'Mover para fixo'}
+            className="p-1.5 rounded-lg text-muted-foreground/50 hover:text-primary hover:bg-primary/10 transition-all"
+          >
+            <ArrowRightLeft className="h-3.5 w-3.5" />
+          </button>
+          <button
+            onClick={() => onDelete(item.id)}
+            className="p-1.5 rounded-lg text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-all"
+          >
+            <Trash2 className="h-3.5 w-3.5" />
+          </button>
+        </div>
       </div>
 
-      <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
-        <button
-          onClick={() => onToggle(item.id)}
-          title={item.classification === 'fixed' ? 'Mover para variável' : 'Mover para fixo'}
-          className="p-1.5 rounded-lg text-muted-foreground/50 hover:text-primary hover:bg-primary/10 transition-all"
-        >
-          <ArrowRightLeft className="h-3.5 w-3.5" />
-        </button>
-        <button
-          onClick={() => onDelete(item.id)}
-          className="p-1.5 rounded-lg text-muted-foreground/50 hover:text-destructive hover:bg-destructive/10 transition-all"
-        >
-          <Trash2 className="h-3.5 w-3.5" />
-        </button>
-      </div>
+      {/* Spread days selector for variable costs */}
+      {isVariable && (
+        <div className="mt-2 pt-2 border-t border-border/50">
+          <div className="flex items-center gap-2">
+            <Clock className="h-3 w-3 text-muted-foreground/60 shrink-0" />
+            <span className="text-[10px] text-muted-foreground/60 shrink-0">Dura</span>
+            <div className="flex gap-1">
+              {SPREAD_OPTIONS.map(d => (
+                <button
+                  key={d}
+                  onClick={() => onSpreadChange(item.id, d)}
+                  className={`px-2 py-0.5 rounded text-[10px] font-medium transition-all ${
+                    spreadDays === d
+                      ? 'bg-accent/15 text-accent border border-accent/30'
+                      : 'bg-secondary/40 text-muted-foreground/50 border border-transparent hover:border-border'
+                  }`}
+                >
+                  {d}d
+                </button>
+              ))}
+            </div>
+            {item.value > 0 && (
+              <span className="text-[10px] text-muted-foreground/50 ml-auto">
+                ≈ {fmt(Math.round(monthlyValue))}/mês
+              </span>
+            )}
+          </div>
+        </div>
+      )}
     </motion.div>
   );
 }
@@ -160,8 +199,16 @@ export default function CostMapSection() {
   const handleToggle = (id: string) => {
     const item = state.costMap.find(i => i.id === id);
     if (item) {
-      updateCostMapItem(id, { classification: item.classification === 'fixed' ? 'variable' : 'fixed' });
+      const newClass = item.classification === 'fixed' ? 'variable' : 'fixed';
+      updateCostMapItem(id, { 
+        classification: newClass,
+        spreadDays: newClass === 'fixed' ? 30 : 7,
+      });
     }
+  };
+
+  const handleSpreadChange = (id: string, days: number) => {
+    updateCostMapItem(id, { spreadDays: days });
   };
 
   const handleAdd = () => {
@@ -172,6 +219,10 @@ export default function CostMapSection() {
       setShowAdd(false);
     }
   };
+
+  // Calculate monthly equivalents for totals
+  const monthlyVariable = costMap.variable.reduce((s, i) => s + getMonthlyEquivalent(i), 0);
+  const monthlyFixed = costMap.fixed.reduce((s, i) => s + getMonthlyEquivalent(i), 0);
 
   if (state.costMap.length === 0) {
     return (
@@ -205,7 +256,7 @@ export default function CostMapSection() {
         <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
         <div>
           <p className="text-[11px] text-primary/90 font-medium">Preencha os valores para calcular seu lucro real</p>
-          <p className="text-[10px] text-primary/50 mt-0.5">Você pode ajustar ou adicionar novos custos a qualquer momento</p>
+          <p className="text-[10px] text-primary/50 mt-0.5">Custos variáveis: informe o valor e quantos dias dura. Custos fixos são mensais.</p>
         </div>
       </motion.div>
 
@@ -215,7 +266,9 @@ export default function CostMapSection() {
           <div className="flex items-center gap-2 mb-2">
             <Package className="h-3.5 w-3.5 text-accent" />
             <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Custos Variáveis</h3>
-            <span className="text-[10px] text-muted-foreground ml-auto">{fmt(costMap.totalVariable)}</span>
+            <span className="text-[10px] text-muted-foreground ml-auto">
+              ≈ {fmt(Math.round(monthlyVariable))}/mês
+            </span>
           </div>
           <div className="space-y-1.5">
             <AnimatePresence>
@@ -227,6 +280,7 @@ export default function CostMapSection() {
                   onDelete={handleDelete}
                   onToggle={handleToggle}
                   onRename={handleRename}
+                  onSpreadChange={handleSpreadChange}
                 />
               ))}
             </AnimatePresence>
@@ -240,7 +294,7 @@ export default function CostMapSection() {
           <div className="flex items-center gap-2 mb-2">
             <Building2 className="h-3.5 w-3.5 text-purple-400" />
             <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Custos Fixos</h3>
-            <span className="text-[10px] text-muted-foreground ml-auto">{fmt(costMap.totalFixed)}</span>
+            <span className="text-[10px] text-muted-foreground ml-auto">{fmt(costMap.totalFixed)}/mês</span>
           </div>
           <div className="space-y-1.5">
             <AnimatePresence>
@@ -252,6 +306,7 @@ export default function CostMapSection() {
                   onDelete={handleDelete}
                   onToggle={handleToggle}
                   onRename={handleRename}
+                  onSpreadChange={handleSpreadChange}
                 />
               ))}
             </AnimatePresence>
@@ -309,16 +364,15 @@ export default function CostMapSection() {
         )}
       </AnimatePresence>
 
-
       {/* Total */}
-      {costMap.total > 0 && (
+      {costMap.totalMonthly > 0 && (
         <motion.div
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           className="p-3 rounded-xl bg-secondary/30 border border-border flex items-center justify-between"
         >
-          <span className="text-xs font-medium text-muted-foreground">Total de custos</span>
-          <span className="text-sm font-bold text-foreground">{fmt(costMap.total)}</span>
+          <span className="text-xs font-medium text-muted-foreground">Total mensal estimado</span>
+          <span className="text-sm font-bold text-foreground">{fmt(Math.round(costMap.totalMonthly))}</span>
         </motion.div>
       )}
     </div>

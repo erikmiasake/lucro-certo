@@ -46,6 +46,7 @@ export interface CostMapItem {
   name: string;
   classification: CostClassification;
   value: number;
+  spreadDays: number; // variable: user-defined (e.g. 5, 7, 15, 30); fixed: always 30
 }
 
 export interface AppState {
@@ -74,6 +75,11 @@ function loadState(): AppState {
       if (!loaded.businessProfile.operatingWeekdays) {
         loaded.businessProfile.operatingWeekdays = [1, 2, 3, 4, 5, 6];
       }
+      // Ensure spreadDays exists for older costMap items
+      loaded.costMap = (loaded.costMap || []).map((item: any) => ({
+        ...item,
+        spreadDays: item.spreadDays ?? (item.classification === 'fixed' ? 30 : 7),
+      }));
       return loaded;
     }
   } catch {}
@@ -226,6 +232,7 @@ export function addCost(
       name: mapName,
       classification: inferredClassification,
       value: amount,
+      spreadDays: inferredClassification === 'fixed' ? 30 : 7,
     };
     state = { ...state, costMap: [...state.costMap, newItem] };
   }
@@ -832,17 +839,21 @@ export function classifyCostName(name: string): CostClassification {
 }
 
 export function initCostMapFromOnboarding(selectedCosts: string[]) {
-  const items: CostMapItem[] = selectedCosts.map(name => ({
-    id: crypto.randomUUID(),
-    name,
-    classification: classifyCostName(name),
-    value: 0,
-  }));
+  const items: CostMapItem[] = selectedCosts.map(name => {
+    const classification = classifyCostName(name);
+    return {
+      id: crypto.randomUUID(),
+      name,
+      classification,
+      value: 0,
+      spreadDays: classification === 'fixed' ? 30 : 7,
+    };
+  });
   state = { ...state, costMap: items };
   notify();
 }
 
-export function updateCostMapItem(id: string, updates: Partial<Pick<CostMapItem, 'name' | 'classification' | 'value'>>) {
+export function updateCostMapItem(id: string, updates: Partial<Pick<CostMapItem, 'name' | 'classification' | 'value' | 'spreadDays'>>) {
   state = {
     ...state,
     costMap: state.costMap.map(item => item.id === id ? { ...item, ...updates } : item),
@@ -861,9 +872,18 @@ export function addCostMapItem(name: string, classification: CostClassification,
     name,
     classification,
     value,
+    spreadDays: classification === 'fixed' ? 30 : 7,
   };
   state = { ...state, costMap: [...state.costMap, item] };
   notify();
+}
+
+/** Get the monthly equivalent of a cost map item */
+export function getMonthlyEquivalent(item: CostMapItem): number {
+  if (item.value <= 0) return 0;
+  if (item.classification === 'fixed') return item.value; // already monthly
+  const days = item.spreadDays || 7;
+  return (item.value / days) * 30;
 }
 
 export function getCostMap() {
@@ -871,7 +891,8 @@ export function getCostMap() {
   const variable = state.costMap.filter(i => i.classification === 'variable');
   const totalFixed = fixed.reduce((s, i) => s + i.value, 0);
   const totalVariable = variable.reduce((s, i) => s + i.value, 0);
-  return { fixed, variable, totalFixed, totalVariable, total: totalFixed + totalVariable };
+  const totalMonthly = state.costMap.reduce((s, i) => s + getMonthlyEquivalent(i), 0);
+  return { fixed, variable, totalFixed, totalVariable, total: totalFixed + totalVariable, totalMonthly };
 }
 
 export function resetAll() {
