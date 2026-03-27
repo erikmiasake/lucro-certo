@@ -126,13 +126,20 @@ export default function Configuracoes() {
     setBusinessProfile({
       name: businessName,
       city,
-      operatingDays: parseInt(operatingDays) || 6,
+      operatingDays: operatingWeekdays.length,
       employeeCount: parseInt(employeeCount) || 0,
       objective: objective as any,
+      operatingWeekdays,
     });
     setProfileSaved(true);
     setTimeout(() => setProfileSaved(false), 2000);
     syncToDB();
+  };
+
+  const toggleWeekday = (day: number) => {
+    setOperatingWeekdays(prev => 
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day].sort()
+    );
   };
 
   const config = state.businessType ? businessConfigs[state.businessType] : null;
