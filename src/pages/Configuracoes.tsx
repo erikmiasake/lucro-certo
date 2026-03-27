@@ -31,6 +31,7 @@ export default function Configuracoes() {
   const [businessName, setBusinessName] = useState(state.businessProfile?.name || '');
   const [city, setCity] = useState(state.businessProfile?.city || '');
   const [operatingDays, setOperatingDays] = useState(state.businessProfile?.operatingDays?.toString() || '6');
+  const [operatingWeekdays, setOperatingWeekdays] = useState<number[]>(state.businessProfile?.operatingWeekdays || [1, 2, 3, 4, 5, 6]);
   const [employeeCount, setEmployeeCount] = useState(state.businessProfile?.employeeCount?.toString() || '0');
   const [objective, setObjective] = useState(state.businessProfile?.objective || '');
   const [profileSaved, setProfileSaved] = useState(false);
