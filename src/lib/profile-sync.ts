@@ -22,6 +22,7 @@ export async function loadProfileFromDB(): Promise<Partial<AppState> | null> {
       operatingDays: data.operating_days || 6,
       employeeCount: data.employee_count || 0,
       objective: (data.objective || '') as BusinessProfile['objective'],
+      operatingWeekdays: [1, 2, 3, 4, 5, 6],
     },
     averageSales: data.average_sales ? Number(data.average_sales) : undefined,
     mainCosts: data.main_costs || [],

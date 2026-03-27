@@ -38,6 +38,7 @@ export interface BusinessProfile {
   operatingDays: number;
   employeeCount: number;
   objective: 'increase_profit' | 'reduce_costs' | 'organize' | '';
+  operatingWeekdays: number[]; // 0=Dom, 1=Seg, ..., 6=Sáb
 }
 
 export interface CostMapItem {
@@ -61,14 +62,19 @@ export interface AppState {
 
 const STORAGE_KEY = 'lucro-real-data';
 
-const defaultProfile: BusinessProfile = { name: '', city: '', operatingDays: 6, employeeCount: 0, objective: '' };
+const defaultProfile: BusinessProfile = { name: '', city: '', operatingDays: 6, employeeCount: 0, objective: '', operatingWeekdays: [1, 2, 3, 4, 5, 6] };
 
 function loadState(): AppState {
   try {
     const raw = localStorage.getItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      return { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, costMap: [], onboardingComplete: false, ...parsed };
+      const loaded = { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, costMap: [], onboardingComplete: false, ...parsed };
+      // Ensure operatingWeekdays exists for older data
+      if (!loaded.businessProfile.operatingWeekdays) {
+        loaded.businessProfile.operatingWeekdays = [1, 2, 3, 4, 5, 6];
+      }
+      return loaded;
     }
   } catch {}
   return { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
@@ -239,6 +245,25 @@ export function deleteCost(id: string) {
 
 export function getDateString(date: Date = new Date()): string {
   return date.toISOString().split('T')[0];
+}
+
+export function isOperatingDay(dateStr: string): boolean {
+  const weekdays = state.businessProfile?.operatingWeekdays ?? [1, 2, 3, 4, 5, 6];
+  const d = new Date(dateStr + 'T00:00:00');
+  return weekdays.includes(d.getDay());
+}
+
+export function getOperatingDaysInRange(days: number): string[] {
+  const weekdays = state.businessProfile?.operatingWeekdays ?? [1, 2, 3, 4, 5, 6];
+  const dates: string[] = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    if (weekdays.includes(d.getDay())) {
+      dates.push(getDateString(d));
+    }
+  }
+  return dates;
 }
 
 function getCostImpactOnDate(cost: Cost, targetDate: string): number {

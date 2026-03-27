@@ -31,6 +31,7 @@ export default function Configuracoes() {
   const [businessName, setBusinessName] = useState(state.businessProfile?.name || '');
   const [city, setCity] = useState(state.businessProfile?.city || '');
   const [operatingDays, setOperatingDays] = useState(state.businessProfile?.operatingDays?.toString() || '6');
+  const [operatingWeekdays, setOperatingWeekdays] = useState<number[]>(state.businessProfile?.operatingWeekdays || [1, 2, 3, 4, 5, 6]);
   const [employeeCount, setEmployeeCount] = useState(state.businessProfile?.employeeCount?.toString() || '0');
   const [objective, setObjective] = useState(state.businessProfile?.objective || '');
   const [profileSaved, setProfileSaved] = useState(false);
@@ -125,13 +126,20 @@ export default function Configuracoes() {
     setBusinessProfile({
       name: businessName,
       city,
-      operatingDays: parseInt(operatingDays) || 6,
+      operatingDays: operatingWeekdays.length,
       employeeCount: parseInt(employeeCount) || 0,
       objective: objective as any,
+      operatingWeekdays,
     });
     setProfileSaved(true);
     setTimeout(() => setProfileSaved(false), 2000);
     syncToDB();
+  };
+
+  const toggleWeekday = (day: number) => {
+    setOperatingWeekdays(prev => 
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day].sort()
+    );
   };
 
   const config = state.businessType ? businessConfigs[state.businessType] : null;
@@ -299,8 +307,29 @@ export default function Configuracoes() {
       {/* Operation */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-2xl p-5 card-elevated mb-5">
         <SectionTitle icon={Calendar} title="Operação" />
-        <div className="grid grid-cols-2 gap-4">
-          <InputField label="Dias de funcionamento/semana" icon={Calendar} value={operatingDays} onChange={setOperatingDays} placeholder="6" type="number" inputMode="numeric" />
+        <div className="space-y-4">
+          <div>
+            <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
+              <Calendar className="h-3 w-3" />
+              Dias de funcionamento
+            </label>
+            <div className="flex gap-1.5">
+              {['D', 'S', 'T', 'Q', 'Q', 'S', 'S'].map((label, idx) => (
+                <button
+                  key={idx}
+                  onClick={() => toggleWeekday(idx)}
+                  className={`flex-1 py-2.5 rounded-xl text-xs font-semibold transition-all ${
+                    operatingWeekdays.includes(idx)
+                      ? 'bg-primary/20 text-primary border border-primary/30'
+                      : 'bg-secondary/30 text-muted-foreground border border-transparent hover:border-border'
+                  }`}
+                >
+                  {label}
+                </button>
+              ))}
+            </div>
+            <p className="text-[10px] text-muted-foreground mt-1.5">{operatingWeekdays.length} dias por semana</p>
+          </div>
           <InputField label="Número de funcionários" icon={Users} value={employeeCount} onChange={setEmployeeCount} placeholder="0" type="number" inputMode="numeric" />
         </div>
       </motion.div>

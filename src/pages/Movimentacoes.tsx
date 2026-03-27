@@ -11,7 +11,7 @@ import {
   getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, getDayRevenueSource, addCost,
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
   getWeekDailyData, getSmartInsights, getPreviousWeekSummary,
-  type EntrySource
+  isOperatingDay, type EntrySource
 } from '@/lib/store';
 import CostModal from '@/components/CostModal';
 import FeedbackToast from '@/components/FeedbackToast';
@@ -139,14 +139,27 @@ export default function Movimentacoes() {
   const handleSavePeriodRevenue = () => {
     const num = parseFloat(periodEditValue.replace(',', '.'));
     if (num >= 0 && !isNaN(num) && editingPeriod) {
-      const days = editingPeriod === 'semana' ? 7 : 30;
-      const perDay = num / days;
-      for (let i = 0; i < days; i++) {
+      const totalDays = editingPeriod === 'semana' ? 7 : 30;
+      // Collect operating days in range
+      const operatingDates: string[] = [];
+      for (let i = 0; i < totalDays; i++) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        setDayRevenue(getDateString(d), perDay, 'distributed');
+        const dateStr = getDateString(d);
+        if (isOperatingDay(dateStr)) operatingDates.push(dateStr);
       }
-      setFeedback(`Receita ${editingPeriod === 'semana' ? 'semanal' : 'mensal'} de ${fmt(num)} distribuída em ${days} dias (${fmt(perDay)}/dia)`);
+      const activeDays = operatingDates.length || 1;
+      const perDay = num / activeDays;
+      // Set operating days with value, closed days with 0
+      for (let i = 0; i < totalDays; i++) {
+        const d = new Date();
+        d.setDate(d.getDate() - i);
+        const dateStr = getDateString(d);
+        if (isOperatingDay(dateStr)) {
+          setDayRevenue(dateStr, perDay, 'distributed');
+        }
+      }
+      setFeedback(`Receita distribuída em ${activeDays} dias úteis (${fmt(perDay)}/dia)`);
       setTimeout(() => setFeedback(null), 4000);
     }
     setEditingPeriod(null);
@@ -200,14 +213,18 @@ export default function Movimentacoes() {
   const handleSaveWeekRevenue = () => {
     const num = parseFloat(weekEditValue.replace(',', '.'));
     if (num >= 0 && !isNaN(num) && editingWeekIdx !== null) {
-      const perDay = num / 7;
       const weekOffset = (3 - editingWeekIdx) * 7;
+      const operatingDates: string[] = [];
       for (let d = 0; d < 7; d++) {
         const date = new Date();
         date.setDate(date.getDate() - (weekOffset + d));
-        setDayRevenue(getDateString(date), perDay, 'distributed');
+        const dateStr = getDateString(date);
+        if (isOperatingDay(dateStr)) operatingDates.push(dateStr);
       }
-      setFeedback(`Semana ${editingWeekIdx + 1}: ${fmt(num)} distribuída em 7 dias (${fmt(perDay)}/dia)`);
+      const activeDays = operatingDates.length || 1;
+      const perDay = num / activeDays;
+      operatingDates.forEach(dateStr => setDayRevenue(dateStr, perDay, 'distributed'));
+      setFeedback(`Semana ${editingWeekIdx + 1}: ${fmt(num)} em ${activeDays} dias úteis (${fmt(perDay)}/dia)`);
       setTimeout(() => setFeedback(null), 4000);
     }
     setEditingWeekIdx(null);
@@ -378,6 +395,7 @@ export default function Movimentacoes() {
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 px-1">Últimos 14 dias</p>
             <div className="flex flex-col gap-1.5">
               {days14.slice(1).map((date, i) => {
+                const operating = isOperatingDay(date);
                 const revenue = getDayRevenue(date);
                 const summary = getDaySummary(date);
                 const isEditing = editingDate === date;
@@ -391,7 +409,7 @@ export default function Movimentacoes() {
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.03 }}
-                    className="flex items-center justify-between p-3 rounded-xl card-elevated group hover:border-primary/20 transition-all"
+                    className={`flex items-center justify-between p-3 rounded-xl card-elevated group transition-all ${!operating ? 'opacity-50' : 'hover:border-primary/20'}`}
                   >
                     {isEditing ? (
                       <div className="flex items-center gap-2 flex-1">
@@ -419,7 +437,7 @@ export default function Movimentacoes() {
                           <div>
                             <div className="flex items-center gap-1.5">
                               <p className="font-semibold text-sm text-foreground">
-                                {revenue > 0 ? fmt(revenue) : <span className="text-muted-foreground text-xs">—</span>}
+                                {!operating && revenue === 0 ? <span className="text-muted-foreground text-xs">Fechado</span> : revenue > 0 ? fmt(revenue) : <span className="text-muted-foreground text-xs">—</span>}
                               </p>
                               {aboveAvg && <TrendingUp className="h-3 w-3 text-primary" />}
                               {belowAvg && <TrendingDown className="h-3 w-3 text-destructive/60" />}
