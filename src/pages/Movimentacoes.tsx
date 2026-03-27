@@ -526,7 +526,7 @@ export default function Movimentacoes() {
                 <div className="mt-3 pt-3 border-t border-border/50">
                   <div className="flex items-center justify-between">
                     <span className="text-[10px] text-muted-foreground">Margem de lucro</span>
-                    <span className={`text-xs font-bold ${weekSummary.margin >= 20 ? 'text-primary' : 'text-destructive'}`}>{weekSummary.margin.toFixed(1)}%</span>
+                    <span className={`text-xs font-bold ${weekSummary.margin >= 20 ? 'text-primary' : 'text-destructive'}`}>{Math.round(weekSummary.margin)}%</span>
                   </div>
                   <div className="w-full h-1.5 rounded-full bg-secondary mt-1.5 overflow-hidden">
                     <motion.div
