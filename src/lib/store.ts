@@ -247,6 +247,25 @@ export function getDateString(date: Date = new Date()): string {
   return date.toISOString().split('T')[0];
 }
 
+export function isOperatingDay(dateStr: string): boolean {
+  const weekdays = state.businessProfile?.operatingWeekdays ?? [1, 2, 3, 4, 5, 6];
+  const d = new Date(dateStr + 'T00:00:00');
+  return weekdays.includes(d.getDay());
+}
+
+export function getOperatingDaysInRange(days: number): string[] {
+  const weekdays = state.businessProfile?.operatingWeekdays ?? [1, 2, 3, 4, 5, 6];
+  const dates: string[] = [];
+  for (let i = 0; i < days; i++) {
+    const d = new Date();
+    d.setDate(d.getDate() - i);
+    if (weekdays.includes(d.getDay())) {
+      dates.push(getDateString(d));
+    }
+  }
+  return dates;
+}
+
 function getCostImpactOnDate(cost: Cost, targetDate: string): number {
   const costDate = new Date(cost.date + 'T00:00:00');
   const target = new Date(targetDate + 'T00:00:00');
