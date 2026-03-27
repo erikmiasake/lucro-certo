@@ -142,18 +142,28 @@ export function addEntry(amount: number, description?: string, category?: string
   notify();
 }
 
-export function setDayRevenue(date: string, amount: number) {
+export function setDayRevenue(date: string, amount: number, source: EntrySource = 'manual') {
   const otherEntries = state.entries.filter((e) => e.date !== date);
   const entry: Entry = {
     id: crypto.randomUUID(),
     amount,
     date,
     createdAt: Date.now(),
-    description: 'Total do dia',
+    description: source === 'distributed' ? 'Distribuído automaticamente' : source === 'estimated' ? 'Estimativa automática' : 'Total do dia',
     category: 'Receita diária',
+    source,
   };
   state = { ...state, entries: [...otherEntries, entry] };
   notify();
+}
+
+export function getDayRevenueSource(date: string): EntrySource {
+  const dayEntries = state.entries.filter((e) => e.date === date);
+  if (dayEntries.length === 0) return 'estimated';
+  // If any entry is manual, the day is manual
+  if (dayEntries.some(e => e.source === 'manual' || !e.source)) return 'manual';
+  if (dayEntries.some(e => e.source === 'distributed')) return 'distributed';
+  return 'estimated';
 }
 
 export function getDayRevenue(date: string): number {
