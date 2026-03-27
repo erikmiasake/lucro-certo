@@ -116,6 +116,14 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     setAvgSales(formatted);
   };
 
+  const weekdayLabels = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+
+  const toggleWeekday = (day: number) => {
+    setOperatingWeekdays(prev =>
+      prev.includes(day) ? prev.filter(d => d !== day) : [...prev, day].sort()
+    );
+  };
+
   const handleFinish = () => {
     onFinish({
       avgSales,
@@ -123,7 +131,8 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
       profile: {
         name: businessName,
         city,
-        operatingDays: parseInt(operatingDays) || 6,
+        operatingDays: operatingWeekdays.length,
+        operatingWeekdays,
         employeeCount: parseInt(employeeCount) || 0,
         objective: objective as BusinessProfile['objective'],
       },
