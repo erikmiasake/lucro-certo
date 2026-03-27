@@ -93,7 +93,7 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
     entryVerb: 'entrada',
     costCategories: {
       product: ['Materiais', 'Produtos', 'Insumos'],
-      business: ['Aluguel', 'Energia', 'Funcionários', 'Contas'],
+      business: ['Aluguel', 'Energia', 'Contas'],
     },
     productCostLabel: 'Custo de produto',
     productCostExample: 'ex: estoque, materiais',
