@@ -422,6 +422,7 @@ export default function Movimentacoes() {
                                 Lucro: <span className={summary.profit >= 0 ? 'text-primary' : 'text-destructive'}>{fmt(summary.profit)}</span>
                                 {aboveAvg && <span className="ml-1 text-primary/60">acima da média</span>}
                                 {belowAvg && <span className="ml-1 text-destructive/50">abaixo da média</span>}
+                                <span className={`ml-1.5 ${sourceColor(source)}`}>· {sourceLabel(source)}</span>
                               </p>
                             )}
                           </div>
