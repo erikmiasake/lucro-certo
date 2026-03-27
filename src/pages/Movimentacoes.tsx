@@ -144,7 +144,7 @@ export default function Movimentacoes() {
       for (let i = 0; i < days; i++) {
         const d = new Date();
         d.setDate(d.getDate() - i);
-        setDayRevenue(getDateString(d), perDay);
+        setDayRevenue(getDateString(d), perDay, 'distributed');
       }
       setFeedback(`Receita ${editingPeriod === 'semana' ? 'semanal' : 'mensal'} de ${fmt(num)} distribuída em ${days} dias (${fmt(perDay)}/dia)`);
       setTimeout(() => setFeedback(null), 4000);
