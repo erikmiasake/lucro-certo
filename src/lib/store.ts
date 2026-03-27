@@ -38,6 +38,7 @@ export interface BusinessProfile {
   operatingDays: number;
   employeeCount: number;
   objective: 'increase_profit' | 'reduce_costs' | 'organize' | '';
+  operatingWeekdays: number[]; // 0=Dom, 1=Seg, ..., 6=Sáb
 }
 
 export interface CostMapItem {
