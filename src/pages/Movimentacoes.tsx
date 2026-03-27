@@ -340,9 +340,16 @@ export default function Movimentacoes() {
                 <button onClick={() => startEditing(today)} className="w-full flex items-center justify-between p-2.5 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-all group">
                   <div className="flex items-center gap-2">
                     <ArrowUpRight className="h-4 w-4 text-primary" />
-                    <span className="text-base font-bold text-foreground">
-                      {getDayRevenue(today) > 0 ? fmt(getDayRevenue(today)) : 'Registrar receita'}
-                    </span>
+                    <div>
+                      <span className="text-base font-bold text-foreground">
+                        {getDayRevenue(today) > 0 ? fmt(getDayRevenue(today)) : 'Registrar receita do dia'}
+                      </span>
+                      {getDayRevenue(today) > 0 && (
+                        <p className={`text-[10px] ${sourceColor(getDayRevenueSource(today))}`}>
+                          {sourceLabel(getDayRevenueSource(today))}
+                        </p>
+                      )}
+                    </div>
                   </div>
                   <Edit2 className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
                 </button>
