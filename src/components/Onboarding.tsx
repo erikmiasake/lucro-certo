@@ -67,6 +67,10 @@ export default function Onboarding() {
     if (finishData.selectedCosts.length > 0) {
       initCostMapFromOnboarding(finishData.selectedCosts);
     }
+    // Add employee payroll as fixed cost
+    if (finishData.employeePayroll && finishData.employeePayroll > 0) {
+      addCostMapItem('Folha de pagamento', 'fixed', finishData.employeePayroll);
+    }
     navigate('/', { replace: true });
     setBusinessType(selectedType);
     setTimeout(() => {
