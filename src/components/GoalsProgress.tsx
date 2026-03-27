@@ -4,7 +4,7 @@ import { useStore } from '@/hooks/use-store';
 import { Target, TrendingUp, Percent } from 'lucide-react';
 
 function formatCurrency(v: number) {
-  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  return v.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 export default function GoalsProgress() {

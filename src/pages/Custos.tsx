@@ -14,11 +14,11 @@ import AIInsightsPanel from '@/components/AIInsightsPanel';
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 function fmt(value: number) {
-  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+  return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
 }
 
 function fmtShort(value: number) {
-  if (Math.abs(value) >= 1000) return `R$ ${(value / 1000).toFixed(1)}k`;
+  if (Math.abs(value) >= 1000) return `R$ ${(value / 1000).toFixed(0)}k`;
   return fmt(value);
 }
 
