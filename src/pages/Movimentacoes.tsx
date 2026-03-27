@@ -213,14 +213,18 @@ export default function Movimentacoes() {
   const handleSaveWeekRevenue = () => {
     const num = parseFloat(weekEditValue.replace(',', '.'));
     if (num >= 0 && !isNaN(num) && editingWeekIdx !== null) {
-      const perDay = num / 7;
       const weekOffset = (3 - editingWeekIdx) * 7;
+      const operatingDates: string[] = [];
       for (let d = 0; d < 7; d++) {
         const date = new Date();
         date.setDate(date.getDate() - (weekOffset + d));
-        setDayRevenue(getDateString(date), perDay, 'distributed');
+        const dateStr = getDateString(date);
+        if (isOperatingDay(dateStr)) operatingDates.push(dateStr);
       }
-      setFeedback(`Semana ${editingWeekIdx + 1}: ${fmt(num)} distribuída em 7 dias (${fmt(perDay)}/dia)`);
+      const activeDays = operatingDates.length || 1;
+      const perDay = num / activeDays;
+      operatingDates.forEach(dateStr => setDayRevenue(dateStr, perDay, 'distributed'));
+      setFeedback(`Semana ${editingWeekIdx + 1}: ${fmt(num)} em ${activeDays} dias úteis (${fmt(perDay)}/dia)`);
       setTimeout(() => setFeedback(null), 4000);
     }
     setEditingWeekIdx(null);
