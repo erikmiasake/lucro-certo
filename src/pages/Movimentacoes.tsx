@@ -409,7 +409,7 @@ export default function Movimentacoes() {
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: i * 0.03 }}
-                    className="flex items-center justify-between p-3 rounded-xl card-elevated group hover:border-primary/20 transition-all"
+                    className={`flex items-center justify-between p-3 rounded-xl card-elevated group transition-all ${!operating ? 'opacity-50' : 'hover:border-primary/20'}`}
                   >
                     {isEditing ? (
                       <div className="flex items-center gap-2 flex-1">
