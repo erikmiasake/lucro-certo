@@ -46,6 +46,7 @@ export interface CostMapItem {
   name: string;
   classification: CostClassification;
   value: number;
+  spreadDays: number; // variable: user-defined (e.g. 5, 7, 15, 30); fixed: always 30
 }
 
 export interface AppState {
