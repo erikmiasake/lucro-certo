@@ -61,7 +61,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
 
   const [businessName, setBusinessName] = useState('');
   const [city, setCity] = useState('');
-  const [operatingDays, setOperatingDays] = useState('6');
+  const [operatingWeekdays, setOperatingWeekdays] = useState<number[]>([1, 2, 3, 4, 5, 6]);
   const [employeeCount, setEmployeeCount] = useState('');
   const [objective, setObjective] = useState('');
 
