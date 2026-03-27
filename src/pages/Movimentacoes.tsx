@@ -395,6 +395,7 @@ export default function Movimentacoes() {
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-2 px-1">Últimos 14 dias</p>
             <div className="flex flex-col gap-1.5">
               {days14.slice(1).map((date, i) => {
+                const operating = isOperatingDay(date);
                 const revenue = getDayRevenue(date);
                 const summary = getDaySummary(date);
                 const isEditing = editingDate === date;
