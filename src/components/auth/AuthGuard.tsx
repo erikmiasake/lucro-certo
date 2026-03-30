@@ -1,7 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useState, useRef } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session } from '@supabase/supabase-js';
+import { getState, mergeState } from '@/lib/store';
+import { loadProfileFromDB } from '@/lib/profile-sync';
+import { loadEntriesFromDB, loadCostsFromDB } from '@/lib/financial-sync';
 
 interface AuthGuardProps {
   children: React.ReactNode;
@@ -9,10 +12,11 @@ interface AuthGuardProps {
 
 export default function AuthGuard({ children }: AuthGuardProps) {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
+  const [dataLoaded, setDataLoaded] = useState(false);
+  const loadedRef = useRef(false);
   const location = useLocation();
 
   useEffect(() => {
-    // Set up listener BEFORE getting session
     const { data: { subscription } } = supabase.auth.onAuthStateChange(
       (_event, session) => {
         setSession(session);
@@ -26,7 +30,26 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     return () => subscription.unsubscribe();
   }, []);
 
-  // Loading state
+  useEffect(() => {
+    if (session && !loadedRef.current) {
+      loadedRef.current = true;
+      // Load data from DB if not already loaded
+      const currentState = getState();
+      if (currentState.entries.length === 0 && currentState.costs.length === 0) {
+        Promise.all([loadProfileFromDB(), loadEntriesFromDB(), loadCostsFromDB()])
+          .then(([profile, entries, costs]) => {
+            const merge: any = { entries, costs };
+            if (profile) Object.assign(merge, profile);
+            mergeState(merge);
+            setDataLoaded(true);
+          })
+          .catch(() => setDataLoaded(true));
+      } else {
+        setDataLoaded(true);
+      }
+    }
+  }, [session]);
+
   if (session === undefined) {
     return (
       <div className="min-h-screen bg-background flex items-center justify-center">
@@ -35,7 +58,6 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     );
   }
 
-  // Not authenticated
   if (!session) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
