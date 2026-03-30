@@ -86,16 +86,34 @@ function loadState(): AppState {
   return { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
 }
 
-function saveState(state: AppState) {
-  localStorage.setItem(STORAGE_KEY, JSON.stringify(state));
+function saveState(s: AppState) {
+  localStorage.setItem(STORAGE_KEY, JSON.stringify(s));
 }
 
 let state = loadState();
 let listeners: (() => void)[] = [];
 
+let _dbSyncTimer: ReturnType<typeof setTimeout> | null = null;
+
+function scheduleDBSync() {
+  if (_dbSyncTimer) clearTimeout(_dbSyncTimer);
+  _dbSyncTimer = setTimeout(async () => {
+    try {
+      const { saveAllEntriesToDB, saveAllCostsToDB } = await import('@/lib/financial-sync');
+      await Promise.all([
+        saveAllEntriesToDB(state.entries),
+        saveAllCostsToDB(state.costs),
+      ]);
+    } catch (e) {
+      console.error('DB sync error:', e);
+    }
+  }, 1500);
+}
+
 function notify() {
   saveState(state);
   listeners.forEach((l) => l());
+  scheduleDBSync();
 }
 
 export function subscribe(listener: () => void) {
