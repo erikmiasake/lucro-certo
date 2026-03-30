@@ -827,6 +827,9 @@ export default function Movimentacoes() {
                     <p className="text-[10px] text-muted-foreground">
                       {c.description || (c.type === 'product' ? config.productCostLabel : config.businessCostLabel)}
                       {' · '}{formatDateLabel(c.date)}
+                      {c.id.startsWith('costmap-') && (
+                        <span className="ml-1 px-1.5 py-0.5 rounded bg-primary/10 text-primary text-[8px] font-semibold">Mapa</span>
+                      )}
                     </p>
                   </div>
                 </div>
