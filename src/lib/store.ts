@@ -2,7 +2,66 @@ import { BusinessType, businessConfigs } from './business-config';
 import { safeGetItem, safeSetItem } from './safe-storage';
 
 export type EntrySource = 'manual' | 'estimated' | 'distributed';
-...
+
+export interface Entry {
+  id: string;
+  amount: number;
+  date: string;
+  createdAt: number;
+  description?: string;
+  category?: string;
+  source?: EntrySource;
+}
+
+export type CostClassification = 'fixed' | 'variable';
+
+export interface Cost {
+  id: string;
+  amount: number;
+  type: 'product' | 'business';
+  classification: CostClassification;
+  spreadDays: number;
+  date: string;
+  createdAt: number;
+  description?: string;
+  category?: string;
+  subcategory?: string;
+}
+
+export interface Goals {
+  monthlyProfit: number | null;
+  monthlyMargin: number | null;
+}
+
+export interface BusinessProfile {
+  name: string;
+  city: string;
+  operatingDays: number;
+  employeeCount: number;
+  objective: 'increase_profit' | 'reduce_costs' | 'organize' | '';
+  operatingWeekdays: number[]; // 0=Dom, 1=Seg, ..., 6=Sáb
+}
+
+export interface CostMapItem {
+  id: string;
+  name: string;
+  classification: CostClassification;
+  value: number;
+  spreadDays: number; // variable: user-defined (e.g. 5, 7, 15, 30); fixed: always 30
+}
+
+export interface AppState {
+  businessType: BusinessType | null;
+  onboardingComplete: boolean;
+  entries: Entry[];
+  costs: Cost[];
+  costMap: CostMapItem[];
+  averageSales?: number;
+  mainCosts?: string[];
+  goals: Goals;
+  businessProfile: BusinessProfile;
+}
+
 const STORAGE_KEY = 'lucro-real-data';
 
 const defaultProfile: BusinessProfile = { name: '', city: '', operatingDays: 6, employeeCount: 0, objective: '', operatingWeekdays: [1, 2, 3, 4, 5, 6] };
