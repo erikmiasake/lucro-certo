@@ -857,6 +857,34 @@ export function classifyCostName(name: string): CostClassification {
   return 'variable';
 }
 
+/** Generate a Cost entry from a CostMapItem so it appears in Movimentacoes and analysis */
+function costMapItemToCost(item: CostMapItem): Cost {
+  const today = getDateString();
+  return {
+    id: `costmap-${item.id}`,
+    amount: item.classification === 'fixed' ? item.value : item.value,
+    type: item.classification === 'fixed' ? 'business' : 'product',
+    classification: item.classification,
+    spreadDays: item.spreadDays,
+    date: today,
+    createdAt: Date.now(),
+    description: item.name,
+    category: item.name,
+    subcategory: undefined,
+  };
+}
+
+/** Sync all costMap items into costs array — replaces costmap-generated costs */
+function syncCostMapToCosts() {
+  // Remove all previously synced costmap costs
+  const manualCosts = state.costs.filter(c => !c.id.startsWith('costmap-'));
+  // Generate new ones from current costMap
+  const mapCosts = state.costMap
+    .filter(item => item.value > 0)
+    .map(costMapItemToCost);
+  state = { ...state, costs: [...manualCosts, ...mapCosts] };
+}
+
 export function initCostMapFromOnboarding(selectedCosts: string[]) {
   const items: CostMapItem[] = selectedCosts.map(name => {
     const classification = classifyCostName(name);
@@ -869,6 +897,7 @@ export function initCostMapFromOnboarding(selectedCosts: string[]) {
     };
   });
   state = { ...state, costMap: items };
+  syncCostMapToCosts();
   notify();
 }
 
@@ -877,11 +906,13 @@ export function updateCostMapItem(id: string, updates: Partial<Pick<CostMapItem,
     ...state,
     costMap: state.costMap.map(item => item.id === id ? { ...item, ...updates } : item),
   };
+  syncCostMapToCosts();
   notify();
 }
 
 export function deleteCostMapItem(id: string) {
   state = { ...state, costMap: state.costMap.filter(item => item.id !== id) };
+  syncCostMapToCosts();
   notify();
 }
 
@@ -894,6 +925,7 @@ export function addCostMapItem(name: string, classification: CostClassification,
     spreadDays: classification === 'fixed' ? 30 : 7,
   };
   state = { ...state, costMap: [...state.costMap, item] };
+  syncCostMapToCosts();
   notify();
 }
 
