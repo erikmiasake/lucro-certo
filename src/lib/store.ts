@@ -265,7 +265,14 @@ export function deleteEntry(id: string) {
 }
 
 export function deleteCost(id: string) {
-  state = { ...state, costs: state.costs.filter((c) => c.id !== id) };
+  // If it's a costmap-synced cost, delete the source costmap item instead
+  if (id.startsWith('costmap-')) {
+    const mapId = id.replace('costmap-', '');
+    state = { ...state, costMap: state.costMap.filter(item => item.id !== mapId) };
+    syncCostMapToCosts();
+  } else {
+    state = { ...state, costs: state.costs.filter((c) => c.id !== id) };
+  }
   notify();
 }
 
