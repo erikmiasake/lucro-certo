@@ -72,10 +72,16 @@ export default function Auth() {
         if (error) throw error;
         toast.success('Login realizado com sucesso!');
         
-        // Load profile from database
-        const dbProfile = await loadProfileFromDB();
+        // Load profile and financial data from database
+        const [dbProfile, dbEntries, dbCosts] = await Promise.all([
+          loadProfileFromDB(),
+          loadEntriesFromDB(),
+          loadCostsFromDB(),
+        ]);
         if (dbProfile) {
-          mergeState(dbProfile);
+          mergeState({ ...dbProfile, entries: dbEntries, costs: dbCosts });
+        } else {
+          mergeState({ entries: dbEntries, costs: dbCosts });
         }
         
         const appState = getState();
