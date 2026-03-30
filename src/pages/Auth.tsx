@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { getState, mergeState } from '@/lib/store';
 import { loadProfileFromDB } from '@/lib/profile-sync';
 import { loadEntriesFromDB, loadCostsFromDB } from '@/lib/financial-sync';
+import { safeRemoveItem, safeSetItem } from '@/lib/safe-storage';
 
 export default function Auth() {
   const navigate = useNavigate();
@@ -58,11 +59,11 @@ export default function Auth() {
       } else {
         // If "remember me" is unchecked, use a shorter session approach
         if (!data.rememberMe) {
-          localStorage.setItem('lucro-real-session-only', 'true');
-          sessionStorage.setItem('lucro-real-session-only', 'true');
+          safeSetItem('lucro-real-session-only', 'true');
+          safeSetItem('lucro-real-session-only', 'true', 'sessionStorage');
         } else {
-          localStorage.removeItem('lucro-real-session-only');
-          sessionStorage.removeItem('lucro-real-session-only');
+          safeRemoveItem('lucro-real-session-only');
+          safeRemoveItem('lucro-real-session-only', 'sessionStorage');
         }
 
         const { error } = await supabase.auth.signInWithPassword({
