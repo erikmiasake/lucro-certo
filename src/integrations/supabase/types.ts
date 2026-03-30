@@ -14,6 +14,81 @@ export type Database = {
   }
   public: {
     Tables: {
+      costs: {
+        Row: {
+          amount: number
+          category: string | null
+          classification: string
+          created_at: number
+          date: string
+          description: string | null
+          id: string
+          spread_days: number
+          subcategory: string | null
+          type: string
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          category?: string | null
+          classification?: string
+          created_at?: number
+          date: string
+          description?: string | null
+          id?: string
+          spread_days?: number
+          subcategory?: string | null
+          type?: string
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          classification?: string
+          created_at?: number
+          date?: string
+          description?: string | null
+          id?: string
+          spread_days?: number
+          subcategory?: string | null
+          type?: string
+          user_id?: string
+        }
+        Relationships: []
+      }
+      entries: {
+        Row: {
+          amount: number
+          category: string | null
+          created_at: number
+          date: string
+          description: string | null
+          id: string
+          source: string | null
+          user_id: string
+        }
+        Insert: {
+          amount?: number
+          category?: string | null
+          created_at?: number
+          date: string
+          description?: string | null
+          id?: string
+          source?: string | null
+          user_id: string
+        }
+        Update: {
+          amount?: number
+          category?: string | null
+          created_at?: number
+          date?: string
+          description?: string | null
+          id?: string
+          source?: string | null
+          user_id?: string
+        }
+        Relationships: []
+      }
       profiles: {
         Row: {
           average_sales: number | null
