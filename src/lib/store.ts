@@ -92,6 +92,8 @@ function saveState(s: AppState) {
 }
 
 let state = loadState();
+// Sync costMap items into costs on startup
+syncCostMapToCosts();
 let listeners: (() => void)[] = [];
 
 let _dbSyncTimer: ReturnType<typeof setTimeout> | null = null;
