@@ -14,7 +14,61 @@ import { useNavigate } from 'react-router-dom';
 import { safeRemoveItem } from '@/lib/safe-storage';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'academia', 'outro'];
-...
+
+const objectives = [
+  { value: 'increase_profit', label: 'Aumentar lucro', icon: TrendingUp },
+  { value: 'reduce_costs', label: 'Reduzir custos', icon: Percent },
+  { value: 'organize', label: 'Organizar financeiro', icon: Calendar },
+] as const;
+
+export default function Configuracoes() {
+  const state = useStore();
+  const navigate = useNavigate();
+  const [confirmReset, setConfirmReset] = useState(false);
+  const [profitGoal, setProfitGoal] = useState(state.goals?.monthlyProfit?.toString() || '');
+  const [marginGoal, setMarginGoal] = useState(state.goals?.monthlyMargin?.toString() || '');
+  const [goalsSaved, setGoalsSaved] = useState(false);
+
+  const [businessName, setBusinessName] = useState(state.businessProfile?.name || '');
+  const [city, setCity] = useState(state.businessProfile?.city || '');
+  const [operatingDays, setOperatingDays] = useState(state.businessProfile?.operatingDays?.toString() || '6');
+  const [operatingWeekdays, setOperatingWeekdays] = useState<number[]>(state.businessProfile?.operatingWeekdays || [1, 2, 3, 4, 5, 6]);
+  const [employeeCount, setEmployeeCount] = useState(state.businessProfile?.employeeCount?.toString() || '0');
+  const [objective, setObjective] = useState(state.businessProfile?.objective || '');
+  const [profileSaved, setProfileSaved] = useState(false);
+
+  const [showType, setShowType] = useState(false);
+
+  // User Profile State
+  const [user, setUser] = useState<any>(null);
+  const [loadingUser, setLoadingUser] = useState(true);
+  const [userName, setUserName] = useState('');
+  const [userSaved, setUserSaved] = useState(false);
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      const { data: { user } } = await supabase.auth.getUser();
+      setUser(user);
+      setUserName(user?.user_metadata?.full_name || '');
+      setLoadingUser(false);
+    };
+    fetchUser();
+  }, []);
+
+  const handleUpdateUser = async () => {
+    if (!user) return;
+    try {
+      const { error } = await supabase.auth.updateUser({
+        data: { full_name: userName }
+      });
+      if (error) throw error;
+      setUserSaved(true);
+      setTimeout(() => setUserSaved(false), 2000);
+    } catch (error: any) {
+      toast.error('Erro ao atualizar perfil', { description: error.message });
+    }
+  };
+
   const handleSignOut = async () => {
     await supabase.auth.signOut();
     safeRemoveItem('lucro-real-data');
