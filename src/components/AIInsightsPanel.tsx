@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, RefreshCw, Lightbulb, Target, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { getCostBreakdown, getGoalsProgress } from '@/lib/store';
+import { getCostBreakdown, getGoalsProgress, getRevenueStats } from '@/lib/store';
 import { useStore } from '@/hooks/use-store';
 
 interface AIInsightsData {
@@ -36,6 +36,7 @@ export default function AIInsightsPanel({ summary, businessType, period = 'seman
     try {
       const breakdown = getCostBreakdown();
       const goalsProgress = getGoalsProgress();
+      const revenueStats = getRevenueStats();
 
       const { data: result, error: fnError } = await supabase.functions.invoke('ai-insights', {
         body: {
@@ -52,6 +53,13 @@ export default function AIInsightsPanel({ summary, businessType, period = 'seman
             monthlyProfit: store.goals.monthlyProfit,
             progress: goalsProgress.profit.progress,
           } : null,
+          operatingContext: {
+            operatingWeekdays: store.businessProfile.operatingWeekdays,
+            operatingDaysPerWeek: store.businessProfile.operatingWeekdays.length,
+            realDataPercentage: revenueStats.realDataPercentage,
+            manualRevenueDays: revenueStats.manualDays,
+            estimatedRevenueDays: revenueStats.estimatedDays,
+          },
         },
       });
 
