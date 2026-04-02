@@ -104,6 +104,7 @@ export type Database = {
           objective: string | null
           onboarding_complete: boolean
           operating_days: number | null
+          operating_weekdays: number[] | null
           updated_at: string
           user_id: string
         }
@@ -121,6 +122,7 @@ export type Database = {
           objective?: string | null
           onboarding_complete?: boolean
           operating_days?: number | null
+          operating_weekdays?: number[] | null
           updated_at?: string
           user_id: string
         }
@@ -138,6 +140,7 @@ export type Database = {
           objective?: string | null
           onboarding_complete?: boolean
           operating_days?: number | null
+          operating_weekdays?: number[] | null
           updated_at?: string
           user_id?: string
         }
