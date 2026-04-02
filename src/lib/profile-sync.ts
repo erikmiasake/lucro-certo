@@ -13,6 +13,9 @@ export async function loadProfileFromDB(): Promise<Partial<AppState> | null> {
 
   if (error || !data) return null;
 
+  // Load operating_weekdays from DB, fallback to default
+  const operatingWeekdays = (data as any).operating_weekdays ?? [1, 2, 3, 4, 5, 6];
+
   return {
     businessType: data.business_type as AppState['businessType'],
     onboardingComplete: data.onboarding_complete,
@@ -22,7 +25,7 @@ export async function loadProfileFromDB(): Promise<Partial<AppState> | null> {
       operatingDays: data.operating_days || 6,
       employeeCount: data.employee_count || 0,
       objective: (data.objective || '') as BusinessProfile['objective'],
-      operatingWeekdays: [1, 2, 3, 4, 5, 6],
+      operatingWeekdays,
     },
     averageSales: data.average_sales ? Number(data.average_sales) : undefined,
     mainCosts: data.main_costs || [],
@@ -50,8 +53,9 @@ export async function saveProfileToDB(state: AppState): Promise<void> {
       main_costs: state.mainCosts || [],
       cost_map: state.costMap as any,
       goals: state.goals as any,
+      operating_weekdays: state.businessProfile.operatingWeekdays as any,
       updated_at: new Date().toISOString(),
-    }, { onConflict: 'user_id' });
+    } as any, { onConflict: 'user_id' });
 
   if (error) {
     console.error('Error saving profile to DB:', error);

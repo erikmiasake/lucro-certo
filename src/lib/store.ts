@@ -48,6 +48,7 @@ export interface CostMapItem {
   classification: CostClassification;
   value: number;
   spreadDays: number; // variable: user-defined (e.g. 5, 7, 15, 30); fixed: always 30
+  createdAt?: number; // timestamp for persistent date reference
 }
 
 export interface AppState {
@@ -72,14 +73,13 @@ function loadState(): AppState {
     if (raw) {
       const parsed = JSON.parse(raw);
       const loaded = { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, costMap: [], onboardingComplete: false, ...parsed };
-      // Ensure operatingWeekdays exists for older data
       if (!loaded.businessProfile.operatingWeekdays) {
         loaded.businessProfile.operatingWeekdays = [1, 2, 3, 4, 5, 6];
       }
-      // Ensure spreadDays exists for older costMap items
       loaded.costMap = (loaded.costMap || []).map((item: any) => ({
         ...item,
         spreadDays: item.spreadDays ?? (item.classification === 'fixed' ? 30 : 7),
+        createdAt: item.createdAt ?? Date.now(),
       }));
       return loaded;
     }
@@ -193,7 +193,6 @@ export function setDayRevenue(date: string, amount: number, source: EntrySource 
 export function getDayRevenueSource(date: string): EntrySource {
   const dayEntries = state.entries.filter((e) => e.date === date);
   if (dayEntries.length === 0) return 'estimated';
-  // If any entry is manual, the day is manual
   if (dayEntries.some(e => e.source === 'manual' || !e.source)) return 'manual';
   if (dayEntries.some(e => e.source === 'distributed')) return 'distributed';
   return 'estimated';
@@ -205,6 +204,8 @@ export function getDayRevenue(date: string): number {
     .reduce((sum, e) => sum + e.amount, 0);
 }
 
+// ─── COSTS ─────────────────────────────────────────────────────────
+// addCost: only adds manual costs. Does NOT touch costMap.
 export function addCost(
   amount: number,
   type: 'product' | 'business',
@@ -229,35 +230,6 @@ export function addCost(
     subcategory,
   };
   state = { ...state, costs: [...state.costs, cost] };
-  
-  // Sync to cost map
-  const mapName = category || description || (type === 'product' ? 'Produto' : 'Negócio');
-  const existingMapItem = state.costMap.find(
-    i => i.name.toLowerCase() === mapName.toLowerCase()
-  );
-  if (existingMapItem) {
-    // Update existing map item value (sum all costs with same category)
-    const totalForCategory = state.costs
-      .filter(c => (c.category || c.description || (c.type === 'product' ? 'Produto' : 'Negócio')).toLowerCase() === mapName.toLowerCase())
-      .reduce((s, c) => s + c.amount, 0);
-    state = {
-      ...state,
-      costMap: state.costMap.map(i =>
-        i.id === existingMapItem.id ? { ...i, value: totalForCategory } : i
-      ),
-    };
-  } else {
-    // Create new map item
-    const newItem: CostMapItem = {
-      id: crypto.randomUUID(),
-      name: mapName,
-      classification: inferredClassification,
-      value: amount,
-      spreadDays: inferredClassification === 'fixed' ? 30 : 7,
-    };
-    state = { ...state, costMap: [...state.costMap, newItem] };
-  }
-  
   notify();
 }
 
@@ -267,7 +239,6 @@ export function deleteEntry(id: string) {
 }
 
 export function deleteCost(id: string) {
-  // If it's a costmap-synced cost, delete the source costmap item instead
   if (id.startsWith('costmap-')) {
     const mapId = id.replace('costmap-', '');
     state = { ...state, costMap: state.costMap.filter(item => item.id !== mapId) };
@@ -300,6 +271,37 @@ export function getOperatingDaysInRange(days: number): string[] {
   }
   return dates;
 }
+
+/** Count operating days in the current month up to today */
+function getOperatingDaysInMonthSoFar(): number {
+  const weekdays = state.businessProfile?.operatingWeekdays ?? [1, 2, 3, 4, 5, 6];
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  let count = 0;
+  for (let day = 1; day <= now.getDate(); day++) {
+    const d = new Date(year, month, day);
+    if (weekdays.includes(d.getDay())) count++;
+  }
+  return count;
+}
+
+/** Count total operating days in the current month */
+function getTotalOperatingDaysInMonth(): number {
+  const weekdays = state.businessProfile?.operatingWeekdays ?? [1, 2, 3, 4, 5, 6];
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  let count = 0;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const d = new Date(year, month, day);
+    if (weekdays.includes(d.getDay())) count++;
+  }
+  return count;
+}
+
+// ─── Cost Impact ───────────────────────────────────────────────────
 
 function getCostImpactOnDate(cost: Cost, targetDate: string): number {
   const costDate = new Date(cost.date + 'T00:00:00');
@@ -428,22 +430,31 @@ export function getBestAndWorstDay(days: number = 30) {
   return { best, worst };
 }
 
+// ─── Cost Breakdown (normalized to monthly impact) ─────────────────
+
 export function getCostBreakdown() {
+  // Normalize all costs to their monthly equivalent for fair comparison
+  function monthlyImpact(c: Cost): number {
+    if (c.spreadDays <= 0) return c.amount;
+    return (c.amount / c.spreadDays) * 30;
+  }
+
   const productCosts = state.costs.filter(c => c.type === 'product');
   const businessCosts = state.costs.filter(c => c.type === 'business');
   const fixedCosts = state.costs.filter(c => c.classification === 'fixed' || c.type === 'business');
   const variableCosts = state.costs.filter(c => c.classification === 'variable' || (!c.classification && c.type === 'product'));
-  const totalProduct = productCosts.reduce((s, c) => s + c.amount, 0);
-  const totalBusiness = businessCosts.reduce((s, c) => s + c.amount, 0);
-  const totalFixed = fixedCosts.reduce((s, c) => s + c.amount, 0);
-  const totalVariable = variableCosts.reduce((s, c) => s + c.amount, 0);
+
+  const totalProduct = productCosts.reduce((s, c) => s + monthlyImpact(c), 0);
+  const totalBusiness = businessCosts.reduce((s, c) => s + monthlyImpact(c), 0);
+  const totalFixed = fixedCosts.reduce((s, c) => s + monthlyImpact(c), 0);
+  const totalVariable = variableCosts.reduce((s, c) => s + monthlyImpact(c), 0);
   const total = totalProduct + totalBusiness;
 
   const categoryMap = new Map<string, { amount: number; items: Cost[] }>();
   state.costs.forEach(c => {
     const key = c.category || (c.type === 'product' ? 'Produto' : 'Negócio');
     const existing = categoryMap.get(key) || { amount: 0, items: [] };
-    existing.amount += c.amount;
+    existing.amount += monthlyImpact(c);
     existing.items.push(c);
     categoryMap.set(key, existing);
   });
@@ -460,7 +471,7 @@ export function getCostBreakdown() {
   const subcategoryMap = new Map<string, number>();
   state.costs.forEach(c => {
     if (c.subcategory) {
-      subcategoryMap.set(c.subcategory, (subcategoryMap.get(c.subcategory) || 0) + c.amount);
+      subcategoryMap.set(c.subcategory, (subcategoryMap.get(c.subcategory) || 0) + monthlyImpact(c));
     }
   });
   const subcategories = Array.from(subcategoryMap.entries())
@@ -527,9 +538,7 @@ export function getProactiveAlerts(): ProactiveAlert[] {
   const activeDays = last7.filter(d => d.revenue > 0 || d.cost > 0);
   if (activeDays.length < 2) return alerts;
 
-  // 1. Cost trending up last 3 days
-  const costDays = last3.filter(d => d.cost > 0);
-  if (costDays.length >= 3 && costDays[0].cost > costDays[1].cost && costDays[1].cost > costDays[2].cost) {
+  if (last3.filter(d => d.cost > 0).length >= 3 && last3[0].cost > last3[1].cost && last3[1].cost > last3[2].cost) {
     alerts.push({
       type: 'warning',
       icon: 'trend-up',
@@ -539,7 +548,6 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     });
   }
 
-  // 2. Profit trending down
   const profitDays = last3.filter(d => d.revenue > 0);
   if (profitDays.length >= 3 && profitDays[0].profit < profitDays[1].profit && profitDays[1].profit < profitDays[2].profit) {
     alerts.push({
@@ -550,7 +558,6 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     });
   }
 
-  // 3. Week projection
   if (week.totalEntries > 0) {
     const daysElapsed = activeDays.length || 1;
     const avgDailyProfit = week.profit / daysElapsed;
@@ -574,7 +581,6 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     }
   }
 
-  // 4. Low margin
   if (week.totalRevenue > 0 && week.margin < 15 && week.margin >= 0) {
     alerts.push({
       type: 'warning',
@@ -585,7 +591,6 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     });
   }
 
-  // 5. Top cost impact
   if (costBreakdown.topCost && costBreakdown.topCost.percentage > 35) {
     const top = costBreakdown.topCost;
     const potentialSaving = top.amount * 0.1;
@@ -593,12 +598,11 @@ export function getProactiveAlerts(): ProactiveAlert[] {
       type: 'info',
       icon: 'lightbulb',
       title: `${top.name}: ${top.percentage.toFixed(0)}% dos custos`,
-      message: `Reduzir esse custo em 10% economizaria ${formatCurrencySimple(potentialSaving)}.`,
+      message: `Reduzir esse custo em 10% economizaria ${formatCurrencySimple(potentialSaving)}/mês.`,
       actionHint: 'Negocie com fornecedores',
     });
   }
 
-  // 6. Goal progress
   if (state.goals.monthlyProfit && state.goals.monthlyProfit > 0) {
     const progress = (month.profit / state.goals.monthlyProfit) * 100;
     const dayOfMonth = new Date().getDate();
@@ -621,7 +625,6 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     }
   }
 
-  // 7. Best day
   const bestDay = getBestDayOfWeek();
   if (bestDay) {
     alerts.push({
@@ -714,12 +717,16 @@ export function getMarginTrend(): { direction: 'up' | 'down' | 'stable'; values:
   };
 }
 
+// ─── Monthly Projection (using operating days) ─────────────────────
+
 export function getMonthlyProjection(): { revenue: number; cost: number; profit: number; margin: number } {
   const month = getMonthSummary();
-  const dayOfMonth = new Date().getDate();
-  const daysInMonth = new Date(new Date().getFullYear(), new Date().getMonth() + 1, 0).getDate();
-  if (dayOfMonth === 0 || month.totalRevenue === 0) return { revenue: 0, cost: 0, profit: 0, margin: 0 };
-  const factor = daysInMonth / dayOfMonth;
+  const opDaysSoFar = getOperatingDaysInMonthSoFar();
+  const totalOpDays = getTotalOperatingDaysInMonth();
+
+  if (opDaysSoFar === 0 || month.totalRevenue === 0) return { revenue: 0, cost: 0, profit: 0, margin: 0 };
+
+  const factor = totalOpDays / opDaysSoFar;
   const revenue = month.totalRevenue * factor;
   const cost = month.totalRealCost * factor;
   const profit = revenue - cost;
@@ -775,7 +782,7 @@ export function getSmartInsights(): string[] {
     const top = costBreakdown.categories[0];
     if (top.percentage > 30) {
       const saving10 = top.amount * 0.1;
-      insights.push(`${top.name} = ${top.percentage.toFixed(0)}% dos custos. Reduzir 10% = +${formatCurrencySimple(saving10)} de lucro`);
+      insights.push(`${top.name} = ${top.percentage.toFixed(0)}% dos custos. Reduzir 10% = +${formatCurrencySimple(saving10)}/mês de lucro`);
     }
   }
 
@@ -786,8 +793,10 @@ export function getSmartInsights(): string[] {
   }
 
   if (week.totalEntries > 0) {
-    const avgDailyProfit = week.profit / 7;
-    const projected30 = avgDailyProfit * 30;
+    const opDays = state.businessProfile?.operatingWeekdays?.length ?? 6;
+    const avgDailyProfit = week.profit / Math.min(7, opDays);
+    const opDaysInMonth = getTotalOperatingDaysInMonth();
+    const projected30 = avgDailyProfit * opDaysInMonth;
     if (projected30 > 0) {
       insights.push(`Projeção mensal: ${formatCurrencySimple(projected30)} de lucro mantendo esse ritmo`);
     } else if (projected30 < 0) {
@@ -866,17 +875,37 @@ export function classifyCostName(name: string): CostClassification {
   return 'variable';
 }
 
-/** Generate a Cost entry from a CostMapItem so it appears in Movimentacoes and analysis */
+/**
+ * Generate a Cost entry from a CostMapItem.
+ * Fixed costs: use 1st of current month as date with spreadDays=30 so they impact every day of the month.
+ * Variable costs: use their persistent createdAt date with their spreadDays.
+ */
 function costMapItemToCost(item: CostMapItem): Cost {
-  const today = getDateString();
+  let date: string;
+  let spreadDays = item.spreadDays;
+
+  if (item.classification === 'fixed') {
+    // Fixed costs recur monthly — anchor to 1st of current month, spread over 30 days
+    const now = new Date();
+    date = `${now.getFullYear()}-${String(now.getMonth() + 1).padStart(2, '0')}-01`;
+    spreadDays = 30;
+  } else {
+    // Variable costs: use persistent creation date
+    if (item.createdAt) {
+      date = getDateString(new Date(item.createdAt));
+    } else {
+      date = getDateString();
+    }
+  }
+
   return {
     id: `costmap-${item.id}`,
-    amount: item.classification === 'fixed' ? item.value : item.value,
+    amount: item.value,
     type: item.classification === 'fixed' ? 'business' : 'product',
     classification: item.classification,
-    spreadDays: item.spreadDays,
-    date: today,
-    createdAt: Date.now(),
+    spreadDays,
+    date,
+    createdAt: item.createdAt || Date.now(),
     description: item.name,
     category: item.name,
     subcategory: undefined,
@@ -885,9 +914,7 @@ function costMapItemToCost(item: CostMapItem): Cost {
 
 /** Sync all costMap items into costs array — replaces costmap-generated costs */
 function syncCostMapToCosts() {
-  // Remove all previously synced costmap costs
   const manualCosts = state.costs.filter(c => !c.id.startsWith('costmap-'));
-  // Generate new ones from current costMap
   const mapCosts = state.costMap
     .filter(item => item.value > 0)
     .map(costMapItemToCost);
@@ -903,6 +930,7 @@ export function initCostMapFromOnboarding(selectedCosts: string[]) {
       classification,
       value: 0,
       spreadDays: classification === 'fixed' ? 30 : 7,
+      createdAt: Date.now(),
     };
   });
   state = { ...state, costMap: items };
@@ -932,6 +960,7 @@ export function addCostMapItem(name: string, classification: CostClassification,
     classification,
     value,
     spreadDays: classification === 'fixed' ? 30 : 7,
+    createdAt: Date.now(),
   };
   state = { ...state, costMap: [...state.costMap, item] };
   syncCostMapToCosts();
@@ -941,7 +970,7 @@ export function addCostMapItem(name: string, classification: CostClassification,
 /** Get the monthly equivalent of a cost map item */
 export function getMonthlyEquivalent(item: CostMapItem): number {
   if (item.value <= 0) return 0;
-  if (item.classification === 'fixed') return item.value; // already monthly
+  if (item.classification === 'fixed') return item.value;
   const days = item.spreadDays || 7;
   return (item.value / days) * 30;
 }
@@ -953,6 +982,44 @@ export function getCostMap() {
   const totalVariable = variable.reduce((s, i) => s + i.value, 0);
   const totalMonthly = state.costMap.reduce((s, i) => s + getMonthlyEquivalent(i), 0);
   return { fixed, variable, totalFixed, totalVariable, total: totalFixed + totalVariable, totalMonthly };
+}
+
+// ─── Revenue Stats for AI ──────────────────────────────────────────
+
+export function getRevenueStats() {
+  const dates = getDateRange(30);
+  let manualDays = 0;
+  let estimatedDays = 0;
+  let distributedDays = 0;
+  let totalManualRevenue = 0;
+  let totalEstimatedRevenue = 0;
+
+  for (const date of dates) {
+    const dayEntries = state.entries.filter(e => e.date === date);
+    if (dayEntries.length === 0) continue;
+    const source = getDayRevenueSource(date);
+    const revenue = dayEntries.reduce((s, e) => s + e.amount, 0);
+    if (source === 'manual') {
+      manualDays++;
+      totalManualRevenue += revenue;
+    } else if (source === 'estimated') {
+      estimatedDays++;
+      totalEstimatedRevenue += revenue;
+    } else {
+      distributedDays++;
+      totalManualRevenue += revenue; // distributed counts as user-provided
+    }
+  }
+
+  const totalDays = manualDays + estimatedDays + distributedDays;
+  return {
+    manualDays,
+    estimatedDays,
+    distributedDays,
+    totalManualRevenue,
+    totalEstimatedRevenue,
+    realDataPercentage: totalDays > 0 ? ((manualDays + distributedDays) / totalDays) * 100 : 0,
+  };
 }
 
 export function resetAll() {

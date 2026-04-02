@@ -9,9 +9,13 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { summary, businessType, period, costBreakdown, goals } = await req.json();
+    const { summary, businessType, period, costBreakdown, goals, operatingContext } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
+
+    const opDays = operatingContext?.operatingDaysPerWeek ?? 6;
+    const realPct = operatingContext?.realDataPercentage ?? 100;
+    const estimatedDays = operatingContext?.estimatedRevenueDays ?? 0;
 
     const systemPrompt = `Você é um copiloto financeiro inteligente para pequenos negócios brasileiros.
 Seu papel é ANTECIPAR problemas, ALERTAR riscos e RECOMENDAR ações específicas com impacto em R$.
@@ -25,24 +29,30 @@ REGRAS:
 - Identifique o PRINCIPAL problema e o PRINCIPAL ponto forte
 - Máximo 3 insights, 1 recomendação, 1 previsão. Cada um com no máximo 2 frases.
 
+CONTEXTO OPERACIONAL:
+- O negócio opera ${opDays} dias por semana. Ajuste projeções para dias operacionais, não dias corridos.
+- ${realPct.toFixed(0)}% dos dados de receita são reais (informados pelo usuário). ${estimatedDays > 0 ? `${estimatedDays} dias usam estimativas — considere isso na confiança da análise.` : 'Todos os dados são reais.'}
+- Valores de custo no breakdown já estão normalizados para impacto mensal.
+
 Retorne usando a tool "generate_insights".`;
 
     const costInfo = costBreakdown
-      ? `\n- Top custo: ${costBreakdown.topCost || 'N/A'} (${costBreakdown.topPercentage || 0}% do total)
-- Fixos: R$ ${costBreakdown.totalFixed?.toFixed(2) || '0'} | Variáveis: R$ ${costBreakdown.totalVariable?.toFixed(2) || '0'}`
+      ? `\n- Top custo mensal: ${costBreakdown.topCost || 'N/A'} (${costBreakdown.topPercentage || 0}% do total)
+- Fixos/mês: R$ ${Math.round(costBreakdown.totalFixed || 0)} | Variáveis/mês: R$ ${Math.round(costBreakdown.totalVariable || 0)}`
       : '';
 
     const goalInfo = goals?.monthlyProfit
-      ? `\n- Meta de lucro mensal: R$ ${goals.monthlyProfit.toFixed(2)}
+      ? `\n- Meta de lucro mensal: R$ ${Math.round(goals.monthlyProfit)}
 - Progresso: ${goals.progress?.toFixed(0) || 0}%`
       : '';
 
     const userPrompt = `Dados do negócio (${businessType || 'genérico'}) - ${period || 'semana'}:
-- Receita: R$ ${summary.totalRevenue?.toFixed(2) || '0'}
-- Custos: R$ ${summary.totalRealCost?.toFixed(2) || '0'}
-- Lucro: R$ ${summary.profit?.toFixed(2) || '0'}
-- Margem: ${summary.margin?.toFixed(1) || '0'}%
-- Quantidade de vendas: ${summary.totalEntries || 0}${costInfo}${goalInfo}
+- Receita: R$ ${Math.round(summary.totalRevenue || 0)}
+- Custos: R$ ${Math.round(summary.totalRealCost || 0)}
+- Lucro: R$ ${Math.round(summary.profit || 0)}
+- Margem: ${Math.round(summary.margin || 0)}%
+- Quantidade de vendas: ${summary.totalEntries || 0}
+- Dias de funcionamento/semana: ${opDays}${costInfo}${goalInfo}
 
 Gere insights ESPECÍFICOS com valores em R$, uma recomendação ACIONÁVEL e uma previsão baseada na tendência.`;
 
