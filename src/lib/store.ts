@@ -965,6 +965,27 @@ export function addCostMapItem(name: string, classification: CostClassification,
   state = { ...state, costMap: [...state.costMap, item] };
   syncCostMapToCosts();
   notify();
+  return item;
+}
+
+export function registerCost(
+  amount: number,
+  type: 'product' | 'business',
+  spreadDays: number,
+  description?: string,
+  category?: string,
+  _subcategory?: string,
+  classification?: CostClassification,
+) {
+  const inferredClassification = classification || (type === 'business' ? 'fixed' : 'variable');
+  const itemName = description?.trim() || category?.trim() || (type === 'product' ? 'Custo variável' : 'Custo fixo');
+  const item = addCostMapItem(itemName, inferredClassification, amount);
+
+  if (inferredClassification === 'variable' && spreadDays !== 7) {
+    updateCostMapItem(item.id, { spreadDays });
+  }
+
+  return item;
 }
 
 /** Get the monthly equivalent of a cost map item */
