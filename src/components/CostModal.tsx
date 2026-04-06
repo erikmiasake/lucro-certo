@@ -11,15 +11,7 @@ interface CostModalProps {
   config: BusinessConfig;
 }
 
-interface AISuggestion {
-  type: 'product' | 'business';
-  classification: CostClassification;
-  category: string;
-  subcategory: string;
-}
-
 export default function CostModal({ open, onClose, onSubmit, config }: CostModalProps) {
-  const state = useStore();
   const [step, setStep] = useState<'describe' | 'details'>('describe');
   const [description, setDescription] = useState('');
   const [costType, setCostType] = useState<'product' | 'business'>('product');
@@ -28,12 +20,8 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
   const [subcategory, setSubcategory] = useState('');
   const [value, setValue] = useState('');
   const [spreadDays, setSpreadDays] = useState(5);
-  const [aiSuggestion, setAiSuggestion] = useState<AISuggestion | null>(null);
-  const [aiLoading, setAiLoading] = useState(false);
-  const [suggestionApplied, setSuggestionApplied] = useState(false);
   const descRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef<HTMLInputElement>(null);
-  const debounceTimer = useRef<NodeJS.Timeout | null>(null);
 
   useEffect(() => {
     if (open) {
@@ -45,45 +33,9 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
       setClassification('variable');
       setCategory('');
       setSubcategory('');
-      setAiSuggestion(null);
-      setSuggestionApplied(false);
       setTimeout(() => descRef.current?.focus(), 100);
     }
   }, [open]);
-
-  const fetchSuggestion = useCallback(async (desc: string) => {
-    if (desc.length < 3) return;
-    setAiLoading(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('classify-cost', {
-        body: { description: desc, businessType: state.businessType },
-      });
-      if (!error && data && !data.error) {
-        setAiSuggestion(data);
-      }
-    } catch {
-      // silent fail
-    } finally {
-      setAiLoading(false);
-    }
-  }, [state.businessType]);
-
-  const handleDescriptionChange = (val: string) => {
-    setDescription(val);
-    setSuggestionApplied(false);
-    setAiSuggestion(null);
-    if (debounceTimer.current) clearTimeout(debounceTimer.current);
-    debounceTimer.current = setTimeout(() => fetchSuggestion(val), 800);
-  };
-
-  const applySuggestion = () => {
-    if (!aiSuggestion) return;
-    setCostType(aiSuggestion.type);
-    setClassification(aiSuggestion.classification);
-    setCategory(aiSuggestion.category);
-    setSubcategory(aiSuggestion.subcategory);
-    setSuggestionApplied(true);
-  };
 
   const goToDetails = () => {
     setStep('details');
