@@ -81,15 +81,7 @@ export default function Custos() {
   const variableStatus = getBenchmarkStatus(variablePctOfRevenue, bench.variableRange);
 
   const handleCost = (amount: number, type: 'product' | 'business', spreadDays: number, description?: string, category?: string, subcategory?: string, classification?: CostClassification) => {
-    const inferredClassification = classification || (type === 'business' ? 'fixed' : 'variable');
-    // Add to costMap so it appears in the map view
-    addCostMapItem(description || category || (type === 'product' ? 'Custo variável' : 'Custo fixo'), inferredClassification, amount);
-    // Update spreadDays if not default
-    const costMap = getCostMap();
-    const lastItem = costMap.fixed.concat(costMap.variable).sort((a, b) => b.createdAt - a.createdAt)[0];
-    if (lastItem && inferredClassification === 'variable' && spreadDays !== 7) {
-      updateCostMapItem(lastItem.id, { spreadDays });
-    }
+    registerCost(amount, type, spreadDays, description, category, subcategory, classification);
     setShowCost(false);
     setViewTab('map');
     setFeedback('Custo registrado no mapa');
