@@ -126,7 +126,7 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
             {step === 'describe' ? (
               <>
                 <h2 className="text-lg font-bold text-foreground mb-1">Registrar custo</h2>
-                <p className="text-muted-foreground text-xs mb-5">Descreva o custo e a IA sugere a categoria</p>
+                <p className="text-muted-foreground text-xs mb-5">Descreva o custo e informe a categoria</p>
 
                 {/* Description input */}
                 <div className="mb-4">
@@ -135,68 +135,10 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                     type="text"
                     placeholder="Ex: compra de chocolate, conta de luz, aluguel..."
                     value={description}
-                    onChange={(e) => handleDescriptionChange(e.target.value)}
+                    onChange={(e) => setDescription(e.target.value)}
                     className="w-full px-4 py-3.5 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/40 transition-colors text-sm"
                   />
                 </div>
-
-                {/* AI suggestion */}
-                {aiLoading && (
-                  <div className="flex items-center gap-2 p-3 rounded-xl bg-primary/5 border border-primary/10 mb-4">
-                    <Loader2 className="h-4 w-4 text-primary animate-spin" />
-                    <span className="text-xs text-muted-foreground">Classificando...</span>
-                  </div>
-                )}
-
-                {aiSuggestion && !suggestionApplied && (
-                  <motion.button
-                    initial={{ opacity: 0, y: 4 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    onClick={applySuggestion}
-                    className="w-full p-3.5 rounded-xl bg-primary/10 border border-primary/20 text-left mb-4 active:scale-[0.98] transition-all hover:bg-primary/15"
-                  >
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <Sparkles className="h-3.5 w-3.5 text-primary" />
-                      <span className="text-xs font-semibold text-primary">Sugestão da IA</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-secondary text-foreground font-medium">
-                        {aiSuggestion.classification === 'fixed' ? 'Fixo' : 'Variável'}
-                      </span>
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-secondary text-foreground font-medium">
-                        {aiSuggestion.type === 'product' ? 'Produto' : 'Negócio'}
-                      </span>
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-accent/10 text-accent font-medium">
-                        {aiSuggestion.category}
-                      </span>
-                      {aiSuggestion.subcategory && (
-                        <span className="text-[11px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 font-medium">
-                          {aiSuggestion.subcategory}
-                        </span>
-                      )}
-                    </div>
-                    <p className="text-[10px] text-muted-foreground mt-1.5">Toque para aplicar</p>
-                  </motion.button>
-                )}
-
-                {suggestionApplied && (
-                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="p-3 rounded-xl bg-primary/5 border border-primary/10 mb-4">
-                    <div className="flex items-center gap-2 mb-1.5">
-                      <Sparkles className="h-3.5 w-3.5 text-primary" />
-                      <span className="text-xs font-semibold text-primary">Classificação aplicada ✓</span>
-                    </div>
-                    <div className="flex flex-wrap gap-1.5">
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-secondary text-foreground font-medium">
-                        {classification === 'fixed' ? 'Fixo' : 'Variável'}
-                      </span>
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-secondary text-foreground font-medium">
-                        {costType === 'product' ? 'Produto' : 'Negócio'}
-                      </span>
-                      <span className="text-[11px] px-2 py-0.5 rounded-full bg-accent/10 text-accent font-medium">{category}</span>
-                      {subcategory && <span className="text-[11px] px-2 py-0.5 rounded-full bg-purple-500/10 text-purple-400 font-medium">{subcategory}</span>}
-                    </div>
-                  </motion.div>
-                )}
 
                 {/* Manual type selection */}
                 <div className="mb-4">
@@ -225,25 +167,17 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                   </div>
                 </div>
 
-                {/* Category quick select */}
-                {!suggestionApplied && (
-                  <div className="mb-4">
-                    <p className="text-xs font-medium text-muted-foreground mb-2">Categoria</p>
-                    <div className="flex flex-wrap gap-1.5">
-                      {(costType === 'product' ? config.costCategories.product : config.costCategories.business).map(cat => (
-                        <button
-                          key={cat}
-                          onClick={() => setCategory(cat)}
-                          className={`text-[11px] px-2.5 py-1.5 rounded-lg transition-all ${
-                            category === cat ? 'bg-primary/15 text-primary font-medium' : 'bg-secondary text-muted-foreground hover:text-foreground'
-                          }`}
-                        >
-                          {cat}
-                        </button>
-                      ))}
-                    </div>
-                  </div>
-                )}
+                {/* Category text input */}
+                <div className="mb-4">
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Categoria</p>
+                  <input
+                    type="text"
+                    placeholder="Ex: Energia, Aluguel, Ingredientes..."
+                    value={category}
+                    onChange={(e) => setCategory(e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/40 transition-colors text-sm"
+                  />
+                </div>
 
                 <button
                   onClick={goToDetails}
