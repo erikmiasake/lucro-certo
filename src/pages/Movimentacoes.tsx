@@ -8,8 +8,7 @@ import {
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
 import {
-  getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, getDayRevenueSource,
-  addCostMapItem, updateCostMapItem, getCostMap,
+  getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, getDayRevenueSource, registerCost,
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
   getWeekDailyData, getSmartInsights, getPreviousWeekSummary,
   isOperatingDay, type EntrySource, type CostClassification

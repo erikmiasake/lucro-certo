@@ -5,7 +5,7 @@ import { businessConfigs } from '@/lib/business-config';
 import {
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
   addEntry, getSmartInsights, getWeekDailyData, getPreviousDaySummary,
-  addCostMapItem, updateCostMapItem, getCostMap, CostClassification,
+  registerCost, CostClassification,
 } from '@/lib/store';
 import EntryModal from '@/components/EntryModal';
 import CostModal from '@/components/CostModal';
