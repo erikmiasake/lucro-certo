@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
-import { getDaySummary, getDateString, getInsight, addEntry, addCost, getDayRevenueSource } from '@/lib/store';
+import { getDaySummary, getDateString, getInsight, addEntry, addCostMapItem, updateCostMapItem, getCostMap, getDayRevenueSource, CostClassification } from '@/lib/store';
 import EntryModal from './EntryModal';
 import CostModal from './CostModal';
 import FeedbackToast from './FeedbackToast';
@@ -31,8 +31,14 @@ export default function Dashboard() {
     setTimeout(() => setFeedback(null), 3000);
   };
 
-  const handleCost = (amount: number, type: 'product' | 'business', spreadDays: number) => {
-    addCost(amount, type, spreadDays);
+  const handleCost = (amount: number, type: 'product' | 'business', spreadDays: number, description?: string, category?: string, subcategory?: string, classification?: CostClassification) => {
+    const inferredClassification = classification || (type === 'business' ? 'fixed' : 'variable');
+    addCostMapItem(description || category || (type === 'product' ? 'Custo variável' : 'Custo fixo'), inferredClassification, amount);
+    const costMap = getCostMap();
+    const lastItem = costMap.fixed.concat(costMap.variable).sort((a, b) => b.createdAt - a.createdAt)[0];
+    if (lastItem && inferredClassification === 'variable' && spreadDays !== 7) {
+      updateCostMapItem(lastItem.id, { spreadDays });
+    }
     setShowCost(false);
     const updated = getDaySummary(today);
     setFeedback(`Lucro atual: ${formatCurrency(updated.profit)}`);

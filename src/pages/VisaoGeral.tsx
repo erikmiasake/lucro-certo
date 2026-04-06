@@ -4,7 +4,8 @@ import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
 import {
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
-  addEntry, addCost, getSmartInsights, getWeekDailyData, getPreviousDaySummary,
+  addEntry, getSmartInsights, getWeekDailyData, getPreviousDaySummary,
+  addCostMapItem, updateCostMapItem, getCostMap, CostClassification,
 } from '@/lib/store';
 import EntryModal from '@/components/EntryModal';
 import CostModal from '@/components/CostModal';
@@ -57,8 +58,14 @@ export default function VisaoGeral() {
     setTimeout(() => setFeedback(null), 3000);
   };
 
-  const handleCost = (amount: number, type: 'product' | 'business', spreadDays: number) => {
-    addCost(amount, type, spreadDays);
+  const handleCost = (amount: number, type: 'product' | 'business', spreadDays: number, description?: string, category?: string, subcategory?: string, classification?: CostClassification) => {
+    const inferredClassification = classification || (type === 'business' ? 'fixed' : 'variable');
+    addCostMapItem(description || category || (type === 'product' ? 'Custo variável' : 'Custo fixo'), inferredClassification, amount);
+    const costMap = getCostMap();
+    const lastItem = costMap.fixed.concat(costMap.variable).sort((a, b) => b.createdAt - a.createdAt)[0];
+    if (lastItem && inferredClassification === 'variable' && spreadDays !== 7) {
+      updateCostMapItem(lastItem.id, { spreadDays });
+    }
     setShowCost(false);
     const updated = getDaySummary(today);
     setFeedback(`Lucro atual: ${formatCurrency(updated.profit)}`);
