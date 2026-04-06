@@ -4,7 +4,8 @@ import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
 import {
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
-  addEntry, addCost, getSmartInsights, getWeekDailyData, getPreviousDaySummary,
+  addEntry, getSmartInsights, getWeekDailyData, getPreviousDaySummary,
+  addCostMapItem, updateCostMapItem, getCostMap, CostClassification,
 } from '@/lib/store';
 import EntryModal from '@/components/EntryModal';
 import CostModal from '@/components/CostModal';
