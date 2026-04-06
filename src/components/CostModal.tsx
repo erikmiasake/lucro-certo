@@ -1,10 +1,8 @@
-import { useState, useRef, useEffect, useCallback } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BusinessConfig } from '@/lib/business-config';
 import { CostClassification } from '@/lib/store';
-import { Package, Building2, Sparkles, Loader2, Tag, ChevronLeft } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
-import { useStore } from '@/hooks/use-store';
+import { Package, Building2, ChevronLeft } from 'lucide-react';
 
 interface CostModalProps {
   open: boolean;
