@@ -241,65 +241,6 @@ export default function Custos() {
         ) : viewTab === 'overview' ? (
           <motion.div key="overview" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-3">
 
-            {/* Donut Chart + Benchmark */}
-            {breakdown.total > 0 && (
-              <div className="rounded-xl p-4 card-elevated">
-                <div className="flex items-center gap-2 mb-3">
-                  <Scale className="h-3.5 w-3.5 text-muted-foreground" />
-                  <p className="text-xs font-semibold text-foreground">Benchmark do setor</p>
-                </div>
-
-                {/* Benchmark bar */}
-                {week.totalRevenue > 0 && (
-                  <div className="mb-4">
-                    <div className="relative h-2.5 rounded-full bg-secondary overflow-hidden">
-                      <motion.div
-                        initial={{ width: 0 }}
-                        animate={{ width: `${Math.min(costPctOfRevenue, 100)}%` }}
-                        transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
-                        className={`h-full rounded-full ${totalStatus === 'good' ? 'bg-primary' : totalStatus === 'warning' ? 'bg-yellow-500' : 'bg-destructive'}`}
-                      />
-                      <div className="absolute top-0 bottom-0 border-l-2 border-dashed border-muted-foreground/25" style={{ left: `${bench.totalRange[0]}%` }} />
-                      <div className="absolute top-0 bottom-0 border-l-2 border-dashed border-muted-foreground/25" style={{ left: `${bench.totalRange[1]}%` }} />
-                    </div>
-                    <div className="flex items-center justify-between mt-1.5">
-                      <span className="text-[9px] text-muted-foreground/50">0%</span>
-                      <span className={`text-[10px] font-semibold ${statusColors[totalStatus]}`}>
-                        {costPctOfRevenue.toFixed(0)}% — {totalStatus === 'good' ? 'Saudável' : totalStatus === 'warning' ? 'Atenção' : 'Crítico'}
-                      </span>
-                      <span className="text-[9px] text-muted-foreground/50">100%</span>
-                    </div>
-                    <p className="text-[9px] text-muted-foreground/60 text-center mt-0.5">
-                      Faixa ideal: {bench.totalRange[0]}–{bench.totalRange[1]}%
-                    </p>
-                  </div>
-                )}
-
-                {/* Fixed vs Variable comparison */}
-                <div className="grid grid-cols-2 gap-2">
-                  <div className="p-2.5 rounded-lg bg-secondary/30">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] text-muted-foreground font-medium">Fixos</span>
-                      <span className={`text-[10px] font-semibold ${statusColors[fixedStatus]}`}>{fixedPctOfRevenue.toFixed(0)}%</span>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
-                      <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(fixedPctOfRevenue, 100)}%` }} transition={{ delay: 0.3, duration: 0.6 }} className="h-full rounded-full bg-purple-500" />
-                    </div>
-                    <p className="text-[9px] text-muted-foreground/50 mt-1">Ideal: {bench.fixedRange[0]}–{bench.fixedRange[1]}%</p>
-                  </div>
-                  <div className="p-2.5 rounded-lg bg-secondary/30">
-                    <div className="flex items-center justify-between mb-1">
-                      <span className="text-[10px] text-muted-foreground font-medium">Variáveis</span>
-                      <span className={`text-[10px] font-semibold ${statusColors[variableStatus]}`}>{variablePctOfRevenue.toFixed(0)}%</span>
-                    </div>
-                    <div className="h-1.5 rounded-full bg-secondary overflow-hidden">
-                      <motion.div initial={{ width: 0 }} animate={{ width: `${Math.min(variablePctOfRevenue, 100)}%` }} transition={{ delay: 0.35, duration: 0.6 }} className="h-full rounded-full gradient-accent" />
-                    </div>
-                    <p className="text-[9px] text-muted-foreground/50 mt-1">Ideal: {bench.variableRange[0]}–{bench.variableRange[1]}%</p>
-                  </div>
-                </div>
-              </div>
-            )}
 
             {/* Distribution Chart */}
             {pieData.length > 0 && (
