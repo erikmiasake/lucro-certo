@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs, BusinessType } from '@/lib/business-config';
-import { getRecentCosts, addCost, deleteCost, getCostBreakdown, getWeekSummary, getMonthSummary, CostClassification } from '@/lib/store';
+import { getRecentCosts, addCost, deleteCost, getCostBreakdown, getWeekSummary, getMonthSummary, CostClassification, addCostMapItem, updateCostMapItem, getCostMap } from '@/lib/store';
 import {
   Trash2, Plus, Package, Building2, AlertTriangle, PieChart, TrendingDown,
   BarChart3, Layers, Target, Brain, ArrowDownRight, Lightbulb, Scale, ChevronRight, Map
