@@ -2,7 +2,7 @@ import { useState, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs, BusinessType } from '@/lib/business-config';
-import { getRecentCosts, addCost, deleteCost, getCostBreakdown, getWeekSummary, getMonthSummary, CostClassification } from '@/lib/store';
+import { getRecentCosts, addCost, deleteCost, getCostBreakdown, getWeekSummary, getMonthSummary, CostClassification, addCostMapItem, updateCostMapItem, getCostMap } from '@/lib/store';
 import {
   Trash2, Plus, Package, Building2, AlertTriangle, PieChart, TrendingDown,
   BarChart3, Layers, Target, Brain, ArrowDownRight, Lightbulb, Scale, ChevronRight, Map
@@ -80,9 +80,18 @@ export default function Custos() {
   const variableStatus = getBenchmarkStatus(variablePctOfRevenue, bench.variableRange);
 
   const handleCost = (amount: number, type: 'product' | 'business', spreadDays: number, description?: string, category?: string, subcategory?: string, classification?: CostClassification) => {
-    addCost(amount, type, spreadDays, description, category, subcategory, classification);
+    const inferredClassification = classification || (type === 'business' ? 'fixed' : 'variable');
+    // Add to costMap so it appears in the map view
+    addCostMapItem(description || category || (type === 'product' ? 'Custo variável' : 'Custo fixo'), inferredClassification, amount);
+    // Update spreadDays if not default
+    const costMap = getCostMap();
+    const lastItem = costMap.fixed.concat(costMap.variable).sort((a, b) => b.createdAt - a.createdAt)[0];
+    if (lastItem && inferredClassification === 'variable' && spreadDays !== 7) {
+      updateCostMapItem(lastItem.id, { spreadDays });
+    }
     setShowCost(false);
-    setFeedback('Custo registrado com sucesso');
+    setViewTab('map');
+    setFeedback('Custo registrado no mapa');
     setTimeout(() => setFeedback(null), 2500);
   };
 
