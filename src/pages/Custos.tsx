@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs, BusinessType } from '@/lib/business-config';
@@ -60,10 +60,11 @@ const CHART_COLORS = [
 export default function Custos() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
-  const costs = getRecentCosts();
-  const breakdown = getCostBreakdown();
-  const week = getWeekSummary();
-  const month = getMonthSummary();
+  // Derive from state to ensure reactivity on every store change
+  const costs = useMemo(() => getRecentCosts(), [state]);
+  const breakdown = useMemo(() => getCostBreakdown(), [state]);
+  const week = useMemo(() => getWeekSummary(), [state]);
+  const month = useMemo(() => getMonthSummary(), [state]);
   const [showCost, setShowCost] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [viewTab, setViewTab] = useState<'map' | 'overview' | 'list'>('map');
