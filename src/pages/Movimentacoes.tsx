@@ -10,7 +10,7 @@ import { businessConfigs } from '@/lib/business-config';
 import {
   getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, getDayRevenueSource, registerCost,
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
-  getWeekDailyData, getSmartInsights, getPreviousWeekSummary,
+  getWeekDailyData, getSmartInsights, getPreviousWeekSummary, getCostAnalysisAmount,
   isOperatingDay, type EntrySource, type CostClassification
 } from '@/lib/store';
 import CostModal from '@/components/CostModal';
