@@ -135,7 +135,7 @@ export default function Custos() {
           className="p-3 rounded-xl card-elevated"
         >
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Total</p>
-          <p className="text-sm font-bold text-foreground">{fmtShort(breakdown.total)}</p>
+          <p className="text-sm font-bold text-foreground">{fmt(breakdown.total)}</p>
           {week.totalRevenue > 0 && (
             <p className={`text-[10px] font-medium mt-0.5 ${statusColors[totalStatus]}`}>
               {costPctOfRevenue.toFixed(0)}% da receita
@@ -152,7 +152,7 @@ export default function Custos() {
             <Building2 className="h-2.5 w-2.5 text-purple-400" />
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Fixos</p>
           </div>
-          <p className="text-sm font-bold text-foreground">{fmtShort(breakdown.totalFixed)}</p>
+          <p className="text-sm font-bold text-foreground">{fmt(breakdown.totalFixed)}</p>
           <p className="text-[10px] text-purple-400 font-medium mt-0.5">{breakdown.fixedPercentage.toFixed(0)}%</p>
         </motion.div>
         <motion.div
@@ -165,7 +165,7 @@ export default function Custos() {
             <Package className="h-2.5 w-2.5 text-accent" />
             <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Variáveis</p>
           </div>
-          <p className="text-sm font-bold text-foreground">{fmtShort(breakdown.totalVariable)}</p>
+          <p className="text-sm font-bold text-foreground">{fmt(breakdown.totalVariable)}</p>
           <p className="text-[10px] text-accent font-medium mt-0.5">{breakdown.variablePercentage.toFixed(0)}%</p>
         </motion.div>
       </div>
