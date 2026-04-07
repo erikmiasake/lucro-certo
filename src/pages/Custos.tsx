@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs, BusinessType } from '@/lib/business-config';
-import { getRecentCosts, deleteCost, getCostBreakdown, getWeekSummary, getMonthSummary, CostClassification, registerCost } from '@/lib/store';
+import { getRecentCosts, deleteCost, getCostBreakdown, getWeekSummary, getMonthSummary, getCostAnalysisAmount, CostClassification, registerCost } from '@/lib/store';
 import {
   Trash2, Plus, Package, Building2, AlertTriangle, PieChart, TrendingDown,
   BarChart3, Layers, Target, Brain, ArrowDownRight, Lightbulb, Scale, ChevronRight, Map
@@ -448,12 +448,12 @@ export default function Custos() {
                       </div>
                       <div className="min-w-0">
                         <div className="flex items-center gap-1.5">
-                          <p className="font-semibold text-foreground text-xs">{fmt(c.amount)}</p>
+                          <p className="font-semibold text-foreground text-xs">{fmt(getCostAnalysisAmount(c))}</p>
                           {breakdown.total > 0 && (
                             <span className={`text-[9px] font-medium px-1 py-0.5 rounded ${
-                              (c.amount / breakdown.total) * 100 > 30 ? 'bg-destructive/10 text-destructive' : 'bg-secondary text-muted-foreground'
+                              (getCostAnalysisAmount(c) / breakdown.total) * 100 > 30 ? 'bg-destructive/10 text-destructive' : 'bg-secondary text-muted-foreground'
                             }`}>
-                              {((c.amount / breakdown.total) * 100).toFixed(0)}%
+                              {((getCostAnalysisAmount(c) / breakdown.total) * 100).toFixed(0)}%
                             </span>
                           )}
                         </div>

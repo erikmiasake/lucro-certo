@@ -307,6 +307,15 @@ function getTotalOperatingDaysInMonth(): number {
 // ─── Cost Impact ───────────────────────────────────────────────────
 
 function getCostImpactOnDate(cost: Cost, targetDate: string): number {
+  if (isDerivedCost(cost)) {
+    if (cost.classification === 'fixed') {
+      return cost.amount / 30;
+    }
+
+    const spreadDays = Math.max(cost.spreadDays || 1, 1);
+    return cost.amount / spreadDays;
+  }
+
   const costDate = new Date(cost.date + 'T00:00:00');
   const target = new Date(targetDate + 'T00:00:00');
   const diffDays = Math.floor((target.getTime() - costDate.getTime()) / (1000 * 60 * 60 * 24));
@@ -328,7 +337,12 @@ function getMonthlyViewCostAmount(cost: Cost): number {
     const spreadDays = Math.max(cost.spreadDays || 1, 1);
     return (cost.amount / spreadDays) * 30;
   }
-  return cost.amount;
+
+  return getCostImpactInRange(cost, getDateRange(30));
+}
+
+export function getCostAnalysisAmount(cost: Cost): number {
+  return getMonthlyViewCostAmount(cost);
 }
 
 export function getDaySummary(date: string = getDateString()) {
@@ -357,47 +371,32 @@ function getDateRange(days: number): string[] {
   return dates;
 }
 
-export function getWeekSummary() {
-  const dates = getDateRange(7);
+function getPeriodSummary(days: number) {
+  const dates = getDateRange(days);
   let totalRevenue = 0;
   let totalRealCost = 0;
   let totalEntries = 0;
+
   for (const date of dates) {
-    const s = getDaySummary(date);
-    totalRevenue += s.totalRevenue;
-    totalRealCost += s.totalRealCost;
-    totalEntries += s.entryCount;
+    const summary = getDaySummary(date);
+    totalRevenue += summary.totalRevenue;
+    totalRealCost += summary.totalRealCost;
+    totalEntries += summary.entryCount;
   }
+
   const profit = totalRevenue - totalRealCost;
   const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
   const ticketMedio = totalEntries > 0 ? totalRevenue / totalEntries : 0;
+
   return { totalRevenue, totalRealCost, profit, margin, ticketMedio, totalEntries };
 }
 
+export function getWeekSummary() {
+  return getPeriodSummary(7);
+}
+
 export function getMonthSummary() {
-  const dates = getDateRange(30);
-  let totalRevenue = 0;
-  let totalEntries = 0;
-
-  for (const date of dates) {
-    const dayEntries = state.entries.filter((e) => e.date === date);
-    totalRevenue += dayEntries.reduce((sum, entry) => sum + entry.amount, 0);
-    totalEntries += dayEntries.length;
-  }
-
-  const structuralMonthlyCost = state.costs
-    .filter(isDerivedCost)
-    .reduce((sum, cost) => sum + getMonthlyViewCostAmount(cost), 0);
-
-  const manualPeriodCost = state.costs
-    .filter((cost) => !isDerivedCost(cost))
-    .reduce((sum, cost) => sum + getCostImpactInRange(cost, dates), 0);
-
-  const totalRealCost = structuralMonthlyCost + manualPeriodCost;
-  const profit = totalRevenue - totalRealCost;
-  const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
-  const ticketMedio = totalEntries > 0 ? totalRevenue / totalEntries : 0;
-  return { totalRevenue, totalRealCost, profit, margin, ticketMedio, totalEntries };
+  return getPeriodSummary(30);
 }
 
 export function getPreviousDaySummary() {
