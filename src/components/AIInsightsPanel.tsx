@@ -2,7 +2,11 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, RefreshCw, Lightbulb, Target, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { getCostBreakdown, getGoalsProgress, getRevenueStats } from '@/lib/store';
+import {
+  getCostBreakdown, getGoalsProgress, getRevenueStats,
+  getBestAndWorstDay, getMarginTrend, getMonthlyProjection,
+  getWeekDailyData, getMonthSummary,
+} from '@/lib/store';
 import { useStore } from '@/hooks/use-store';
 
 interface AIInsightsData {
@@ -37,6 +41,16 @@ export default function AIInsightsPanel({ summary, businessType, period = 'seman
       const breakdown = getCostBreakdown();
       const goalsProgress = getGoalsProgress();
       const revenueStats = getRevenueStats();
+      const bestWorst = getBestAndWorstDay();
+      const marginTrend = getMarginTrend();
+      const projection = getMonthlyProjection();
+      const weekData = getWeekDailyData();
+      const month = getMonthSummary();
+
+      // Weekly evolution: compute daily profit trend
+      const weeklyEvolution = weekData
+        .filter(d => d.revenue > 0 || d.cost > 0)
+        .map(d => ({ day: d.label, revenue: Math.round(d.revenue), cost: Math.round(d.cost), profit: Math.round(d.profit) }));
 
       const { data: result, error: fnError } = await supabase.functions.invoke('ai-insights', {
         body: {
@@ -48,10 +62,13 @@ export default function AIInsightsPanel({ summary, businessType, period = 'seman
             topPercentage: breakdown.topCost?.percentage || 0,
             totalFixed: breakdown.totalFixed,
             totalVariable: breakdown.totalVariable,
+            categories: breakdown.categories.slice(0, 5).map(c => ({ name: c.name, amount: Math.round(c.amount), pct: Math.round(c.percentage) })),
           },
           goals: store.goals.monthlyProfit ? {
             monthlyProfit: store.goals.monthlyProfit,
             progress: goalsProgress.profit.progress,
+            onTrack: goalsProgress.profit.onTrack,
+            daysRemaining: goalsProgress.daysRemaining,
           } : null,
           operatingContext: {
             operatingWeekdays: store.businessProfile.operatingWeekdays,
@@ -59,6 +76,20 @@ export default function AIInsightsPanel({ summary, businessType, period = 'seman
             realDataPercentage: revenueStats.realDataPercentage,
             manualRevenueDays: revenueStats.manualDays,
             estimatedRevenueDays: revenueStats.estimatedDays,
+          },
+          performanceContext: {
+            bestDay: bestWorst ? { date: bestWorst.best.date, profit: Math.round(bestWorst.best.profit) } : null,
+            worstDay: bestWorst ? { date: bestWorst.worst.date, profit: Math.round(bestWorst.worst.profit) } : null,
+            marginTrend: marginTrend.direction,
+            monthlyProjection: projection.revenue > 0 ? {
+              revenue: Math.round(projection.revenue),
+              cost: Math.round(projection.cost),
+              profit: Math.round(projection.profit),
+              margin: Math.round(projection.margin),
+            } : null,
+            weeklyEvolution,
+            monthProfit: Math.round(month.profit),
+            monthRevenue: Math.round(month.totalRevenue),
           },
         },
       });
