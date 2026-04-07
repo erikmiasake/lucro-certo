@@ -751,7 +751,8 @@ export function getMonthlyProjection(): { revenue: number; cost: number; profit:
 
   const factor = totalOpDays / opDaysSoFar;
   const revenue = month.totalRevenue * factor;
-  const cost = month.totalRealCost;
+  // Project costs proportionally — structural costs already spread evenly, so scaling works
+  const cost = month.totalRealCost * factor;
   const profit = revenue - cost;
   const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
   return { revenue, cost, profit, margin };

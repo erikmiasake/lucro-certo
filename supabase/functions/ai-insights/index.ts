@@ -9,13 +9,21 @@ serve(async (req) => {
   if (req.method === "OPTIONS") return new Response(null, { headers: corsHeaders });
 
   try {
-    const { summary, businessType, period, costBreakdown, goals, operatingContext } = await req.json();
+    const { summary, businessType, period, costBreakdown, goals, operatingContext, performanceContext } = await req.json();
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
     const opDays = operatingContext?.operatingDaysPerWeek ?? 6;
     const realPct = operatingContext?.realDataPercentage ?? 100;
     const estimatedDays = operatingContext?.estimatedRevenueDays ?? 0;
+
+    // Performance context
+    const perf = performanceContext || {};
+    const bestDay = perf.bestDay;
+    const worstDay = perf.worstDay;
+    const marginTrend = perf.marginTrend || 'stable';
+    const projection = perf.monthlyProjection;
+    const weeklyEvolution = perf.weeklyEvolution || [];
 
     const systemPrompt = `Você é um copiloto financeiro inteligente para pequenos negócios brasileiros.
 Seu papel é ANTECIPAR problemas, ALERTAR riscos e RECOMENDAR ações específicas com impacto em R$.
@@ -28,23 +36,40 @@ REGRAS:
 - Se há meta, relate o progresso
 - Identifique o PRINCIPAL problema e o PRINCIPAL ponto forte
 - Máximo 3 insights, 1 recomendação, 1 previsão. Cada um com no máximo 2 frases.
+- Se os dados forem insuficientes (poucos dias com dados reais), diga isso claramente em vez de inventar conclusões.
 
 CONTEXTO OPERACIONAL:
 - O negócio opera ${opDays} dias por semana. Ajuste projeções para dias operacionais, não dias corridos.
 - ${realPct.toFixed(0)}% dos dados de receita são reais (informados pelo usuário). ${estimatedDays > 0 ? `${estimatedDays} dias usam estimativas — considere isso na confiança da análise.` : 'Todos os dados são reais.'}
 - Valores de custo no breakdown já estão normalizados para impacto mensal.
+- Tendência da margem: ${marginTrend === 'up' ? 'subindo' : marginTrend === 'down' ? 'caindo' : 'estável'}.
 
 Retorne usando a tool "generate_insights".`;
 
     const costInfo = costBreakdown
       ? `\n- Top custo mensal: ${costBreakdown.topCost || 'N/A'} (${costBreakdown.topPercentage || 0}% do total)
-- Fixos/mês: R$ ${Math.round(costBreakdown.totalFixed || 0)} | Variáveis/mês: R$ ${Math.round(costBreakdown.totalVariable || 0)}`
+- Fixos/mês: R$ ${Math.round(costBreakdown.totalFixed || 0)} | Variáveis/mês: R$ ${Math.round(costBreakdown.totalVariable || 0)}${
+  costBreakdown.categories?.length > 0 
+    ? '\n- Categorias: ' + costBreakdown.categories.map((c: any) => `${c.name} R$${c.amount} (${c.pct}%)`).join(', ')
+    : ''
+}`
       : '';
 
     const goalInfo = goals?.monthlyProfit
       ? `\n- Meta de lucro mensal: R$ ${Math.round(goals.monthlyProfit)}
-- Progresso: ${goals.progress?.toFixed(0) || 0}%`
+- Progresso: ${goals.progress?.toFixed(0) || 0}%${goals.onTrack === false ? ' (ABAIXO do esperado)' : goals.onTrack ? ' (no ritmo)' : ''}
+- Dias restantes no mês: ${goals.daysRemaining || '?'}`
       : '';
+
+    const perfInfo = [
+      bestDay ? `- Melhor dia: ${bestDay.date} com lucro R$ ${bestDay.profit}` : '',
+      worstDay ? `- Pior dia: ${worstDay.date} com lucro R$ ${worstDay.profit}` : '',
+      projection ? `- Projeção mensal: receita R$ ${projection.revenue}, custos R$ ${projection.cost}, lucro R$ ${projection.profit} (margem ${projection.margin}%)` : '',
+      weeklyEvolution.length > 0 
+        ? `- Evolução diária da semana: ${weeklyEvolution.map((d: any) => `${d.day}: R$${d.revenue} receita, R$${d.cost} custo, R$${d.profit} lucro`).join(' | ')}`
+        : '',
+      perf.monthProfit !== undefined ? `- Lucro acumulado do mês: R$ ${perf.monthProfit}` : '',
+    ].filter(Boolean).join('\n');
 
     const userPrompt = `Dados do negócio (${businessType || 'genérico'}) - ${period || 'semana'}:
 - Receita: R$ ${Math.round(summary.totalRevenue || 0)}
@@ -53,6 +78,7 @@ Retorne usando a tool "generate_insights".`;
 - Margem: ${Math.round(summary.margin || 0)}%
 - Quantidade de vendas: ${summary.totalEntries || 0}
 - Dias de funcionamento/semana: ${opDays}${costInfo}${goalInfo}
+${perfInfo ? '\nDESEMPENHO:\n' + perfInfo : ''}
 
 Gere insights ESPECÍFICOS com valores em R$, uma recomendação ACIONÁVEL e uma previsão baseada na tendência.`;
 
