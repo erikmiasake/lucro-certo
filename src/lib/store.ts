@@ -441,14 +441,15 @@ export function getCostBreakdown() {
 
   const productCosts = state.costs.filter(c => c.type === 'product');
   const businessCosts = state.costs.filter(c => c.type === 'business');
-  const fixedCosts = state.costs.filter(c => c.classification === 'fixed' || c.type === 'business');
-  const variableCosts = state.costs.filter(c => c.classification === 'variable' || (!c.classification && c.type === 'product'));
+  // Use classification as primary discriminator; fall back to type only when classification is missing
+  const fixedCosts = state.costs.filter(c => c.classification ? c.classification === 'fixed' : c.type === 'business');
+  const variableCosts = state.costs.filter(c => c.classification ? c.classification === 'variable' : c.type === 'product');
 
   const totalProduct = productCosts.reduce((s, c) => s + monthlyImpact(c), 0);
   const totalBusiness = businessCosts.reduce((s, c) => s + monthlyImpact(c), 0);
   const totalFixed = fixedCosts.reduce((s, c) => s + monthlyImpact(c), 0);
   const totalVariable = variableCosts.reduce((s, c) => s + monthlyImpact(c), 0);
-  const total = totalProduct + totalBusiness;
+  const total = totalFixed + totalVariable;
 
   const categoryMap = new Map<string, { amount: number; items: Cost[] }>();
   state.costs.forEach(c => {
