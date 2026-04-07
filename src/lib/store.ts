@@ -314,6 +314,23 @@ function getCostImpactOnDate(cost: Cost, targetDate: string): number {
   return cost.amount / cost.spreadDays;
 }
 
+function getCostImpactInRange(cost: Cost, dates: string[]): number {
+  return dates.reduce((sum, date) => sum + getCostImpactOnDate(cost, date), 0);
+}
+
+function isDerivedCost(cost: Cost): boolean {
+  return cost.id.startsWith('costmap-');
+}
+
+function getMonthlyViewCostAmount(cost: Cost): number {
+  if (isDerivedCost(cost)) {
+    if (cost.classification === 'fixed') return cost.amount;
+    const spreadDays = Math.max(cost.spreadDays || 1, 1);
+    return (cost.amount / spreadDays) * 30;
+  }
+  return cost.amount;
+}
+
 export function getDaySummary(date: string = getDateString()) {
   const dayEntries = state.entries.filter((e) => e.date === date);
   const totalRevenue = dayEntries.reduce((sum, e) => sum + e.amount, 0);
@@ -360,14 +377,23 @@ export function getWeekSummary() {
 export function getMonthSummary() {
   const dates = getDateRange(30);
   let totalRevenue = 0;
-  let totalRealCost = 0;
   let totalEntries = 0;
+
   for (const date of dates) {
-    const s = getDaySummary(date);
-    totalRevenue += s.totalRevenue;
-    totalRealCost += s.totalRealCost;
-    totalEntries += s.entryCount;
+    const dayEntries = state.entries.filter((e) => e.date === date);
+    totalRevenue += dayEntries.reduce((sum, entry) => sum + entry.amount, 0);
+    totalEntries += dayEntries.length;
   }
+
+  const structuralMonthlyCost = state.costs
+    .filter(isDerivedCost)
+    .reduce((sum, cost) => sum + getMonthlyViewCostAmount(cost), 0);
+
+  const manualPeriodCost = state.costs
+    .filter((cost) => !isDerivedCost(cost))
+    .reduce((sum, cost) => sum + getCostImpactInRange(cost, dates), 0);
+
+  const totalRealCost = structuralMonthlyCost + manualPeriodCost;
   const profit = totalRevenue - totalRealCost;
   const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
   const ticketMedio = totalEntries > 0 ? totalRevenue / totalEntries : 0;
@@ -436,29 +462,23 @@ export function getBestAndWorstDay(days: number = 30) {
 // ─── Cost Breakdown (normalized to monthly impact) ─────────────────
 
 export function getCostBreakdown() {
-  // Normalize all costs to their monthly equivalent for fair comparison
-  function monthlyImpact(c: Cost): number {
-    if (c.spreadDays <= 0) return c.amount;
-    return (c.amount / c.spreadDays) * 30;
-  }
-
   const productCosts = state.costs.filter(c => c.type === 'product');
   const businessCosts = state.costs.filter(c => c.type === 'business');
   // Use classification as primary discriminator; fall back to type only when classification is missing
   const fixedCosts = state.costs.filter(c => c.classification ? c.classification === 'fixed' : c.type === 'business');
   const variableCosts = state.costs.filter(c => c.classification ? c.classification === 'variable' : c.type === 'product');
 
-  const totalProduct = productCosts.reduce((s, c) => s + monthlyImpact(c), 0);
-  const totalBusiness = businessCosts.reduce((s, c) => s + monthlyImpact(c), 0);
-  const totalFixed = fixedCosts.reduce((s, c) => s + monthlyImpact(c), 0);
-  const totalVariable = variableCosts.reduce((s, c) => s + monthlyImpact(c), 0);
+  const totalProduct = productCosts.reduce((s, c) => s + getMonthlyViewCostAmount(c), 0);
+  const totalBusiness = businessCosts.reduce((s, c) => s + getMonthlyViewCostAmount(c), 0);
+  const totalFixed = fixedCosts.reduce((s, c) => s + getMonthlyViewCostAmount(c), 0);
+  const totalVariable = variableCosts.reduce((s, c) => s + getMonthlyViewCostAmount(c), 0);
   const total = totalFixed + totalVariable;
 
   const categoryMap = new Map<string, { amount: number; items: Cost[] }>();
   state.costs.forEach(c => {
     const key = c.category || (c.type === 'product' ? 'Produto' : 'Negócio');
     const existing = categoryMap.get(key) || { amount: 0, items: [] };
-    existing.amount += monthlyImpact(c);
+    existing.amount += getMonthlyViewCostAmount(c);
     existing.items.push(c);
     categoryMap.set(key, existing);
   });
@@ -475,18 +495,18 @@ export function getCostBreakdown() {
   const subcategoryMap = new Map<string, number>();
   state.costs.forEach(c => {
     if (c.subcategory) {
-      subcategoryMap.set(c.subcategory, (subcategoryMap.get(c.subcategory) || 0) + monthlyImpact(c));
+      subcategoryMap.set(c.subcategory, (subcategoryMap.get(c.subcategory) || 0) + getMonthlyViewCostAmount(c));
     }
   });
   const subcategories = Array.from(subcategoryMap.entries())
     .map(([name, amount]) => ({ name, amount, percentage: total > 0 ? (amount / total) * 100 : 0 }))
     .sort((a, b) => b.amount - a.amount);
 
-  const week = getWeekSummary();
+  const month = getMonthSummary();
   const profitImpact = categories.map(cat => ({
     name: cat.name,
     amount: cat.amount,
-    profitImpactPercent: week.totalRevenue > 0 ? (cat.amount / week.totalRevenue) * 100 : 0,
+    profitImpactPercent: month.totalRevenue > 0 ? (cat.amount / month.totalRevenue) * 100 : 0,
   }));
 
   return {
@@ -503,7 +523,7 @@ export function getCostBreakdown() {
     subcategories,
     profitImpact,
     isHighCost: (() => {
-      return week.totalRevenue > 0 && week.totalRealCost > week.totalRevenue * 0.7;
+      return month.totalRevenue > 0 && month.totalRealCost > month.totalRevenue * 0.7;
     })(),
     topCost: categories.length > 0 ? categories[0] : null,
   };
@@ -732,7 +752,7 @@ export function getMonthlyProjection(): { revenue: number; cost: number; profit:
 
   const factor = totalOpDays / opDaysSoFar;
   const revenue = month.totalRevenue * factor;
-  const cost = month.totalRealCost * factor;
+  const cost = month.totalRealCost;
   const profit = revenue - cost;
   const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
   return { revenue, cost, profit, margin };
@@ -777,9 +797,9 @@ export function getSmartInsights(): string[] {
     }
   }
 
-  if (costBreakdown.isHighCost && week.totalRevenue > 0) {
-    const excess = week.totalRealCost - week.totalRevenue * 0.6;
-    insights.push(`Custos altos — reduzir ${formatCurrencySimple(excess)} colocaria margem em 40%`);
+  if (costBreakdown.isHighCost && month.totalRevenue > 0) {
+    const excess = month.totalRealCost - month.totalRevenue * 0.6;
+    insights.push(`Custos mensais altos — reduzir ${formatCurrencySimple(excess)} colocaria margem em 40%`);
   }
 
   if (costBreakdown.categories.length > 0 && costBreakdown.total > 0) {

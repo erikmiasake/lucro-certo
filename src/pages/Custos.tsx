@@ -72,9 +72,9 @@ export default function Custos() {
   const bType = state.businessType || 'outro';
   const bench = benchmarks[bType];
 
-  const costPctOfRevenue = week.totalRevenue > 0 ? (breakdown.total / week.totalRevenue) * 100 : 0;
-  const fixedPctOfRevenue = week.totalRevenue > 0 ? (breakdown.totalFixed / week.totalRevenue) * 100 : 0;
-  const variablePctOfRevenue = week.totalRevenue > 0 ? (breakdown.totalVariable / week.totalRevenue) * 100 : 0;
+  const costPctOfRevenue = month.totalRevenue > 0 ? (breakdown.total / month.totalRevenue) * 100 : 0;
+  const fixedPctOfRevenue = month.totalRevenue > 0 ? (breakdown.totalFixed / month.totalRevenue) * 100 : 0;
+  const variablePctOfRevenue = month.totalRevenue > 0 ? (breakdown.totalVariable / month.totalRevenue) * 100 : 0;
 
   const totalStatus = getBenchmarkStatus(costPctOfRevenue, bench.totalRange);
   const fixedStatus = getBenchmarkStatus(fixedPctOfRevenue, bench.fixedRange);
@@ -136,7 +136,7 @@ export default function Custos() {
         >
           <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Total</p>
           <p className="text-sm font-bold text-foreground">{fmt(breakdown.total)}</p>
-          {week.totalRevenue > 0 && (
+          {month.totalRevenue > 0 && (
             <p className={`text-[10px] font-medium mt-0.5 ${statusColors[totalStatus]}`}>
               {costPctOfRevenue.toFixed(0)}% da receita
             </p>
@@ -310,7 +310,7 @@ export default function Custos() {
                 </div>
                 <div className="space-y-2.5">
                   {breakdown.categories.map((cat, i) => {
-                    const pctOfRevenue = week.totalRevenue > 0 ? (cat.amount / week.totalRevenue) * 100 : 0;
+                    const pctOfRevenue = month.totalRevenue > 0 ? (cat.amount / month.totalRevenue) * 100 : 0;
                     return (
                       <div key={cat.name}>
                         <div className="flex items-center justify-between mb-1">
@@ -336,7 +336,7 @@ export default function Custos() {
                             style={{ background: CHART_COLORS[i % CHART_COLORS.length] }}
                           />
                         </div>
-                        {week.totalRevenue > 0 && (
+                        {month.totalRevenue > 0 && (
                           <p className="text-[9px] text-muted-foreground/50 mt-0.5 ml-5">
                             {Math.round(pctOfRevenue)}% da receita
                           </p>
@@ -349,7 +349,7 @@ export default function Custos() {
             )}
 
             {/* Profit impact */}
-            {breakdown.profitImpact.length > 0 && week.totalRevenue > 0 && (
+            {breakdown.profitImpact.length > 0 && month.totalRevenue > 0 && (
               <div className="rounded-xl p-4 card-elevated">
                 <div className="flex items-center gap-2 mb-3">
                   <Target className="h-3.5 w-3.5 text-destructive/70" />
@@ -410,10 +410,10 @@ export default function Custos() {
             {breakdown.total > 0 && (
               <AIInsightsPanel
                 summary={{
-                  totalRevenue: week.totalRevenue,
-                  totalRealCost: week.totalRealCost,
-                  profit: week.profit,
-                  margin: week.margin,
+                  totalRevenue: month.totalRevenue,
+                  totalRealCost: month.totalRealCost,
+                  profit: month.profit,
+                  margin: month.margin,
                   ticketMedio: 0,
                   totalEntries: week.totalEntries,
                 }}
