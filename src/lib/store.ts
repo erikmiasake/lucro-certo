@@ -307,8 +307,13 @@ function getTotalOperatingDaysInMonth(): number {
 // ─── Cost Impact ───────────────────────────────────────────────────
 
 function getCostImpactOnDate(cost: Cost, targetDate: string): number {
-  if (isDerivedCost(cost) && cost.classification === 'fixed') {
-    return cost.amount / 30;
+  if (isDerivedCost(cost)) {
+    if (cost.classification === 'fixed') {
+      return cost.amount / 30;
+    }
+
+    const spreadDays = Math.max(cost.spreadDays || 1, 1);
+    return cost.amount / spreadDays;
   }
 
   const costDate = new Date(cost.date + 'T00:00:00');
