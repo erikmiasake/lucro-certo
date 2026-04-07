@@ -66,7 +66,13 @@ export async function saveEntryToDB(entry: Entry): Promise<void> {
   if (error) console.error('Error saving entry:', error);
 }
 
+function isDerivedCost(cost: Cost | { id: string }) {
+  return cost.id.startsWith('costmap-');
+}
+
 export async function saveCostToDB(cost: Cost): Promise<void> {
+  if (isDerivedCost(cost)) return;
+
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
@@ -93,6 +99,8 @@ export async function deleteEntryFromDB(id: string): Promise<void> {
 }
 
 export async function deleteCostFromDB(id: string): Promise<void> {
+  if (id.startsWith('costmap-')) return;
+
   const { error } = await supabase.from('costs').delete().eq('id', id);
   if (error) console.error('Error deleting cost:', error);
 }
@@ -101,9 +109,8 @@ export async function saveAllEntriesToDB(entries: Entry[]): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
-  // Delete all existing then insert fresh
   await supabase.from('entries').delete().eq('user_id', user.id);
-  
+
   if (entries.length === 0) return;
 
   const rows = entries.map(e => ({
@@ -125,11 +132,13 @@ export async function saveAllCostsToDB(costs: Cost[]): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
-  await supabase.from('costs').delete().eq('user_id', user.id);
-  
-  if (costs.length === 0) return;
+  const manualCosts = costs.filter(cost => !isDerivedCost(cost));
 
-  const rows = costs.map(c => ({
+  await supabase.from('costs').delete().eq('user_id', user.id);
+
+  if (manualCosts.length === 0) return;
+
+  const rows = manualCosts.map(c => ({
     id: c.id,
     user_id: user.id,
     amount: c.amount,

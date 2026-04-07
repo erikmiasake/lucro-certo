@@ -103,9 +103,11 @@ function scheduleDBSync() {
   _dbSyncTimer = setTimeout(async () => {
     try {
       const { saveAllEntriesToDB, saveAllCostsToDB } = await import('@/lib/financial-sync');
+      const { saveProfileToDB } = await import('@/lib/profile-sync');
       await Promise.all([
         saveAllEntriesToDB(state.entries),
         saveAllCostsToDB(state.costs),
+        saveProfileToDB(state),
       ]);
     } catch (e) {
       console.error('DB sync error:', e);
@@ -132,6 +134,7 @@ export function getState(): AppState {
 
 export function mergeState(partial: Partial<AppState>) {
   state = { ...state, ...partial };
+  syncCostMapToCosts();
   notify();
 }
 
