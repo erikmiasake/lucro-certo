@@ -823,7 +823,7 @@ export default function Movimentacoes() {
                     {c.type === 'product' ? <Package className="h-3.5 w-3.5 text-accent" /> : <Building2 className="h-3.5 w-3.5 text-purple-400" />}
                   </div>
                   <div>
-                    <p className="font-semibold text-xs text-foreground">{fmt(c.amount)}</p>
+                    <p className="font-semibold text-xs text-foreground">{fmt(getCostAnalysisAmount(c))}</p>
                     <p className="text-[10px] text-muted-foreground">
                       {c.description || (c.type === 'product' ? config.productCostLabel : config.businessCostLabel)}
                       {' · '}{formatDateLabel(c.date)}
