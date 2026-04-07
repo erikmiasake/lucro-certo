@@ -5,13 +5,15 @@ import {
   getWeekSummary, getMonthSummary, getDaySummary, getDateString,
   getWeekDailyData, getBestAndWorstDay, getPreviousWeekSummary,
   getMarginTrend, getMonthlyProjection, getCostPerSale, getProfitPerSale,
+  isOperatingDay,
 } from '@/lib/store';
 import ProactiveAlerts from '@/components/ProactiveAlerts';
 import AIInsightsPanel from '@/components/AIInsightsPanel';
 import GoalsProgress from '@/components/GoalsProgress';
 import {
   TrendingUp, TrendingDown, BarChart3, Trophy, AlertTriangle,
-  ArrowUpRight, ArrowDownRight, Percent, Target, Zap, DollarSign,
+  ArrowUpRight, ArrowDownRight, Percent, Target, DollarSign,
+  CalendarOff,
 } from 'lucide-react';
 
 function formatCurrency(value: number) {
@@ -51,6 +53,7 @@ export default function Desempenho() {
   const costPerSale = getCostPerSale();
   const profitPerSale = getProfitPerSale();
 
+  const hasAnyData = weekData.some(d => d.revenue > 0 || d.cost > 0);
   const maxVal = Math.max(...weekData.map(d => Math.max(d.revenue, d.cost)), 1);
   const weekDiff = prevWeek.totalRevenue > 0 ? week.profit - prevWeek.profit : null;
 
@@ -84,7 +87,7 @@ export default function Desempenho() {
               </span>
             )}
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(week.totalRevenue)} vendas</p>
+          <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(week.totalRevenue)} receita · {formatCurrency(week.totalRealCost)} custos</p>
         </motion.div>
 
         <motion.div variants={fadeUp} className="rounded-2xl p-5 card-elevated relative overflow-hidden">
@@ -97,7 +100,7 @@ export default function Desempenho() {
               {formatPercent(month.margin)} margem
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(month.totalRevenue)} vendas</p>
+          <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(month.totalRevenue)} receita · {formatCurrency(month.totalRealCost)} custos</p>
         </motion.div>
       </motion.div>
 
@@ -175,7 +178,7 @@ export default function Desempenho() {
         <GoalsProgress />
       </div>
 
-      {/* Bar chart */}
+      {/* Bar chart — Revenue vs Cost 7 days */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl p-5 md:p-6 card-elevated mb-4">
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
@@ -193,34 +196,56 @@ export default function Desempenho() {
             </div>
           </div>
         </div>
-        <div className="flex items-end gap-2 h-40">
-          {weekData.map((d, i) => {
-            const revH = Math.max((d.revenue / maxVal) * 100, 4);
-            const costH = Math.max((d.cost / maxVal) * 100, 4);
-            const isToday = d.date === todayDate;
-            return (
-              <div key={d.date} className="flex-1 flex flex-col items-center gap-1.5">
-                <div className="flex items-end gap-0.5 w-full h-full">
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: `${revH}%` }}
-                    transition={{ delay: 0.25 + i * 0.05, duration: 0.5 }}
-                    className={`flex-1 rounded-t-md ${isToday ? 'gradient-primary' : 'bg-primary/30'}`}
-                  />
-                  <motion.div
-                    initial={{ height: 0 }}
-                    animate={{ height: `${costH}%` }}
-                    transition={{ delay: 0.3 + i * 0.05, duration: 0.5 }}
-                    className={`flex-1 rounded-t-md ${isToday ? 'gradient-accent' : 'bg-accent/30'}`}
-                  />
+
+        {hasAnyData ? (
+          <div className="flex items-end gap-2 h-40">
+            {weekData.map((d, i) => {
+              const operating = isOperatingDay(d.date);
+              const revH = maxVal > 0 ? Math.max((d.revenue / maxVal) * 100, d.revenue > 0 ? 8 : 0) : 0;
+              const costH = maxVal > 0 ? Math.max((d.cost / maxVal) * 100, d.cost > 0 ? 8 : 0) : 0;
+              const isToday = d.date === todayDate;
+
+              if (!operating && d.revenue === 0 && d.cost === 0) {
+                return (
+                  <div key={d.date} className="flex-1 flex flex-col items-center gap-1.5 justify-end h-full">
+                    <CalendarOff className="h-3.5 w-3.5 text-muted-foreground/40" />
+                    <span className="text-[9px] font-medium text-muted-foreground/50">{d.label}</span>
+                  </div>
+                );
+              }
+
+              return (
+                <div key={d.date} className="flex-1 flex flex-col items-center gap-1.5">
+                  <div className="flex items-end gap-0.5 w-full h-full">
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: `${revH}%` }}
+                      transition={{ delay: 0.25 + i * 0.05, duration: 0.5 }}
+                      className={`flex-1 rounded-t-md ${isToday ? 'gradient-primary' : 'bg-primary/30'}`}
+                      style={{ minHeight: revH > 0 ? '4px' : '0px' }}
+                    />
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: `${costH}%` }}
+                      transition={{ delay: 0.3 + i * 0.05, duration: 0.5 }}
+                      className={`flex-1 rounded-t-md ${isToday ? 'gradient-accent' : 'bg-accent/30'}`}
+                      style={{ minHeight: costH > 0 ? '4px' : '0px' }}
+                    />
+                  </div>
+                  <span className={`text-[9px] font-medium ${isToday ? 'text-foreground' : 'text-muted-foreground'}`}>
+                    {d.label}
+                  </span>
                 </div>
-                <span className={`text-[9px] font-medium ${isToday ? 'text-foreground' : 'text-muted-foreground'}`}>
-                  {d.label}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+              );
+            })}
+          </div>
+        ) : (
+          <div className="flex flex-col items-center justify-center h-40 text-center">
+            <BarChart3 className="h-8 w-8 text-muted-foreground/30 mb-2" />
+            <p className="text-sm text-muted-foreground">Sem dados nos últimos 7 dias</p>
+            <p className="text-xs text-muted-foreground/60 mt-1">Registre receitas e custos para ver o gráfico</p>
+          </div>
+        )}
       </motion.div>
 
       {/* Best & worst */}
@@ -232,7 +257,7 @@ export default function Desempenho() {
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Melhor dia</p>
             </div>
             <p className="text-lg font-bold text-primary">{formatCurrency(bestWorst.best.profit)}</p>
-            <p className="text-xs text-muted-foreground mt-1">{formatDateBR(bestWorst.best.date)}</p>
+            <p className="text-xs text-muted-foreground mt-1">{formatDateBR(bestWorst.best.date)} · {formatCurrency(getDaySummary(bestWorst.best.date).totalRevenue)} receita</p>
           </motion.div>
           <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="rounded-2xl p-4 card-elevated">
             <div className="flex items-center gap-2 mb-2">
@@ -240,12 +265,12 @@ export default function Desempenho() {
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Pior dia</p>
             </div>
             <p className="text-lg font-bold text-destructive">{formatCurrency(bestWorst.worst.profit)}</p>
-            <p className="text-xs text-muted-foreground mt-1">{formatDateBR(bestWorst.worst.date)}</p>
+            <p className="text-xs text-muted-foreground mt-1">{formatDateBR(bestWorst.worst.date)} · {formatCurrency(getDaySummary(bestWorst.worst.date).totalRevenue)} receita</p>
           </motion.div>
         </div>
       )}
 
-      {/* AI Insights */}
+      {/* AI Insights — enriched with more context */}
       <div className="mb-4">
         <AIInsightsPanel
           summary={week}
