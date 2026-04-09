@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { Sparkles, RefreshCw, Lightbulb, Target, TrendingUp } from 'lucide-react';
+import { Sparkles, RefreshCw, DollarSign, ShoppingBag, Calendar, Target, TrendingUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import {
   getCostBreakdown, getGoalsProgress, getRevenueStats,
@@ -9,8 +9,13 @@ import {
 } from '@/lib/store';
 import { useStore } from '@/hooks/use-store';
 
+interface InsightItem {
+  category: 'receita' | 'custos' | 'operacao';
+  text: string;
+}
+
 interface AIInsightsData {
-  insights: string[];
+  insights: InsightItem[];
   recommendation: string;
   prediction: string;
 }
@@ -27,6 +32,12 @@ interface AIInsightsPanelProps {
   businessType: string;
   period?: string;
 }
+
+const categoryConfig: Record<string, { label: string; icon: typeof DollarSign; colorClass: string }> = {
+  receita: { label: 'Receita', icon: DollarSign, colorClass: 'text-primary' },
+  custos: { label: 'Custos', icon: ShoppingBag, colorClass: 'text-accent' },
+  operacao: { label: 'Operação', icon: Calendar, colorClass: 'text-muted-foreground' },
+};
 
 export default function AIInsightsPanel({ summary, businessType, period = 'semana' }: AIInsightsPanelProps) {
   const store = useStore();
@@ -47,7 +58,6 @@ export default function AIInsightsPanel({ summary, businessType, period = 'seman
       const weekData = getWeekDailyData();
       const month = getMonthSummary();
 
-      // Weekly evolution: compute daily profit trend
       const weeklyEvolution = weekData
         .filter(d => d.revenue > 0 || d.cost > 0)
         .map(d => ({ day: d.label, revenue: Math.round(d.revenue), cost: Math.round(d.cost), profit: Math.round(d.profit) }));
@@ -110,10 +120,10 @@ export default function AIInsightsPanel({ summary, businessType, period = 'seman
         initial={{ opacity: 0, y: 8 }}
         animate={{ opacity: 1, y: 0 }}
         className="rounded-2xl p-4 border border-primary/20 relative overflow-hidden cursor-pointer active:scale-[0.98] transition-transform"
-        style={{ background: 'linear-gradient(135deg, hsl(152 76% 52% / 0.06), hsl(228 14% 10%))' }}
+        style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.06), hsl(var(--background)))' }}
         onClick={fetchInsights}
       >
-        <div className="absolute top-0 right-0 w-32 h-32 gradient-primary opacity-[0.05] rounded-full blur-3xl -translate-y-8 translate-x-8" />
+        <div className="absolute top-0 right-0 w-32 h-32 bg-primary/5 rounded-full blur-3xl -translate-y-8 translate-x-8" />
         <div className="flex items-center gap-3">
           <div className="w-10 h-10 rounded-xl bg-primary/10 flex items-center justify-center">
             <Sparkles className="h-5 w-5 text-primary" />
@@ -172,9 +182,9 @@ export default function AIInsightsPanel({ summary, businessType, period = 'seman
           initial={{ opacity: 0, y: 12 }}
           animate={{ opacity: 1, y: 0 }}
           className="rounded-2xl p-5 border border-primary/20 relative overflow-hidden"
-          style={{ background: 'linear-gradient(135deg, hsl(152 76% 52% / 0.06), hsl(228 14% 10%))' }}
+          style={{ background: 'linear-gradient(135deg, hsl(var(--primary) / 0.06), hsl(var(--background)))' }}
         >
-          <div className="absolute top-0 right-0 w-40 h-40 gradient-primary opacity-[0.05] rounded-full blur-3xl -translate-y-10 translate-x-10" />
+          <div className="absolute top-0 right-0 w-40 h-40 bg-primary/5 rounded-full blur-3xl -translate-y-10 translate-x-10" />
           
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-2">
@@ -189,20 +199,31 @@ export default function AIInsightsPanel({ summary, businessType, period = 'seman
             </button>
           </div>
 
-          {/* Insights */}
-          <div className="space-y-2 mb-4">
-            {data.insights.map((insight, i) => (
-              <motion.div
-                key={i}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: i * 0.1 }}
-                className="flex items-start gap-2"
-              >
-                <Lightbulb className="h-3.5 w-3.5 text-accent mt-0.5 shrink-0" />
-                <p className="text-sm text-foreground/90 leading-relaxed">{insight}</p>
-              </motion.div>
-            ))}
+          {/* Categorized Insights */}
+          <div className="space-y-3 mb-4">
+            {data.insights.map((insight, i) => {
+              const config = categoryConfig[insight.category] || categoryConfig.operacao;
+              const Icon = config.icon;
+              return (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, x: -8 }}
+                  animate={{ opacity: 1, x: 0 }}
+                  transition={{ delay: i * 0.1 }}
+                  className="flex items-start gap-2.5"
+                >
+                  <div className={`mt-0.5 shrink-0 ${config.colorClass}`}>
+                    <Icon className="h-3.5 w-3.5" />
+                  </div>
+                  <div>
+                    <p className={`text-[10px] uppercase tracking-wider font-semibold mb-0.5 ${config.colorClass} opacity-70`}>
+                      {config.label}
+                    </p>
+                    <p className="text-sm text-foreground/90 leading-relaxed">{insight.text}</p>
+                  </div>
+                </motion.div>
+              );
+            })}
           </div>
 
           {/* Recommendation */}
