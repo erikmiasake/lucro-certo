@@ -414,7 +414,6 @@ export default function Custos() {
                   totalRealCost: month.totalRealCost,
                   profit: month.profit,
                   margin: month.margin,
-                  ticketMedio: 0,
                   totalEntries: week.totalEntries,
                 }}
                 businessType={state.businessType || 'outro'}
