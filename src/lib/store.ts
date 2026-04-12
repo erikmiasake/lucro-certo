@@ -610,7 +610,7 @@ export function getProactiveAlerts(): ProactiveAlert[] {
         icon: 'alert',
         title: 'Previsão de prejuízo',
         message: `Se continuar assim, você terminará a semana com prejuízo de ${formatCurrencySimple(Math.abs(projected))}.`,
-        actionHint: 'Aumente as vendas ou reduza custos',
+        actionHint: 'Aumente as entradas ou reduza custos',
       });
     } else if (avgDailyProfit > 0 && projected > week.profit) {
       alerts.push({
@@ -661,7 +661,7 @@ export function getProactiveAlerts(): ProactiveAlert[] {
         icon: 'target',
         title: 'Meta em risco',
         message: `Você atingiu ${progress.toFixed(0)}% da meta, mas deveria estar em ${expectedProgress.toFixed(0)}%.`,
-        actionHint: 'Intensifique as vendas',
+        actionHint: 'Intensifique as entradas',
       });
     }
   }
@@ -672,7 +672,7 @@ export function getProactiveAlerts(): ProactiveAlert[] {
       type: 'info',
       icon: 'chart',
       title: `Melhor dia: ${bestDay.day}`,
-      message: `Lucro médio de ${formatCurrencySimple(bestDay.avgProfit)} às ${bestDay.day}s. Foque mais vendas nesse dia.`,
+      message: `Lucro médio de ${formatCurrencySimple(bestDay.avgProfit)} às ${bestDay.day}s. Foque mais receita nesse dia.`,
     });
   }
 
@@ -824,7 +824,7 @@ export function getSmartInsights(): string[] {
   if (today.totalRevenue > 0 && today.margin < 15) {
     const neededRevenue = today.totalRealCost / 0.8;
     const extra = neededRevenue - today.totalRevenue;
-    insights.push(`Margem baixa (${today.margin.toFixed(0)}%) — mais ${formatCurrencySimple(extra)} em vendas hoje daria 20%`);
+    insights.push(`Margem baixa (${today.margin.toFixed(0)}%) — mais ${formatCurrencySimple(extra)} em receita hoje daria 20%`);
   }
 
   if (week.totalEntries > 0) {
@@ -868,7 +868,7 @@ export function getInsight(date: string = getDateString()): string | null {
   if (totalRevenue === 0 && totalRealCost === 0) return null;
   if (profit < 0) return 'Hoje você gastou mais do que ganhou. Fique de olho!';
   if (totalRealCost > totalRevenue * 0.8 && totalRevenue > 0)
-    return 'Seu custo está alto em relação às vendas.';
+    return 'Seu custo está alto em relação à receita.';
   if (profit > 0 && profit < totalRevenue * 0.15 && totalRevenue > 0)
     return 'Você pode estar lucrando pouco. Reveja seus custos.';
   if (profit > 0) return 'Bom trabalho! Continue assim.';
