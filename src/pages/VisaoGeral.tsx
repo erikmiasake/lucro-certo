@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
@@ -15,6 +15,7 @@ import GoalsProgress from '@/components/GoalsProgress';
 import {
   Plus, Minus, TrendingUp, TrendingDown, Zap,
   ArrowUpRight, ArrowDownRight, Percent, Activity,
+  AlertTriangle, Lightbulb, Target,
 } from 'lucide-react';
 import AIInsightsPanel from '@/components/AIInsightsPanel';
 
@@ -34,6 +35,151 @@ const fadeUp = {
   hidden: { opacity: 0, y: 16 },
   visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] } },
 };
+
+function classifyInsight(text: string) {
+  if (text.includes('atingida') || text.includes('melhor') || text.includes('Margem de') || text.includes('Projeção mensal'))
+    return 'positive';
+  if (text.includes('pior') || text.includes('prejuízo') || text.includes('baixa') || text.includes('altos'))
+    return 'warning';
+  if (text.includes('Reduzir') || text.includes('Aumente') || text.includes('Negocie') || text.includes('mais'))
+    return 'action';
+  return 'info';
+}
+
+const insightMeta: Record<string, { icon: typeof Zap; label: string }> = {
+  positive: { icon: TrendingUp, label: 'Resultado' },
+  warning: { icon: AlertTriangle, label: 'Atenção' },
+  action: { icon: Lightbulb, label: 'Ação' },
+  info: { icon: Activity, label: 'Análise' },
+};
+
+// Bento spans — creates visual asymmetry different from the landing page bento
+const bentoSpans = [
+  'col-span-2 row-span-2',   // large featured card
+  'col-span-1 row-span-1',
+  'col-span-1 row-span-1',
+  'col-span-1 row-span-1',
+  'col-span-1 row-span-1',
+];
+
+function InsightBentoGrid({ insights }: { insights: string[] }) {
+  const [visible, setVisible] = useState(false);
+  const ref = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    if (!ref.current) return;
+    const obs = new IntersectionObserver(
+      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
+      { threshold: 0.15 }
+    );
+    obs.observe(ref.current);
+    return () => obs.disconnect();
+  }, []);
+
+  const items = insights.slice(0, 5);
+
+  return (
+    <div ref={ref} className="mt-4">
+      <div className="flex items-center gap-2 mb-3 px-1">
+        <Zap className="h-4 w-4 text-primary" />
+        <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Insights do seu negócio</p>
+        <span className="text-[10px] text-muted-foreground ml-auto">{items.length} disponíveis</span>
+      </div>
+
+      <div className="grid grid-cols-2 auto-rows-[minmax(80px,auto)] gap-2.5">
+        {items.map((insight, i) => {
+          const type = classifyInsight(insight);
+          const meta = insightMeta[type];
+          const Icon = meta.icon;
+          const span = i < bentoSpans.length ? bentoSpans[i] : 'col-span-1';
+          const isLarge = i === 0;
+
+          const colorMap = {
+            positive: {
+              bg: 'bg-primary/[0.04]',
+              border: 'border-primary/15',
+              iconBg: 'bg-primary/10',
+              iconColor: 'text-primary',
+              textColor: 'text-primary/90',
+            },
+            warning: {
+              bg: 'bg-destructive/[0.04]',
+              border: 'border-destructive/15',
+              iconBg: 'bg-destructive/10',
+              iconColor: 'text-destructive',
+              textColor: 'text-destructive/90',
+            },
+            action: {
+              bg: 'bg-accent/[0.06]',
+              border: 'border-accent/20',
+              iconBg: 'bg-accent/10',
+              iconColor: 'text-accent',
+              textColor: 'text-foreground/80',
+            },
+            info: {
+              bg: 'bg-secondary/40',
+              border: 'border-border/40',
+              iconBg: 'bg-secondary',
+              iconColor: 'text-muted-foreground',
+              textColor: 'text-foreground/75',
+            },
+          };
+
+          const c = colorMap[type];
+
+          return (
+            <motion.article
+              key={i}
+              initial={{ opacity: 0, y: 14, scale: 0.97 }}
+              animate={visible ? { opacity: 1, y: 0, scale: 1 } : {}}
+              transition={{ delay: i * 0.09, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+              className={`
+                group relative overflow-hidden rounded-2xl border ${c.bg} ${c.border}
+                p-4 flex flex-col justify-between transition-all duration-300
+                hover:-translate-y-0.5 hover:shadow-md
+                ${span}
+              `}
+            >
+              {/* Subtle gradient overlay */}
+              <div
+                className="absolute inset-0 -z-10 opacity-50 pointer-events-none"
+                style={{
+                  background: type === 'positive'
+                    ? 'radial-gradient(ellipse 80% 120% at 0% 0%, hsl(var(--primary) / 0.08), transparent 70%)'
+                    : type === 'warning'
+                    ? 'radial-gradient(ellipse 80% 120% at 100% 0%, hsl(var(--destructive) / 0.08), transparent 70%)'
+                    : 'none',
+                }}
+              />
+
+              <div className="flex items-start gap-3">
+                <div className={`${isLarge ? 'w-9 h-9' : 'w-7 h-7'} rounded-xl ${c.iconBg} flex items-center justify-center shrink-0`}>
+                  <Icon className={`${isLarge ? 'h-4 w-4' : 'h-3.5 w-3.5'} ${c.iconColor}`} />
+                </div>
+                <div className="flex-1 min-w-0">
+                  <span className={`text-[9px] uppercase tracking-[0.25em] font-medium ${c.iconColor} opacity-70`}>
+                    {meta.label}
+                  </span>
+                  <p className={`${isLarge ? 'text-[13px] mt-1.5 leading-relaxed' : 'text-[11px] mt-1 leading-snug'} font-medium ${c.textColor}`}>
+                    {insight}
+                  </p>
+                </div>
+              </div>
+
+              {/* Bottom accent line for large card */}
+              {isLarge && (
+                <div className="mt-3 flex items-center gap-2">
+                  <div className={`h-px flex-1 ${c.iconBg}`} />
+                  <Target className={`h-3 w-3 ${c.iconColor} opacity-40`} />
+                </div>
+              )}
+            </motion.article>
+          );
+        })}
+      </div>
+    </div>
+  );
+}
 
 export default function VisaoGeral() {
   const state = useStore();
@@ -152,70 +298,8 @@ export default function VisaoGeral() {
         <GoalsProgress />
       </div>
 
-
-      {/* Smart Insights */}
-      <AnimatePresence>
-        {insights.length > 0 && (
-          <motion.div
-            initial={{ opacity: 0, y: 8 }}
-            animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -8 }}
-            transition={{ delay: 0.4 }}
-            className="mt-4 space-y-2"
-          >
-            <div className="flex items-center gap-2 mb-2 px-1">
-              <Zap className="h-4 w-4 text-primary" />
-              <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Insights do seu negócio</p>
-              <span className="text-[10px] text-muted-foreground ml-auto">{insights.length} disponíveis</span>
-            </div>
-            <div className="grid gap-2">
-              {insights.slice(0, 5).map((insight, i) => {
-                // Determine insight type for icon/color
-                const isPositive = insight.includes('atingida') || insight.includes('melhor') || insight.includes('Margem de') || insight.includes('Projeção mensal');
-                const isWarning = insight.includes('pior') || insight.includes('prejuízo') || insight.includes('baixa') || insight.includes('altos');
-                const isAction = insight.includes('Reduzir') || insight.includes('Aumente') || insight.includes('Negocie') || insight.includes('mais');
-
-                return (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, x: -12 }}
-                    animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: 0.45 + i * 0.08 }}
-                    className={`rounded-xl p-3.5 border transition-all ${
-                      isWarning 
-                        ? 'bg-destructive/5 border-destructive/15' 
-                        : isPositive 
-                          ? 'bg-primary/5 border-primary/15' 
-                          : 'bg-secondary/50 border-border/50'
-                    }`}
-                  >
-                    <div className="flex items-start gap-2.5">
-                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
-                        isWarning ? 'bg-destructive/10' : isPositive ? 'bg-primary/10' : 'bg-secondary'
-                      }`}>
-                        {isWarning ? (
-                          <ArrowDownRight className="h-3 w-3 text-destructive" />
-                        ) : isPositive ? (
-                          <TrendingUp className="h-3 w-3 text-primary" />
-                        ) : isAction ? (
-                          <Zap className="h-3 w-3 text-accent" />
-                        ) : (
-                          <Activity className="h-3 w-3 text-muted-foreground" />
-                        )}
-                      </div>
-                      <p className={`text-[12px] leading-relaxed font-medium ${
-                        isWarning ? 'text-destructive/90' : isPositive ? 'text-primary/90' : 'text-foreground/80'
-                      }`}>
-                        {insight}
-                      </p>
-                    </div>
-                  </motion.div>
-                );
-              })}
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      {/* Smart Insights — Bento Grid */}
+      {insights.length > 0 && <InsightBentoGrid insights={insights} />}
 
       {/* AI Insights */}
       <div className="mt-4">
