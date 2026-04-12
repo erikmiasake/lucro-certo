@@ -147,41 +147,6 @@ export default function Desempenho() {
         </motion.div>
       </motion.div>
 
-      {/* Monthly projection */}
-      {projection.revenue > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 12 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.15 }}
-          className="rounded-2xl p-4 mb-4 border border-primary/20 relative overflow-hidden"
-          style={{ background: 'linear-gradient(135deg, hsl(152 76% 52% / 0.06), hsl(228 14% 10%))' }}
-        >
-          <div className="absolute top-0 right-0 w-32 h-32 gradient-primary opacity-[0.04] rounded-full blur-3xl -translate-y-8 translate-x-8" />
-          <div className="flex items-center gap-2 mb-3">
-            <Target className="h-4 w-4 text-primary" />
-            <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Projeção mensal</p>
-          </div>
-          <div className="grid grid-cols-3 gap-3">
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-0.5">Receita</p>
-              <p className="text-sm font-bold text-foreground">{formatCurrency(projection.revenue)}</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-0.5">Custos</p>
-              <p className="text-sm font-bold text-accent">{formatCurrency(projection.cost)}</p>
-            </div>
-            <div>
-              <p className="text-[10px] text-muted-foreground mb-0.5">Lucro</p>
-              <p className={`text-sm font-bold ${projection.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
-                {formatCurrency(projection.profit)}
-              </p>
-            </div>
-          </div>
-          <p className="text-[10px] text-muted-foreground mt-2">
-            Baseado em {projection.daysWithData} dias com movimentação · {projection.totalOpDays} dias operacionais no mês · Margem: {formatPercent(projection.margin)}
-          </p>
-        </motion.div>
-      )}
 
       {/* Goals progress */}
       <div className="mb-4">
