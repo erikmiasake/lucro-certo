@@ -873,7 +873,7 @@ export function getSmartInsights(): string[] {
   }
 
   if (today.profit > 0 && today.margin > 30) {
-    insights.push('Margem excelente hoje — dia lucrativo');
+    insights.push(`Margem de ${today.margin.toFixed(0)}% hoje — lucro de ${formatCurrencySimple(today.profit)}`);
   }
 
   if (insights.length === 0 && today.totalRevenue === 0 && today.totalRealCost === 0) {
