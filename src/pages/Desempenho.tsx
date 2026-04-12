@@ -4,16 +4,15 @@ import { businessConfigs } from '@/lib/business-config';
 import {
   getWeekSummary, getMonthSummary, getDaySummary, getDateString,
   getWeekDailyData, getBestAndWorstDay, getPreviousWeekSummary,
-  getMarginTrend, getMonthlyProjection,
+  getMonthlyProjection,
   isOperatingDay,
 } from '@/lib/store';
 import ProactiveAlerts from '@/components/ProactiveAlerts';
 import AIInsightsPanel from '@/components/AIInsightsPanel';
 import GoalsProgress from '@/components/GoalsProgress';
 import {
-  TrendingUp, TrendingDown, BarChart3, Trophy, AlertTriangle,
+  TrendingUp, BarChart3, Trophy, AlertTriangle,
   ArrowUpRight, ArrowDownRight, Percent, Target,
-  CalendarOff,
 } from 'lucide-react';
 
 function formatCurrency(value: number) {
@@ -48,7 +47,7 @@ export default function Desempenho() {
   const weekData = getWeekDailyData(true); // only operating days
   const bestWorst = getBestAndWorstDay();
   const todayDate = getDateString();
-  const marginTrend = getMarginTrend();
+  
   const projection = getMonthlyProjection();
 
   const hasAnyData = weekData.some(d => d.revenue > 0 || d.cost > 0);
