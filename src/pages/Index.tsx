@@ -7,6 +7,7 @@ import Custos from './Custos';
 import Desempenho from './Desempenho';
 import Configuracoes from './Configuracoes';
 import Relatorio from './Relatorio';
+import Impostos from './Impostos';
 
 export default function Index() {
   const state = useStore();
@@ -20,6 +21,7 @@ export default function Index() {
     const path = location.pathname;
     if (path === '/movimentacoes' || path === '/dashboard/movimentacoes') return <Movimentacoes />;
     if (path === '/custos' || path === '/dashboard/custos') return <Custos />;
+    if (path === '/impostos' || path === '/dashboard/impostos') return <Impostos />;
     if (path === '/desempenho' || path === '/dashboard/desempenho') return <Desempenho />;
     if (path === '/configuracoes' || path === '/dashboard/configuracoes') return <Configuracoes />;
     if (path === '/relatorio' || path === '/dashboard/relatorio') return <Relatorio />;
