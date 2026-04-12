@@ -19,8 +19,8 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
   restaurante: {
     label: 'Restaurante / Lanchonete',
     icon: '🍽️',
-    entryLabel: 'Vendas',
-    entryVerb: 'venda',
+    entryLabel: 'Receita',
+    entryVerb: 'entrada',
     costCategories: {
       product: ['Ingredientes', 'Bebidas', 'Embalagens', 'Descartáveis'],
       business: ['Aluguel', 'Energia', 'Gás', 'Água'],
@@ -33,8 +33,8 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
   salao: {
     label: 'Salão / Barbearia',
     icon: '💇',
-    entryLabel: 'Atendimentos',
-    entryVerb: 'atendimento',
+    entryLabel: 'Receita',
+    entryVerb: 'entrada',
     costCategories: {
       product: ['Produtos', 'Tintas', 'Cremes', 'Lâminas'],
       business: ['Aluguel', 'Energia', 'Água'],
@@ -47,8 +47,8 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
   petshop: {
     label: 'Pet Shop',
     icon: '🐾',
-    entryLabel: 'Vendas e serviços',
-    entryVerb: 'venda',
+    entryLabel: 'Receita',
+    entryVerb: 'entrada',
     costCategories: {
       product: ['Ração', 'Produtos pet', 'Medicamentos', 'Acessórios'],
       business: ['Aluguel', 'Energia', 'Água'],
@@ -61,8 +61,8 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
   loja: {
     label: 'Loja',
     icon: '🛍️',
-    entryLabel: 'Vendas',
-    entryVerb: 'venda',
+    entryLabel: 'Receita',
+    entryVerb: 'entrada',
     costCategories: {
       product: ['Mercadoria', 'Estoque', 'Embalagens'],
       business: ['Aluguel', 'Energia', 'Sistema/Software'],
@@ -75,8 +75,8 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
   academia: {
     label: 'Academia / Espaço Fitness',
     icon: '💪',
-    entryLabel: 'Mensalidades e serviços',
-    entryVerb: 'receita',
+    entryLabel: 'Receita',
+    entryVerb: 'entrada',
     costCategories: {
       product: ['Equipamentos', 'Suplementos', 'Manutenção', 'Limpeza'],
       business: ['Aluguel', 'Energia', 'Água', 'Sistema/Software'],
