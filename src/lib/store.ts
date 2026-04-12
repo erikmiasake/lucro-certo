@@ -394,8 +394,20 @@ function getDateRange(days: number): string[] {
   return dates;
 }
 
-function getPeriodSummary(days: number) {
-  const dates = getDateRange(days);
+/** Get date strings for the current calendar month (1st to last day) */
+function getCurrentMonthDates(): string[] {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const dates: string[] = [];
+  for (let d = 1; d <= daysInMonth; d++) {
+    dates.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
+  }
+  return dates;
+}
+
+function getDateRangeSummary(dates: string[]) {
   let totalRevenue = 0;
   let totalRealCost = 0;
   let totalEntries = 0;
@@ -413,12 +425,17 @@ function getPeriodSummary(days: number) {
   return { totalRevenue, totalRealCost, profit, margin, totalEntries };
 }
 
+function getPeriodSummary(days: number) {
+  const dates = getDateRange(days);
+  return getDateRangeSummary(dates);
+}
+
 export function getWeekSummary() {
   return getPeriodSummary(7);
 }
 
 export function getMonthSummary() {
-  return getPeriodSummary(30);
+  return getDateRangeSummary(getCurrentMonthDates());
 }
 
 export function getPreviousDaySummary() {
