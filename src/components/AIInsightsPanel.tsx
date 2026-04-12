@@ -26,7 +26,6 @@ interface AIInsightsPanelProps {
     totalRealCost: number;
     profit: number;
     margin: number;
-    ticketMedio: number;
     totalEntries: number;
   };
   businessType: string;

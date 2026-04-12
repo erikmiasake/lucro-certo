@@ -13,6 +13,27 @@ export interface Entry {
   source?: EntrySource;
 }
 
+// ─── Unified Transaction Model ────────────────────────────────────
+export type TransactionType = 'entrada' | 'saida';
+
+export interface Transaction {
+  id: string;
+  tipo: TransactionType;
+  valor: number;
+  data: string;
+  categoria?: string;
+  descricao?: string;
+  createdAt: number;
+  /** Original source for entries */
+  source?: EntrySource;
+  /** For costs: classification */
+  classification?: CostClassification;
+  /** For costs: spread days */
+  spreadDays?: number;
+  /** Whether it comes from the cost map */
+  fromCostMap?: boolean;
+}
+
 export type CostClassification = 'fixed' | 'variable';
 
 export interface Cost {
@@ -354,10 +375,8 @@ export function getDaySummary(date: string = getDateString()) {
   );
   const profit = totalRevenue - totalRealCost;
   const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
-  const ticketMedio = dayEntries.length > 0 ? totalRevenue / dayEntries.length : 0;
-  const custoMedioPorVenda = dayEntries.length > 0 ? totalRealCost / dayEntries.length : 0;
   const entryCount = dayEntries.length;
-  return { totalRevenue, totalRealCost, profit, margin, ticketMedio, custoMedioPorVenda, entryCount };
+  return { totalRevenue, totalRealCost, profit, margin, entryCount };
 }
 
 function getDateRange(days: number): string[] {
@@ -386,9 +405,8 @@ function getPeriodSummary(days: number) {
 
   const profit = totalRevenue - totalRealCost;
   const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
-  const ticketMedio = totalEntries > 0 ? totalRevenue / totalEntries : 0;
 
-  return { totalRevenue, totalRealCost, profit, margin, ticketMedio, totalEntries };
+  return { totalRevenue, totalRealCost, profit, margin, totalEntries };
 }
 
 export function getWeekSummary() {
@@ -592,7 +610,7 @@ export function getProactiveAlerts(): ProactiveAlert[] {
         icon: 'alert',
         title: 'Previsão de prejuízo',
         message: `Se continuar assim, você terminará a semana com prejuízo de ${formatCurrencySimple(Math.abs(projected))}.`,
-        actionHint: 'Aumente as vendas ou reduza custos',
+        actionHint: 'Aumente as entradas ou reduza custos',
       });
     } else if (avgDailyProfit > 0 && projected > week.profit) {
       alerts.push({
@@ -643,7 +661,7 @@ export function getProactiveAlerts(): ProactiveAlert[] {
         icon: 'target',
         title: 'Meta em risco',
         message: `Você atingiu ${progress.toFixed(0)}% da meta, mas deveria estar em ${expectedProgress.toFixed(0)}%.`,
-        actionHint: 'Intensifique as vendas',
+        actionHint: 'Intensifique as entradas',
       });
     }
   }
@@ -654,7 +672,7 @@ export function getProactiveAlerts(): ProactiveAlert[] {
       type: 'info',
       icon: 'chart',
       title: `Melhor dia: ${bestDay.day}`,
-      message: `Lucro médio de ${formatCurrencySimple(bestDay.avgProfit)} às ${bestDay.day}s. Foque mais vendas nesse dia.`,
+      message: `Lucro médio de ${formatCurrencySimple(bestDay.avgProfit)} às ${bestDay.day}s. Foque mais receita nesse dia.`,
     });
   }
 
@@ -758,15 +776,8 @@ export function getMonthlyProjection(): { revenue: number; cost: number; profit:
   return { revenue, cost, profit, margin };
 }
 
-export function getCostPerSale(): number {
-  const week = getWeekSummary();
-  return week.totalEntries > 0 ? week.totalRealCost / week.totalEntries : 0;
-}
-
-export function getProfitPerSale(): number {
-  const week = getWeekSummary();
-  return week.totalEntries > 0 ? week.profit / week.totalEntries : 0;
-}
+// Per-sale metrics removed — system now uses financial movements model
+// Revenue = sum of all entries, Costs = sum of all exits, Profit = revenue - costs
 
 // ─── Enhanced Smart Insights ───────────────────────────────────────
 
@@ -813,7 +824,7 @@ export function getSmartInsights(): string[] {
   if (today.totalRevenue > 0 && today.margin < 15) {
     const neededRevenue = today.totalRealCost / 0.8;
     const extra = neededRevenue - today.totalRevenue;
-    insights.push(`Margem baixa (${today.margin.toFixed(0)}%) — mais ${formatCurrencySimple(extra)} em vendas hoje daria 20%`);
+    insights.push(`Margem baixa (${today.margin.toFixed(0)}%) — mais ${formatCurrencySimple(extra)} em receita hoje daria 20%`);
   }
 
   if (week.totalEntries > 0) {
@@ -838,7 +849,7 @@ export function getSmartInsights(): string[] {
   }
 
   if (insights.length === 0 && today.totalRevenue === 0 && today.totalRealCost === 0) {
-    insights.push('Registre suas vendas e custos para receber insights personalizados');
+    insights.push('Registre suas entradas e saídas para receber insights personalizados');
   }
 
   return insights.slice(0, 5);
@@ -857,7 +868,7 @@ export function getInsight(date: string = getDateString()): string | null {
   if (totalRevenue === 0 && totalRealCost === 0) return null;
   if (profit < 0) return 'Hoje você gastou mais do que ganhou. Fique de olho!';
   if (totalRealCost > totalRevenue * 0.8 && totalRevenue > 0)
-    return 'Seu custo está alto em relação às vendas.';
+    return 'Seu custo está alto em relação à receita.';
   if (profit > 0 && profit < totalRevenue * 0.15 && totalRevenue > 0)
     return 'Você pode estar lucrando pouco. Reveja seus custos.';
   if (profit > 0) return 'Bom trabalho! Continue assim.';
@@ -1064,6 +1075,65 @@ export function getRevenueStats() {
     totalManualRevenue,
     totalEstimatedRevenue,
     realDataPercentage: totalDays > 0 ? ((manualDays + distributedDays) / totalDays) * 100 : 0,
+  };
+}
+
+// ─── Unified Transactions ──────────────────────────────────────────
+
+/** Get all financial movements as a unified list of transactions */
+export function getAllTransactions(limit?: number): Transaction[] {
+  const entryTransactions: Transaction[] = state.entries.map(e => ({
+    id: e.id,
+    tipo: 'entrada' as TransactionType,
+    valor: e.amount,
+    data: e.date,
+    categoria: e.category || 'Receita',
+    descricao: e.description,
+    createdAt: e.createdAt,
+    source: e.source,
+  }));
+
+  const costTransactions: Transaction[] = state.costs.map(c => ({
+    id: c.id,
+    tipo: 'saida' as TransactionType,
+    valor: c.amount,
+    data: c.date,
+    categoria: c.category || (c.type === 'product' ? 'Produto' : 'Negócio'),
+    descricao: c.description,
+    createdAt: c.createdAt,
+    classification: c.classification,
+    spreadDays: c.spreadDays,
+    fromCostMap: c.id.startsWith('costmap-'),
+  }));
+
+  const all = [...entryTransactions, ...costTransactions]
+    .sort((a, b) => b.createdAt - a.createdAt);
+
+  return limit ? all.slice(0, limit) : all;
+}
+
+/** Get transactions for a specific date */
+export function getTransactionsByDate(date: string): Transaction[] {
+  return getAllTransactions().filter(t => t.data === date);
+}
+
+/** Get transaction totals */
+export function getTransactionTotals(days: number = 30) {
+  const dates = getDateRange(days);
+  const transactions = getAllTransactions().filter(t => dates.includes(t.data));
+  const entradas = transactions.filter(t => t.tipo === 'entrada');
+  const saidas = transactions.filter(t => t.tipo === 'saida');
+  const receita = entradas.reduce((s, t) => s + t.valor, 0);
+  // For costs, use the impact-based calculation for accuracy
+  const summary = getPeriodSummary(days);
+  return {
+    receita: summary.totalRevenue,
+    custos: summary.totalRealCost,
+    lucro: summary.profit,
+    margem: summary.margin,
+    totalEntradas: entradas.length,
+    totalSaidas: saidas.length,
+    totalMovimentacoes: transactions.length,
   };
 }
 

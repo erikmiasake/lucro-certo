@@ -66,8 +66,8 @@ REGRAS ABSOLUTAS:
    - Custos do período: R$ ${cost}
    - Lucro real: R$ ${calculatedProfit}
    - Margem: ${margin}%
-   - Vendas/atendimentos: ${entries}
-   - Valor médio por cliente: R$ ${avgPerClient}
+   - Entradas registradas: ${entries}
+   - Valor médio por entrada: R$ ${avgPerClient}
    Use APENAS esses valores. Não invente outros.
 
 3. Gere EXATAMENTE 3 insights categorizados + 1 ação + 1 previsão:
@@ -89,8 +89,8 @@ REGRAS ABSOLUTAS:
    - Crescimento máximo projetado: 30%
    - Se dados são insuficientes (${realPct < 50 ? 'ATENÇÃO: apenas ' + realPct.toFixed(0) + '% dos dados são reais' : 'dados suficientes'}), diga claramente
 
-7. Se o padrão for "valor alto por cliente + poucas vendas", diga:
-   "Você ganha bem por cliente, mas atende poucos. Seu crescimento depende de aumentar o volume."
+7. Se o padrão for "valor alto por entrada + poucas movimentações", diga:
+   "Você ganha bem por movimentação, mas tem poucas entradas. Seu crescimento depende de aumentar o volume."
 
 8. DETECÇÃO AUTOMÁTICA:
    - Melhor dia: ${bestDay ? bestDay.date + ' (R$ ' + bestDay.profit + ' de lucro)' : 'não identificado'}
@@ -135,8 +135,8 @@ Retorne usando a tool "generate_insights".`;
 - Gastos: R$ ${cost}
 - Sobrou no bolso: R$ ${calculatedProfit}
 - Margem: ${margin}%
-- Atendimentos/vendas: ${entries}
-- Valor médio por cliente: R$ ${avgPerClient}
+- Entradas registradas: ${entries}
+- Valor médio por entrada: R$ ${avgPerClient}
 - Dias de funcionamento/semana: ${opDays}${costInfo}${goalInfo}
 ${perfInfo ? '\nDESEMPENHO:\n' + perfInfo : ''}
 
@@ -241,7 +241,7 @@ Analise esses dados e gere insights práticos categorizados (receita, custos, op
       insights: [
         { category: 'receita', text: 'Dados insuficientes para análise de receita.' },
       ],
-      recommendation: "Continue registrando suas vendas e gastos diariamente para análises mais precisas.",
+      recommendation: "Continue registrando suas entradas e saídas diariamente para análises mais precisas.",
       prediction: "",
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
