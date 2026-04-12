@@ -1336,9 +1336,12 @@ export function getMonthlySummary(year: number, month: number): MonthlySummary {
     const hasManualCosts = state.costs.some(c => c.date === dateStr && !isDerivedCost(c));
     if (hasManualEntries || hasManualCosts) {
       daysWithData++;
-      const dayProfit = daySummary.totalRevenue - daySummary.totalRealCost;
-      if (!bestDay || dayProfit > bestDay.profit) bestDay = { date: dateStr, profit: Math.round(dayProfit) };
-      if (!worstDay || dayProfit < worstDay.profit) worstDay = { date: dateStr, profit: Math.round(dayProfit) };
+      // Only operating days qualify for best/worst performance
+      if (isOperatingDay(dateStr)) {
+        const dayProfit = daySummary.totalRevenue - daySummary.totalRealCost;
+        if (!bestDay || dayProfit > bestDay.profit) bestDay = { date: dateStr, profit: Math.round(dayProfit) };
+        if (!worstDay || dayProfit < worstDay.profit) worstDay = { date: dateStr, profit: Math.round(dayProfit) };
+      }
     }
   }
 
