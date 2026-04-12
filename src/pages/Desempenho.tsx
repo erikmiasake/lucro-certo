@@ -59,10 +59,6 @@ export default function Desempenho() {
         <p className="text-muted-foreground text-sm mt-1">Evolução e inteligência do seu negócio</p>
       </motion.div>
 
-      {/* Proactive Alerts */}
-      <div className="mb-4">
-        <ProactiveAlerts />
-      </div>
 
       {/* Period cards */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 gap-3 mb-4">
