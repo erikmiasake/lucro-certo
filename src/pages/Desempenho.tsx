@@ -102,35 +102,50 @@ export default function Desempenho() {
         </motion.div>
       </motion.div>
 
-      {/* Margin trend */}
+      {/* Key metrics */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-3 gap-2 mb-4">
         <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
-          <ArrowUpRight className="h-3.5 w-3.5 text-blue-400 mx-auto mb-1" />
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Entradas</p>
+          <ArrowUpRight className="h-3.5 w-3.5 text-primary mx-auto mb-1" />
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Receita</p>
           <p className="text-sm font-bold text-foreground">
-            {week.totalEntries > 0 ? week.totalEntries : '—'}
+            {week.totalRevenue > 0 ? formatCurrency(week.totalRevenue) : '—'}
           </p>
         </motion.div>
         <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
-          <BarChart3 className="h-3.5 w-3.5 text-accent mx-auto mb-1" />
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Receita média/dia</p>
-          <p className="text-sm font-bold text-foreground">
-            {week.totalEntries > 0 ? formatCurrency(week.totalRevenue / 7) : '—'}
+          <ArrowDownRight className="h-3.5 w-3.5 text-accent mx-auto mb-1" />
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Custos</p>
+          <p className="text-sm font-bold text-accent">
+            {week.totalRealCost > 0 ? formatCurrency(week.totalRealCost) : '—'}
           </p>
         </motion.div>
         <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
-          {marginTrend.direction === 'up' ? (
-            <TrendingUp className="h-3.5 w-3.5 text-primary mx-auto mb-1" />
-          ) : marginTrend.direction === 'down' ? (
-            <TrendingDown className="h-3.5 w-3.5 text-destructive mx-auto mb-1" />
-          ) : (
-            <Percent className="h-3.5 w-3.5 text-muted-foreground mx-auto mb-1" />
-          )}
+          <Percent className="h-3.5 w-3.5 text-muted-foreground mx-auto mb-1" />
           <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Margem</p>
-          <p className={`text-sm font-bold ${
-            marginTrend.direction === 'up' ? 'text-primary' : marginTrend.direction === 'down' ? 'text-destructive' : 'text-foreground'
-          }`}>
-            {marginTrend.direction === 'up' ? 'Subindo' : marginTrend.direction === 'down' ? 'Caindo' : 'Estável'}
+          <p className={`text-sm font-bold ${week.margin >= 20 ? 'text-primary' : 'text-destructive'}`}>
+            {week.totalRevenue > 0 ? formatPercent(week.margin) : '—'}
+          </p>
+        </motion.div>
+      </motion.div>
+      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-3 gap-2 mb-4">
+        <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
+          <TrendingUp className="h-3.5 w-3.5 text-primary mx-auto mb-1" />
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Lucro real</p>
+          <p className={`text-sm font-bold ${week.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
+            {week.totalRevenue > 0 ? formatCurrency(week.profit) : '—'}
+          </p>
+        </motion.div>
+        <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
+          <BarChart3 className="h-3.5 w-3.5 text-primary mx-auto mb-1" />
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Lucro/dia</p>
+          <p className={`text-sm font-bold ${week.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
+            {week.totalEntries > 0 ? formatCurrency(week.profit / Math.max(weekData.length, 1)) : '—'}
+          </p>
+        </motion.div>
+        <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
+          <ArrowDownRight className="h-3.5 w-3.5 text-accent mx-auto mb-1" />
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Custo/dia</p>
+          <p className="text-sm font-bold text-accent">
+            {week.totalRealCost > 0 ? formatCurrency(week.totalRealCost / Math.max(weekData.length, 1)) : '—'}
           </p>
         </motion.div>
       </motion.div>
