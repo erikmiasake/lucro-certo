@@ -644,7 +644,7 @@ export default function Movimentacoes() {
             {/* Month summary */}
             <div className="rounded-xl p-4 card-elevated mb-3">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-3 flex items-center justify-between">
-                Resumo mensal (30 dias)
+                Resumo do mês
                 <button onClick={() => startPeriodEdit('mes')} className="text-primary text-[10px] font-medium hover:underline flex items-center gap-1">
                   <Edit2 className="h-2.5 w-2.5" /> Editar faturamento mensal
                 </button>
