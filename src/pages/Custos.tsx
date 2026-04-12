@@ -64,9 +64,11 @@ export default function Custos() {
   const breakdown = useMemo(() => getCostBreakdown(), [state]);
   const week = useMemo(() => getWeekSummary(), [state]);
   const month = useMemo(() => getMonthSummary(), [state]);
+  const costMap = useMemo(() => getCostMap(), [state]);
   const [showCost, setShowCost] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [viewTab, setViewTab] = useState<'map' | 'overview' | 'list'>('map');
+  const [costView, setCostView] = useState<'real' | 'operacional'>('operacional');
 
   const bType = state.businessType || 'outro';
   const bench = benchmarks[bType];
