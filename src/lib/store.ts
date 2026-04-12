@@ -849,7 +849,7 @@ export function getSmartInsights(): string[] {
   }
 
   if (insights.length === 0 && today.totalRevenue === 0 && today.totalRealCost === 0) {
-    insights.push('Registre suas vendas e custos para receber insights personalizados');
+    insights.push('Registre suas entradas e saídas para receber insights personalizados');
   }
 
   return insights.slice(0, 5);
