@@ -247,18 +247,6 @@ export default function CostMapSection() {
 
   return (
     <div className="space-y-4">
-      {/* Guidance */}
-      <motion.div
-        initial={{ opacity: 0, y: 5 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="flex items-start gap-2.5 p-3 rounded-xl bg-primary/5 border border-primary/10"
-      >
-        <Sparkles className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
-        <div>
-          <p className="text-[11px] text-primary/90 font-medium">Preencha os valores para calcular seu lucro real</p>
-          <p className="text-[10px] text-primary/50 mt-0.5">Custos variáveis: informe o valor e quantos dias dura. Custos fixos são mensais.</p>
-        </div>
-      </motion.div>
 
       {/* Variable Costs */}
       {costMap.variable.length > 0 && (
