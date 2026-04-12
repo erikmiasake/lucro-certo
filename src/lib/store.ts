@@ -1245,7 +1245,145 @@ export function getTransactionTotals(days: number = 30) {
   };
 }
 
+// ─── Monthly Summary for Reports ───────────────────────────────────
+
+export interface MonthlySummary {
+  year: number;
+  month: number;
+  monthLabel: string;
+  revenue: number;
+  costs: number;
+  profit: number;
+  margin: number;
+  costPercentage: number;
+  avgDailyRevenue: number;
+  avgDailyCost: number;
+  avgDailyProfit: number;
+  operatingDays: number;
+  daysWithData: number;
+  bestDay: { date: string; profit: number } | null;
+  worstDay: { date: string; profit: number } | null;
+  totalFixed: number;
+  totalVariable: number;
+  fixedPercentage: number;
+  variablePercentage: number;
+  topCategories: { name: string; amount: number; percentage: number }[];
+  goalMonthlyProfit: number | null;
+  goalProgress: number;
+  isValid: boolean;
+  invalidReason?: string;
+}
+
+export function getMonthlySummary(year: number, month: number): MonthlySummary {
+  const monthNames = ['Janeiro', 'Fevereiro', 'Março', 'Abril', 'Maio', 'Junho', 'Julho', 'Agosto', 'Setembro', 'Outubro', 'Novembro', 'Dezembro'];
+  const monthLabel = `${monthNames[month]} ${year}`;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const weekdays = state.businessProfile?.operatingWeekdays ?? [1, 2, 3, 4, 5, 6];
+
+  // Count operating days in the month
+  let operatingDays = 0;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dt = new Date(year, month, d);
+    if (weekdays.includes(dt.getDay())) operatingDays++;
+  }
+
+  // Gather all dates in the month
+  const monthDates: string[] = [];
+  for (let d = 1; d <= daysInMonth; d++) {
+    monthDates.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
+  }
+
+  // Calculate revenue, costs, profit per day
+  let totalRevenue = 0;
+  let totalCost = 0;
+  let daysWithData = 0;
+  let bestDay: { date: string; profit: number } | null = null;
+  let worstDay: { date: string; profit: number } | null = null;
+
+  for (const dateStr of monthDates) {
+    const dayEntries = state.entries.filter(e => e.date === dateStr);
+    const dayRevenue = dayEntries.reduce((s, e) => s + e.amount, 0);
+    const dayCost = state.costs.reduce((s, c) => s + getCostImpactOnDate(c, dateStr), 0);
+
+    totalRevenue += dayRevenue;
+    totalCost += dayCost;
+
+    const hasData = dayEntries.length > 0 || state.costs.some(c => c.date === dateStr && !isDerivedCost(c));
+    if (hasData || dayRevenue > 0) {
+      daysWithData++;
+      const dayProfit = dayRevenue - dayCost;
+      if (!bestDay || dayProfit > bestDay.profit) bestDay = { date: dateStr, profit: Math.round(dayProfit) };
+      if (!worstDay || dayProfit < worstDay.profit) worstDay = { date: dateStr, profit: Math.round(dayProfit) };
+    }
+  }
+
+  const profit = totalRevenue - totalCost;
+  const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
+  const costPercentage = totalRevenue > 0 ? (totalCost / totalRevenue) * 100 : 0;
+  const avgDailyRevenue = daysWithData > 0 ? totalRevenue / daysWithData : 0;
+  const avgDailyCost = daysWithData > 0 ? totalCost / daysWithData : 0;
+  const avgDailyProfit = avgDailyRevenue - avgDailyCost;
+
+  // Cost breakdown for the month
+  const fixedCosts = state.costs.filter(c => c.classification === 'fixed');
+  const variableCosts = state.costs.filter(c => c.classification === 'variable');
+  const totalFixed = fixedCosts.reduce((s, c) => {
+    const impact = monthDates.reduce((acc, d) => acc + getCostImpactOnDate(c, d), 0);
+    return s + impact;
+  }, 0);
+  const totalVariable = variableCosts.reduce((s, c) => {
+    const impact = monthDates.reduce((acc, d) => acc + getCostImpactOnDate(c, d), 0);
+    return s + impact;
+  }, 0);
+  const totalCostCalc = totalFixed + totalVariable || totalCost;
+
+  // Categories
+  const catMap = new Map<string, number>();
+  state.costs.forEach(c => {
+    const key = c.category || (c.type === 'product' ? 'Produto' : 'Negócio');
+    const impact = monthDates.reduce((acc, d) => acc + getCostImpactOnDate(c, d), 0);
+    catMap.set(key, (catMap.get(key) || 0) + impact);
+  });
+  const topCategories = Array.from(catMap.entries())
+    .map(([name, amount]) => ({ name, amount: Math.round(amount), percentage: totalCostCalc > 0 ? Math.round((amount / totalCostCalc) * 100) : 0 }))
+    .sort((a, b) => b.amount - a.amount)
+    .slice(0, 5);
+
+  // Validation
+  const isValid = daysWithData >= 7;
+  const invalidReason = !isValid ? `Dados insuficientes: apenas ${daysWithData} dia(s) com movimentação. Mínimo: 7 dias.` : undefined;
+
+  // Goals
+  const goalMonthlyProfit = state.goals.monthlyProfit || null;
+  const goalProgress = goalMonthlyProfit ? Math.round((profit / goalMonthlyProfit) * 100) : 0;
+
+  return {
+    year, month, monthLabel,
+    revenue: Math.round(totalRevenue),
+    costs: Math.round(totalCost),
+    profit: Math.round(profit),
+    margin: Math.round(margin),
+    costPercentage: Math.round(costPercentage),
+    avgDailyRevenue: Math.round(avgDailyRevenue),
+    avgDailyCost: Math.round(avgDailyCost),
+    avgDailyProfit: Math.round(avgDailyProfit),
+    operatingDays,
+    daysWithData,
+    bestDay, worstDay,
+    totalFixed: Math.round(totalFixed),
+    totalVariable: Math.round(totalVariable),
+    fixedPercentage: totalCostCalc > 0 ? Math.round((totalFixed / totalCostCalc) * 100) : 0,
+    variablePercentage: totalCostCalc > 0 ? Math.round((totalVariable / totalCostCalc) * 100) : 0,
+    topCategories,
+    goalMonthlyProfit, goalProgress,
+    isValid, invalidReason,
+  };
+}
+
 export function resetAll() {
+  state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
+  notify();
+}
   state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
   notify();
 }
