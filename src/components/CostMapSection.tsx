@@ -352,53 +352,6 @@ export default function CostMapSection() {
         )}
       </AnimatePresence>
 
-      {/* Total with daily/weekly/monthly breakdown */}
-      {costMap.totalMonthly > 0 && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          className="p-4 rounded-xl bg-secondary/30 border border-border space-y-3"
-        >
-          <div className="flex items-center justify-between">
-            <span className="text-xs font-medium text-muted-foreground">Total mensal estimado</span>
-            <span className="text-sm font-bold text-foreground">{fmt(Math.round(costMap.totalMonthly))}</span>
-          </div>
-          {(() => {
-            const opDaysPerWeek = state.businessProfile?.operatingWeekdays?.length ?? 6;
-            const now = new Date();
-            const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-            const weeksInMonth = daysInMonth / 7;
-            const opDaysInMonth = Math.round(opDaysPerWeek * weeksInMonth);
-            const daily = costMap.totalMonthly / (opDaysInMonth || 1);
-            const weekly = daily * opDaysPerWeek;
-            return (
-              <div className="grid grid-cols-3 gap-2 pt-2 border-t border-border/50">
-                <div className="text-center">
-                  <p className="text-[10px] text-muted-foreground">Diário</p>
-                  <p className="text-xs font-bold text-foreground">{fmt(Math.round(daily))}</p>
-                  <p className="text-[9px] text-muted-foreground/50">÷ {opDaysInMonth} dias</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-[10px] text-muted-foreground">Semanal</p>
-                  <p className="text-xs font-bold text-foreground">{fmt(Math.round(weekly))}</p>
-                  <p className="text-[9px] text-muted-foreground/50">{opDaysPerWeek} dias/sem</p>
-                </div>
-                <div className="text-center">
-                  <p className="text-[10px] text-muted-foreground">Mensal</p>
-                  <p className="text-xs font-bold text-foreground">{fmt(Math.round(costMap.totalMonthly))}</p>
-                  <p className="text-[9px] text-muted-foreground/50">{opDaysInMonth} dias úteis</p>
-                </div>
-              </div>
-            );
-          })()}
-          <div className="flex items-center justify-center gap-1.5 pt-1 border-t border-border/30">
-            <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
-            <p className="text-[10px] text-muted-foreground font-medium">
-              Custos diluídos nos <span className="text-foreground font-semibold">{state.businessProfile?.operatingWeekdays?.length ?? 6} dias úteis</span> que você abre por semana
-            </p>
-          </div>
-        </motion.div>
-      )}
     </div>
   );
 }
