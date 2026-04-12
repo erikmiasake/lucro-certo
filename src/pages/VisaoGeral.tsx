@@ -161,23 +161,58 @@ export default function VisaoGeral() {
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             transition={{ delay: 0.4 }}
-            className="mt-4 rounded-2xl p-4 bg-secondary border border-border space-y-2"
+            className="mt-4 space-y-2"
           >
-            <div className="flex items-center gap-2 mb-1">
+            <div className="flex items-center gap-2 mb-2 px-1">
               <Zap className="h-4 w-4 text-primary" />
-              <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Insights</p>
+              <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Insights do seu negócio</p>
+              <span className="text-[10px] text-muted-foreground ml-auto">{insights.length} disponíveis</span>
             </div>
-            {insights.slice(0, 4).map((insight, i) => (
-              <motion.p
-                key={i}
-                initial={{ opacity: 0, x: -8 }}
-                animate={{ opacity: 1, x: 0 }}
-                transition={{ delay: 0.45 + i * 0.08 }}
-                className="text-sm text-secondary-foreground leading-relaxed"
-              >
-                {insight}
-              </motion.p>
-            ))}
+            <div className="grid gap-2">
+              {insights.slice(0, 5).map((insight, i) => {
+                // Determine insight type for icon/color
+                const isPositive = insight.includes('atingida') || insight.includes('melhor') || insight.includes('Margem de') || insight.includes('Projeção mensal');
+                const isWarning = insight.includes('pior') || insight.includes('prejuízo') || insight.includes('baixa') || insight.includes('altos');
+                const isAction = insight.includes('Reduzir') || insight.includes('Aumente') || insight.includes('Negocie') || insight.includes('mais');
+
+                return (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0, x: -12 }}
+                    animate={{ opacity: 1, x: 0 }}
+                    transition={{ delay: 0.45 + i * 0.08 }}
+                    className={`rounded-xl p-3.5 border transition-all ${
+                      isWarning 
+                        ? 'bg-destructive/5 border-destructive/15' 
+                        : isPositive 
+                          ? 'bg-primary/5 border-primary/15' 
+                          : 'bg-secondary/50 border-border/50'
+                    }`}
+                  >
+                    <div className="flex items-start gap-2.5">
+                      <div className={`w-6 h-6 rounded-lg flex items-center justify-center shrink-0 mt-0.5 ${
+                        isWarning ? 'bg-destructive/10' : isPositive ? 'bg-primary/10' : 'bg-secondary'
+                      }`}>
+                        {isWarning ? (
+                          <ArrowDownRight className="h-3 w-3 text-destructive" />
+                        ) : isPositive ? (
+                          <TrendingUp className="h-3 w-3 text-primary" />
+                        ) : isAction ? (
+                          <Zap className="h-3 w-3 text-accent" />
+                        ) : (
+                          <Activity className="h-3 w-3 text-muted-foreground" />
+                        )}
+                      </div>
+                      <p className={`text-[12px] leading-relaxed font-medium ${
+                        isWarning ? 'text-destructive/90' : isPositive ? 'text-primary/90' : 'text-foreground/80'
+                      }`}>
+                        {insight}
+                      </p>
+                    </div>
+                  </motion.div>
+                );
+              })}
+            </div>
           </motion.div>
         )}
       </AnimatePresence>
