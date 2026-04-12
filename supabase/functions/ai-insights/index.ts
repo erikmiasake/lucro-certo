@@ -166,7 +166,7 @@ Analise esses dados e gere insights práticos categorizados (receita, custos, op
                 properties: {
                   insight_receita: {
                     type: "string",
-                    description: "Insight sobre faturamento e clientes, linguagem simples, máximo 2 frases com valor em R$",
+                    description: "Insight sobre faturamento e movimentações, linguagem simples, máximo 2 frases com valor em R$",
                   },
                   insight_custos: {
                     type: "string",
