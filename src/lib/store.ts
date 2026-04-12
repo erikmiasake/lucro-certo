@@ -466,7 +466,6 @@ export function getWeekDailyData(filterNonOperating = false) {
   }
   return days;
 }
-}
 
 export function getBestAndWorstDay(days: number = 30) {
   const dates = getDateRange(days);
