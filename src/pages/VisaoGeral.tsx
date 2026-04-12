@@ -67,7 +67,7 @@ export default function VisaoGeral() {
   };
 
   const profitDiff = yesterday.totalRevenue > 0 ? summary.profit - yesterday.profit : null;
-  const maxRevenue = Math.max(...weekData.map(d => d.revenue), 1);
+  
 
   return (
     <div className="p-5 md:p-8 max-w-4xl mx-auto safe-bottom">
