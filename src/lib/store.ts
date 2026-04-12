@@ -515,17 +515,17 @@ export function getCostBreakdown() {
   const fixedCosts = state.costs.filter(c => c.classification ? c.classification === 'fixed' : c.type === 'business');
   const variableCosts = state.costs.filter(c => c.classification ? c.classification === 'variable' : c.type === 'product');
 
-  const totalProduct = productCosts.reduce((s, c) => s + getMonthlyViewCostAmount(c), 0);
-  const totalBusiness = businessCosts.reduce((s, c) => s + getMonthlyViewCostAmount(c), 0);
-  const totalFixed = fixedCosts.reduce((s, c) => s + getMonthlyViewCostAmount(c), 0);
-  const totalVariable = variableCosts.reduce((s, c) => s + getMonthlyViewCostAmount(c), 0);
+  const totalProduct = productCosts.reduce((s, c) => s + getCostImpactForCurrentMonth(c), 0);
+  const totalBusiness = businessCosts.reduce((s, c) => s + getCostImpactForCurrentMonth(c), 0);
+  const totalFixed = fixedCosts.reduce((s, c) => s + getCostImpactForCurrentMonth(c), 0);
+  const totalVariable = variableCosts.reduce((s, c) => s + getCostImpactForCurrentMonth(c), 0);
   const total = totalFixed + totalVariable;
 
   const categoryMap = new Map<string, { amount: number; items: Cost[] }>();
   state.costs.forEach(c => {
     const key = c.category || (c.type === 'product' ? 'Produto' : 'Negócio');
     const existing = categoryMap.get(key) || { amount: 0, items: [] };
-    existing.amount += getMonthlyViewCostAmount(c);
+    existing.amount += getCostImpactForCurrentMonth(c);
     existing.items.push(c);
     categoryMap.set(key, existing);
   });
@@ -542,7 +542,7 @@ export function getCostBreakdown() {
   const subcategoryMap = new Map<string, number>();
   state.costs.forEach(c => {
     if (c.subcategory) {
-      subcategoryMap.set(c.subcategory, (subcategoryMap.get(c.subcategory) || 0) + getMonthlyViewCostAmount(c));
+      subcategoryMap.set(c.subcategory, (subcategoryMap.get(c.subcategory) || 0) + getCostImpactForCurrentMonth(c));
     }
   });
   const subcategories = Array.from(subcategoryMap.entries())
