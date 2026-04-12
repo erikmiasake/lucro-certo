@@ -5,7 +5,7 @@ import { getMonthSummary } from '@/lib/store';
 import {
   BookOpen, AlertTriangle, Calculator, CheckCircle2,
   ChevronDown, ExternalLink, Landmark, ShieldCheck, Calendar,
-  Lightbulb, XCircle, ArrowRight,
+  Lightbulb, XCircle, ArrowRight, Target,
 } from 'lucide-react';
 
 type TaxType = 'mei' | 'autonomo' | 'simples';
