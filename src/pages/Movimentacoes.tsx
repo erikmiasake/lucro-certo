@@ -138,34 +138,48 @@ export default function Movimentacoes() {
   const handleSavePeriodRevenue = () => {
     const num = parseFloat(periodEditValue.replace(',', '.'));
     if (num >= 0 && !isNaN(num) && editingPeriod) {
-      // Build date range based on period
-      const allDates: string[] = [];
       if (editingPeriod === 'semana') {
+        // Last 7 days
+        const allDates: string[] = [];
         for (let i = 0; i < 7; i++) {
           const d = new Date();
           d.setDate(d.getDate() - i);
           allDates.push(getDateString(d));
         }
+        const operatingDates = allDates.filter(d => isOperatingDay(d));
+        const activeDays = operatingDates.length || 1;
+        const perDay = num / activeDays;
+        allDates.forEach(dateStr => {
+          if (isOperatingDay(dateStr)) {
+            setDayRevenue(dateStr, perDay, 'distributed');
+          }
+        });
+        setFeedback(`Receita distribuída em ${activeDays} dias úteis (${fmt(perDay)}/dia)`);
       } else {
-        // Calendar month: 1st to today
+        // Full calendar month: divide by ALL operating days in the month, set only up to today
         const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
         const today = now.getDate();
+
+        // Count ALL operating days in the full month for correct per-day calculation
+        const allMonthDates: string[] = [];
+        for (let d = 1; d <= daysInMonth; d++) {
+          allMonthDates.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
+        }
+        const totalOperatingDays = allMonthDates.filter(d => isOperatingDay(d)).length || 1;
+        const perDay = num / totalOperatingDays;
+
+        // Apply only to days up to today
         for (let d = 1; d <= today; d++) {
-          allDates.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
+          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          if (isOperatingDay(dateStr)) {
+            setDayRevenue(dateStr, perDay, 'distributed');
+          }
         }
+        setFeedback(`Receita de ${fmt(num)} ÷ ${totalOperatingDays} dias úteis = ${fmt(perDay)}/dia`);
       }
-      const operatingDates = allDates.filter(d => isOperatingDay(d));
-      const activeDays = operatingDates.length || 1;
-      const perDay = num / activeDays;
-      // Set operating days with distributed value
-      allDates.forEach(dateStr => {
-        if (isOperatingDay(dateStr)) {
-          setDayRevenue(dateStr, perDay, 'distributed');
-        }
-      });
-      setFeedback(`Receita distribuída em ${activeDays} dias úteis (${fmt(perDay)}/dia)`);
       setTimeout(() => setFeedback(null), 4000);
     }
     setEditingPeriod(null);
