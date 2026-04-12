@@ -151,12 +151,6 @@ function InsightBentoGrid({ insights }: { insights: string[] }) {
     </div>
   );
 }
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 export default function VisaoGeral() {
   const state = useStore();
