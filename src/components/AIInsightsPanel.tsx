@@ -224,7 +224,21 @@ export default function AIInsightsPanel({ businessType, period = 'semana' }: AII
                 </div>
                 {answer && (
                   <motion.div initial={{ opacity: 0, y: 4 }} animate={{ opacity: 1, y: 0 }} className="p-3 rounded-xl bg-secondary/30 border border-primary/10">
-                    <p className="text-sm text-foreground/90 leading-relaxed">{answer}</p>
+                    <div className="text-sm text-foreground/90 leading-relaxed space-y-2">
+                      {answer.split(/\n+/).filter(Boolean).map((paragraph, i) => {
+                        // Parse bold **text** and render
+                        const parts = paragraph.split(/\*\*(.*?)\*\*/g);
+                        return (
+                          <p key={i}>
+                            {parts.map((part, j) =>
+                              j % 2 === 1
+                                ? <strong key={j} className="font-semibold text-foreground">{part}</strong>
+                                : <span key={j}>{part}</span>
+                            )}
+                          </p>
+                        );
+                      })}
+                    </div>
                   </motion.div>
                 )}
               </div>
