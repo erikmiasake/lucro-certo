@@ -13,6 +13,27 @@ export interface Entry {
   source?: EntrySource;
 }
 
+// ─── Unified Transaction Model ────────────────────────────────────
+export type TransactionType = 'entrada' | 'saida';
+
+export interface Transaction {
+  id: string;
+  tipo: TransactionType;
+  valor: number;
+  data: string;
+  categoria?: string;
+  descricao?: string;
+  createdAt: number;
+  /** Original source for entries */
+  source?: EntrySource;
+  /** For costs: classification */
+  classification?: CostClassification;
+  /** For costs: spread days */
+  spreadDays?: number;
+  /** Whether it comes from the cost map */
+  fromCostMap?: boolean;
+}
+
 export type CostClassification = 'fixed' | 'variable';
 
 export interface Cost {
@@ -354,10 +375,8 @@ export function getDaySummary(date: string = getDateString()) {
   );
   const profit = totalRevenue - totalRealCost;
   const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
-  const ticketMedio = dayEntries.length > 0 ? totalRevenue / dayEntries.length : 0;
-  const custoMedioPorVenda = dayEntries.length > 0 ? totalRealCost / dayEntries.length : 0;
   const entryCount = dayEntries.length;
-  return { totalRevenue, totalRealCost, profit, margin, ticketMedio, custoMedioPorVenda, entryCount };
+  return { totalRevenue, totalRealCost, profit, margin, entryCount };
 }
 
 function getDateRange(days: number): string[] {
@@ -386,9 +405,8 @@ function getPeriodSummary(days: number) {
 
   const profit = totalRevenue - totalRealCost;
   const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
-  const ticketMedio = totalEntries > 0 ? totalRevenue / totalEntries : 0;
 
-  return { totalRevenue, totalRealCost, profit, margin, ticketMedio, totalEntries };
+  return { totalRevenue, totalRealCost, profit, margin, totalEntries };
 }
 
 export function getWeekSummary() {
@@ -758,15 +776,8 @@ export function getMonthlyProjection(): { revenue: number; cost: number; profit:
   return { revenue, cost, profit, margin };
 }
 
-export function getCostPerSale(): number {
-  const week = getWeekSummary();
-  return week.totalEntries > 0 ? week.totalRealCost / week.totalEntries : 0;
-}
-
-export function getProfitPerSale(): number {
-  const week = getWeekSummary();
-  return week.totalEntries > 0 ? week.profit / week.totalEntries : 0;
-}
+// Per-sale metrics removed — system now uses financial movements model
+// Revenue = sum of all entries, Costs = sum of all exits, Profit = revenue - costs
 
 // ─── Enhanced Smart Insights ───────────────────────────────────────
 
