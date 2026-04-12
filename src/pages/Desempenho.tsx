@@ -7,7 +7,7 @@ import {
   getMonthlyProjection,
   isOperatingDay,
 } from '@/lib/store';
-import ProactiveAlerts from '@/components/ProactiveAlerts';
+
 import AIInsightsPanel from '@/components/AIInsightsPanel';
 import GoalsProgress from '@/components/GoalsProgress';
 import {
