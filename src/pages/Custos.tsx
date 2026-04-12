@@ -407,12 +407,6 @@ export default function Custos() {
               </div>
             )}
 
-            {breakdown.total > 0 && (
-              <AIInsightsPanel
-                businessType={state.businessType || 'outro'}
-                period="custos"
-              />
-            )}
           </motion.div>
         ) : (
           <motion.div key="list" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
