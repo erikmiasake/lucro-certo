@@ -10,7 +10,7 @@ import {
 import CostModal from '@/components/CostModal';
 import CostMapSection from '@/components/CostMapSection';
 import FeedbackToast from '@/components/FeedbackToast';
-import AIInsightsPanel from '@/components/AIInsightsPanel';
+
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 function fmt(value: number) {
