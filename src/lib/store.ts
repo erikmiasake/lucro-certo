@@ -1261,6 +1261,9 @@ export interface MonthlySummary {
   avgDailyProfit: number;
   operatingDays: number;
   daysWithData: number;
+  totalEntries: number;
+  totalManualCosts: number;
+  totalCostMapItems: number;
   bestDay: { date: string; profit: number } | null;
   worstDay: { date: string; profit: number } | null;
   totalFixed: number;
@@ -1287,31 +1290,32 @@ export function getMonthlySummary(year: number, month: number): MonthlySummary {
     if (weekdays.includes(dt.getDay())) operatingDays++;
   }
 
-  // Gather all dates in the month
+  // Build all date strings for the month
   const monthDates: string[] = [];
   for (let d = 1; d <= daysInMonth; d++) {
     monthDates.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
   }
 
-  // Calculate revenue, costs, profit per day
+  // Use getDaySummary (same as dashboard) for EVERY day — single source of truth
   let totalRevenue = 0;
   let totalCost = 0;
   let daysWithData = 0;
+  let totalEntries = 0;
   let bestDay: { date: string; profit: number } | null = null;
   let worstDay: { date: string; profit: number } | null = null;
 
   for (const dateStr of monthDates) {
-    const dayEntries = state.entries.filter(e => e.date === dateStr);
-    const dayRevenue = dayEntries.reduce((s, e) => s + e.amount, 0);
-    const dayCost = state.costs.reduce((s, c) => s + getCostImpactOnDate(c, dateStr), 0);
+    const daySummary = getDaySummary(dateStr);
+    totalRevenue += daySummary.totalRevenue;
+    totalCost += daySummary.totalRealCost;
+    totalEntries += daySummary.entryCount;
 
-    totalRevenue += dayRevenue;
-    totalCost += dayCost;
-
-    const hasData = dayEntries.length > 0 || state.costs.some(c => c.date === dateStr && !isDerivedCost(c));
-    if (hasData || dayRevenue > 0) {
+    // A day "has data" if user recorded entries or manual costs on it
+    const hasManualEntries = state.entries.some(e => e.date === dateStr);
+    const hasManualCosts = state.costs.some(c => c.date === dateStr && !isDerivedCost(c));
+    if (hasManualEntries || hasManualCosts) {
       daysWithData++;
-      const dayProfit = dayRevenue - dayCost;
+      const dayProfit = daySummary.totalRevenue - daySummary.totalRealCost;
       if (!bestDay || dayProfit > bestDay.profit) bestDay = { date: dateStr, profit: Math.round(dayProfit) };
       if (!worstDay || dayProfit < worstDay.profit) worstDay = { date: dateStr, profit: Math.round(dayProfit) };
     }
@@ -1324,17 +1328,11 @@ export function getMonthlySummary(year: number, month: number): MonthlySummary {
   const avgDailyCost = daysWithData > 0 ? totalCost / daysWithData : 0;
   const avgDailyProfit = avgDailyRevenue - avgDailyCost;
 
-  // Cost breakdown for the month
+  // Cost breakdown — use same getCostImpactOnDate across month dates
   const fixedCosts = state.costs.filter(c => c.classification === 'fixed');
   const variableCosts = state.costs.filter(c => c.classification === 'variable');
-  const totalFixed = fixedCosts.reduce((s, c) => {
-    const impact = monthDates.reduce((acc, d) => acc + getCostImpactOnDate(c, d), 0);
-    return s + impact;
-  }, 0);
-  const totalVariable = variableCosts.reduce((s, c) => {
-    const impact = monthDates.reduce((acc, d) => acc + getCostImpactOnDate(c, d), 0);
-    return s + impact;
-  }, 0);
+  const totalFixed = fixedCosts.reduce((s, c) => monthDates.reduce((acc, d) => acc + getCostImpactOnDate(c, d), s), 0);
+  const totalVariable = variableCosts.reduce((s, c) => monthDates.reduce((acc, d) => acc + getCostImpactOnDate(c, d), s), 0);
   const totalCostCalc = totalFixed + totalVariable || totalCost;
 
   // Categories
@@ -1342,16 +1340,20 @@ export function getMonthlySummary(year: number, month: number): MonthlySummary {
   state.costs.forEach(c => {
     const key = c.category || (c.type === 'product' ? 'Produto' : 'Negócio');
     const impact = monthDates.reduce((acc, d) => acc + getCostImpactOnDate(c, d), 0);
-    catMap.set(key, (catMap.get(key) || 0) + impact);
+    if (impact > 0) catMap.set(key, (catMap.get(key) || 0) + impact);
   });
   const topCategories = Array.from(catMap.entries())
     .map(([name, amount]) => ({ name, amount: Math.round(amount), percentage: totalCostCalc > 0 ? Math.round((amount / totalCostCalc) * 100) : 0 }))
     .sort((a, b) => b.amount - a.amount)
     .slice(0, 5);
 
-  // Validation
+  // Verification counts
+  const totalManualCosts = state.costs.filter(c => !isDerivedCost(c) && monthDates.includes(c.date)).length;
+  const totalCostMapItems = state.costMap.filter(i => i.value > 0).length;
+
+  // Validation: min 7 days with real user data
   const isValid = daysWithData >= 7;
-  const invalidReason = !isValid ? `Dados insuficientes: apenas ${daysWithData} dia(s) com movimentação. Mínimo: 7 dias.` : undefined;
+  const invalidReason = !isValid ? `Dados insuficientes: apenas ${daysWithData} dia(s) com movimentação registrada. Mínimo: 7 dias.` : undefined;
 
   // Goals
   const goalMonthlyProfit = state.goals.monthlyProfit || null;
@@ -1367,8 +1369,7 @@ export function getMonthlySummary(year: number, month: number): MonthlySummary {
     avgDailyRevenue: Math.round(avgDailyRevenue),
     avgDailyCost: Math.round(avgDailyCost),
     avgDailyProfit: Math.round(avgDailyProfit),
-    operatingDays,
-    daysWithData,
+    operatingDays, daysWithData, totalEntries, totalManualCosts, totalCostMapItems,
     bestDay, worstDay,
     totalFixed: Math.round(totalFixed),
     totalVariable: Math.round(totalVariable),
