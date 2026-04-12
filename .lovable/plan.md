@@ -1,72 +1,56 @@
 
 
-# Plano: Relatório Mensal Inteligente
+# Plano: Fonte Única de Dados — Correções de Consistência
 
-## Resumo
+## Problema atual
 
-Implementar geração de relatório mensal em PDF com análise da IA, acessível por uma nova aba "Relatório" no menu lateral. O relatório consolida dados financeiros do mês, passa pela IA para gerar diagnóstico e recomendações, e gera um PDF baixável.
+Existem **duas divergências** entre as abas:
 
-## Arquitetura
+1. **`getMonthSummary()` usa janela de 30 dias** (últimos 30 dias corridos), enquanto `getMonthlySummary(year, month)` usa mês calendário. Todas as abas do dashboard (Visão Geral, Movimentações, Custos, Desempenho) usam a janela de 30 dias.
 
-```text
-┌─────────────┐     ┌──────────────────┐     ┌─────────────────┐
-│ store.ts    │────▶│ Edge Function    │────▶│ PDF Generation  │
-│ getMonthlySummary │ monthly-report   │     │ (html-to-pdf)   │
-│ (dados validados) │ (IA estruturada) │     │ client-side     │
-└─────────────┘     └──────────────────┘     └─────────────────┘
-```
+2. **`getCostBreakdown()` usa `getMonthlyViewCostAmount()`** que normaliza custos com fórmula diferente da usada por `getDaySummary()`. Resultado: o custo total na aba Custos pode divergir do custo nas outras abas.
 
-## Fases de implementação
+3. **Melhor/pior dia em `getMonthlySummary`** não filtra dias não-operacionais (ex: domingo para barbearia 6 dias/semana).
 
-### Fase 1-2: Dados + Validação — `src/lib/store.ts`
+## Solução
 
-Criar `getMonthlySummary(year, month)` que consolida dados de um mês específico (não apenas os últimos 30 dias):
-- Receita total, custos totais, lucro, margem (%)
-- Custo percentual sobre receita
-- Média diária (baseada apenas em dias com movimentação)
-- Dias operacionais com movimento
-- Melhor dia e pior dia (lucro)
-- Breakdown de custos fixos vs variáveis
-- Validação: mínimo 7 dias operacionais com dados, senão bloqueia
+### 1. `getMonthSummary()` → mês calendário
 
-### Fase 3: IA — Nova Edge Function `monthly-report`
+Trocar `getPeriodSummary(30)` por soma de `getDaySummary()` do dia 1 ao último dia do mês corrente. Isso alinha dashboard e relatório na mesma base.
 
-Nova edge function `supabase/functions/monthly-report/index.ts`:
-- Recebe o `monthlySummary` estruturado
-- Prompt restrito: gerar apenas resumo, diagnóstico, até 3 problemas, até 3 recomendações, conclusão
-- Mesmo padrão de segurança do `ai-insights` (não inventar dados, usar apenas números fornecidos)
-- Retorna JSON estruturado com seções do relatório
+### 2. Modularizar cálculos atômicos
 
-### Fase 4-5: Layout + PDF — `src/pages/Relatorio.tsx`
+Extrair funções puras:
+- `getRevenueOnDate(date)` — receita do dia
+- `getCostsOnDate(date)` — custo total do dia
+- `getDaySummary(date)` — junta os dois (já existe, mantém)
+- `getPeriodSummary(startDate, endDate)` — soma de `getDaySummary` entre duas datas
+- `getCostBreakdownForPeriod(startDate, endDate)` — agrupa custos usando `getCostImpactOnDate` no período, exibindo **valor agregado por custo** (aluguel = R$3.000, não 30x R$100)
 
-Criar página com:
-- Seletor de mês (dropdown dos últimos 6 meses)
-- Botão "Gerar Relatório" com loading state
-- Preview do relatório em HTML com seções: Capa, Resumo, Visão Operacional, Receita, Custos, Lucro, Problemas, Recomendações, Conclusão
-- Botão "Baixar PDF" usando biblioteca `html2pdf.js` (client-side, sem servidor)
-- Validação visual: se dados insuficientes, mostra mensagem e bloqueia
+### 3. Unificar `getCostBreakdown()`
 
-### Fase 6: UX — Integração no menu
+Reescrever para usar `getCostImpactOnDate` somado no período do mês calendário, em vez de `getMonthlyViewCostAmount`. Assim o total do breakdown será idêntico ao `month.totalRealCost`.
 
-- Adicionar link "Relatório" no sidebar (`AceternitySidebar.tsx`)
-- Adicionar rota `/relatorio` no `App.tsx` e `Index.tsx`
-- Fluxo: selecionar mês → gerar → preview → download
+### 4. Dias fechados — regra explícita
 
-## Arquivos a criar/editar
+Em `getMonthlySummary` e `getBestAndWorstDay`:
+- Dias não-operacionais (`!isOperatingDay`) **não entram** em melhor/pior dia
+- Dias não-operacionais **não entram** na média operacional
+- Custo fixo continua rateado normalmente (impacto diário existe mesmo em dia fechado)
+- Receita e custo variável = 0 em dia fechado (natural, pois não há entradas)
 
-| Arquivo | Ação |
-|---------|------|
-| `src/lib/store.ts` | Adicionar `getMonthlySummary(year, month)` |
-| `supabase/functions/monthly-report/index.ts` | Nova edge function para IA do relatório |
-| `src/pages/Relatorio.tsx` | Nova página com preview + PDF |
-| `src/components/AceternitySidebar.tsx` | Adicionar link "Relatório" |
-| `src/pages/Index.tsx` | Adicionar rota `/relatorio` |
-| `src/App.tsx` | Adicionar rota protegida `/relatorio` |
-| `package.json` | Adicionar `html2pdf.js` |
+### 5. Eliminar `getMonthlyViewCostAmount()`
 
-## Detalhes técnicos
+Função legada que causa a divergência. Substituir todos os usos por cálculo baseado em período.
 
-- **PDF client-side**: Usar `html2pdf.js` para converter o HTML renderizado diretamente no browser, sem necessidade de servidor. Leve, funcional no mobile.
-- **Prompt da IA**: Restrito a usar apenas os números do `monthlySummary`. Saída limitada a: `summary`, `diagnosis`, `problems[]` (max 3), `recommendations[]` (max 3), `conclusion`.
-- **Validação**: `getMonthlySummary` retorna flag `isValid: boolean` — se false, UI bloqueia geração.
+## Arquivos a editar
+
+| Arquivo | Mudança |
+|---------|---------|
+| `src/lib/store.ts` | Refatorar `getMonthSummary` para mês calendário; reescrever `getCostBreakdown` usando `getCostImpactOnDate` no período; adicionar `isOperatingDay` check em `getMonthlySummary` best/worst; remover `getMonthlyViewCostAmount` |
+| `src/pages/Custos.tsx` | Ajustar para usar `month.totalRealCost` como base de percentuais (em vez de `breakdown.total`) |
+
+## Resultado esperado
+
+Todas as abas (Visão Geral, Movimentações, Custos, Desempenho, Relatório) mostrarão exatamente os mesmos números para o mesmo mês, porque todas derivam de `getDaySummary()` somado no mês calendário.
 
