@@ -95,7 +95,7 @@ ${cappedProjection ? `- Projeção mensal: R$ ${cappedProjection.revenue} receit
 ${s.goalMonthlyProfit ? `- Meta: R$ ${s.goalMonthlyProfit}/mês | Progresso: ${s.goalProgress}% | ${s.goalOnTrack ? 'No ritmo' : 'Abaixo'} | ${s.daysRemaining} dias restantes` : ''}
 - Lucro acumulado mês: R$ ${s.monthProfit}
 
-${isInteractive ? `O dono perguntou: "${question}". Responda APENAS com base nos dados acima. Se a pergunta não puder ser respondida com os dados disponíveis, diga claramente.` : 'Gere a análise usando a tool "generate_insights".'}`;
+${isInteractive ? `O dono perguntou: "${question}". Responda APENAS com base nos dados acima. Se a pergunta não puder ser respondida com os dados disponíveis, diga claramente. Use texto simples, sem markdown. Separe ideias em parágrafos curtos. Destaque valores em R$ e percentuais naturalmente no texto. Máximo 4 parágrafos.` : 'Gere a análise usando a tool "generate_insights".'}`;
 
     const tools = isInteractive ? undefined : [
       {
