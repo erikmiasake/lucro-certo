@@ -24,7 +24,6 @@ function fmt(value: number) {
 }
 
 function fmtShort(value: number) {
-  if (Math.abs(value) >= 1000) return `R$ ${(value / 1000).toFixed(0)}k`;
   return fmt(value);
 }
 
