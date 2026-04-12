@@ -11,7 +11,7 @@ import ProactiveAlerts from '@/components/ProactiveAlerts';
 import AIInsightsPanel from '@/components/AIInsightsPanel';
 import GoalsProgress from '@/components/GoalsProgress';
 import {
-  TrendingUp, Trophy, AlertTriangle,
+  TrendingUp, BarChart3, Trophy, AlertTriangle,
   ArrowUpRight, ArrowDownRight, Percent, Target,
 } from 'lucide-react';
 
