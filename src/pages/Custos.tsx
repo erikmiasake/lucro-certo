@@ -2,7 +2,7 @@ import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs, BusinessType } from '@/lib/business-config';
-import { getRecentCosts, deleteCost, getCostBreakdown, getWeekSummary, getMonthSummary, getCostAnalysisAmount, CostClassification, registerCost } from '@/lib/store';
+import { getRecentCosts, deleteCost, getCostBreakdown, getWeekSummary, getMonthSummary, getCostAnalysisAmount, CostClassification, registerCost, getCostMap } from '@/lib/store';
 import {
   Trash2, Plus, Package, Building2, AlertTriangle, PieChart, TrendingDown,
   BarChart3, Layers, Target, Brain, ArrowDownRight, Lightbulb, Scale, ChevronRight, Map
@@ -64,9 +64,11 @@ export default function Custos() {
   const breakdown = useMemo(() => getCostBreakdown(), [state]);
   const week = useMemo(() => getWeekSummary(), [state]);
   const month = useMemo(() => getMonthSummary(), [state]);
+  const costMap = useMemo(() => getCostMap(), [state]);
   const [showCost, setShowCost] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [viewTab, setViewTab] = useState<'map' | 'overview' | 'list'>('map');
+  const [costView, setCostView] = useState<'real' | 'operacional'>('operacional');
 
   const bType = state.businessType || 'outro';
   const bench = benchmarks[bType];
@@ -126,48 +128,114 @@ export default function Custos() {
         <p className="text-muted-foreground text-xs mt-0.5">Análise inteligente de onde seu dinheiro está indo</p>
       </div>
 
-      {/* Summary Cards Row */}
-      <div className="grid grid-cols-3 gap-2 mb-4">
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="p-3 rounded-xl card-elevated"
-        >
-          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">Total</p>
-          <p className="text-sm font-bold text-foreground">{fmt(breakdown.total)}</p>
-          {month.totalRevenue > 0 && (
-            <p className={`text-[10px] font-medium mt-0.5 ${statusColors[totalStatus]}`}>
-              {costPctOfRevenue.toFixed(0)}% da receita
-            </p>
-          )}
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.05 }}
-          className="p-3 rounded-xl card-elevated"
-        >
-          <div className="flex items-center gap-1 mb-1">
-            <Building2 className="h-2.5 w-2.5 text-purple-400" />
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Fixos</p>
+      {/* Cost View Toggle: Real vs Operacional */}
+      {(() => {
+        const totalMonthly = costMap.totalMonthly || 0;
+        if (totalMonthly === 0) return null;
+
+        const now = new Date();
+        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
+        const opDaysPerWeek = state.businessProfile?.operatingWeekdays?.length ?? 6;
+        const weeksInMonth = daysInMonth / 7;
+        const opDaysInMonth = Math.round(opDaysPerWeek * weeksInMonth);
+
+        const realDaily = totalMonthly / daysInMonth;
+        const realWeekly = realDaily * 7;
+
+        const opDaily = totalMonthly / (opDaysInMonth || 1);
+        const opWeekly = opDaily * opDaysPerWeek;
+
+        return (
+          <div className="mb-4 space-y-3">
+            {/* Toggle */}
+            <div className="flex gap-1 p-0.5 rounded-lg bg-secondary/50">
+              <button
+                onClick={() => setCostView('operacional')}
+                className={`flex-1 py-2 rounded-md font-medium text-xs transition-all ${
+                  costView === 'operacional' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                ⚙️ Custo Operacional
+              </button>
+              <button
+                onClick={() => setCostView('real')}
+                className={`flex-1 py-2 rounded-md font-medium text-xs transition-all ${
+                  costView === 'real' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                }`}
+              >
+                💰 Custo Real
+              </button>
+            </div>
+
+            {/* Values */}
+            <motion.div
+              key={costView}
+              initial={{ opacity: 0, y: 6 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="rounded-xl p-4 card-elevated space-y-3"
+            >
+              <div className="grid grid-cols-3 gap-3">
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground font-medium">Diário</p>
+                  <p className="text-lg font-bold text-foreground">{fmt(Math.round(costView === 'real' ? realDaily : opDaily))}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground font-medium">Semanal</p>
+                  <p className="text-lg font-bold text-foreground">{fmt(Math.round(costView === 'real' ? realWeekly : opWeekly))}</p>
+                </div>
+                <div className="text-center">
+                  <p className="text-[10px] text-muted-foreground font-medium">Mensal</p>
+                  <p className="text-lg font-bold text-foreground">{fmt(Math.round(totalMonthly))}</p>
+                </div>
+              </div>
+
+              <div className="pt-3 border-t border-border/50">
+                {costView === 'operacional' ? (
+                  <div className="space-y-1.5">
+                    <p className="text-[11px] font-semibold text-foreground">Quanto custa cada dia aberto</p>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                      Custos distribuídos apenas pelos <span className="text-foreground font-semibold">{opDaysInMonth} dias</span> em que o negócio abre neste mês ({opDaysPerWeek} dias/semana).
+                    </p>
+                    <p className="text-[10px] text-primary/70 font-medium">
+                      👉 Mostra quanto você precisa faturar por dia aberto para cobrir custos e gerar lucro.
+                    </p>
+                  </div>
+                ) : (
+                  <div className="space-y-1.5">
+                    <p className="text-[11px] font-semibold text-foreground">Quanto custa manter o negócio</p>
+                    <p className="text-[10px] text-muted-foreground leading-relaxed">
+                      Custos distribuídos por todos os <span className="text-foreground font-semibold">{daysInMonth} dias</span> do mês — aberto ou não.
+                    </p>
+                    <p className="text-[10px] text-primary/70 font-medium">
+                      👉 Mostra o peso estrutural do negócio — o que você paga mesmo sem atender clientes.
+                    </p>
+                  </div>
+                )}
+              </div>
+            </motion.div>
+
+            {/* Fixed vs Variable summary */}
+            <div className="grid grid-cols-2 gap-2">
+              <div className="p-3 rounded-xl card-elevated">
+                <div className="flex items-center gap-1 mb-1">
+                  <Building2 className="h-2.5 w-2.5 text-purple-400" />
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Fixos</p>
+                </div>
+                <p className="text-sm font-bold text-foreground">{fmt(breakdown.totalFixed)}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{breakdown.fixedPercentage.toFixed(0)}% dos custos</p>
+              </div>
+              <div className="p-3 rounded-xl card-elevated">
+                <div className="flex items-center gap-1 mb-1">
+                  <Package className="h-2.5 w-2.5 text-accent" />
+                  <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Variáveis</p>
+                </div>
+                <p className="text-sm font-bold text-foreground">{fmt(breakdown.totalVariable)}</p>
+                <p className="text-[10px] text-muted-foreground mt-0.5">{breakdown.variablePercentage.toFixed(0)}% dos custos</p>
+              </div>
+            </div>
           </div>
-          <p className="text-sm font-bold text-foreground">{fmt(breakdown.totalFixed)}</p>
-          <p className="text-[10px] text-purple-400 font-medium mt-0.5">{breakdown.fixedPercentage.toFixed(0)}%</p>
-        </motion.div>
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.1 }}
-          className="p-3 rounded-xl card-elevated"
-        >
-          <div className="flex items-center gap-1 mb-1">
-            <Package className="h-2.5 w-2.5 text-accent" />
-            <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Variáveis</p>
-          </div>
-          <p className="text-sm font-bold text-foreground">{fmt(breakdown.totalVariable)}</p>
-          <p className="text-[10px] text-accent font-medium mt-0.5">{breakdown.variablePercentage.toFixed(0)}%</p>
-        </motion.div>
-      </div>
+        );
+      })()}
 
       {/* Alert */}
       {breakdown.isHighCost && (
