@@ -1078,6 +1078,65 @@ export function getRevenueStats() {
   };
 }
 
+// ─── Unified Transactions ──────────────────────────────────────────
+
+/** Get all financial movements as a unified list of transactions */
+export function getAllTransactions(limit?: number): Transaction[] {
+  const entryTransactions: Transaction[] = state.entries.map(e => ({
+    id: e.id,
+    tipo: 'entrada' as TransactionType,
+    valor: e.amount,
+    data: e.date,
+    categoria: e.category || 'Receita',
+    descricao: e.description,
+    createdAt: e.createdAt,
+    source: e.source,
+  }));
+
+  const costTransactions: Transaction[] = state.costs.map(c => ({
+    id: c.id,
+    tipo: 'saida' as TransactionType,
+    valor: c.amount,
+    data: c.date,
+    categoria: c.category || (c.type === 'product' ? 'Produto' : 'Negócio'),
+    descricao: c.description,
+    createdAt: c.createdAt,
+    classification: c.classification,
+    spreadDays: c.spreadDays,
+    fromCostMap: c.id.startsWith('costmap-'),
+  }));
+
+  const all = [...entryTransactions, ...costTransactions]
+    .sort((a, b) => b.createdAt - a.createdAt);
+
+  return limit ? all.slice(0, limit) : all;
+}
+
+/** Get transactions for a specific date */
+export function getTransactionsByDate(date: string): Transaction[] {
+  return getAllTransactions().filter(t => t.data === date);
+}
+
+/** Get transaction totals */
+export function getTransactionTotals(days: number = 30) {
+  const dates = getDateRange(days);
+  const transactions = getAllTransactions().filter(t => dates.includes(t.data));
+  const entradas = transactions.filter(t => t.tipo === 'entrada');
+  const saidas = transactions.filter(t => t.tipo === 'saida');
+  const receita = entradas.reduce((s, t) => s + t.valor, 0);
+  // For costs, use the impact-based calculation for accuracy
+  const summary = getPeriodSummary(days);
+  return {
+    receita: summary.totalRevenue,
+    custos: summary.totalRealCost,
+    lucro: summary.profit,
+    margem: summary.margin,
+    totalEntradas: entradas.length,
+    totalSaidas: saidas.length,
+    totalMovimentacoes: transactions.length,
+  };
+}
+
 export function resetAll() {
   state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
   notify();
