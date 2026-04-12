@@ -441,14 +441,15 @@ export function getPreviousWeekSummary() {
   return { totalRevenue, totalRealCost, profit: totalRevenue - totalRealCost };
 }
 
-export function getWeekDailyData() {
+export function getWeekDailyData(filterNonOperating = false) {
   const weekday = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
-  const days: { label: string; date: string; profit: number; revenue: number; cost: number; margin: number }[] = [];
+  const days: { label: string; date: string; profit: number; revenue: number; cost: number; margin: number; operating: boolean }[] = [];
   const today = new Date();
   for (let i = 6; i >= 0; i--) {
     const d = new Date(today);
     d.setDate(d.getDate() - i);
     const dateStr = getDateString(d);
+    const operating = isOperatingDay(dateStr);
     const s = getDaySummary(dateStr);
     days.push({
       label: weekday[d.getDay()],
@@ -457,9 +458,14 @@ export function getWeekDailyData() {
       revenue: s.totalRevenue,
       cost: s.totalRealCost,
       margin: s.margin,
+      operating,
     });
   }
+  if (filterNonOperating) {
+    return days.filter(d => d.operating || d.revenue > 0 || d.cost > 0);
+  }
   return days;
+}
 }
 
 export function getBestAndWorstDay(days: number = 30) {

@@ -44,7 +44,7 @@ export default function VisaoGeral() {
   const week = getWeekSummary();
   const month = getMonthSummary();
   const insights = getSmartInsights();
-  const weekData = getWeekDailyData();
+  const weekData = getWeekDailyData(true);
 
   const [showEntry, setShowEntry] = useState(false);
   const [showCost, setShowCost] = useState(false);
@@ -152,7 +152,7 @@ export default function VisaoGeral() {
         <GoalsProgress />
       </div>
 
-      {/* Mini chart - 7 days */}
+      {/* Mini chart - 7 days (operating days only) */}
       <motion.div
         initial={{ opacity: 0, y: 12 }}
         animate={{ opacity: 1, y: 0 }}
@@ -160,29 +160,46 @@ export default function VisaoGeral() {
         className="mt-4 rounded-2xl p-5 card-elevated"
       >
         <p className="text-sm font-semibold text-foreground mb-4">Últimos 7 dias</p>
-        <div className="flex items-end gap-1.5 h-24">
-          {weekData.map((d, i) => {
-            const height = maxRevenue > 0 ? Math.max((d.revenue / maxRevenue) * 100, 8) : 8;
-            const isToday = d.date === today;
-            return (
-              <div key={d.date} className="flex-1 flex flex-col items-center gap-1.5">
-                <motion.div
-                  initial={{ height: 0 }}
-                  animate={{ height: `${height}%` }}
-                  transition={{ delay: 0.35 + i * 0.05, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
-                  className={`w-full rounded-md ${
-                    isToday
-                      ? d.profit >= 0 ? 'gradient-primary shadow-md shadow-primary/20' : 'gradient-accent shadow-md shadow-accent/20'
-                      : d.profit >= 0 ? 'bg-primary/25' : 'bg-accent/25'
-                  }`}
-                />
-                <span className={`text-[9px] font-medium ${isToday ? 'text-foreground' : 'text-muted-foreground'}`}>
-                  {d.label}
-                </span>
-              </div>
-            );
-          })}
-        </div>
+        {weekData.length > 0 ? (
+          <div className="space-y-3">
+            <div className="flex items-end gap-1.5 h-20">
+              {weekData.map((d, i) => {
+                const maxVal = Math.max(...weekData.map(x => Math.max(x.revenue, x.cost)), 1);
+                const revH = maxVal > 0 ? Math.max((d.revenue / maxVal) * 100, d.revenue > 0 ? 10 : 0) : 0;
+                const isToday = d.date === today;
+                return (
+                  <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
+                    <motion.div
+                      initial={{ height: 0 }}
+                      animate={{ height: `${revH}%` }}
+                      transition={{ delay: 0.35 + i * 0.05, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+                      className={`w-full rounded-md ${
+                        isToday
+                          ? d.profit >= 0 ? 'gradient-primary shadow-md shadow-primary/20' : 'gradient-accent shadow-md shadow-accent/20'
+                          : d.profit >= 0 ? 'bg-primary/25' : 'bg-accent/25'
+                      }`}
+                    />
+                    <span className={`text-[9px] font-medium ${isToday ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      {d.label}
+                    </span>
+                  </div>
+                );
+              })}
+            </div>
+            {/* Profit summary row */}
+            <div className="flex gap-1">
+              {weekData.map((d) => (
+                <div key={d.date} className="flex-1 text-center">
+                  <p className={`text-[9px] font-bold ${d.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                    {d.profit !== 0 ? (d.profit >= 0 ? '+' : '') + d.profit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 }) : '—'}
+                  </p>
+                </div>
+              ))}
+            </div>
+          </div>
+        ) : (
+          <p className="text-sm text-muted-foreground text-center py-4">Sem dados para exibir</p>
+        )}
       </motion.div>
 
       {/* Smart Insights */}

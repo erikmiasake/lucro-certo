@@ -109,7 +109,7 @@ export default function Movimentacoes() {
   const weekSummary = getWeekSummary();
   const monthSummary = getMonthSummary();
   const prevWeek = getPreviousWeekSummary();
-  const weekData = getWeekDailyData();
+  const weekData = getWeekDailyData(true);
   const insights = getSmartInsights();
 
   const weekChange = prevWeek.totalRevenue > 0
@@ -465,12 +465,12 @@ export default function Movimentacoes() {
         {/* ───── SEMANA ───── */}
         {period === 'semana' && (
           <motion.div key="semana" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
-            {/* Week chart */}
+            {/* Week chart — Receita, Custo, Lucro */}
             <div className="rounded-xl p-4 card-elevated mb-3">
               <div className="flex items-center justify-between mb-3">
                 <div className="flex items-center gap-2">
                   <BarChart3 className="h-3.5 w-3.5 text-primary" />
-                  <p className="text-xs font-semibold text-foreground">Receita por dia</p>
+                  <p className="text-xs font-semibold text-foreground">Receita vs Custo (dias operacionais)</p>
                 </div>
                 {weekChange !== 0 && (
                   <span className={`text-[10px] font-medium flex items-center gap-0.5 ${weekChange >= 0 ? 'text-primary' : 'text-destructive'}`}>
@@ -479,24 +479,37 @@ export default function Movimentacoes() {
                   </span>
                 )}
               </div>
-              <div className="h-40">
-                <ResponsiveContainer width="100%" height="100%">
-                  <BarChart data={weekData} barSize={20}>
-                    <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
-                    <YAxis hide />
-                    <Tooltip
-                      contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '11px' }}
-                      formatter={(value: number) => [fmt(value), '']}
-                      labelFormatter={(label) => label}
-                    />
-                    <Bar dataKey="revenue" radius={[6, 6, 0, 0]}>
-                      {weekData.map((entry, index) => (
-                        <Cell key={index} fill={entry.revenue > 0 ? 'hsl(var(--primary))' : 'hsl(var(--secondary))'} opacity={entry.revenue > 0 ? 0.8 : 0.3} />
-                      ))}
-                    </Bar>
-                  </BarChart>
-                </ResponsiveContainer>
-              </div>
+              {weekData.length > 0 ? (
+                <div className="space-y-2">
+                  <div className="h-36">
+                    <ResponsiveContainer width="100%" height="100%">
+                      <BarChart data={weekData} barSize={16} barGap={2}>
+                        <XAxis dataKey="label" tick={{ fontSize: 10, fill: 'hsl(var(--muted-foreground))' }} axisLine={false} tickLine={false} />
+                        <YAxis hide />
+                        <Tooltip
+                          contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '11px' }}
+                          formatter={(value: number, name: string) => [fmt(value), name === 'revenue' ? 'Receita' : name === 'cost' ? 'Custo' : 'Lucro']}
+                          labelFormatter={(label) => label}
+                        />
+                        <Bar dataKey="revenue" name="Receita" fill="hsl(var(--primary))" opacity={0.8} radius={[4, 4, 0, 0]} />
+                        <Bar dataKey="cost" name="Custo" fill="hsl(var(--accent))" opacity={0.7} radius={[4, 4, 0, 0]} />
+                      </BarChart>
+                    </ResponsiveContainer>
+                  </div>
+                  {/* Profit row */}
+                  <div className="flex gap-1">
+                    {weekData.map((d) => (
+                      <div key={d.date} className="flex-1 text-center">
+                        <p className={`text-[9px] font-bold ${d.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                          {d.profit !== 0 ? (d.profit >= 0 ? '+' : '') + fmtShort(d.profit) : '—'}
+                        </p>
+                      </div>
+                    ))}
+                  </div>
+                </div>
+              ) : (
+                <p className="text-sm text-muted-foreground text-center py-8">Sem dados para exibir</p>
+              )}
             </div>
 
             {/* Week breakdown */}
