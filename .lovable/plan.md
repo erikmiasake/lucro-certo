@@ -1,38 +1,72 @@
 
 
-# Plano: Corrigir Insights, IA e Projeção Mensal
+# Plano: Relatório Mensal Inteligente
 
-## Problemas identificados no documento
+## Resumo
 
-1. **Insights locais (`getSmartInsights`) com números genéricos** — frases como "Margem excelente hoje — dia lucrativo" sem valor financeiro concreto
-2. **IA (Copiloto) menciona "clientes" e "vendas"** — o modelo de dados é baseado em movimentações, não clientes. O prompt ainda referencia "clientes" e "valor por cliente"
-3. **Projeção mensal com valores inflados** — a projeção está aparecendo na IA com números muito altos
-4. **Gráfico "Últimos 7 dias" ainda visível em alguma tela** — precisa confirmar se já foi removido de todas as telas
+Implementar geração de relatório mensal em PDF com análise da IA, acessível por uma nova aba "Relatório" no menu lateral. O relatório consolida dados financeiros do mês, passa pela IA para gerar diagnóstico e recomendações, e gera um PDF baixável.
 
-## Mudanças planejadas
+## Arquitetura
 
-### 1. Corrigir `getSmartInsights()` em `src/lib/store.ts`
-- Remover insight genérico "Margem excelente hoje — dia lucrativo" (linha 876) — substituir por versão com valor: `"Margem de X% hoje — lucro de R$ Y"`
-- Garantir que todos os insights tenham base matemática com valores em R$ ou %
-- Ajustar projeção mensal no insight (linhas 858-868) para usar `getMonthlyProjection()` ao invés de cálculo duplicado
+```text
+┌─────────────┐     ┌──────────────────┐     ┌─────────────────┐
+│ store.ts    │────▶│ Edge Function    │────▶│ PDF Generation  │
+│ getMonthlySummary │ monthly-report   │     │ (html-to-pdf)   │
+│ (dados validados) │ (IA estruturada) │     │ client-side     │
+└─────────────┘     └──────────────────┘     └─────────────────┘
+```
 
-### 2. Corrigir prompt da IA em `supabase/functions/ai-insights/index.ts`
-- Substituir todas as referências a "cliente" por "movimentação/entrada"
-- Trocar "valor médio por cliente" por "valor médio por entrada" 
-- Trocar `avgPerClient` por `avgPerEntry` na nomenclatura
-- Remover instrução que menciona "clientes" no ponto 7 do prompt
-- Ajustar exemplos no prompt para usar linguagem de movimentações financeiras
+## Fases de implementação
 
-### 3. Corrigir dados enviados do `AIInsightsPanel.tsx` para a IA
-- O campo `summary.totalEntries` representa número de registros de entrada, não "clientes" — garantir que o prompt trate como "entradas registradas" (já está correto no userPrompt, mas o systemPrompt mistura terminologia)
+### Fase 1-2: Dados + Validação — `src/lib/store.ts`
 
-### 4. Validar remoção completa de gráficos
-- Confirmar que `VisaoGeral.tsx` e `Desempenho.tsx` não têm mais gráficos de barras (já confirmado no código atual)
+Criar `getMonthlySummary(year, month)` que consolida dados de um mês específico (não apenas os últimos 30 dias):
+- Receita total, custos totais, lucro, margem (%)
+- Custo percentual sobre receita
+- Média diária (baseada apenas em dias com movimentação)
+- Dias operacionais com movimento
+- Melhor dia e pior dia (lucro)
+- Breakdown de custos fixos vs variáveis
+- Validação: mínimo 7 dias operacionais com dados, senão bloqueia
 
-## Arquivos a editar
+### Fase 3: IA — Nova Edge Function `monthly-report`
 
-| Arquivo | Mudança |
-|---------|---------|
-| `src/lib/store.ts` | Corrigir `getSmartInsights()` — todos os insights com base matemática |
-| `supabase/functions/ai-insights/index.ts` | Remover referências a "clientes", usar "movimentações/entradas" |
+Nova edge function `supabase/functions/monthly-report/index.ts`:
+- Recebe o `monthlySummary` estruturado
+- Prompt restrito: gerar apenas resumo, diagnóstico, até 3 problemas, até 3 recomendações, conclusão
+- Mesmo padrão de segurança do `ai-insights` (não inventar dados, usar apenas números fornecidos)
+- Retorna JSON estruturado com seções do relatório
+
+### Fase 4-5: Layout + PDF — `src/pages/Relatorio.tsx`
+
+Criar página com:
+- Seletor de mês (dropdown dos últimos 6 meses)
+- Botão "Gerar Relatório" com loading state
+- Preview do relatório em HTML com seções: Capa, Resumo, Visão Operacional, Receita, Custos, Lucro, Problemas, Recomendações, Conclusão
+- Botão "Baixar PDF" usando biblioteca `html2pdf.js` (client-side, sem servidor)
+- Validação visual: se dados insuficientes, mostra mensagem e bloqueia
+
+### Fase 6: UX — Integração no menu
+
+- Adicionar link "Relatório" no sidebar (`AceternitySidebar.tsx`)
+- Adicionar rota `/relatorio` no `App.tsx` e `Index.tsx`
+- Fluxo: selecionar mês → gerar → preview → download
+
+## Arquivos a criar/editar
+
+| Arquivo | Ação |
+|---------|------|
+| `src/lib/store.ts` | Adicionar `getMonthlySummary(year, month)` |
+| `supabase/functions/monthly-report/index.ts` | Nova edge function para IA do relatório |
+| `src/pages/Relatorio.tsx` | Nova página com preview + PDF |
+| `src/components/AceternitySidebar.tsx` | Adicionar link "Relatório" |
+| `src/pages/Index.tsx` | Adicionar rota `/relatorio` |
+| `src/App.tsx` | Adicionar rota protegida `/relatorio` |
+| `package.json` | Adicionar `html2pdf.js` |
+
+## Detalhes técnicos
+
+- **PDF client-side**: Usar `html2pdf.js` para converter o HTML renderizado diretamente no browser, sem necessidade de servidor. Leve, funcional no mobile.
+- **Prompt da IA**: Restrito a usar apenas os números do `monthlySummary`. Saída limitada a: `summary`, `diagnosis`, `problems[]` (max 3), `recommendations[]` (max 3), `conclusion`.
+- **Validação**: `getMonthlySummary` retorna flag `isValid: boolean` — se false, UI bloqueia geração.
 
