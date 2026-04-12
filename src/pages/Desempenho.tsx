@@ -166,7 +166,7 @@ export default function Desempenho() {
             </div>
           </div>
           <p className="text-[10px] text-muted-foreground mt-2">
-            Baseado no ritmo atual · Margem projetada: {formatPercent(projection.margin)}
+            Baseado em {projection.daysWithData} dias com movimentação · {projection.totalOpDays} dias operacionais no mês · Margem: {formatPercent(projection.margin)}
           </p>
         </motion.div>
       )}
