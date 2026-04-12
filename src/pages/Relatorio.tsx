@@ -178,6 +178,9 @@ export default function Relatorio() {
                 <MiniCard label="Dias operacionais" value={String(s.operatingDays)} />
                 <MiniCard label="Dias com dados" value={String(s.daysWithData)} />
                 <MiniCard label="Média diária" value={formatCurrency(s.avgDailyProfit)} sub="lucro" />
+                <MiniCard label="Entradas registradas" value={String(s.totalEntries)} />
+                <MiniCard label="Custos manuais" value={String(s.totalManualCosts)} />
+                <MiniCard label="Custos fixos (mapa)" value={String(s.totalCostMapItems)} />
                 {s.bestDay && <MiniCard label="Melhor dia" value={formatDate(s.bestDay.date)} sub={formatCurrency(s.bestDay.profit)} />}
                 {s.worstDay && <MiniCard label="Pior dia" value={formatDate(s.worstDay.date)} sub={formatCurrency(s.worstDay.profit)} />}
                 <MiniCard label="Custo/Receita" value={`${s.costPercentage}%`} />
