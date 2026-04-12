@@ -472,8 +472,11 @@ export function getBestAndWorstDay(days: number = 30) {
   let best = { date: '', profit: -Infinity };
   let worst = { date: '', profit: Infinity };
   for (const date of dates) {
+    // Only consider days with actual recorded transactions (not just spread costs)
+    const hasEntries = state.entries.some(e => e.date === date);
+    const hasCosts = state.costs.some(c => c.date === date);
+    if (!hasEntries && !hasCosts) continue;
     const s = getDaySummary(date);
-    if (s.totalRevenue === 0 && s.totalRealCost === 0) continue;
     if (s.profit > best.profit) best = { date, profit: s.profit };
     if (s.profit < worst.profit) worst = { date, profit: s.profit };
   }
