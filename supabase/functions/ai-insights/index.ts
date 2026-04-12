@@ -31,7 +31,7 @@ serve(async (req) => {
     const profit = Math.round(summary.profit || 0);
     const entries = summary.totalEntries || 0;
     const calculatedProfit = revenue - cost;
-    const avgPerClient = entries > 0 ? Math.round(revenue / entries) : 0;
+    const avgPerEntry = entries > 0 ? Math.round(revenue / entries) : 0;
     const margin = revenue > 0 ? Math.round((calculatedProfit / revenue) * 100) : 0;
 
     // Cap projection growth at 30%
