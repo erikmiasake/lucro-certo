@@ -53,14 +53,7 @@ const insightMeta: Record<string, { icon: typeof Zap; label: string }> = {
   info: { icon: Activity, label: 'Análise' },
 };
 
-// Bento spans — creates visual asymmetry different from the landing page bento
-const bentoSpans = [
-  'col-span-2 row-span-2',   // large featured card
-  'col-span-1 row-span-1',
-  'col-span-1 row-span-1',
-  'col-span-1 row-span-1',
-  'col-span-1 row-span-1',
-];
+// No more asymmetric spans needed
 
 function InsightBentoGrid({ insights }: { insights: string[] }) {
   const [visible, setVisible] = useState(false);
@@ -76,104 +69,82 @@ function InsightBentoGrid({ insights }: { insights: string[] }) {
     return () => obs.disconnect();
   }, []);
 
-  const items = insights.slice(0, 5);
+  const items = insights.slice(0, 6);
+
+  const colorMap = {
+    positive: {
+      border: 'border-primary/12',
+      iconBg: 'bg-primary/8',
+      iconColor: 'text-primary',
+      textColor: 'text-primary/85',
+      dot: 'bg-primary',
+    },
+    warning: {
+      border: 'border-destructive/12',
+      iconBg: 'bg-destructive/8',
+      iconColor: 'text-destructive',
+      textColor: 'text-destructive/85',
+      dot: 'bg-destructive',
+    },
+    action: {
+      border: 'border-accent/15',
+      iconBg: 'bg-accent/8',
+      iconColor: 'text-accent',
+      textColor: 'text-foreground/75',
+      dot: 'bg-accent',
+    },
+    info: {
+      border: 'border-border/50',
+      iconBg: 'bg-secondary/60',
+      iconColor: 'text-muted-foreground',
+      textColor: 'text-foreground/70',
+      dot: 'bg-muted-foreground',
+    },
+  };
 
   return (
-    <div ref={ref} className="mt-4">
-      <div className="flex items-center gap-2 mb-3 px-1">
-        <Zap className="h-4 w-4 text-primary" />
-        <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Insights do seu negócio</p>
-        <span className="text-[10px] text-muted-foreground ml-auto">{items.length} disponíveis</span>
+    <div ref={ref} className="mt-5">
+      <div className="flex items-center gap-2 mb-3 px-0.5">
+        <Zap className="h-3.5 w-3.5 text-primary" />
+        <p className="text-[11px] font-semibold text-foreground uppercase tracking-wider">Insights</p>
+        <div className="h-px flex-1 bg-border/30 ml-2" />
+        <span className="text-[10px] text-muted-foreground">{items.length}</span>
       </div>
 
-      <div className="grid grid-cols-2 auto-rows-[minmax(80px,auto)] gap-2.5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
         {items.map((insight, i) => {
           const type = classifyInsight(insight);
+          const c = colorMap[type];
           const meta = insightMeta[type];
           const Icon = meta.icon;
-          const span = i < bentoSpans.length ? bentoSpans[i] : 'col-span-1';
-          const isLarge = i === 0;
-
-          const colorMap = {
-            positive: {
-              bg: 'bg-primary/[0.04]',
-              border: 'border-primary/15',
-              iconBg: 'bg-primary/10',
-              iconColor: 'text-primary',
-              textColor: 'text-primary/90',
-            },
-            warning: {
-              bg: 'bg-destructive/[0.04]',
-              border: 'border-destructive/15',
-              iconBg: 'bg-destructive/10',
-              iconColor: 'text-destructive',
-              textColor: 'text-destructive/90',
-            },
-            action: {
-              bg: 'bg-accent/[0.06]',
-              border: 'border-accent/20',
-              iconBg: 'bg-accent/10',
-              iconColor: 'text-accent',
-              textColor: 'text-foreground/80',
-            },
-            info: {
-              bg: 'bg-secondary/40',
-              border: 'border-border/40',
-              iconBg: 'bg-secondary',
-              iconColor: 'text-muted-foreground',
-              textColor: 'text-foreground/75',
-            },
-          };
-
-          const c = colorMap[type];
 
           return (
-            <motion.article
+            <motion.div
               key={i}
-              initial={{ opacity: 0, y: 14, scale: 0.97 }}
-              animate={visible ? { opacity: 1, y: 0, scale: 1 } : {}}
-              transition={{ delay: i * 0.09, duration: 0.5, ease: [0.25, 0.46, 0.45, 0.94] }}
+              initial={{ opacity: 0, y: 10 }}
+              animate={visible ? { opacity: 1, y: 0 } : {}}
+              transition={{ delay: i * 0.07, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
               className={`
-                group relative overflow-hidden rounded-2xl border ${c.bg} ${c.border}
-                p-4 flex flex-col justify-between transition-all duration-300
-                hover:-translate-y-0.5 hover:shadow-md
-                ${span}
+                rounded-xl border ${c.border} bg-card/40 backdrop-blur-sm
+                p-3 flex items-start gap-2.5 transition-all duration-200
+                hover:bg-card/60
               `}
             >
-              {/* Subtle gradient overlay */}
-              <div
-                className="absolute inset-0 -z-10 opacity-50 pointer-events-none"
-                style={{
-                  background: type === 'positive'
-                    ? 'radial-gradient(ellipse 80% 120% at 0% 0%, hsl(var(--primary) / 0.08), transparent 70%)'
-                    : type === 'warning'
-                    ? 'radial-gradient(ellipse 80% 120% at 100% 0%, hsl(var(--destructive) / 0.08), transparent 70%)'
-                    : 'none',
-                }}
-              />
-
-              <div className="flex items-start gap-3">
-                <div className={`${isLarge ? 'w-9 h-9' : 'w-7 h-7'} rounded-xl ${c.iconBg} flex items-center justify-center shrink-0`}>
-                  <Icon className={`${isLarge ? 'h-4 w-4' : 'h-3.5 w-3.5'} ${c.iconColor}`} />
-                </div>
-                <div className="flex-1 min-w-0">
-                  <span className={`text-[9px] uppercase tracking-[0.25em] font-medium ${c.iconColor} opacity-70`}>
+              <div className={`w-6 h-6 rounded-lg ${c.iconBg} flex items-center justify-center shrink-0 mt-0.5`}>
+                <Icon className={`h-3 w-3 ${c.iconColor}`} />
+              </div>
+              <div className="flex-1 min-w-0">
+                <div className="flex items-center gap-1.5 mb-0.5">
+                  <div className={`w-1 h-1 rounded-full ${c.dot} opacity-60`} />
+                  <span className={`text-[9px] uppercase tracking-[0.2em] font-medium ${c.iconColor} opacity-60`}>
                     {meta.label}
                   </span>
-                  <p className={`${isLarge ? 'text-[13px] mt-1.5 leading-relaxed' : 'text-[11px] mt-1 leading-snug'} font-medium ${c.textColor}`}>
-                    {insight}
-                  </p>
                 </div>
+                <p className={`text-[11px] leading-relaxed font-medium ${c.textColor}`}>
+                  {insight}
+                </p>
               </div>
-
-              {/* Bottom accent line for large card */}
-              {isLarge && (
-                <div className="mt-3 flex items-center gap-2">
-                  <div className={`h-px flex-1 ${c.iconBg}`} />
-                  <Target className={`h-3 w-3 ${c.iconColor} opacity-40`} />
-                </div>
-              )}
-            </motion.article>
+            </motion.div>
           );
         })}
       </div>
