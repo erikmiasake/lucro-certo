@@ -226,10 +226,6 @@ export default function VisaoGeral() {
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Visão geral</h1>
       </motion.div>
 
-      {/* Proactive alerts */}
-      <div className="mb-4">
-        <ProactiveAlerts />
-      </div>
 
       {/* Hero profit card */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-3 md:gap-4">
