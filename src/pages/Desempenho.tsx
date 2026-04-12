@@ -11,7 +11,7 @@ import ProactiveAlerts from '@/components/ProactiveAlerts';
 import AIInsightsPanel from '@/components/AIInsightsPanel';
 import GoalsProgress from '@/components/GoalsProgress';
 import {
-  TrendingUp, BarChart3, Trophy, AlertTriangle,
+  TrendingUp, Trophy, AlertTriangle,
   ArrowUpRight, ArrowDownRight, Percent, Target,
 } from 'lucide-react';
 
@@ -50,8 +50,6 @@ export default function Desempenho() {
   
   const projection = getMonthlyProjection();
 
-  const hasAnyData = weekData.some(d => d.revenue > 0 || d.cost > 0);
-  const maxVal = Math.max(...weekData.map(d => Math.max(d.revenue, d.cost, Math.abs(d.profit))), 1);
   const weekDiff = prevWeek.totalRevenue > 0 ? week.profit - prevWeek.profit : null;
 
   return (
