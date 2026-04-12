@@ -807,6 +807,86 @@ export function getMonthlyProjection(): { revenue: number; cost: number; profit:
 // Per-sale metrics removed — system now uses financial movements model
 // Revenue = sum of all entries, Costs = sum of all exits, Profit = revenue - costs
 
+// ─── Consolidated Financial Summary for AI ─────────────────────────
+
+export interface FinancialSummary {
+  period: string;
+  revenue: number;
+  costs: number;
+  profit: number;
+  margin: number;
+  entries: number;
+  avgPerEntry: number;
+  operatingDaysPerWeek: number;
+  operatingWeekdays: number[];
+  realDataPercentage: number;
+  bestDay: { date: string; profit: number } | null;
+  worstDay: { date: string; profit: number } | null;
+  marginTrend: 'up' | 'down' | 'stable';
+  monthlyProjection: { revenue: number; cost: number; profit: number; margin: number } | null;
+  topCost: { name: string; percentage: number } | null;
+  totalFixed: number;
+  totalVariable: number;
+  goalMonthlyProfit: number | null;
+  goalProgress: number;
+  goalOnTrack: boolean;
+  daysRemaining: number;
+  monthProfit: number;
+  hasSufficientData: boolean;
+}
+
+export function getFinancialSummary(period: string = 'semana'): FinancialSummary {
+  const week = getWeekSummary();
+  const month = getMonthSummary();
+  const breakdown = getCostBreakdown();
+  const bestWorst = getBestAndWorstDay();
+  const trend = getMarginTrend();
+  const projection = getMonthlyProjection();
+  const revenueStats = getRevenueStats();
+  const goalsProgress = getGoalsProgress();
+  const opWeekdays = state.businessProfile?.operatingWeekdays ?? [1, 2, 3, 4, 5, 6];
+
+  const revenue = Math.round(week.totalRevenue);
+  const costs = Math.round(week.totalRealCost);
+  const profit = Math.round(week.profit);
+  const entries = week.totalEntries;
+  const margin = revenue > 0 ? Math.round(((revenue - costs) / revenue) * 100) : 0;
+
+  // Minimum data threshold: at least 2 entries across 2 different days
+  const hasSufficientData = entries >= 2 && (revenueStats.manualDays + revenueStats.distributedDays) >= 2;
+
+  return {
+    period,
+    revenue,
+    costs,
+    profit,
+    margin,
+    entries,
+    avgPerEntry: entries > 0 ? Math.round(revenue / entries) : 0,
+    operatingDaysPerWeek: opWeekdays.length,
+    operatingWeekdays: opWeekdays,
+    realDataPercentage: Math.round(revenueStats.realDataPercentage),
+    bestDay: bestWorst ? { date: bestWorst.best.date, profit: Math.round(bestWorst.best.profit) } : null,
+    worstDay: bestWorst ? { date: bestWorst.worst.date, profit: Math.round(bestWorst.worst.profit) } : null,
+    marginTrend: trend.direction,
+    monthlyProjection: projection.revenue > 0 ? {
+      revenue: Math.round(projection.revenue),
+      cost: Math.round(projection.cost),
+      profit: Math.round(projection.profit),
+      margin: Math.round(projection.margin),
+    } : null,
+    topCost: breakdown.topCost ? { name: breakdown.topCost.name, percentage: Math.round(breakdown.topCost.percentage) } : null,
+    totalFixed: Math.round(breakdown.totalFixed),
+    totalVariable: Math.round(breakdown.totalVariable),
+    goalMonthlyProfit: state.goals.monthlyProfit || null,
+    goalProgress: Math.round(goalsProgress.profit.progress),
+    goalOnTrack: goalsProgress.profit.onTrack,
+    daysRemaining: goalsProgress.daysRemaining,
+    monthProfit: Math.round(month.profit),
+    hasSufficientData,
+  };
+}
+
 // ─── Enhanced Smart Insights ───────────────────────────────────────
 
 export function getSmartInsights(): string[] {

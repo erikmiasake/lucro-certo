@@ -409,13 +409,6 @@ export default function Custos() {
 
             {breakdown.total > 0 && (
               <AIInsightsPanel
-                summary={{
-                  totalRevenue: month.totalRevenue,
-                  totalRealCost: month.totalRealCost,
-                  profit: month.profit,
-                  margin: month.margin,
-                  totalEntries: week.totalEntries,
-                }}
                 businessType={state.businessType || 'outro'}
                 period="custos"
               />

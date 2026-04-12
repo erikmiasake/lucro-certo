@@ -179,7 +179,6 @@ export default function Desempenho() {
       {/* AI Insights — enriched with more context */}
       <div className="mb-4">
         <AIInsightsPanel
-          summary={week}
           businessType={state.businessType || 'outro'}
           period="semana"
         />
