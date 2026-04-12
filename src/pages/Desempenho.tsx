@@ -4,7 +4,7 @@ import { businessConfigs } from '@/lib/business-config';
 import {
   getWeekSummary, getMonthSummary, getDaySummary, getDateString,
   getWeekDailyData, getBestAndWorstDay, getPreviousWeekSummary,
-  getMarginTrend, getMonthlyProjection, getCostPerSale, getProfitPerSale,
+  getMarginTrend, getMonthlyProjection,
   isOperatingDay,
 } from '@/lib/store';
 import ProactiveAlerts from '@/components/ProactiveAlerts';
@@ -12,7 +12,7 @@ import AIInsightsPanel from '@/components/AIInsightsPanel';
 import GoalsProgress from '@/components/GoalsProgress';
 import {
   TrendingUp, TrendingDown, BarChart3, Trophy, AlertTriangle,
-  ArrowUpRight, ArrowDownRight, Percent, Target, DollarSign,
+  ArrowUpRight, ArrowDownRight, Percent, Target,
   CalendarOff,
 } from 'lucide-react';
 
@@ -50,8 +50,6 @@ export default function Desempenho() {
   const todayDate = getDateString();
   const marginTrend = getMarginTrend();
   const projection = getMonthlyProjection();
-  const costPerSale = getCostPerSale();
-  const profitPerSale = getProfitPerSale();
 
   const hasAnyData = weekData.some(d => d.revenue > 0 || d.cost > 0);
   const maxVal = Math.max(...weekData.map(d => Math.max(d.revenue, d.cost)), 1);
@@ -104,20 +102,20 @@ export default function Desempenho() {
         </motion.div>
       </motion.div>
 
-      {/* Per-sale metrics + margin trend */}
+      {/* Margin trend */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-3 gap-2 mb-4">
         <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
-          <DollarSign className="h-3.5 w-3.5 text-primary mx-auto mb-1" />
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Lucro/venda</p>
-          <p className={`text-sm font-bold ${profitPerSale >= 0 ? 'text-primary' : 'text-destructive'}`}>
-            {profitPerSale > 0 ? formatCurrency(profitPerSale) : '—'}
+          <ArrowUpRight className="h-3.5 w-3.5 text-blue-400 mx-auto mb-1" />
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Entradas</p>
+          <p className="text-sm font-bold text-foreground">
+            {week.totalEntries > 0 ? week.totalEntries : '—'}
           </p>
         </motion.div>
         <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
           <BarChart3 className="h-3.5 w-3.5 text-accent mx-auto mb-1" />
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Custo/venda</p>
-          <p className="text-sm font-bold text-accent">
-            {costPerSale > 0 ? formatCurrency(costPerSale) : '—'}
+          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Receita média/dia</p>
+          <p className="text-sm font-bold text-foreground">
+            {week.totalEntries > 0 ? formatCurrency(week.totalRevenue / 7) : '—'}
           </p>
         </motion.div>
         <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
@@ -284,7 +282,7 @@ export default function Desempenho() {
         <p className="text-sm font-semibold text-foreground mb-4">Resumo da semana</p>
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">Vendas ({week.totalEntries})</span>
+            <span className="text-sm text-muted-foreground">Entradas ({week.totalEntries})</span>
             <span className="text-sm font-semibold text-foreground">{formatCurrency(week.totalRevenue)}</span>
           </div>
           <div className="flex justify-between items-center">
