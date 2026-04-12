@@ -72,7 +72,7 @@ export default function Custos() {
   const bType = state.businessType || 'outro';
   const bench = benchmarks[bType];
 
-  const costPctOfRevenue = month.totalRevenue > 0 ? (breakdown.total / month.totalRevenue) * 100 : 0;
+  const costPctOfRevenue = month.totalRevenue > 0 ? (month.totalRealCost / month.totalRevenue) * 100 : 0;
   const fixedPctOfRevenue = month.totalRevenue > 0 ? (breakdown.totalFixed / month.totalRevenue) * 100 : 0;
   const variablePctOfRevenue = month.totalRevenue > 0 ? (breakdown.totalVariable / month.totalRevenue) * 100 : 0;
 

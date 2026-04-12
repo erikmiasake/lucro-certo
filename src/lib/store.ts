@@ -352,18 +352,22 @@ function isDerivedCost(cost: Cost): boolean {
   return cost.id.startsWith('costmap-');
 }
 
-function getMonthlyViewCostAmount(cost: Cost): number {
-  if (isDerivedCost(cost)) {
-    if (cost.classification === 'fixed') return cost.amount;
-    const spreadDays = Math.max(cost.spreadDays || 1, 1);
-    return (cost.amount / spreadDays) * 30;
+/** Get the cost impact aggregated over the current calendar month */
+function getCostImpactForCurrentMonth(cost: Cost): number {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  let total = 0;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    total += getCostImpactOnDate(cost, dateStr);
   }
-
-  return getCostImpactInRange(cost, getDateRange(30));
+  return total;
 }
 
 export function getCostAnalysisAmount(cost: Cost): number {
-  return getMonthlyViewCostAmount(cost);
+  return getCostImpactForCurrentMonth(cost);
 }
 
 export function getDaySummary(date: string = getDateString()) {
@@ -390,8 +394,20 @@ function getDateRange(days: number): string[] {
   return dates;
 }
 
-function getPeriodSummary(days: number) {
-  const dates = getDateRange(days);
+/** Get date strings for the current calendar month (1st to last day) */
+function getCurrentMonthDates(): string[] {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  const dates: string[] = [];
+  for (let d = 1; d <= daysInMonth; d++) {
+    dates.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
+  }
+  return dates;
+}
+
+function getDateRangeSummary(dates: string[]) {
   let totalRevenue = 0;
   let totalRealCost = 0;
   let totalEntries = 0;
@@ -409,12 +425,17 @@ function getPeriodSummary(days: number) {
   return { totalRevenue, totalRealCost, profit, margin, totalEntries };
 }
 
+function getPeriodSummary(days: number) {
+  const dates = getDateRange(days);
+  return getDateRangeSummary(dates);
+}
+
 export function getWeekSummary() {
   return getPeriodSummary(7);
 }
 
 export function getMonthSummary() {
-  return getPeriodSummary(30);
+  return getDateRangeSummary(getCurrentMonthDates());
 }
 
 export function getPreviousDaySummary() {
@@ -494,17 +515,17 @@ export function getCostBreakdown() {
   const fixedCosts = state.costs.filter(c => c.classification ? c.classification === 'fixed' : c.type === 'business');
   const variableCosts = state.costs.filter(c => c.classification ? c.classification === 'variable' : c.type === 'product');
 
-  const totalProduct = productCosts.reduce((s, c) => s + getMonthlyViewCostAmount(c), 0);
-  const totalBusiness = businessCosts.reduce((s, c) => s + getMonthlyViewCostAmount(c), 0);
-  const totalFixed = fixedCosts.reduce((s, c) => s + getMonthlyViewCostAmount(c), 0);
-  const totalVariable = variableCosts.reduce((s, c) => s + getMonthlyViewCostAmount(c), 0);
+  const totalProduct = productCosts.reduce((s, c) => s + getCostImpactForCurrentMonth(c), 0);
+  const totalBusiness = businessCosts.reduce((s, c) => s + getCostImpactForCurrentMonth(c), 0);
+  const totalFixed = fixedCosts.reduce((s, c) => s + getCostImpactForCurrentMonth(c), 0);
+  const totalVariable = variableCosts.reduce((s, c) => s + getCostImpactForCurrentMonth(c), 0);
   const total = totalFixed + totalVariable;
 
   const categoryMap = new Map<string, { amount: number; items: Cost[] }>();
   state.costs.forEach(c => {
     const key = c.category || (c.type === 'product' ? 'Produto' : 'Negócio');
     const existing = categoryMap.get(key) || { amount: 0, items: [] };
-    existing.amount += getMonthlyViewCostAmount(c);
+    existing.amount += getCostImpactForCurrentMonth(c);
     existing.items.push(c);
     categoryMap.set(key, existing);
   });
@@ -521,7 +542,7 @@ export function getCostBreakdown() {
   const subcategoryMap = new Map<string, number>();
   state.costs.forEach(c => {
     if (c.subcategory) {
-      subcategoryMap.set(c.subcategory, (subcategoryMap.get(c.subcategory) || 0) + getMonthlyViewCostAmount(c));
+      subcategoryMap.set(c.subcategory, (subcategoryMap.get(c.subcategory) || 0) + getCostImpactForCurrentMonth(c));
     }
   });
   const subcategories = Array.from(subcategoryMap.entries())
@@ -1315,9 +1336,12 @@ export function getMonthlySummary(year: number, month: number): MonthlySummary {
     const hasManualCosts = state.costs.some(c => c.date === dateStr && !isDerivedCost(c));
     if (hasManualEntries || hasManualCosts) {
       daysWithData++;
-      const dayProfit = daySummary.totalRevenue - daySummary.totalRealCost;
-      if (!bestDay || dayProfit > bestDay.profit) bestDay = { date: dateStr, profit: Math.round(dayProfit) };
-      if (!worstDay || dayProfit < worstDay.profit) worstDay = { date: dateStr, profit: Math.round(dayProfit) };
+      // Only operating days qualify for best/worst performance
+      if (isOperatingDay(dateStr)) {
+        const dayProfit = daySummary.totalRevenue - daySummary.totalRealCost;
+        if (!bestDay || dayProfit > bestDay.profit) bestDay = { date: dateStr, profit: Math.round(dayProfit) };
+        if (!worstDay || dayProfit < worstDay.profit) worstDay = { date: dateStr, profit: Math.round(dayProfit) };
+      }
     }
   }
 
