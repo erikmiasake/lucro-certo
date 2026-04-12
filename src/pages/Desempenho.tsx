@@ -45,14 +45,14 @@ export default function Desempenho() {
   const week = getWeekSummary();
   const month = getMonthSummary();
   const prevWeek = getPreviousWeekSummary();
-  const weekData = getWeekDailyData();
+  const weekData = getWeekDailyData(true); // only operating days
   const bestWorst = getBestAndWorstDay();
   const todayDate = getDateString();
   const marginTrend = getMarginTrend();
   const projection = getMonthlyProjection();
 
   const hasAnyData = weekData.some(d => d.revenue > 0 || d.cost > 0);
-  const maxVal = Math.max(...weekData.map(d => Math.max(d.revenue, d.cost)), 1);
+  const maxVal = Math.max(...weekData.map(d => Math.max(d.revenue, d.cost, Math.abs(d.profit))), 1);
   const weekDiff = prevWeek.totalRevenue > 0 ? week.profit - prevWeek.profit : null;
 
   return (
@@ -181,7 +181,7 @@ export default function Desempenho() {
         <div className="flex items-center justify-between mb-5">
           <div className="flex items-center gap-2">
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
-            <p className="text-sm font-semibold text-foreground">Receita vs Custo — 7 dias</p>
+            <p className="text-sm font-semibold text-foreground">Últimos 7 dias (dias com operação)</p>
           </div>
           <div className="flex items-center gap-3">
             <div className="flex items-center gap-1.5">
@@ -196,52 +196,59 @@ export default function Desempenho() {
         </div>
 
         {hasAnyData ? (
-          <div className="flex items-end gap-2 h-40">
-            {weekData.map((d, i) => {
-              const operating = isOperatingDay(d.date);
-              const revH = maxVal > 0 ? Math.max((d.revenue / maxVal) * 100, d.revenue > 0 ? 8 : 0) : 0;
-              const costH = maxVal > 0 ? Math.max((d.cost / maxVal) * 100, d.cost > 0 ? 8 : 0) : 0;
-              const isToday = d.date === todayDate;
+          <div className="space-y-3">
+            {/* Bar chart */}
+            <div className="flex items-end gap-2 h-32">
+              {weekData.map((d, i) => {
+                const revH = maxVal > 0 ? Math.max((d.revenue / maxVal) * 100, d.revenue > 0 ? 8 : 0) : 0;
+                const costH = maxVal > 0 ? Math.max((d.cost / maxVal) * 100, d.cost > 0 ? 8 : 0) : 0;
+                const isToday = d.date === todayDate;
 
-              if (!operating && d.revenue === 0 && d.cost === 0) {
                 return (
-                  <div key={d.date} className="flex-1 flex flex-col items-center gap-1.5 justify-end h-full">
-                    <CalendarOff className="h-3.5 w-3.5 text-muted-foreground/40" />
-                    <span className="text-[9px] font-medium text-muted-foreground/50">{d.label}</span>
+                  <div key={d.date} className="flex-1 flex flex-col items-center gap-1">
+                    <div className="flex items-end gap-0.5 w-full h-full">
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height: `${revH}%` }}
+                        transition={{ delay: 0.25 + i * 0.05, duration: 0.5 }}
+                        className={`flex-1 rounded-t-md ${isToday ? 'gradient-primary' : 'bg-primary/30'}`}
+                        style={{ minHeight: revH > 0 ? '4px' : '0px' }}
+                      />
+                      <motion.div
+                        initial={{ height: 0 }}
+                        animate={{ height: `${costH}%` }}
+                        transition={{ delay: 0.3 + i * 0.05, duration: 0.5 }}
+                        className={`flex-1 rounded-t-md ${isToday ? 'gradient-accent' : 'bg-accent/30'}`}
+                        style={{ minHeight: costH > 0 ? '4px' : '0px' }}
+                      />
+                    </div>
+                    <span className={`text-[9px] font-medium ${isToday ? 'text-foreground' : 'text-muted-foreground'}`}>
+                      {d.label}
+                    </span>
                   </div>
                 );
-              }
-
-              return (
-                <div key={d.date} className="flex-1 flex flex-col items-center gap-1.5">
-                  <div className="flex items-end gap-0.5 w-full h-full">
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: `${revH}%` }}
-                      transition={{ delay: 0.25 + i * 0.05, duration: 0.5 }}
-                      className={`flex-1 rounded-t-md ${isToday ? 'gradient-primary' : 'bg-primary/30'}`}
-                      style={{ minHeight: revH > 0 ? '4px' : '0px' }}
-                    />
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: `${costH}%` }}
-                      transition={{ delay: 0.3 + i * 0.05, duration: 0.5 }}
-                      className={`flex-1 rounded-t-md ${isToday ? 'gradient-accent' : 'bg-accent/30'}`}
-                      style={{ minHeight: costH > 0 ? '4px' : '0px' }}
-                    />
+              })}
+            </div>
+            {/* Profit line below chart */}
+            <div className="flex gap-2 overflow-x-auto">
+              {weekData.map((d) => {
+                const isToday = d.date === todayDate;
+                return (
+                  <div key={d.date} className={`flex-1 text-center py-1.5 px-1 rounded-lg ${isToday ? 'bg-secondary/80' : ''}`}>
+                    <p className={`text-[10px] font-bold ${d.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
+                      {d.profit >= 0 ? '+' : ''}{d.profit.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 })}
+                    </p>
+                    <p className="text-[8px] text-muted-foreground">lucro</p>
                   </div>
-                  <span className={`text-[9px] font-medium ${isToday ? 'text-foreground' : 'text-muted-foreground'}`}>
-                    {d.label}
-                  </span>
-                </div>
-              );
-            })}
+                );
+              })}
+            </div>
           </div>
         ) : (
           <div className="flex flex-col items-center justify-center h-40 text-center">
             <BarChart3 className="h-8 w-8 text-muted-foreground/30 mb-2" />
             <p className="text-sm text-muted-foreground">Sem dados nos últimos 7 dias</p>
-            <p className="text-xs text-muted-foreground/60 mt-1">Registre receitas e custos para ver o gráfico</p>
+            <p className="text-xs text-muted-foreground/60 mt-1">Registre entradas e saídas para ver o gráfico</p>
           </div>
         )}
       </motion.div>
