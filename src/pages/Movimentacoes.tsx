@@ -156,29 +156,26 @@ export default function Movimentacoes() {
         });
         setFeedback(`Receita distribuída em ${activeDays} dias úteis (${fmt(perDay)}/dia)`);
       } else {
-        // Full calendar month: divide by ALL operating days in the month, set only up to today
+        // Full calendar month: divide by all operating days and apply to the whole month
         const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
-        const today = now.getDate();
 
-        // Count ALL operating days in the full month for correct per-day calculation
         const allMonthDates: string[] = [];
         for (let d = 1; d <= daysInMonth; d++) {
           allMonthDates.push(`${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`);
         }
-        const totalOperatingDays = allMonthDates.filter(d => isOperatingDay(d)).length || 1;
+
+        const operatingDates = allMonthDates.filter(dateStr => isOperatingDay(dateStr));
+        const totalOperatingDays = operatingDates.length || 1;
         const perDay = num / totalOperatingDays;
 
-        // Apply only to days up to today
-        for (let d = 1; d <= today; d++) {
-          const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-          if (isOperatingDay(dateStr)) {
-            setDayRevenue(dateStr, perDay, 'distributed');
-          }
-        }
-        setFeedback(`Receita de ${fmt(num)} ÷ ${totalOperatingDays} dias úteis = ${fmt(perDay)}/dia`);
+        operatingDates.forEach(dateStr => {
+          setDayRevenue(dateStr, perDay, 'distributed');
+        });
+
+        setFeedback(`Receita de ${fmt(num)} distribuída em ${totalOperatingDays} dias úteis (${fmt(perDay)}/dia)`);
       }
       setTimeout(() => setFeedback(null), 4000);
     }
