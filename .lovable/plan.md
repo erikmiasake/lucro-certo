@@ -1,94 +1,38 @@
 
 
-# Plano de Revisão da Lógica Financeira Central
+# Plano: Corrigir Insights, IA e Projeção Mensal
 
-## Problemas Identificados
+## Problemas identificados no documento
 
-### 1. Custos do CostMap com data fixa = hoje (CRÍTICO)
-A função `costMapItemToCost()` (linha 870) sempre define `date: today` — ou seja, a cada reload da página, todos os custos do mapa são recriados com a data de HOJE. Isso significa:
-- Custos fixos nunca impactam dias passados
-- O gráfico semanal mostra custos zerados nos dias anteriores
-- O lucro de dias passados fica inflado (sem custos)
-- Custos se acumulam todos no dia atual
+1. **Insights locais (`getSmartInsights`) com números genéricos** — frases como "Margem excelente hoje — dia lucrativo" sem valor financeiro concreto
+2. **IA (Copiloto) menciona "clientes" e "vendas"** — o modelo de dados é baseado em movimentações, não clientes. O prompt ainda referencia "clientes" e "valor por cliente"
+3. **Projeção mensal com valores inflados** — a projeção está aparecendo na IA com números muito altos
+4. **Gráfico "Últimos 7 dias" ainda visível em alguma tela** — precisa confirmar se já foi removido de todas as telas
 
-**Correção**: Custos fixos do CostMap devem ser tratados como custos contínuos — impactam todos os dias do mês. Custos variáveis devem distribuir pelo `spreadDays` a partir de uma data de referência persistente.
+## Mudanças planejadas
 
-### 2. Dupla contagem de custos (CRÍTICO)
-Quando o usuário adiciona um custo via `addCost()`, a função (linha 208-262) simultaneamente:
-- Adiciona à lista `costs`
-- Tenta sincronizar com `costMap` (criando ou atualizando item)
+### 1. Corrigir `getSmartInsights()` em `src/lib/store.ts`
+- Remover insight genérico "Margem excelente hoje — dia lucrativo" (linha 876) — substituir por versão com valor: `"Margem de X% hoje — lucro de R$ Y"`
+- Garantir que todos os insights tenham base matemática com valores em R$ ou %
+- Ajustar projeção mensal no insight (linhas 858-868) para usar `getMonthlyProjection()` ao invés de cálculo duplicado
 
-Depois, `syncCostMapToCosts()` recria custos `costmap-*` a partir do costMap. Resultado: o mesmo custo pode aparecer duas vezes — uma como custo manual e outra como `costmap-*`.
+### 2. Corrigir prompt da IA em `supabase/functions/ai-insights/index.ts`
+- Substituir todas as referências a "cliente" por "movimentação/entrada"
+- Trocar "valor médio por cliente" por "valor médio por entrada" 
+- Trocar `avgPerClient` por `avgPerEntry` na nomenclatura
+- Remover instrução que menciona "clientes" no ponto 7 do prompt
+- Ajustar exemplos no prompt para usar linguagem de movimentações financeiras
 
-**Correção**: Separar as fontes. `addCost()` NÃO deve mexer no `costMap`. O CostMap é a fonte estrutural; custos manuais avulsos são separados.
+### 3. Corrigir dados enviados do `AIInsightsPanel.tsx` para a IA
+- O campo `summary.totalEntries` representa número de registros de entrada, não "clientes" — garantir que o prompt trate como "entradas registradas" (já está correto no userPrompt, mas o systemPrompt mistura terminologia)
 
-### 3. Projeção mensal ignora dias de funcionamento
-`getMonthlyProjection()` (linha 717) divide linearmente por `dayOfMonth` — não considera `operatingWeekdays`. Se o negócio opera 5 dias/semana, a projeção fica distorcida.
+### 4. Validar remoção completa de gráficos
+- Confirmar que `VisaoGeral.tsx` e `Desempenho.tsx` não têm mais gráficos de barras (já confirmado no código atual)
 
-**Correção**: Calcular baseado em dias operacionais transcorridos e dias operacionais restantes no mês.
+## Arquivos a editar
 
-### 4. Lucro/venda e Custo/venda usam `totalEntries` (contagem de registros, não de vendas)
-Se o usuário registra receita como valor total do dia (1 entry = R$5000), o "lucro por venda" mostra R$5000, o que não faz sentido.
-
-**Correção**: Documentar que essa métrica só faz sentido com registros individuais, ou ajustar para não exibir quando há poucos registros.
-
-### 5. `getCostBreakdown()` usa `amount` absoluto em vez de impacto diário/mensal
-Os totais de `getCostBreakdown()` somam `amount` bruto dos custos, sem considerar `spreadDays`. Um custo de R$1000 com spread de 30 dias é contado como R$1000, não como ~R$33/dia.
-
-**Correção**: Usar o impacto mensal normalizado para as análises e comparações.
-
-### 6. IA recebe dados inconsistentes
-O `AIInsightsPanel` envia o `week` summary que pode ter custos inflados ou zerados conforme os bugs acima. A IA não recebe informação sobre:
-- Quais dias o negócio opera
-- Quantos dias dos dados são reais vs estimados
-- A proporção real vs estimada das receitas
-
-**Correção**: Enriquecer o payload da IA com essas informações.
-
-### 7. `operatingWeekdays` não é salvo/carregado do banco
-`profile-sync.ts` (linha 25) hardcoda `operatingWeekdays: [1,2,3,4,5,6]` ao carregar do DB, ignorando o valor real configurado pelo usuário. O campo nem existe na tabela `profiles`.
-
-**Correção**: Adicionar coluna `operating_weekdays` na tabela profiles e sincronizar corretamente.
-
----
-
-## Etapas de Implementação
-
-### Etapa 1 — Migração do banco de dados
-Adicionar coluna `operating_weekdays` (integer array) à tabela `profiles`, default `{1,2,3,4,5,6}`.
-
-### Etapa 2 — Corrigir `costMapItemToCost` e `syncCostMapToCosts`
-- Custos fixos do CostMap: gerar um custo com `spreadDays: 30` e data fixa (início do mês ou data de criação persistente), para que `getCostImpactOnDate()` distribua corretamente ao longo do mês.
-- Custos variáveis do CostMap: usar data de criação persistente + `spreadDays` do item.
-- Armazenar `createdAt` no CostMapItem para referência de data.
-
-### Etapa 3 — Remover sincronização bidirecional em `addCost()`
-- `addCost()` não deve mais criar/atualizar itens no CostMap (remover linhas 233-259).
-- CostMap é gerenciado separadamente via suas próprias funções.
-
-### Etapa 4 — Corrigir `getCostBreakdown()` para usar impacto mensal
-- Normalizar valores pelo `spreadDays` para ter comparações mensais corretas.
-
-### Etapa 5 — Corrigir projeções para respeitar dias operacionais
-- `getMonthlyProjection()`: contar dias operacionais no mês e projetar proporcionalmente.
-- `getWeekSummary()` / projeções semanais: considerar apenas dias operacionais.
-
-### Etapa 6 — Sincronizar `operatingWeekdays` com o banco
-- Atualizar `profile-sync.ts` para salvar e carregar `operating_weekdays`.
-
-### Etapa 7 — Enriquecer payload da IA
-- Adicionar ao corpo da requisição: dias de funcionamento, proporção de receita real vs estimada, período de dados disponíveis.
-- Atualizar o system prompt para instruir a IA a considerar essas informações.
-
-### Etapa 8 — Testes de consistência
-- Verificar que dia + semana + mês são coerentes entre si.
-- Garantir que custos não duplicam.
-- Confirmar que dias fechados mostram custo zero e receita zero.
-
----
-
-## O que NÃO será alterado
-- Design/layout das telas
-- Fluxo de onboarding
-- Funcionalidades existentes de registro manual
+| Arquivo | Mudança |
+|---------|---------|
+| `src/lib/store.ts` | Corrigir `getSmartInsights()` — todos os insights com base matemática |
+| `supabase/functions/ai-insights/index.ts` | Remover referências a "clientes", usar "movimentações/entradas" |
 
