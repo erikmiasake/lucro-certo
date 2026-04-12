@@ -352,18 +352,22 @@ function isDerivedCost(cost: Cost): boolean {
   return cost.id.startsWith('costmap-');
 }
 
-function getMonthlyViewCostAmount(cost: Cost): number {
-  if (isDerivedCost(cost)) {
-    if (cost.classification === 'fixed') return cost.amount;
-    const spreadDays = Math.max(cost.spreadDays || 1, 1);
-    return (cost.amount / spreadDays) * 30;
+/** Get the cost impact aggregated over the current calendar month */
+function getCostImpactForCurrentMonth(cost: Cost): number {
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+  let total = 0;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    total += getCostImpactOnDate(cost, dateStr);
   }
-
-  return getCostImpactInRange(cost, getDateRange(30));
+  return total;
 }
 
 export function getCostAnalysisAmount(cost: Cost): number {
-  return getMonthlyViewCostAmount(cost);
+  return getCostImpactForCurrentMonth(cost);
 }
 
 export function getDaySummary(date: string = getDateString()) {
