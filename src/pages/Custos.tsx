@@ -10,7 +10,7 @@ import {
 import CostModal from '@/components/CostModal';
 import CostMapSection from '@/components/CostMapSection';
 import FeedbackToast from '@/components/FeedbackToast';
-import AIInsightsPanel from '@/components/AIInsightsPanel';
+
 import { PieChart as RePieChart, Pie, Cell, ResponsiveContainer, Tooltip } from 'recharts';
 
 function fmt(value: number) {
@@ -407,12 +407,6 @@ export default function Custos() {
               </div>
             )}
 
-            {breakdown.total > 0 && (
-              <AIInsightsPanel
-                businessType={state.businessType || 'outro'}
-                period="custos"
-              />
-            )}
           </motion.div>
         ) : (
           <motion.div key="list" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
