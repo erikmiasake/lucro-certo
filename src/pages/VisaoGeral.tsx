@@ -185,7 +185,6 @@ export default function VisaoGeral() {
       {/* AI Insights */}
       <div className="mt-4">
         <AIInsightsPanel
-          summary={week}
           businessType={state.businessType || 'outro'}
           period="semana"
         />
