@@ -472,7 +472,8 @@ export function getBestAndWorstDay(days: number = 30) {
   let best = { date: '', profit: -Infinity };
   let worst = { date: '', profit: Infinity };
   for (const date of dates) {
-    // Only consider days with actual recorded transactions (not just spread costs)
+    // Skip non-operating days and days without actual user-recorded transactions
+    if (!isOperatingDay(date)) continue;
     const hasEntries = state.entries.some(e => e.date === date);
     const hasCosts = state.costs.some(c => c.date === date);
     if (!hasEntries && !hasCosts) continue;
