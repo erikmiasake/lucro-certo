@@ -388,21 +388,27 @@ export default function CostMapSection() {
                 <div className="text-center">
                   <p className="text-[10px] text-muted-foreground">Diário</p>
                   <p className="text-xs font-bold text-foreground">{fmt(Math.round(daily))}</p>
+                  <p className="text-[9px] text-muted-foreground/50">÷ {opDaysInMonth} dias</p>
                 </div>
                 <div className="text-center">
                   <p className="text-[10px] text-muted-foreground">Semanal</p>
                   <p className="text-xs font-bold text-foreground">{fmt(Math.round(weekly))}</p>
+                  <p className="text-[9px] text-muted-foreground/50">{opDaysPerWeek} dias/sem</p>
                 </div>
                 <div className="text-center">
                   <p className="text-[10px] text-muted-foreground">Mensal</p>
                   <p className="text-xs font-bold text-foreground">{fmt(Math.round(costMap.totalMonthly))}</p>
+                  <p className="text-[9px] text-muted-foreground/50">{opDaysInMonth} dias úteis</p>
                 </div>
               </div>
             );
           })()}
-          <p className="text-[10px] text-muted-foreground/60 text-center">
-            Baseado em {state.businessProfile?.operatingWeekdays?.length ?? 6} dias de funcionamento por semana
-          </p>
+          <div className="flex items-center justify-center gap-1.5 pt-1 border-t border-border/30">
+            <div className="w-1.5 h-1.5 rounded-full bg-primary/60" />
+            <p className="text-[10px] text-muted-foreground font-medium">
+              Custos diluídos nos <span className="text-foreground font-semibold">{state.businessProfile?.operatingWeekdays?.length ?? 6} dias úteis</span> que você abre por semana
+            </p>
+          </div>
         </motion.div>
       )}
     </div>
