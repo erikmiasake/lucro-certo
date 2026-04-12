@@ -32,26 +32,3 @@ export default function Index() {
     </AppLayout>
   );
 }
-  const state = useStore();
-  const location = useLocation();
-
-  // Guard: redirect to onboarding if not complete
-  if (!state.onboardingComplete) {
-    return <Navigate to="/welcome" replace />;
-  }
-
-  const renderPage = () => {
-    const path = location.pathname;
-    if (path === '/movimentacoes' || path === '/dashboard/movimentacoes') return <Movimentacoes />;
-    if (path === '/custos' || path === '/dashboard/custos') return <Custos />;
-    if (path === '/desempenho' || path === '/dashboard/desempenho') return <Desempenho />;
-    if (path === '/configuracoes' || path === '/dashboard/configuracoes') return <Configuracoes />;
-    return <VisaoGeral />;
-  };
-
-  return (
-    <AppLayout>
-      {renderPage()}
-    </AppLayout>
-  );
-}
