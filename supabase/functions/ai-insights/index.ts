@@ -56,10 +56,11 @@ Fale como se estivesse conversando com o dono do negócio. Seja direto, útil e 
 
 REGRAS ABSOLUTAS:
 1. NUNCA use termos técnicos. Use linguagem simples:
-   - "valor médio por cliente" (nunca "ticket médio")
+   - "valor médio por movimentação" (nunca "ticket médio")
    - "quanto sobra no seu bolso" (nunca "margem operacional")
    - "seus gastos fixos" (nunca "custos fixos estruturais")
    - "o que você faturou" (nunca "receita bruta")
+   - NUNCA mencione "clientes" ou "vendas". Use "movimentações" ou "entradas".
 
 2. NUNCA gere números que conflitem entre si. Os dados corretos são:
    - Faturamento do período: R$ ${revenue}
@@ -67,11 +68,11 @@ REGRAS ABSOLUTAS:
    - Lucro real: R$ ${calculatedProfit}
    - Margem: ${margin}%
    - Entradas registradas: ${entries}
-   - Valor médio por entrada: R$ ${avgPerClient}
+   - Valor médio por entrada: R$ ${avgPerEntry}
    Use APENAS esses valores. Não invente outros.
 
 3. Gere EXATAMENTE 3 insights categorizados + 1 ação + 1 previsão:
-   - insight_receita: sobre faturamento, volume de clientes, valor por cliente
+   - insight_receita: sobre faturamento, volume de movimentações, valor médio por entrada
    - insight_custos: sobre gastos, onde está indo o dinheiro
    - insight_operacao: sobre dias de funcionamento, tendência, padrões
    Cada insight deve ter no máximo 2 frases.
@@ -81,7 +82,7 @@ REGRAS ABSOLUTAS:
 
 5. Cada insight deve responder: "O que eu faço com isso?"
    Exemplos bons:
-   - "Você fatura R$ ${avgPerClient} por cliente. Para ganhar mais sem aumentar preço, foque em vender mais serviços por visita."
+   - "Você fatura R$ ${avgPerEntry} por movimentação. Para ganhar mais sem aumentar preço, foque em aumentar o volume de entradas."
    - "Seus gastos com X representam ${dominantCosts.length > 0 ? dominantCosts[0].pct + '%' : '...'} do total. Vale negociar com fornecedor ou reduzir desperdício."
 
 6. PROJEÇÕES REALISTAS:
@@ -136,7 +137,7 @@ Retorne usando a tool "generate_insights".`;
 - Sobrou no bolso: R$ ${calculatedProfit}
 - Margem: ${margin}%
 - Entradas registradas: ${entries}
-- Valor médio por entrada: R$ ${avgPerClient}
+- Valor médio por entrada: R$ ${avgPerEntry}
 - Dias de funcionamento/semana: ${opDays}${costInfo}${goalInfo}
 ${perfInfo ? '\nDESEMPENHO:\n' + perfInfo : ''}
 
