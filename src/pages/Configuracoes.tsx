@@ -91,13 +91,42 @@ export default function Configuracoes() {
 
   const handleReset = async () => {
     if (confirmReset) {
-      resetAll();
-      // Also clear in database
-      const { saveProfileToDB } = await import('@/lib/profile-sync');
-      const { getState: gs } = await import('@/lib/store');
-      await saveProfileToDB(gs());
-      await supabase.auth.signOut();
-      navigate('/');
+      try {
+        // 1. Delete all user data from database
+        const { data: { user: currentUser } } = await supabase.auth.getUser();
+        if (currentUser) {
+          // Delete entries and costs from DB
+          await supabase.from('entries').delete().eq('user_id', currentUser.id);
+          await supabase.from('costs').delete().eq('user_id', currentUser.id);
+          // Reset profile to blank state
+          await supabase.from('profiles').update({
+            business_type: null,
+            business_name: '',
+            city: '',
+            onboarding_complete: false,
+            operating_days: 6,
+            operating_weekdays: [1, 2, 3, 4, 5, 6],
+            employee_count: 0,
+            objective: '',
+            goals: { monthlyProfit: null, monthlyMargin: null },
+            cost_map: [],
+            main_costs: [],
+            average_sales: null,
+          }).eq('user_id', currentUser.id);
+        }
+
+        // 2. Clear all local state
+        resetAll();
+        safeRemoveItem('lucro-real-data');
+
+        // 3. Redirect to onboarding (keep user logged in)
+        toast.success('Dados limpos!', { description: 'Configure seu novo negócio.' });
+        navigate('/onboarding');
+        window.location.reload();
+      } catch (err) {
+        console.error('Reset error:', err);
+        toast.error('Erro ao limpar dados. Tente novamente.');
+      }
       setConfirmReset(false);
     } else {
       setConfirmReset(true);
