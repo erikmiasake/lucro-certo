@@ -763,22 +763,41 @@ export function getMarginTrend(): { direction: 'up' | 'down' | 'stable'; values:
   };
 }
 
-// ─── Monthly Projection (using operating days) ─────────────────────
+// ─── Monthly Projection (based on days with actual movement) ───────
 
-export function getMonthlyProjection(): { revenue: number; cost: number; profit: number; margin: number } {
+export function getMonthlyProjection(): { revenue: number; cost: number; profit: number; margin: number; daysWithData: number; totalOpDays: number } {
   const month = getMonthSummary();
-  const opDaysSoFar = getOperatingDaysInMonthSoFar();
   const totalOpDays = getTotalOperatingDaysInMonth();
 
-  if (opDaysSoFar === 0 || month.totalRevenue === 0) return { revenue: 0, cost: 0, profit: 0, margin: 0 };
+  // Count days in current month that actually had transactions
+  const now = new Date();
+  const year = now.getFullYear();
+  const m = now.getMonth();
+  const todayDay = now.getDate();
+  let daysWithData = 0;
 
-  const factor = totalOpDays / opDaysSoFar;
-  const revenue = month.totalRevenue * factor;
-  // Project costs proportionally — structural costs already spread evenly, so scaling works
-  const cost = month.totalRealCost * factor;
-  const profit = revenue - cost;
+  for (let d = 1; d <= todayDay; d++) {
+    const dateStr = `${year}-${String(m + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const dayEntries = state.entries.filter(e => e.date === dateStr);
+    const dayCosts = state.costs.filter(c => c.date === dateStr);
+    if (dayEntries.length > 0 || dayCosts.length > 0) {
+      daysWithData++;
+    }
+  }
+
+  if (daysWithData === 0 || month.totalRevenue === 0) return { revenue: 0, cost: 0, profit: 0, margin: 0, daysWithData: 0, totalOpDays };
+
+  // Average daily performance based only on days with actual movement
+  const avgDailyRevenue = month.totalRevenue / daysWithData;
+  const avgDailyCost = month.totalRealCost / daysWithData;
+  const avgDailyProfit = avgDailyRevenue - avgDailyCost;
+
+  // Project to full month using total operating days
+  const revenue = avgDailyRevenue * totalOpDays;
+  const cost = avgDailyCost * totalOpDays;
+  const profit = avgDailyProfit * totalOpDays;
   const margin = revenue > 0 ? (profit / revenue) * 100 : 0;
-  return { revenue, cost, profit, margin };
+  return { revenue, cost, profit, margin, daysWithData, totalOpDays };
 }
 
 // Per-sale metrics removed — system now uses financial movements model
