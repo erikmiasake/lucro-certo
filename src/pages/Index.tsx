@@ -6,12 +6,12 @@ import Movimentacoes from './Movimentacoes';
 import Custos from './Custos';
 import Desempenho from './Desempenho';
 import Configuracoes from './Configuracoes';
+import Relatorio from './Relatorio';
 
 export default function Index() {
   const state = useStore();
   const location = useLocation();
 
-  // Guard: redirect to onboarding if not complete
   if (!state.onboardingComplete) {
     return <Navigate to="/welcome" replace />;
   }
@@ -22,6 +22,7 @@ export default function Index() {
     if (path === '/custos' || path === '/dashboard/custos') return <Custos />;
     if (path === '/desempenho' || path === '/dashboard/desempenho') return <Desempenho />;
     if (path === '/configuracoes' || path === '/dashboard/configuracoes') return <Configuracoes />;
+    if (path === '/relatorio' || path === '/dashboard/relatorio') return <Relatorio />;
     return <VisaoGeral />;
   };
 
