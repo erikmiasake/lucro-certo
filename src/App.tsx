@@ -10,6 +10,7 @@ import VerifyEmail from "./pages/VerifyEmail.tsx";
 import OnboardingPage from "./pages/OnboardingPage.tsx";
 import Summary from "./pages/Summary.tsx";
 import Processing from "./pages/Processing.tsx";
+import Tutorial from "./pages/Tutorial.tsx";
 import Index from "./pages/Index.tsx";
 import ComoFunciona from "./pages/ComoFunciona.tsx";
 import NotFound from "./pages/NotFound.tsx";
