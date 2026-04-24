@@ -8,6 +8,7 @@ import Desempenho from './Desempenho';
 import Configuracoes from './Configuracoes';
 import Relatorio from './Relatorio';
 import Impostos from './Impostos';
+import { hasSeenTutorial } from './Tutorial';
 
 export default function Index() {
   const state = useStore();
@@ -15,6 +16,10 @@ export default function Index() {
 
   if (!state.onboardingComplete) {
     return <Navigate to="/welcome" replace />;
+  }
+
+  if (!hasSeenTutorial()) {
+    return <Navigate to="/tutorial" replace />;
   }
 
   const renderPage = () => {

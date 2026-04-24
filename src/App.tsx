@@ -10,6 +10,7 @@ import VerifyEmail from "./pages/VerifyEmail.tsx";
 import OnboardingPage from "./pages/OnboardingPage.tsx";
 import Summary from "./pages/Summary.tsx";
 import Processing from "./pages/Processing.tsx";
+import Tutorial from "./pages/Tutorial.tsx";
 import Index from "./pages/Index.tsx";
 import ComoFunciona from "./pages/ComoFunciona.tsx";
 import NotFound from "./pages/NotFound.tsx";
@@ -44,6 +45,7 @@ const App = () => (
           <Route path="/onboarding" element={<AuthGuard><OnboardingPage /></AuthGuard>} />
           <Route path="/summary" element={<AuthGuard><Summary /></AuthGuard>} />
           <Route path="/processing" element={<AuthGuard><Processing /></AuthGuard>} />
+          <Route path="/tutorial" element={<AuthGuard><Tutorial /></AuthGuard>} />
           <Route path="/dashboard/*" element={<AuthGuard><Index /></AuthGuard>} />
           <Route path="/movimentacoes" element={<AuthGuard><Index /></AuthGuard>} />
           <Route path="/custos" element={<AuthGuard><Index /></AuthGuard>} />
