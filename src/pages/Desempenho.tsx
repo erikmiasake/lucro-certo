@@ -99,49 +99,67 @@ export default function Desempenho() {
 
       {/* Key metrics */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-3 gap-2 mb-4">
-        <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
-          <ArrowUpRight className="h-3.5 w-3.5 text-primary mx-auto mb-1" />
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Receita</p>
-          <p className="text-sm font-bold text-foreground">
-            {week.totalRevenue > 0 ? formatCurrency(week.totalRevenue) : '—'}
-          </p>
+        <motion.div variants={fadeUp}>
+          <StatCard
+            label="Receita"
+            value={week.totalRevenue}
+            icon={<ArrowUpRight className="h-3.5 w-3.5 text-primary" />}
+            format={(n) => formatCurrency(n)}
+            valueClassName="text-foreground"
+            placeholder={week.totalRevenue > 0 ? undefined : '—'}
+          />
         </motion.div>
-        <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
-          <ArrowDownRight className="h-3.5 w-3.5 text-accent mx-auto mb-1" />
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Custos</p>
-          <p className="text-sm font-bold text-accent">
-            {week.totalRealCost > 0 ? formatCurrency(week.totalRealCost) : '—'}
-          </p>
+        <motion.div variants={fadeUp}>
+          <StatCard
+            label="Custos"
+            value={week.totalRealCost}
+            icon={<ArrowDownRight className="h-3.5 w-3.5 text-accent" />}
+            format={(n) => formatCurrency(n)}
+            valueClassName="text-accent"
+            placeholder={week.totalRealCost > 0 ? undefined : '—'}
+          />
         </motion.div>
-        <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
-          <Percent className="h-3.5 w-3.5 text-muted-foreground mx-auto mb-1" />
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Margem</p>
-          <p className={`text-sm font-bold ${week.margin >= 20 ? 'text-primary' : 'text-destructive'}`}>
-            {week.totalRevenue > 0 ? formatPercent(week.margin) : '—'}
-          </p>
+        <motion.div variants={fadeUp}>
+          <StatCard
+            label="Margem"
+            value={week.margin}
+            icon={<Percent className="h-3.5 w-3.5 text-muted-foreground" />}
+            format={(n) => `${Math.round(n)}%`}
+            valueClassName={week.margin >= 20 ? 'text-primary' : 'text-destructive'}
+            placeholder={week.totalRevenue > 0 ? undefined : '—'}
+          />
         </motion.div>
       </motion.div>
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-3 gap-2 mb-4">
-        <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
-          <TrendingUp className="h-3.5 w-3.5 text-primary mx-auto mb-1" />
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Lucro real</p>
-          <p className={`text-sm font-bold ${week.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
-            {week.totalRevenue > 0 ? formatCurrency(week.profit) : '—'}
-          </p>
+        <motion.div variants={fadeUp}>
+          <StatCard
+            label="Lucro real"
+            value={week.profit}
+            icon={<TrendingUp className="h-3.5 w-3.5 text-primary" />}
+            format={(n) => formatCurrency(n)}
+            valueClassName={week.profit >= 0 ? 'text-primary' : 'text-destructive'}
+            placeholder={week.totalRevenue > 0 ? undefined : '—'}
+          />
         </motion.div>
-        <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
-          <BarChart3 className="h-3.5 w-3.5 text-primary mx-auto mb-1" />
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Lucro/dia</p>
-          <p className={`text-sm font-bold ${week.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
-            {week.totalEntries > 0 ? formatCurrency(week.profit / Math.max(weekData.length, 1)) : '—'}
-          </p>
+        <motion.div variants={fadeUp}>
+          <StatCard
+            label="Lucro/dia"
+            value={week.totalEntries > 0 ? week.profit / Math.max(weekData.length, 1) : 0}
+            icon={<BarChart3 className="h-3.5 w-3.5 text-primary" />}
+            format={(n) => formatCurrency(n)}
+            valueClassName={week.profit >= 0 ? 'text-primary' : 'text-destructive'}
+            placeholder={week.totalEntries > 0 ? undefined : '—'}
+          />
         </motion.div>
-        <motion.div variants={fadeUp} className="rounded-2xl p-3.5 card-elevated text-center">
-          <ArrowDownRight className="h-3.5 w-3.5 text-accent mx-auto mb-1" />
-          <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">Custo/dia</p>
-          <p className="text-sm font-bold text-accent">
-            {week.totalRealCost > 0 ? formatCurrency(week.totalRealCost / Math.max(weekData.length, 1)) : '—'}
-          </p>
+        <motion.div variants={fadeUp}>
+          <StatCard
+            label="Custo/dia"
+            value={week.totalRealCost / Math.max(weekData.length, 1)}
+            icon={<ArrowDownRight className="h-3.5 w-3.5 text-accent" />}
+            format={(n) => formatCurrency(n)}
+            valueClassName="text-accent"
+            placeholder={week.totalRealCost > 0 ? undefined : '—'}
+          />
         </motion.div>
       </motion.div>
 
