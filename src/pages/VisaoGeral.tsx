@@ -16,6 +16,7 @@ import {
   Plus, Minus, TrendingUp, TrendingDown,
   ArrowUpRight, ArrowDownRight, Percent, Target,
 } from 'lucide-react';
+import AIInsightsPanel from '@/components/AIInsightsPanel';
 
 function formatCurrency(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
