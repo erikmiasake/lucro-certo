@@ -11,6 +11,7 @@ import {
 
 
 import GoalsProgress from '@/components/GoalsProgress';
+import { StatCard } from '@/components/ui/stat-card';
 import {
   TrendingUp, BarChart3,
   ArrowUpRight, ArrowDownRight, Percent, Target,
