@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
 import {
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
-  addEntry, getSmartInsights, getWeekDailyData, getPreviousDaySummary,
+  addEntry, getWeekDailyData, getPreviousDaySummary,
   registerCost, CostClassification,
 } from '@/lib/store';
 import EntryModal from '@/components/EntryModal';
@@ -13,11 +13,9 @@ import FeedbackToast from '@/components/FeedbackToast';
 import ProactiveAlerts from '@/components/ProactiveAlerts';
 import GoalsProgress from '@/components/GoalsProgress';
 import {
-  Plus, Minus, TrendingUp, TrendingDown, Zap,
-  ArrowUpRight, ArrowDownRight, Percent, Activity,
-  AlertTriangle, Lightbulb, Target,
+  Plus, Minus, TrendingUp, TrendingDown,
+  ArrowUpRight, ArrowDownRight, Percent, Target,
 } from 'lucide-react';
-import AIInsightsPanel from '@/components/AIInsightsPanel';
 
 function formatCurrency(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
