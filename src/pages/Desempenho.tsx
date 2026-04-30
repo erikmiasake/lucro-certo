@@ -3,7 +3,7 @@ import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
 import {
   getWeekSummary, getMonthSummary, getDaySummary, getDateString,
-  getWeekDailyData, getBestAndWorstDay, getPreviousWeekSummary,
+  getWeekDailyData, getPreviousWeekSummary,
   getMonthlyProjection,
   isOperatingDay,
 } from '@/lib/store';
@@ -12,7 +12,7 @@ import {
 
 import GoalsProgress from '@/components/GoalsProgress';
 import {
-  TrendingUp, BarChart3, Trophy, AlertTriangle,
+  TrendingUp, BarChart3,
   ArrowUpRight, ArrowDownRight, Percent, Target,
 } from 'lucide-react';
 
@@ -46,7 +46,7 @@ export default function Desempenho() {
   const month = getMonthSummary();
   const prevWeek = getPreviousWeekSummary();
   const weekData = getWeekDailyData(true); // only operating days
-  const bestWorst = getBestAndWorstDay();
+  
   const todayDate = getDateString();
   
   const projection = getMonthlyProjection();
@@ -150,28 +150,6 @@ export default function Desempenho() {
         <GoalsProgress />
       </div>
 
-
-      {/* Best & worst */}
-      {bestWorst && (
-        <div className="grid grid-cols-2 gap-3 mb-4">
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="rounded-2xl p-4 card-elevated">
-            <div className="flex items-center gap-2 mb-2">
-              <Trophy className="h-4 w-4 text-primary" />
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Melhor dia</p>
-            </div>
-            <p className="text-lg font-bold text-primary">{formatCurrency(bestWorst.best.profit)}</p>
-            <p className="text-xs text-muted-foreground mt-1">{formatDateBR(bestWorst.best.date)} · {formatCurrency(getDaySummary(bestWorst.best.date).totalRevenue)} receita</p>
-          </motion.div>
-          <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="rounded-2xl p-4 card-elevated">
-            <div className="flex items-center gap-2 mb-2">
-              <AlertTriangle className="h-4 w-4 text-destructive" />
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Pior dia</p>
-            </div>
-            <p className="text-lg font-bold text-destructive">{formatCurrency(bestWorst.worst.profit)}</p>
-            <p className="text-xs text-muted-foreground mt-1">{formatDateBR(bestWorst.worst.date)} · {formatCurrency(getDaySummary(bestWorst.worst.date).totalRevenue)} receita</p>
-          </motion.div>
-        </div>
-      )}
       {/* Weekly summary */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="rounded-2xl p-5 md:p-6 card-elevated">
         <p className="text-sm font-semibold text-foreground mb-4">Resumo da semana</p>
