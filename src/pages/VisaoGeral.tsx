@@ -115,7 +115,7 @@ export default function VisaoGeral() {
 
         {/* KPI row */}
         <div className="grid grid-cols-3 gap-3">
-          <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated">
+          <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive">
             <div className="flex items-center gap-2 mb-2">
               <ArrowUpRight className="h-3.5 w-3.5 text-blue-400" />
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Receita</p>
@@ -123,7 +123,7 @@ export default function VisaoGeral() {
             <p className="text-xl font-bold text-foreground">{formatCurrency(summary.totalRevenue)}</p>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated">
+          <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive">
             <div className="flex items-center gap-2 mb-2">
               <ArrowDownRight className="h-3.5 w-3.5 text-accent" />
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Custos</p>
@@ -131,7 +131,7 @@ export default function VisaoGeral() {
             <p className="text-xl font-bold text-accent">{formatCurrency(summary.totalRealCost)}</p>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated">
+          <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive">
             <div className="flex items-center gap-2 mb-2">
               <Percent className="h-3.5 w-3.5 text-primary" />
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Margem</p>
@@ -158,7 +158,7 @@ export default function VisaoGeral() {
 
       {/* Period summaries */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="grid grid-cols-2 gap-3 mt-4">
-        <div className="rounded-2xl p-4 card-elevated">
+        <div className="rounded-2xl p-4 card-elevated card-interactive">
           <p className="text-muted-foreground text-[11px] uppercase tracking-wider mb-2 font-medium">Semana</p>
           <p className={`text-xl font-bold ${week.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
             {formatCurrency(week.profit)}
@@ -170,7 +170,7 @@ export default function VisaoGeral() {
             </span>
           </div>
         </div>
-        <div className="rounded-2xl p-4 card-elevated">
+        <div className="rounded-2xl p-4 card-elevated card-interactive">
           <p className="text-muted-foreground text-[11px] uppercase tracking-wider mb-2 font-medium">Mês</p>
           <p className={`text-xl font-bold ${month.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
             {formatCurrency(month.profit)}
