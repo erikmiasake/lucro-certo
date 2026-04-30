@@ -34,6 +34,17 @@ serve(async (req) => {
   try {
     const { monthlySummary, businessType } = await req.json();
 
+    if (typeof businessType !== "undefined" && (typeof businessType !== "string" || businessType.length > 100)) {
+      return new Response(JSON.stringify({ error: "businessType invalido" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (monthlySummary && typeof monthlySummary !== "object") {
+      return new Response(JSON.stringify({ error: "monthlySummary invalido" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (!monthlySummary) {
       return new Response(JSON.stringify({ error: "Dados mensais não fornecidos" }), {
         status: 400,
@@ -175,7 +186,7 @@ Gere a análise usando a tool "generate_report".`;
     });
   } catch (e) {
     console.error("monthly-report error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }), {
+    return new Response(JSON.stringify({ error: "Erro interno. Tente novamente mais tarde." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

@@ -34,6 +34,31 @@ serve(async (req) => {
   try {
     const { financialSummary, businessType, mode, question } = await req.json();
 
+    if (typeof businessType !== "undefined" && (typeof businessType !== "string" || businessType.length > 100)) {
+      return new Response(JSON.stringify({ error: "businessType invalido" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    let safeQuestion: string | undefined;
+    if (typeof question !== "undefined" && question !== null) {
+      if (typeof question !== "string" || question.trim().length === 0) {
+        return new Response(JSON.stringify({ error: "Pergunta invalida" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      if (question.length > 500) {
+        return new Response(JSON.stringify({ error: "Pergunta muito longa (max. 500 caracteres)" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+      safeQuestion = question.replace(/[\x00-\x1F\x7F]/g, " ").replace(/`{3,}/g, "---").replace(/<\|/g, "<").replace(/#{3,}/g, "##").trim();
+    }
+    if (financialSummary && typeof financialSummary !== "object") {
+      return new Response(JSON.stringify({ error: "financialSummary invalido" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+
     if (!financialSummary) {
       return new Response(JSON.stringify({ error: "Dados financeiros não fornecidos" }), {
         status: 400,
@@ -75,7 +100,7 @@ serve(async (req) => {
       }
     }
 
-    const isInteractive = mode === 'question' && question;
+    const isInteractive = mode === 'question' && safeQuestion;
 
     const systemPrompt = `Você é um consultor financeiro simples para microempreendedores brasileiros (${businessType || 'pequeno negócio'}).
 
@@ -118,7 +143,7 @@ ${cappedProjection ? `- Projeção mensal: R$ ${cappedProjection.revenue} receit
 ${s.goalMonthlyProfit ? `- Meta: R$ ${s.goalMonthlyProfit}/mês | Progresso: ${s.goalProgress}% | ${s.goalOnTrack ? 'No ritmo' : 'Abaixo'} | ${s.daysRemaining} dias restantes` : ''}
 - Lucro acumulado mês: R$ ${s.monthProfit}
 
-${isInteractive ? `O dono perguntou: "${question}". Responda APENAS com base nos dados acima. Se a pergunta não puder ser respondida com os dados disponíveis, diga claramente. Use texto simples, sem markdown. Separe ideias em parágrafos curtos. Destaque valores em R$ e percentuais naturalmente no texto. Máximo 4 parágrafos.` : 'Gere a análise usando a tool "generate_insights".'}`;
+${isInteractive ? `O dono perguntou: "${safeQuestion}". Responda APENAS com base nos dados acima. Se a pergunta não puder ser respondida com os dados disponíveis, diga claramente. Use texto simples, sem markdown. Separe ideias em parágrafos curtos. Destaque valores em R$ e percentuais naturalmente no texto. Máximo 4 parágrafos.` : 'Gere a análise usando a tool "generate_insights".'}`;
 
     const tools = isInteractive ? undefined : [
       {
@@ -157,7 +182,7 @@ ${isInteractive ? `O dono perguntou: "${question}". Responda APENAS com base nos
       model: "google/gemini-3-flash-preview",
       messages: [
         { role: "system", content: systemPrompt },
-        { role: "user", content: isInteractive ? question : `Analise os dados financeiros do período e gere insights usando a tool "generate_insights". Use APENAS os dados fornecidos.` },
+        { role: "user", content: isInteractive ? safeQuestion : `Analise os dados financeiros do período e gere insights usando a tool "generate_insights". Use APENAS os dados fornecidos.` },
       ],
     };
 
@@ -228,7 +253,7 @@ ${isInteractive ? `O dono perguntou: "${question}". Responda APENAS com base nos
     });
   } catch (e) {
     console.error("ai-insights error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erro desconhecido" }), {
+    return new Response(JSON.stringify({ error: "Erro interno. Tente novamente mais tarde." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });

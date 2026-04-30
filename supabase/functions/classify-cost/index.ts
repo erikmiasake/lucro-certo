@@ -33,6 +33,23 @@ serve(async (req) => {
 
   try {
     const { description, businessType } = await req.json();
+
+    if (typeof description !== "string" || description.trim().length === 0) {
+      return new Response(JSON.stringify({ error: "Descricao invalida" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    if (description.length > 200) {
+      return new Response(JSON.stringify({ error: "Descricao muito longa (max. 200 caracteres)" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
+    const safeDescription = description.replace(/[\x00-\x1F\x7F]/g, " ").replace(/`{3,}/g, "---").replace(/<\|/g, "<").replace(/#{3,}/g, "##").trim();
+    if (typeof businessType !== "undefined" && (typeof businessType !== "string" || businessType.length > 100)) {
+      return new Response(JSON.stringify({ error: "businessType invalido" }), {
+        status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+      });
+    }
     const LOVABLE_API_KEY = Deno.env.get("LOVABLE_API_KEY");
     if (!LOVABLE_API_KEY) throw new Error("LOVABLE_API_KEY is not configured");
 
@@ -41,7 +58,7 @@ Dado a descrição de um custo, classifique-o automaticamente.
 Responda usando a tool "classify_cost".`;
 
     const userPrompt = `Negócio: ${businessType || 'genérico'}
-Descrição do custo: "${description}"
+Descrição do custo: "${safeDescription}"
 
 Classifique este custo.`;
 
@@ -132,7 +149,7 @@ Classifique este custo.`;
     });
   } catch (e) {
     console.error("classify-cost error:", e);
-    return new Response(JSON.stringify({ error: e instanceof Error ? e.message : "Erro" }), {
+    return new Response(JSON.stringify({ error: "Erro interno. Tente novamente mais tarde." }), {
       status: 500,
       headers: { ...corsHeaders, "Content-Type": "application/json" },
     });
