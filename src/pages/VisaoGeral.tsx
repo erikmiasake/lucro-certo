@@ -1,10 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
 import {
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
-  addEntry, getSmartInsights, getWeekDailyData, getPreviousDaySummary,
+  addEntry, getWeekDailyData, getPreviousDaySummary,
   registerCost, CostClassification,
 } from '@/lib/store';
 import EntryModal from '@/components/EntryModal';
@@ -13,11 +13,9 @@ import FeedbackToast from '@/components/FeedbackToast';
 import ProactiveAlerts from '@/components/ProactiveAlerts';
 import GoalsProgress from '@/components/GoalsProgress';
 import {
-  Plus, Minus, TrendingUp, TrendingDown, Zap,
-  ArrowUpRight, ArrowDownRight, Percent, Activity,
-  AlertTriangle, Lightbulb, Target,
+  Plus, Minus, TrendingUp, TrendingDown,
+  ArrowUpRight, ArrowDownRight, Percent, Target,
 } from 'lucide-react';
-import AIInsightsPanel from '@/components/AIInsightsPanel';
 
 function formatCurrency(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -36,121 +34,6 @@ const fadeUp = {
   visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] } },
 };
 
-function classifyInsight(text: string) {
-  if (text.includes('atingida') || text.includes('melhor') || text.includes('Margem de') || text.includes('Projeção mensal'))
-    return 'positive';
-  if (text.includes('pior') || text.includes('prejuízo') || text.includes('baixa') || text.includes('altos'))
-    return 'warning';
-  if (text.includes('Reduzir') || text.includes('Aumente') || text.includes('Negocie') || text.includes('mais'))
-    return 'action';
-  return 'info';
-}
-
-const insightMeta: Record<string, { icon: typeof Zap; label: string }> = {
-  positive: { icon: TrendingUp, label: 'Resultado' },
-  warning: { icon: AlertTriangle, label: 'Atenção' },
-  action: { icon: Lightbulb, label: 'Ação' },
-  info: { icon: Activity, label: 'Análise' },
-};
-
-// No more asymmetric spans needed
-
-function InsightBentoGrid({ insights }: { insights: string[] }) {
-  const [visible, setVisible] = useState(false);
-  const ref = useRef<HTMLDivElement>(null);
-
-  useEffect(() => {
-    if (!ref.current) return;
-    const obs = new IntersectionObserver(
-      ([e]) => { if (e.isIntersecting) { setVisible(true); obs.disconnect(); } },
-      { threshold: 0.15 }
-    );
-    obs.observe(ref.current);
-    return () => obs.disconnect();
-  }, []);
-
-  const items = insights.slice(0, 6);
-
-  const colorMap = {
-    positive: {
-      border: 'border-primary/12',
-      iconBg: 'bg-primary/8',
-      iconColor: 'text-primary',
-      textColor: 'text-primary/85',
-      dot: 'bg-primary',
-    },
-    warning: {
-      border: 'border-destructive/12',
-      iconBg: 'bg-destructive/8',
-      iconColor: 'text-destructive',
-      textColor: 'text-destructive/85',
-      dot: 'bg-destructive',
-    },
-    action: {
-      border: 'border-accent/15',
-      iconBg: 'bg-accent/8',
-      iconColor: 'text-accent',
-      textColor: 'text-foreground/75',
-      dot: 'bg-accent',
-    },
-    info: {
-      border: 'border-border/50',
-      iconBg: 'bg-secondary/60',
-      iconColor: 'text-muted-foreground',
-      textColor: 'text-foreground/70',
-      dot: 'bg-muted-foreground',
-    },
-  };
-
-  return (
-    <div ref={ref} className="mt-5">
-      <div className="flex items-center gap-2 mb-3 px-0.5">
-        <Zap className="h-3.5 w-3.5 text-primary" />
-        <p className="text-[11px] font-semibold text-foreground uppercase tracking-wider">Insights</p>
-        <div className="h-px flex-1 bg-border/30 ml-2" />
-        <span className="text-[10px] text-muted-foreground">{items.length}</span>
-      </div>
-
-      <div className="grid grid-cols-1 sm:grid-cols-2 gap-2">
-        {items.map((insight, i) => {
-          const type = classifyInsight(insight);
-          const c = colorMap[type];
-          const meta = insightMeta[type];
-          const Icon = meta.icon;
-
-          return (
-            <motion.div
-              key={i}
-              initial={{ opacity: 0, y: 10 }}
-              animate={visible ? { opacity: 1, y: 0 } : {}}
-              transition={{ delay: i * 0.07, duration: 0.4, ease: [0.25, 0.46, 0.45, 0.94] }}
-              className={`
-                rounded-xl border ${c.border} bg-card/40 backdrop-blur-sm
-                p-3 flex items-start gap-2.5 transition-all duration-200
-                hover:bg-card/60
-              `}
-            >
-              <div className={`w-6 h-6 rounded-lg ${c.iconBg} flex items-center justify-center shrink-0 mt-0.5`}>
-                <Icon className={`h-3 w-3 ${c.iconColor}`} />
-              </div>
-              <div className="flex-1 min-w-0">
-                <div className="flex items-center gap-1.5 mb-0.5">
-                  <div className={`w-1 h-1 rounded-full ${c.dot} opacity-60`} />
-                  <span className={`text-[9px] uppercase tracking-[0.2em] font-medium ${c.iconColor} opacity-60`}>
-                    {meta.label}
-                  </span>
-                </div>
-                <p className={`text-[11px] leading-relaxed font-medium ${c.textColor}`}>
-                  {insight}
-                </p>
-              </div>
-            </motion.div>
-          );
-        })}
-      </div>
-    </div>
-  );
-}
 
 export default function VisaoGeral() {
   const state = useStore();
@@ -160,7 +43,6 @@ export default function VisaoGeral() {
   const yesterday = getPreviousDaySummary();
   const week = getWeekSummary();
   const month = getMonthSummary();
-  const insights = getSmartInsights();
   const weekData = getWeekDailyData(true);
 
   const [showEntry, setShowEntry] = useState(false);
@@ -191,7 +73,7 @@ export default function VisaoGeral() {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
         <div className="flex items-center gap-2 mb-1">
-          <Activity className="h-4 w-4 text-muted-foreground" />
+          <TrendingUp className="h-4 w-4 text-muted-foreground" />
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{config.label}</span>
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Visão geral</h1>
@@ -263,17 +145,6 @@ export default function VisaoGeral() {
       {/* Goals progress */}
       <div className="mt-4">
         <GoalsProgress />
-      </div>
-
-      {/* Smart Insights — Bento Grid */}
-      {insights.length > 0 && <InsightBentoGrid insights={insights} />}
-
-      {/* AI Insights */}
-      <div className="mt-4">
-        <AIInsightsPanel
-          businessType={state.businessType || 'outro'}
-          period="semana"
-        />
       </div>
 
       {/* Period summaries */}
