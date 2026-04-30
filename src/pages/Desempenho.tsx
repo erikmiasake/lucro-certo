@@ -46,7 +46,7 @@ export default function Desempenho() {
   const month = getMonthSummary();
   const prevWeek = getPreviousWeekSummary();
   const weekData = getWeekDailyData(true); // only operating days
-  const bestWorst = getBestAndWorstDay();
+  
   const todayDate = getDateString();
   
   const projection = getMonthlyProjection();
