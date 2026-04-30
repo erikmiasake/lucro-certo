@@ -43,7 +43,6 @@ export default function VisaoGeral() {
   const yesterday = getPreviousDaySummary();
   const week = getWeekSummary();
   const month = getMonthSummary();
-  const insights = getSmartInsights();
   const weekData = getWeekDailyData(true);
 
   const [showEntry, setShowEntry] = useState(false);
