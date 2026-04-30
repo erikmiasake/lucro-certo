@@ -320,22 +320,6 @@ export default function Movimentacoes() {
         ))}
       </div>
 
-      {/* AI Insight Banner */}
-      {insights.length > 0 && (
-        <motion.div
-          initial={{ opacity: 0, y: 5 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="flex items-start gap-2.5 p-3 rounded-xl bg-primary/5 border border-primary/10 mb-4"
-        >
-          <Brain className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-          <div>
-            <p className="text-xs text-primary/90 font-medium leading-relaxed">{insights[0]}</p>
-            {insights.length > 1 && (
-              <p className="text-[10px] text-primary/50 mt-1">+{insights.length - 1} insights disponíveis</p>
-            )}
-          </div>
-        </motion.div>
-      )}
 
       <AnimatePresence mode="wait">
         {/* ───── DIA ───── */}
