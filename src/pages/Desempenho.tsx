@@ -64,7 +64,7 @@ export default function Desempenho() {
 
       {/* Period cards */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 gap-3 mb-4">
-        <motion.div variants={fadeUp} className="rounded-2xl p-5 card-elevated card-interactive relative overflow-hidden">
+        <motion.div variants={fadeUp} className="rounded-2xl p-5 card-elevated card-interactive relative overflow-hidden" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">Semana</p>
           <p className={`text-2xl font-extrabold tracking-tight ${week.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
             {formatCurrency(week.profit)}
@@ -83,7 +83,7 @@ export default function Desempenho() {
           <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(week.totalRevenue)} receita · {formatCurrency(week.totalRealCost)} custos</p>
         </motion.div>
 
-        <motion.div variants={fadeUp} className="rounded-2xl p-5 card-elevated card-interactive relative overflow-hidden">
+        <motion.div variants={fadeUp} className="rounded-2xl p-5 card-elevated card-interactive relative overflow-hidden" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">Mês</p>
           <p className={`text-2xl font-extrabold tracking-tight ${month.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
             {formatCurrency(month.profit)}
