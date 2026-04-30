@@ -35,23 +35,37 @@ const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
     }, [value, motionValue]);
 
     return (
-      <div
+      <motion.div
         ref={ref}
-        className={cn("rounded-2xl p-3.5 card-elevated text-center", className)}
-        {...props}
+        className={cn(
+          "group relative rounded-2xl p-3.5 card-elevated text-center cursor-default overflow-hidden",
+          className
+        )}
+        whileHover={{ y: -4, scale: 1.03 }}
+        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        {...(props as any)}
       >
-        <div className="flex justify-center mb-1">{icon}</div>
-        <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5">
+        {/* Glow on hover */}
+        <div className="pointer-events-none absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300 bg-[radial-gradient(circle_at_50%_0%,hsl(var(--primary)/0.18),transparent_70%)]" />
+
+        <motion.div
+          className="flex justify-center mb-1 relative"
+          whileHover={{ rotate: -8, scale: 1.15 }}
+          transition={{ type: "spring", stiffness: 400, damping: 12 }}
+        >
+          {icon}
+        </motion.div>
+        <p className="text-[9px] uppercase tracking-wider text-muted-foreground mb-0.5 relative">
           {label}
         </p>
         {placeholder ? (
-          <p className={cn("text-sm font-bold", valueClassName)}>{placeholder}</p>
+          <p className={cn("text-sm font-bold relative", valueClassName)}>{placeholder}</p>
         ) : (
-          <motion.p className={cn("text-sm font-bold", valueClassName)}>
+          <motion.p className={cn("text-sm font-bold relative", valueClassName)}>
             {display}
           </motion.p>
         )}
-      </div>
+      </motion.div>
     );
   }
 );
