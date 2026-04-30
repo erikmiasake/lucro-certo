@@ -9,6 +9,7 @@ import {
 } from '@/lib/store';
 
 
+import AIInsightsPanel from '@/components/AIInsightsPanel';
 import GoalsProgress from '@/components/GoalsProgress';
 import {
   TrendingUp, BarChart3, Trophy, AlertTriangle,
@@ -172,6 +173,13 @@ export default function Desempenho() {
         </div>
       )}
 
+      {/* AI Insights */}
+      <div className="mb-4">
+        <AIInsightsPanel
+          businessType={state.businessType || 'outro'}
+          period="semana"
+        />
+      </div>
 
       {/* Weekly summary */}
       <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="rounded-2xl p-5 md:p-6 card-elevated">
