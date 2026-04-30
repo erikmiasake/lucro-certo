@@ -115,7 +115,7 @@ export default function VisaoGeral() {
 
         {/* KPI row */}
         <div className="grid grid-cols-3 gap-3">
-          <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive">
+          <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
               <ArrowUpRight className="h-3.5 w-3.5 text-blue-400" />
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Receita</p>
@@ -123,7 +123,7 @@ export default function VisaoGeral() {
             <p className="text-xl font-bold text-foreground">{formatCurrency(summary.totalRevenue)}</p>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive">
+          <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
               <ArrowDownRight className="h-3.5 w-3.5 text-accent" />
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Custos</p>
@@ -131,7 +131,7 @@ export default function VisaoGeral() {
             <p className="text-xl font-bold text-accent">{formatCurrency(summary.totalRealCost)}</p>
           </motion.div>
 
-          <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive">
+          <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
               <Percent className="h-3.5 w-3.5 text-primary" />
               <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Margem</p>
