@@ -9,6 +9,7 @@ import {
 } from '@/lib/store';
 
 
+import AIInsightsPanel from '@/components/AIInsightsPanel';
 import GoalsProgress from '@/components/GoalsProgress';
 import {
   TrendingUp, BarChart3, Trophy, AlertTriangle,

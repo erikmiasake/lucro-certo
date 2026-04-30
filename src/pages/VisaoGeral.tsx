@@ -148,6 +148,14 @@ export default function VisaoGeral() {
         <GoalsProgress />
       </div>
 
+      {/* AI Insights */}
+      <div className="mt-4">
+        <AIInsightsPanel
+          businessType={state.businessType || 'outro'}
+          period="semana"
+        />
+      </div>
+
       {/* Period summaries */}
       <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.5 }} className="grid grid-cols-2 gap-3 mt-4">
         <div className="rounded-2xl p-4 card-elevated">
