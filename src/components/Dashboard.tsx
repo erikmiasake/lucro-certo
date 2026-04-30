@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
-import { getDaySummary, getDateString, getInsight, addEntry, registerCost, getDayRevenueSource, CostClassification } from '@/lib/store';
+import { getDaySummary, getDateString, addEntry, registerCost, getDayRevenueSource, CostClassification } from '@/lib/store';
 import EntryModal from './EntryModal';
 import CostModal from './CostModal';
 import FeedbackToast from './FeedbackToast';
