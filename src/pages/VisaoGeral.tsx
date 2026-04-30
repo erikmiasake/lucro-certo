@@ -73,7 +73,7 @@ export default function VisaoGeral() {
       {/* Header */}
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
         <div className="flex items-center gap-2 mb-1">
-          <Activity className="h-4 w-4 text-muted-foreground" />
+          <TrendingUp className="h-4 w-4 text-muted-foreground" />
           <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{config.label}</span>
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Visão geral</h1>
@@ -145,17 +145,6 @@ export default function VisaoGeral() {
       {/* Goals progress */}
       <div className="mt-4">
         <GoalsProgress />
-      </div>
-
-      {/* Smart Insights — Bento Grid */}
-      {insights.length > 0 && <InsightBentoGrid insights={insights} />}
-
-      {/* AI Insights */}
-      <div className="mt-4">
-        <AIInsightsPanel
-          businessType={state.businessType || 'outro'}
-          period="semana"
-        />
       </div>
 
       {/* Period summaries */}
