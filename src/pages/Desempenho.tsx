@@ -3,7 +3,7 @@ import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
 import {
   getWeekSummary, getMonthSummary, getDaySummary, getDateString,
-  getWeekDailyData, getBestAndWorstDay, getPreviousWeekSummary,
+  getWeekDailyData, getPreviousWeekSummary,
   getMonthlyProjection,
   isOperatingDay,
 } from '@/lib/store';
@@ -12,7 +12,7 @@ import {
 
 import GoalsProgress from '@/components/GoalsProgress';
 import {
-  TrendingUp, BarChart3, Trophy, AlertTriangle,
+  TrendingUp, BarChart3,
   ArrowUpRight, ArrowDownRight, Percent, Target,
 } from 'lucide-react';
 
