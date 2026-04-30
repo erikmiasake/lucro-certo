@@ -85,7 +85,9 @@ export default function VisaoGeral() {
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-3 md:gap-4">
         <motion.div
           variants={fadeUp}
-          className="rounded-2xl p-5 md:p-6 relative overflow-hidden glow-primary border border-primary/20"
+          whileHover={{ scale: 1.03 }}
+          transition={{ type: 'spring', stiffness: 260, damping: 18 }}
+          className="rounded-2xl p-5 md:p-6 relative overflow-hidden glow-primary border border-primary/20 cursor-default"
           style={{ background: 'linear-gradient(135deg, hsl(152 76% 52% / 0.08), hsl(228 14% 10%))' }}
         >
           <div className="absolute top-0 right-0 w-40 h-40 gradient-primary opacity-[0.06] rounded-full blur-3xl -translate-y-10 translate-x-10" />
