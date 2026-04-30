@@ -17,7 +17,7 @@ export default function Dashboard() {
   const config = businessConfigs[state.businessType!];
   const today = getDateString();
   const summary = getDaySummary(today);
-  const insight = getInsight(today);
+  
 
   const [showEntry, setShowEntry] = useState(false);
   const [showCost, setShowCost] = useState(false);
@@ -100,19 +100,6 @@ export default function Dashboard() {
           </motion.div>
         </div>
 
-        {/* Insight */}
-        <AnimatePresence>
-          {insight && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="mt-4 px-4 py-3 rounded-xl bg-secondary text-secondary-foreground text-sm font-medium"
-            >
-              {insight}
-            </motion.div>
-          )}
-        </AnimatePresence>
       </div>
 
       {/* Action buttons */}
