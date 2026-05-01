@@ -37,6 +37,7 @@ export default function Auth() {
           email: data.email,
           password: data.password,
           options: {
+            emailRedirectTo: `${window.location.origin}/welcome`,
             data: {
               full_name: data.name,
             },
@@ -55,7 +56,7 @@ export default function Auth() {
         }
         
         toast.success('Conta criada! Verifique seu e-mail para ativar.');
-        navigate('/verify-email');
+        navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
       } else {
         // If "remember me" is unchecked, use a shorter session approach
         if (!data.rememberMe) {
