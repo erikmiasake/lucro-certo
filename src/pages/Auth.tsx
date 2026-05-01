@@ -56,7 +56,7 @@ export default function Auth() {
         }
         
         toast.success('Conta criada! Verifique seu e-mail para ativar.');
-        navigate('/verify-email');
+        navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
       } else {
         // If "remember me" is unchecked, use a shorter session approach
         if (!data.rememberMe) {
