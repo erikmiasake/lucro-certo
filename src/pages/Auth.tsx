@@ -37,6 +37,7 @@ export default function Auth() {
           email: data.email,
           password: data.password,
           options: {
+            emailRedirectTo: `${window.location.origin}/welcome`,
             data: {
               full_name: data.name,
             },
