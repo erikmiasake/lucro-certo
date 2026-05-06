@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
-import { businessConfigs } from '@/lib/business-config';
+import { businessConfigs, getAdaptedLabels } from '@/lib/business-config';
 import {
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
   addEntry, getWeekDailyData, getPreviousDaySummary,
