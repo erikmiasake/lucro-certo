@@ -137,7 +137,7 @@ export default function VisaoGeral() {
           <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
               <Percent className="h-3.5 w-3.5 text-primary" />
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Margem</p>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.marginLabel}</p>
             </div>
             <p className={`text-xl font-bold ${summary.margin >= 20 ? 'text-primary' : summary.margin >= 0 ? 'text-warning' : 'text-destructive'}`}>
               {formatPercent(summary.margin)}
