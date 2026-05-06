@@ -78,7 +78,7 @@ export default function Dashboard() {
           >
             <div className="flex items-center gap-2 mb-1">
               <ArrowDownRight className="h-4 w-4 text-accent" />
-              <p className="text-muted-foreground text-sm">Custo real do dia</p>
+              <p className="text-muted-foreground text-sm">{labels.costLabel} do dia</p>
             </div>
             <p className="text-3xl font-extrabold text-accent">
               {formatCurrency(summary.totalRealCost)}
