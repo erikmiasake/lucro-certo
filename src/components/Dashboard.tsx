@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
-import { businessConfigs } from '@/lib/business-config';
+import { businessConfigs, getAdaptedLabels } from '@/lib/business-config';
 import { getDaySummary, getDateString, addEntry, registerCost, getDayRevenueSource, CostClassification } from '@/lib/store';
 import EntryModal from './EntryModal';
 import CostModal from './CostModal';
@@ -15,6 +15,7 @@ function formatCurrency(value: number) {
 export default function Dashboard() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
+  const labels = getAdaptedLabels(state.businessType);
   const today = getDateString();
   const summary = getDaySummary(today);
   
@@ -27,7 +28,7 @@ export default function Dashboard() {
     addEntry(amount);
     setShowEntry(false);
     const updated = getDaySummary(today);
-    setFeedback(`Receita atualizada: ${formatCurrency(updated.totalRevenue)}`);
+    setFeedback(`${labels.revenueLabel} atualizada: ${formatCurrency(updated.totalRevenue)}`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
@@ -35,7 +36,7 @@ export default function Dashboard() {
     registerCost(amount, type, spreadDays, description, category, subcategory, classification);
     setShowCost(false);
     const updated = getDaySummary(today);
-    setFeedback(`Lucro atual: ${formatCurrency(updated.profit)}`);
+    setFeedback(`${labels.profitLabel} atual: ${formatCurrency(updated.profit)}`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
@@ -57,7 +58,7 @@ export default function Dashboard() {
           >
             <div className="flex items-center gap-2 mb-1">
               <ArrowUpRight className="h-4 w-4 text-blue-400" />
-              <p className="text-muted-foreground text-sm">Receita hoje</p>
+              <p className="text-muted-foreground text-sm">{labels.revenueLabel} hoje</p>
             </div>
             <p className="text-3xl font-extrabold text-foreground">
               {formatCurrency(summary.totalRevenue)}
@@ -77,7 +78,7 @@ export default function Dashboard() {
           >
             <div className="flex items-center gap-2 mb-1">
               <ArrowDownRight className="h-4 w-4 text-accent" />
-              <p className="text-muted-foreground text-sm">Custo real do dia</p>
+              <p className="text-muted-foreground text-sm">{labels.costLabel} do dia</p>
             </div>
             <p className="text-3xl font-extrabold text-accent">
               {formatCurrency(summary.totalRealCost)}
@@ -92,7 +93,7 @@ export default function Dashboard() {
           >
             <div className="flex items-center gap-2 mb-1">
               {summary.profit >= 0 ? <TrendingUp className="h-4 w-4 text-primary" /> : <TrendingDown className="h-4 w-4 text-destructive" />}
-              <p className="text-muted-foreground text-sm">Lucro líquido</p>
+              <p className="text-muted-foreground text-sm">{labels.profitLabel} líquido</p>
             </div>
             <p className={`text-3xl font-extrabold ${summary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
               {formatCurrency(summary.profit)}
@@ -109,14 +110,14 @@ export default function Dashboard() {
           className="flex-1 py-4 rounded-2xl gradient-primary text-primary-foreground font-semibold text-base active:scale-[0.97] transition-transform flex items-center justify-center gap-2"
         >
           <Plus className="h-5 w-5" />
-          Registrar receita do dia
+          {labels.registerEntryLabel}
         </button>
         <button
           onClick={() => setShowCost(true)}
           className="flex-1 py-4 rounded-2xl bg-card border-2 border-border text-foreground font-semibold text-base active:scale-[0.97] transition-transform flex items-center justify-center gap-2"
         >
           <Minus className="h-5 w-5 text-accent" />
-          Registrar custo
+          {labels.registerCostLabel}
         </button>
       </div>
 

@@ -1,16 +1,16 @@
 import { useState, useCallback } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
-import { BusinessType, businessConfigs } from '@/lib/business-config';
+import { BusinessType, UsageMode, businessConfigs } from '@/lib/business-config';
 import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState, addCostMapItem } from '@/lib/store';
 import AILoadingScreen from '@/components/AILoadingScreen';
 import OnboardingDetails, { OnboardingFinishData } from '@/components/OnboardingDetails';
-import { Sparkles, Clock, Zap } from 'lucide-react';
+import { Sparkles, Clock, Zap, Store, Wallet } from 'lucide-react';
 import { TextEffect } from '@/components/ui/text-effect';
 
-const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'academia', 'outro'];
+const businessTypes: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'academia', 'outro'];
 
-const businessImages: Record<BusinessType, string> = {
+const businessImages: Partial<Record<BusinessType, string>> = {
   restaurante: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop',
   salao: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=600&auto=format&fit=crop',
   petshop: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=600&auto=format&fit=crop',
@@ -21,15 +21,24 @@ const businessImages: Record<BusinessType, string> = {
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<'loading' | 'type' | 'details'>('loading');
+  const [step, setStep] = useState<'loading' | 'mode' | 'type' | 'details'>('loading');
   const [selectedType, setSelectedType] = useState<BusinessType | null>(null);
   const [clickedType, setClickedType] = useState<BusinessType | null>(null);
 
-  const handleLoadingComplete = useCallback(() => setStep('type'), []);
+  const handleLoadingComplete = useCallback(() => setStep('mode'), []);
 
   if (getState().onboardingComplete) {
     return <Navigate to="/dashboard" replace />;
   }
+
+  const handleModeSelect = (mode: UsageMode) => {
+    if (mode === 'personal') {
+      setSelectedType('pessoal');
+      setStep('details');
+    } else {
+      setStep('type');
+    }
+  };
 
   const handleSelectType = (type: BusinessType) => {
     setClickedType(type);
@@ -76,6 +85,85 @@ export default function OnboardingPage() {
       <AnimatePresence mode="wait">
         {step === 'loading' ? (
           <AILoadingScreen key="loading" onComplete={handleLoadingComplete} />
+        ) : step === 'mode' ? (
+          <motion.div
+            key="mode-step"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-lg px-4 sm:px-6 py-6 sm:py-10"
+          >
+            <div className="text-center mb-6 sm:mb-10">
+              <motion.div
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg glow-primary"
+              >
+                <Sparkles className="h-6 w-6 text-primary-foreground" />
+              </motion.div>
+              <TextEffect preset="blur" as="h1" className="text-xl sm:text-3xl font-extrabold text-foreground mb-2 tracking-tight leading-tight">
+                Como você quer usar o LucroReal?
+              </TextEffect>
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="text-muted-foreground text-sm sm:text-base max-w-md mx-auto"
+              >
+                Escolha o modo que melhor se encaixa na sua realidade
+              </motion.p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:gap-4">
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleModeSelect('business')}
+                className="group relative rounded-2xl p-5 sm:p-6 border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--primary)/0.12)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                    <Store className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-foreground font-bold text-base sm:text-lg mb-1 group-hover:text-primary transition-colors">Negócio</h3>
+                    <p className="text-muted-foreground text-sm">Para empresas, microempreendedores e negócios</p>
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-b-2xl" />
+              </motion.button>
+
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.5 }}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleModeSelect('personal')}
+                className="group relative rounded-2xl p-5 sm:p-6 border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--accent)/0.12)] hover:border-accent/30 focus:outline-none focus:ring-2 focus:ring-accent/40"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0 group-hover:bg-accent/20 transition-colors">
+                    <Wallet className="h-6 w-6 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-foreground font-bold text-base sm:text-lg mb-1 group-hover:text-accent transition-colors">Uso pessoal</h3>
+                    <p className="text-muted-foreground text-sm">Para organizar ganhos e gastos do dia a dia</p>
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-b-2xl" />
+              </motion.button>
+            </div>
+
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-center text-muted-foreground/50 text-xs mt-6 sm:mt-8">
+              Powered by inteligência artificial
+            </motion.p>
+          </motion.div>
         ) : step === 'type' ? (
           <motion.div
             key="type-step"
@@ -115,7 +203,7 @@ export default function OnboardingPage() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
-              {types.map((type, index) => {
+              {businessTypes.map((type, index) => {
                 const c = businessConfigs[type];
                 const isClicked = clickedType === type;
 
@@ -156,7 +244,7 @@ export default function OnboardingPage() {
           <OnboardingDetails
             key="details-step"
             selectedType={selectedType}
-            onBack={() => setStep('type')}
+            onBack={() => setStep(selectedType === 'pessoal' ? 'mode' : 'type')}
             onFinish={handleFinish}
           />
         ) : null}

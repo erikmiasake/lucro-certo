@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
-import { businessConfigs } from '@/lib/business-config';
+import { businessConfigs, getAdaptedLabels } from '@/lib/business-config';
 import {
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
   addEntry, getWeekDailyData, getPreviousDaySummary,
@@ -39,6 +39,7 @@ const fadeUp = {
 export default function VisaoGeral() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
+  const labels = getAdaptedLabels(state.businessType);
   const today = getDateString();
   const summary = getDaySummary(today);
   const yesterday = getPreviousDaySummary();
@@ -54,7 +55,7 @@ export default function VisaoGeral() {
     addEntry(amount);
     setShowEntry(false);
     const updated = getDaySummary(today);
-    setFeedback(`Receita atualizada: ${formatCurrency(updated.totalRevenue)}`);
+    setFeedback(`${labels.revenueLabel} atualizada: ${formatCurrency(updated.totalRevenue)}`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
@@ -62,7 +63,7 @@ export default function VisaoGeral() {
     registerCost(amount, type, spreadDays, description, category, subcategory, classification);
     setShowCost(false);
     const updated = getDaySummary(today);
-    setFeedback(`Lucro atual: ${formatCurrency(updated.profit)}`);
+    setFeedback(`${labels.profitLabel} atual: ${formatCurrency(updated.profit)}`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
@@ -75,7 +76,7 @@ export default function VisaoGeral() {
       <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-6">
         <div className="flex items-center gap-2 mb-1">
           <TrendingUp className="h-4 w-4 text-muted-foreground" />
-          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{config.label}</span>
+          <span className="text-xs font-medium text-muted-foreground uppercase tracking-wider">{labels.contextLabel || config.label}</span>
         </div>
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Visão geral</h1>
       </motion.div>
@@ -95,7 +96,7 @@ export default function VisaoGeral() {
             <div>
               <p className="text-muted-foreground text-sm mb-2 flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${summary.profit >= 0 ? 'bg-primary' : 'bg-destructive'}`} />
-                Lucro do dia
+                {labels.profitDayLabel}
               </p>
               <p className={`text-4xl md:text-5xl font-extrabold tracking-tight ${summary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
                 {formatCurrency(summary.profit)}
@@ -120,7 +121,7 @@ export default function VisaoGeral() {
           <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
               <ArrowUpRight className="h-3.5 w-3.5 text-blue-400" />
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Receita</p>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.revenueLabel}</p>
             </div>
             <p className="text-xl font-bold text-foreground">{formatCurrency(summary.totalRevenue)}</p>
           </motion.div>
@@ -128,7 +129,7 @@ export default function VisaoGeral() {
           <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
               <ArrowDownRight className="h-3.5 w-3.5 text-accent" />
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Custos</p>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.costLabel}</p>
             </div>
             <p className="text-xl font-bold text-accent">{formatCurrency(summary.totalRealCost)}</p>
           </motion.div>
@@ -136,7 +137,7 @@ export default function VisaoGeral() {
           <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
               <Percent className="h-3.5 w-3.5 text-primary" />
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Margem</p>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.marginLabel}</p>
             </div>
             <p className={`text-xl font-bold ${summary.margin >= 20 ? 'text-primary' : summary.margin >= 0 ? 'text-warning' : 'text-destructive'}`}>
               {formatPercent(summary.margin)}
@@ -166,7 +167,7 @@ export default function VisaoGeral() {
             {formatCurrency(week.profit)}
           </p>
           <div className="flex items-center gap-2 mt-1.5">
-            <span className="text-[10px] text-muted-foreground">{formatCurrency(week.totalRevenue)} receita</span>
+            <span className="text-[10px] text-muted-foreground">{formatCurrency(week.totalRevenue)} {labels.revenueLabel.toLowerCase()}</span>
             <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${week.margin >= 20 ? 'bg-primary/10 text-primary' : 'bg-accent/10 text-accent'}`}>
               {formatPercent(week.margin)}
             </span>
@@ -178,7 +179,7 @@ export default function VisaoGeral() {
             {formatCurrency(month.profit)}
           </p>
           <div className="flex items-center gap-2 mt-1.5">
-            <span className="text-[10px] text-muted-foreground">{formatCurrency(month.totalRevenue)} receita</span>
+            <span className="text-[10px] text-muted-foreground">{formatCurrency(month.totalRevenue)} {labels.revenueLabel.toLowerCase()}</span>
             <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${month.margin >= 20 ? 'bg-primary/10 text-primary' : 'bg-accent/10 text-accent'}`}>
               {formatPercent(month.margin)}
             </span>
@@ -193,14 +194,14 @@ export default function VisaoGeral() {
           className="flex-1 py-4 rounded-2xl gradient-primary text-primary-foreground font-semibold text-base active:scale-[0.97] transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
         >
           <Plus className="h-5 w-5" />
-          Registrar entrada
+          {labels.registerEntryLabel}
         </button>
         <button
           onClick={() => setShowCost(true)}
           className="flex-1 py-4 rounded-2xl card-elevated text-foreground font-semibold text-base active:scale-[0.97] transition-all hover:border-accent/40 flex items-center justify-center gap-2"
         >
           <Minus className="h-5 w-5 text-accent" />
-          Registrar custo
+          {labels.registerCostLabel}
         </button>
       </motion.div>
 

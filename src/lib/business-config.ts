@@ -1,4 +1,6 @@
-export type BusinessType = 'restaurante' | 'salao' | 'petshop' | 'loja' | 'academia' | 'outro';
+export type BusinessType = 'restaurante' | 'salao' | 'petshop' | 'loja' | 'academia' | 'outro' | 'pessoal';
+
+export type UsageMode = 'business' | 'personal';
 
 export interface BusinessConfig {
   label: string;
@@ -13,6 +15,29 @@ export interface BusinessConfig {
   productCostExample: string;
   businessCostLabel: string;
   businessCostExample: string;
+  /** Personal mode uses adapted terminology */
+  isPersonal?: boolean;
+}
+
+/** Helper to check if a business type is personal mode */
+export function isPersonalMode(type: BusinessType | null): boolean {
+  return type === 'pessoal';
+}
+
+/** Get adapted labels for personal vs business mode */
+export function getAdaptedLabels(type: BusinessType | null) {
+  const personal = isPersonalMode(type);
+  return {
+    revenueLabel: personal ? 'Entradas' : 'Receita',
+    costLabel: personal ? 'Gastos' : 'Custos',
+    profitLabel: personal ? 'Sobrou' : 'Lucro',
+    profitDayLabel: personal ? 'Sobrou hoje' : 'Lucro do dia',
+    marginLabel: personal ? 'Economia' : 'Margem',
+    registerEntryLabel: personal ? 'Registrar entrada' : 'Registrar receita do dia',
+    registerCostLabel: personal ? 'Registrar gasto' : 'Registrar custo',
+    contextLabel: personal ? 'Finanças pessoais' : undefined,
+    monthEndLabel: personal ? 'Você terminou o mês com' : 'Seu negócio lucrou',
+  };
 }
 
 export const businessConfigs: Record<BusinessType, BusinessConfig> = {
@@ -99,5 +124,20 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
     productCostExample: 'ex: estoque, materiais',
     businessCostLabel: 'Custo do negócio',
     businessCostExample: 'ex: aluguel, contas',
+  },
+  pessoal: {
+    label: 'Finanças Pessoais',
+    icon: '👤',
+    entryLabel: 'Entradas',
+    entryVerb: 'entrada',
+    costCategories: {
+      product: ['Alimentação', 'Transporte', 'Saúde', 'Lazer'],
+      business: ['Moradia', 'Contas fixas', 'Assinaturas', 'Educação'],
+    },
+    productCostLabel: 'Gasto variável',
+    productCostExample: 'ex: alimentação, transporte',
+    businessCostLabel: 'Gasto fixo',
+    businessCostExample: 'ex: aluguel, contas, assinaturas',
+    isPersonal: true,
   },
 };

@@ -17,7 +17,7 @@ import { TextEffect } from '@/components/ui/text-effect';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'academia', 'outro'];
 
-const businessImages: Record<BusinessType, string> = {
+const businessImages: Partial<Record<BusinessType, string>> = {
   restaurante: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop',
   salao: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=600&auto=format&fit=crop',
   petshop: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=600&auto=format&fit=crop',

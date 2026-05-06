@@ -8,7 +8,7 @@ import {
   CheckCircle2
 } from 'lucide-react';
 
-const businessImages: Record<BusinessType, string> = {
+const businessImages: Partial<Record<BusinessType, string>> = {
   restaurante: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop',
   salao: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=600&auto=format&fit=crop',
   petshop: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=600&auto=format&fit=crop',
@@ -17,13 +17,14 @@ const businessImages: Record<BusinessType, string> = {
   outro: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600&auto=format&fit=crop',
 };
 
-const suggestedAvgSales: Record<BusinessType, string> = {
+const suggestedAvgSales: Partial<Record<BusinessType, string>> = {
   restaurante: '1.500',
   salao: '800',
   petshop: '1.200',
   loja: '2.000',
   academia: '3.000',
   outro: '1.000',
+  pessoal: '3.000',
 };
 
 const aiHints = [
