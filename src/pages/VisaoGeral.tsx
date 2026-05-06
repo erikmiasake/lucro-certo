@@ -167,7 +167,7 @@ export default function VisaoGeral() {
             {formatCurrency(week.profit)}
           </p>
           <div className="flex items-center gap-2 mt-1.5">
-            <span className="text-[10px] text-muted-foreground">{formatCurrency(week.totalRevenue)} receita</span>
+            <span className="text-[10px] text-muted-foreground">{formatCurrency(week.totalRevenue)} {labels.revenueLabel.toLowerCase()}</span>
             <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${week.margin >= 20 ? 'bg-primary/10 text-primary' : 'bg-accent/10 text-accent'}`}>
               {formatPercent(week.margin)}
             </span>
