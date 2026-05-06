@@ -21,10 +21,10 @@ function NarrativeSection({ children, className = '' }: { children: React.ReactN
     const ctx = gsap.context(() => {
       gsap.fromTo(
         ref.current,
-        { y: 80, opacity: 0, filter: 'blur(10px)' },
+        { y: 40, opacity: 0 },
         {
-          y: 0, opacity: 1, filter: 'blur(0px)',
-          duration: 1.2, ease: 'power3.out',
+          y: 0, opacity: 1,
+          duration: 0.7, ease: 'power2.out',
           scrollTrigger: {
             trigger: ref.current,
             start: 'top 85%',
