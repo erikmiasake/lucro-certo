@@ -15,6 +15,7 @@ function formatCurrency(value: number) {
 export default function Dashboard() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
+  const labels = getAdaptedLabels(state.businessType);
   const today = getDateString();
   const summary = getDaySummary(today);
   
