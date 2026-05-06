@@ -194,7 +194,7 @@ export default function VisaoGeral() {
           className="flex-1 py-4 rounded-2xl gradient-primary text-primary-foreground font-semibold text-base active:scale-[0.97] transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
         >
           <Plus className="h-5 w-5" />
-          Registrar entrada
+          {labels.registerEntryLabel}
         </button>
         <button
           onClick={() => setShowCost(true)}
