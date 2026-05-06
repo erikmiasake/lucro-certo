@@ -115,7 +115,7 @@ export default function OnboardingPage() {
             </div>
 
             <div className="grid grid-cols-2 sm:grid-cols-3 gap-2.5 sm:gap-4">
-              {types.map((type, index) => {
+              {businessTypes.map((type, index) => {
                 const c = businessConfigs[type];
                 const isClicked = clickedType === type;
 
