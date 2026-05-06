@@ -129,7 +129,7 @@ export default function VisaoGeral() {
           <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
               <ArrowDownRight className="h-3.5 w-3.5 text-accent" />
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">Custos</p>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.costLabel}</p>
             </div>
             <p className="text-xl font-bold text-accent">{formatCurrency(summary.totalRealCost)}</p>
           </motion.div>
