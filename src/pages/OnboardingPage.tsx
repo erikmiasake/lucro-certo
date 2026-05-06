@@ -21,11 +21,11 @@ const businessImages: Partial<Record<BusinessType, string>> = {
 
 export default function OnboardingPage() {
   const navigate = useNavigate();
-  const [step, setStep] = useState<'loading' | 'type' | 'details'>('loading');
+  const [step, setStep] = useState<'loading' | 'mode' | 'type' | 'details'>('loading');
   const [selectedType, setSelectedType] = useState<BusinessType | null>(null);
   const [clickedType, setClickedType] = useState<BusinessType | null>(null);
 
-  const handleLoadingComplete = useCallback(() => setStep('type'), []);
+  const handleLoadingComplete = useCallback(() => setStep('mode'), []);
 
   if (getState().onboardingComplete) {
     return <Navigate to="/dashboard" replace />;
