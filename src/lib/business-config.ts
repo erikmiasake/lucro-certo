@@ -125,4 +125,19 @@ export const businessConfigs: Record<BusinessType, BusinessConfig> = {
     businessCostLabel: 'Custo do negócio',
     businessCostExample: 'ex: aluguel, contas',
   },
+  pessoal: {
+    label: 'Finanças Pessoais',
+    icon: '👤',
+    entryLabel: 'Entradas',
+    entryVerb: 'entrada',
+    costCategories: {
+      product: ['Alimentação', 'Transporte', 'Saúde', 'Lazer'],
+      business: ['Moradia', 'Contas fixas', 'Assinaturas', 'Educação'],
+    },
+    productCostLabel: 'Gasto variável',
+    productCostExample: 'ex: alimentação, transporte',
+    businessCostLabel: 'Gasto fixo',
+    businessCostExample: 'ex: aluguel, contas, assinaturas',
+    isPersonal: true,
+  },
 };

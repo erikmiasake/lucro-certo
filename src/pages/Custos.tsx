@@ -33,6 +33,7 @@ const benchmarks: Record<BusinessType, { fixedRange: [number, number]; variableR
   loja: { fixedRange: [10, 20], variableRange: [40, 55], totalRange: [50, 75] },
   academia: { fixedRange: [30, 45], variableRange: [5, 15], totalRange: [35, 60] },
   outro: { fixedRange: [15, 30], variableRange: [20, 35], totalRange: [35, 65] },
+  pessoal: { fixedRange: [30, 50], variableRange: [20, 40], totalRange: [50, 80] },
 };
 
 function getBenchmarkStatus(value: number, range: [number, number]): 'good' | 'warning' | 'danger' {
