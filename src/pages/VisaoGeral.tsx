@@ -55,7 +55,7 @@ export default function VisaoGeral() {
     addEntry(amount);
     setShowEntry(false);
     const updated = getDaySummary(today);
-    setFeedback(`Receita atualizada: ${formatCurrency(updated.totalRevenue)}`);
+    setFeedback(`${labels.revenueLabel} atualizada: ${formatCurrency(updated.totalRevenue)}`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
