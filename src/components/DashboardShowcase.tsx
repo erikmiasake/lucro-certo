@@ -58,9 +58,9 @@ const WaterfallChart = () => {
         {waterfallData.map((item, i) => (
           <motion.div
             key={item.label}
-            initial={{ opacity: 0, y: 10 }}
+            initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, delay: 0.9 + i * 0.1 }}
+            transition={{ duration: 0.3, delay: 0.2 + i * 0.06 }}
             className={cn(
               "flex items-center justify-between py-3 px-1",
               i < waterfallData.length - 1 && "border-b border-white/5"
@@ -96,9 +96,9 @@ const WaterfallChart = () => {
         {waterfallData.map((item, i) => (
           <motion.div
             key={item.label}
-            initial={{ opacity: 0, x: -20 }}
+            initial={{ opacity: 0, x: -10 }}
             animate={{ opacity: 1, x: 0 }}
-            transition={{ duration: 0.6, delay: 0.9 + i * 0.12, ease: "easeOut" }}
+            transition={{ duration: 0.4, delay: 0.3 + i * 0.08, ease: "easeOut" }}
             className="flex items-center gap-3 cursor-default"
             onMouseEnter={() => setHovered(i)}
             onMouseLeave={() => setHovered(null)}
@@ -115,7 +115,7 @@ const WaterfallChart = () => {
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${item.value}%` }}
-                transition={{ duration: 1.1, delay: 1.0 + i * 0.12, ease: "easeOut" }}
+                transition={{ duration: 0.6, delay: 0.4 + i * 0.08, ease: "easeOut" }}
                 className={cn(
                   "h-full rounded-full",
                   item.type === "profit"
