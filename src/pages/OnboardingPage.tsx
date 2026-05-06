@@ -31,6 +31,15 @@ export default function OnboardingPage() {
     return <Navigate to="/dashboard" replace />;
   }
 
+  const handleModeSelect = (mode: UsageMode) => {
+    if (mode === 'personal') {
+      setSelectedType('pessoal');
+      setStep('details');
+    } else {
+      setStep('type');
+    }
+  };
+
   const handleSelectType = (type: BusinessType) => {
     setClickedType(type);
     setTimeout(() => {
