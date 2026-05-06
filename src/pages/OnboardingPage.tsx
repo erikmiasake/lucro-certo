@@ -244,7 +244,7 @@ export default function OnboardingPage() {
           <OnboardingDetails
             key="details-step"
             selectedType={selectedType}
-            onBack={() => setStep('type')}
+            onBack={() => setStep(selectedType === 'pessoal' ? 'mode' : 'type')}
             onFinish={handleFinish}
           />
         ) : null}
