@@ -201,7 +201,7 @@ export default function VisaoGeral() {
           className="flex-1 py-4 rounded-2xl card-elevated text-foreground font-semibold text-base active:scale-[0.97] transition-all hover:border-accent/40 flex items-center justify-center gap-2"
         >
           <Minus className="h-5 w-5 text-accent" />
-          Registrar custo
+          {labels.registerCostLabel}
         </button>
       </motion.div>
 
