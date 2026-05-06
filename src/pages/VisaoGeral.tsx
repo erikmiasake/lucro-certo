@@ -179,7 +179,7 @@ export default function VisaoGeral() {
             {formatCurrency(month.profit)}
           </p>
           <div className="flex items-center gap-2 mt-1.5">
-            <span className="text-[10px] text-muted-foreground">{formatCurrency(month.totalRevenue)} receita</span>
+            <span className="text-[10px] text-muted-foreground">{formatCurrency(month.totalRevenue)} {labels.revenueLabel.toLowerCase()}</span>
             <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${month.margin >= 20 ? 'bg-primary/10 text-primary' : 'bg-accent/10 text-accent'}`}>
               {formatPercent(month.margin)}
             </span>
