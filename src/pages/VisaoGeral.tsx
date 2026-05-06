@@ -96,7 +96,7 @@ export default function VisaoGeral() {
             <div>
               <p className="text-muted-foreground text-sm mb-2 flex items-center gap-2">
                 <span className={`w-2 h-2 rounded-full ${summary.profit >= 0 ? 'bg-primary' : 'bg-destructive'}`} />
-                Lucro do dia
+                {labels.profitDayLabel}
               </p>
               <p className={`text-4xl md:text-5xl font-extrabold tracking-tight ${summary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
                 {formatCurrency(summary.profit)}
