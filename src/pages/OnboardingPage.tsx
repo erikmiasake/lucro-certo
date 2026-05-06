@@ -85,6 +85,85 @@ export default function OnboardingPage() {
       <AnimatePresence mode="wait">
         {step === 'loading' ? (
           <AILoadingScreen key="loading" onComplete={handleLoadingComplete} />
+        ) : step === 'mode' ? (
+          <motion.div
+            key="mode-step"
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
+            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            className="w-full max-w-lg px-4 sm:px-6 py-6 sm:py-10"
+          >
+            <div className="text-center mb-6 sm:mb-10">
+              <motion.div
+                initial={{ scale: 0.5, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
+                className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg glow-primary"
+              >
+                <Sparkles className="h-6 w-6 text-primary-foreground" />
+              </motion.div>
+              <TextEffect preset="blur" as="h1" className="text-xl sm:text-3xl font-extrabold text-foreground mb-2 tracking-tight leading-tight">
+                Como você quer usar o LucroReal?
+              </TextEffect>
+              <motion.p
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.3, duration: 0.5 }}
+                className="text-muted-foreground text-sm sm:text-base max-w-md mx-auto"
+              >
+                Escolha o modo que melhor se encaixa na sua realidade
+              </motion.p>
+            </div>
+
+            <div className="flex flex-col gap-3 sm:gap-4">
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.2, duration: 0.5 }}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleModeSelect('business')}
+                className="group relative rounded-2xl p-5 sm:p-6 border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--primary)/0.12)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center shrink-0 group-hover:bg-primary/20 transition-colors">
+                    <Store className="h-6 w-6 text-primary" />
+                  </div>
+                  <div>
+                    <h3 className="text-foreground font-bold text-base sm:text-lg mb-1 group-hover:text-primary transition-colors">Negócio</h3>
+                    <p className="text-muted-foreground text-sm">Para empresas, microempreendedores e negócios</p>
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-primary scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-b-2xl" />
+              </motion.button>
+
+              <motion.button
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: 0.35, duration: 0.5 }}
+                whileHover={{ scale: 1.02, y: -2 }}
+                whileTap={{ scale: 0.98 }}
+                onClick={() => handleModeSelect('personal')}
+                className="group relative rounded-2xl p-5 sm:p-6 border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--accent)/0.12)] hover:border-accent/30 focus:outline-none focus:ring-2 focus:ring-accent/40"
+              >
+                <div className="flex items-start gap-4">
+                  <div className="w-12 h-12 rounded-xl bg-accent/10 flex items-center justify-center shrink-0 group-hover:bg-accent/20 transition-colors">
+                    <Wallet className="h-6 w-6 text-accent" />
+                  </div>
+                  <div>
+                    <h3 className="text-foreground font-bold text-base sm:text-lg mb-1 group-hover:text-accent transition-colors">Uso pessoal</h3>
+                    <p className="text-muted-foreground text-sm">Para organizar ganhos e gastos do dia a dia</p>
+                  </div>
+                </div>
+                <div className="absolute bottom-0 left-0 right-0 h-0.5 bg-accent scale-x-0 group-hover:scale-x-100 transition-transform duration-300 origin-left rounded-b-2xl" />
+              </motion.button>
+            </div>
+
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-center text-muted-foreground/50 text-xs mt-6 sm:mt-8">
+              Powered by inteligência artificial
+            </motion.p>
+          </motion.div>
         ) : step === 'type' ? (
           <motion.div
             key="type-step"
