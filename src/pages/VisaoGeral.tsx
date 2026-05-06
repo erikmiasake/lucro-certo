@@ -63,7 +63,7 @@ export default function VisaoGeral() {
     registerCost(amount, type, spreadDays, description, category, subcategory, classification);
     setShowCost(false);
     const updated = getDaySummary(today);
-    setFeedback(`Lucro atual: ${formatCurrency(updated.profit)}`);
+    setFeedback(`${labels.profitLabel} atual: ${formatCurrency(updated.profit)}`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
