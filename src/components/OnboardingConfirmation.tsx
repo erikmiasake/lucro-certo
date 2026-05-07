@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { BusinessType, businessConfigs } from '@/lib/business-config';
-import { CheckCircle2, DollarSign, Tag, ArrowRight, Sparkles, Building2 } from 'lucide-react';
+import { CheckCircle2, DollarSign, Tag, ArrowRight, Sparkles, Building2, Wallet } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 
 interface Props {
@@ -12,6 +12,7 @@ interface Props {
 
 export default function OnboardingConfirmation({ businessType, avgSales, selectedCosts, onEnter }: Props) {
   const config = businessConfigs[businessType];
+  const isPersonal = businessType === 'pessoal';
 
   return (
     <motion.div
@@ -35,7 +36,7 @@ export default function OnboardingConfirmation({ businessType, avgSales, selecte
       >
         <Badge variant="outline" className="mb-5 px-3 py-1 text-xs font-medium border-primary/20 text-primary bg-primary/5">
           <Sparkles className="h-3 w-3 mr-1.5" />
-          Análise concluída
+          {isPersonal ? 'Perfil configurado' : 'Análise concluída'}
         </Badge>
       </motion.div>
 
@@ -46,8 +47,11 @@ export default function OnboardingConfirmation({ businessType, avgSales, selecte
         transition={{ delay: 0.25 }}
         className="text-2xl sm:text-4xl font-bold text-foreground mb-3 tracking-tight leading-tight"
       >
-        Seu negócio está{' '}
-        <span className="text-primary">pronto</span>
+        {isPersonal ? (
+          <>Suas finanças estão{' '}<span className="text-primary">prontas</span></>
+        ) : (
+          <>Seu negócio está{' '}<span className="text-primary">pronto</span></>
+        )}
       </motion.h2>
       <motion.p
         initial={{ opacity: 0 }}
@@ -55,54 +59,65 @@ export default function OnboardingConfirmation({ businessType, avgSales, selecte
         transition={{ delay: 0.35 }}
         className="text-sm sm:text-base text-muted-foreground mb-8 max-w-sm leading-relaxed"
       >
-        Criamos uma estrutura personalizada para o seu tipo de negócio com base nas informações fornecidas
+        {isPersonal
+          ? 'Organizamos tudo para você acompanhar suas entradas, gastos e quanto realmente sobra no fim do mês'
+          : 'Criamos uma estrutura personalizada para o seu tipo de negócio com base nas informações fornecidas'}
       </motion.p>
 
-      {/* Summary container with rectangle border style */}
+      {/* Summary container */}
       <motion.div
         initial={{ opacity: 0, scale: 0.96 }}
         animate={{ opacity: 1, scale: 1 }}
         transition={{ delay: 0.4, duration: 0.5 }}
         className="w-full rounded-2xl border border-border/60 bg-card/50 backdrop-blur-sm p-5 mb-8 relative overflow-hidden"
       >
-        {/* Inner glow */}
         <div className="absolute inset-0 bg-gradient-to-b from-primary/[0.03] to-transparent pointer-events-none" />
 
         <div className="space-y-3 relative">
-          {/* Business type */}
+          {/* Type row */}
           <div className="flex items-center gap-3 p-3 rounded-xl bg-background/60 border border-border/40">
             <div className="w-9 h-9 rounded-lg bg-primary/10 flex items-center justify-center shrink-0">
-              <Building2 className="h-4 w-4 text-primary" />
+              {isPersonal ? <Wallet className="h-4 w-4 text-primary" /> : <Building2 className="h-4 w-4 text-primary" />}
             </div>
             <div className="text-left flex-1">
-              <p className="text-[11px] text-muted-foreground/70 uppercase tracking-wider">Negócio</p>
-              <p className="text-sm font-semibold text-foreground">{config.label}</p>
+              <p className="text-[11px] text-muted-foreground/70 uppercase tracking-wider">
+                {isPersonal ? 'Modo' : 'Negócio'}
+              </p>
+              <p className="text-sm font-semibold text-foreground">
+                {isPersonal ? 'Finanças Pessoais' : config.label}
+              </p>
             </div>
             <CheckCircle2 className="h-4 w-4 text-primary/60" />
           </div>
 
-          {/* Average sales */}
+          {/* Average sales / income */}
           {avgSales && (
             <div className="flex items-center gap-3 p-3 rounded-xl bg-background/60 border border-border/40">
               <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
                 <DollarSign className="h-4 w-4 text-accent" />
               </div>
               <div className="text-left flex-1">
-                <p className="text-[11px] text-muted-foreground/70 uppercase tracking-wider">Vendas/dia</p>
+                <p className="text-[11px] text-muted-foreground/70 uppercase tracking-wider">
+                  {isPersonal ? 'Renda mensal' : 'Vendas/dia'}
+                </p>
                 <p className="text-sm font-semibold text-foreground">R$ {avgSales}</p>
               </div>
               <CheckCircle2 className="h-4 w-4 text-primary/60" />
             </div>
           )}
 
-          {/* Costs */}
+          {/* Costs / Categories */}
           {selectedCosts.length > 0 && (
             <div className="flex items-start gap-3 p-3 rounded-xl bg-background/60 border border-border/40">
               <div className="w-9 h-9 rounded-lg bg-primary/8 flex items-center justify-center shrink-0 mt-0.5">
                 <Tag className="h-4 w-4 text-primary/80" />
               </div>
               <div className="text-left flex-1">
-                <p className="text-[11px] text-muted-foreground/70 uppercase tracking-wider mb-1.5">{selectedCosts.length} custos mapeados</p>
+                <p className="text-[11px] text-muted-foreground/70 uppercase tracking-wider mb-1.5">
+                  {isPersonal
+                    ? `${selectedCosts.length} categorias de gastos`
+                    : `${selectedCosts.length} custos mapeados`}
+                </p>
                 <div className="flex flex-wrap gap-1.5">
                   {selectedCosts.slice(0, 5).map(c => (
                     <span key={c} className="px-2 py-0.5 rounded-md bg-secondary/80 text-[11px] font-medium text-secondary-foreground">{c}</span>
@@ -129,15 +144,12 @@ export default function OnboardingConfirmation({ businessType, avgSales, selecte
           onClick={onEnter}
           className="w-full py-4 rounded-2xl gradient-primary text-primary-foreground font-semibold text-base shadow-lg shadow-primary/20 flex items-center justify-center gap-2 active:scale-[0.97] transition-transform"
         >
-          Gerar minha análise
+          {isPersonal ? 'Começar a organizar' : 'Gerar minha análise'}
           <ArrowRight className="h-5 w-5" />
         </button>
-
-        {/* Glow under button */}
         <div className="absolute -bottom-3 left-1/2 -translate-x-1/2 w-3/4 h-8 bg-primary/15 blur-2xl rounded-full pointer-events-none" />
       </motion.div>
 
-      {/* Footer text */}
       <motion.p
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
