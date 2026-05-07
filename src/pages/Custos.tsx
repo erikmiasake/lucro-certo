@@ -563,7 +563,7 @@ export default function Custos() {
           className="px-6 py-3 rounded-2xl gradient-accent text-accent-foreground font-semibold text-sm shadow-lg shadow-accent/20 flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
-          Registrar custo
+          {labels.costModalButton}
         </motion.button>
       </div>
 
