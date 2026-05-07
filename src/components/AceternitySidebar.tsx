@@ -61,7 +61,9 @@ function DesktopSidebar() {
   const { open, setOpen, animate } = useSidebarContext();
   const location = useLocation();
   const appState = useStore();
+  const isPersonal = appState.businessType === 'pessoal';
   const config = appState.businessType ? businessConfigs[appState.businessType] : null;
+  const links = getLinks(isPersonal);
 
   return (
     <motion.div
