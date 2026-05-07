@@ -94,16 +94,24 @@ export default function Custos() {
 
   const costInsights: string[] = [];
   if (costPctOfRevenue > bench.totalRange[1]) {
-    costInsights.push(`Custos em ${costPctOfRevenue.toFixed(0)}% da receita — acima da média do setor (${bench.totalRange[0]}–${bench.totalRange[1]}%).`);
+    costInsights.push(isPersonal
+      ? `Gastos em ${costPctOfRevenue.toFixed(0)}% da sua renda — acima do ideal (${bench.totalRange[0]}–${bench.totalRange[1]}%).`
+      : `Custos em ${costPctOfRevenue.toFixed(0)}% da receita — acima da média do setor (${bench.totalRange[0]}–${bench.totalRange[1]}%).`);
   } else if (costPctOfRevenue > 0 && costPctOfRevenue <= bench.totalRange[1]) {
-    costInsights.push(`Custos dentro da faixa saudável para ${config.label.toLowerCase()} (${bench.totalRange[0]}–${bench.totalRange[1]}%).`);
+    costInsights.push(isPersonal
+      ? `Seus gastos estão dentro de uma faixa saudável (${bench.totalRange[0]}–${bench.totalRange[1]}% da renda).`
+      : `Custos dentro da faixa saudável para ${config.label.toLowerCase()} (${bench.totalRange[0]}–${bench.totalRange[1]}%).`);
   }
   if (variablePctOfRevenue > bench.variableRange[1]) {
-    costInsights.push(`Custos variáveis em ${variablePctOfRevenue.toFixed(0)}% da receita — acima do ideal de ${bench.variableRange[1]}%.`);
+    costInsights.push(isPersonal
+      ? `Gastos variáveis em ${variablePctOfRevenue.toFixed(0)}% da renda — acima do ideal de ${bench.variableRange[1]}%.`
+      : `Custos variáveis em ${variablePctOfRevenue.toFixed(0)}% da receita — acima do ideal de ${bench.variableRange[1]}%.`);
   }
   if (breakdown.topCost && breakdown.topCost.percentage > 35) {
     const saving = breakdown.topCost.amount * 0.1;
-    costInsights.push(`${breakdown.topCost.name} concentra ${breakdown.topCost.percentage.toFixed(0)}% dos custos. Reduzir 10% = +${fmtShort(saving)} de lucro.`);
+    costInsights.push(isPersonal
+      ? `${breakdown.topCost.name} concentra ${breakdown.topCost.percentage.toFixed(0)}% dos gastos. Reduzir 10% = +${fmtShort(saving)} de sobra.`
+      : `${breakdown.topCost.name} concentra ${breakdown.topCost.percentage.toFixed(0)}% dos custos. Reduzir 10% = +${fmtShort(saving)} de lucro.`);
   }
 
   const pieData = useMemo(() => {
