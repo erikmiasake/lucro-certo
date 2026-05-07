@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
-import { businessConfigs, BusinessType } from '@/lib/business-config';
+import { businessConfigs, BusinessType, getAdaptedLabels } from '@/lib/business-config';
 import { getRecentCosts, deleteCost, getCostBreakdown, getWeekSummary, getMonthSummary, getCostAnalysisAmount, CostClassification, registerCost, getCostMap } from '@/lib/store';
 import {
   Trash2, Plus, Package, Building2, AlertTriangle, PieChart, TrendingDown,
@@ -60,6 +60,8 @@ const CHART_COLORS = [
 export default function Custos() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
+  const labels = getAdaptedLabels(state.businessType);
+  const isPersonal = state.businessType === 'pessoal';
   // Derive from state to ensure reactivity on every store change
   const costs = useMemo(() => getRecentCosts(), [state]);
   const breakdown = useMemo(() => getCostBreakdown(), [state]);
@@ -86,22 +88,30 @@ export default function Custos() {
     registerCost(amount, type, spreadDays, description, category, subcategory, classification);
     setShowCost(false);
     setViewTab('map');
-    setFeedback('Custo registrado no mapa');
+    setFeedback(labels.costFeedback);
     setTimeout(() => setFeedback(null), 2500);
   };
 
   const costInsights: string[] = [];
   if (costPctOfRevenue > bench.totalRange[1]) {
-    costInsights.push(`Custos em ${costPctOfRevenue.toFixed(0)}% da receita — acima da média do setor (${bench.totalRange[0]}–${bench.totalRange[1]}%).`);
+    costInsights.push(isPersonal
+      ? `Gastos em ${costPctOfRevenue.toFixed(0)}% da sua renda — acima do ideal (${bench.totalRange[0]}–${bench.totalRange[1]}%).`
+      : `Custos em ${costPctOfRevenue.toFixed(0)}% da receita — acima da média do setor (${bench.totalRange[0]}–${bench.totalRange[1]}%).`);
   } else if (costPctOfRevenue > 0 && costPctOfRevenue <= bench.totalRange[1]) {
-    costInsights.push(`Custos dentro da faixa saudável para ${config.label.toLowerCase()} (${bench.totalRange[0]}–${bench.totalRange[1]}%).`);
+    costInsights.push(isPersonal
+      ? `Seus gastos estão dentro de uma faixa saudável (${bench.totalRange[0]}–${bench.totalRange[1]}% da renda).`
+      : `Custos dentro da faixa saudável para ${config.label.toLowerCase()} (${bench.totalRange[0]}–${bench.totalRange[1]}%).`);
   }
   if (variablePctOfRevenue > bench.variableRange[1]) {
-    costInsights.push(`Custos variáveis em ${variablePctOfRevenue.toFixed(0)}% da receita — acima do ideal de ${bench.variableRange[1]}%.`);
+    costInsights.push(isPersonal
+      ? `Gastos variáveis em ${variablePctOfRevenue.toFixed(0)}% da renda — acima do ideal de ${bench.variableRange[1]}%.`
+      : `Custos variáveis em ${variablePctOfRevenue.toFixed(0)}% da receita — acima do ideal de ${bench.variableRange[1]}%.`);
   }
   if (breakdown.topCost && breakdown.topCost.percentage > 35) {
     const saving = breakdown.topCost.amount * 0.1;
-    costInsights.push(`${breakdown.topCost.name} concentra ${breakdown.topCost.percentage.toFixed(0)}% dos custos. Reduzir 10% = +${fmtShort(saving)} de lucro.`);
+    costInsights.push(isPersonal
+      ? `${breakdown.topCost.name} concentra ${breakdown.topCost.percentage.toFixed(0)}% dos gastos. Reduzir 10% = +${fmtShort(saving)} de sobra.`
+      : `${breakdown.topCost.name} concentra ${breakdown.topCost.percentage.toFixed(0)}% dos custos. Reduzir 10% = +${fmtShort(saving)} de lucro.`);
   }
 
   const pieData = useMemo(() => {
@@ -125,8 +135,8 @@ export default function Custos() {
     <div className="p-4 md:p-8 max-w-3xl mx-auto safe-bottom pb-24">
       {/* Header */}
       <div className="mb-5">
-        <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">Mapa de custos</h1>
-        <p className="text-muted-foreground text-xs mt-0.5">Análise inteligente de onde seu dinheiro está indo</p>
+        <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">{labels.costsPageTitle}</h1>
+        <p className="text-muted-foreground text-xs mt-0.5">{labels.costsPageSubtitle}</p>
       </div>
 
       {/* Cost View Toggle: Real vs Operacional */}
@@ -156,7 +166,7 @@ export default function Custos() {
                   costView === 'operacional' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                ⚙️ Custo Operacional
+                {labels.costOperationalLabel}
               </button>
               <button
                 onClick={() => setCostView('real')}
@@ -164,7 +174,7 @@ export default function Custos() {
                   costView === 'real' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                💰 Custo Real
+                {labels.costRealLabel}
               </button>
             </div>
 
@@ -193,22 +203,30 @@ export default function Custos() {
               <div className="pt-3 border-t border-border/50">
                 {costView === 'operacional' ? (
                   <div className="space-y-1.5">
-                    <p className="text-[11px] font-semibold text-foreground">Quanto custa cada dia aberto</p>
+                    <p className="text-[11px] font-semibold text-foreground">{labels.costOperationalDesc}</p>
                     <p className="text-[10px] text-muted-foreground leading-relaxed">
-                      Custos distribuídos apenas pelos <span className="text-foreground font-semibold">{opDaysInMonth} dias</span> em que o negócio abre neste mês ({opDaysPerWeek} dias/semana).
+                      {isPersonal
+                        ? `Gastos distribuídos pelos ${daysInMonth} dias do mês.`
+                        : <>Custos distribuídos apenas pelos <span className="text-foreground font-semibold">{opDaysInMonth} dias</span> em que o negócio abre neste mês ({opDaysPerWeek} dias/semana).</>}
                     </p>
                     <p className="text-[10px] text-primary/70 font-medium">
-                      👉 Mostra quanto você precisa faturar por dia aberto para cobrir custos e gerar lucro.
+                      {isPersonal
+                        ? '👉 Mostra quanto você gasta por dia em média.'
+                        : '👉 Mostra quanto você precisa faturar por dia aberto para cobrir custos e gerar lucro.'}
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-1.5">
-                    <p className="text-[11px] font-semibold text-foreground">Quanto custa manter o negócio</p>
+                    <p className="text-[11px] font-semibold text-foreground">{labels.costRealDesc}</p>
                     <p className="text-[10px] text-muted-foreground leading-relaxed">
-                      Custos distribuídos por todos os <span className="text-foreground font-semibold">{daysInMonth} dias</span> do mês — aberto ou não.
+                      {isPersonal
+                        ? <>Gastos distribuídos por todos os <span className="text-foreground font-semibold">{daysInMonth} dias</span> do mês.</>
+                        : <>Custos distribuídos por todos os <span className="text-foreground font-semibold">{daysInMonth} dias</span> do mês — aberto ou não.</>}
                     </p>
                     <p className="text-[10px] text-primary/70 font-medium">
-                      👉 Mostra o peso estrutural do negócio — o que você paga mesmo sem atender clientes.
+                      {isPersonal
+                        ? '👉 Mostra o peso real dos seus gastos mensais.'
+                        : '👉 Mostra o peso estrutural do negócio — o que você paga mesmo sem atender clientes.'}
                     </p>
                   </div>
                 )}
@@ -247,9 +265,9 @@ export default function Custos() {
         >
           <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0 mt-0.5" />
           <div>
-            <p className="text-xs font-semibold text-destructive">Custos acima do ideal</p>
+            <p className="text-xs font-semibold text-destructive">{labels.costAlertTitle}</p>
             <p className="text-[10px] text-destructive/70 mt-0.5">
-              {costPctOfRevenue.toFixed(0)}% da receita — média do setor: {bench.totalRange[0]}–{bench.totalRange[1]}%
+              {costPctOfRevenue.toFixed(0)}% da {isPersonal ? 'renda' : 'receita'} — {isPersonal ? 'ideal' : 'média do setor'}: {bench.totalRange[0]}–{bench.totalRange[1]}%
             </p>
           </div>
         </motion.div>
@@ -374,7 +392,7 @@ export default function Custos() {
               <div className="rounded-xl p-4 card-elevated">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingDown className="h-3.5 w-3.5 text-muted-foreground" />
-                  <p className="text-xs font-semibold text-foreground">Ranking de custos</p>
+                  <p className="text-xs font-semibold text-foreground">{labels.costRankingTitle}</p>
                 </div>
                 <div className="space-y-2.5">
                   {breakdown.categories.map((cat, i) => {
@@ -406,7 +424,7 @@ export default function Custos() {
                         </div>
                         {month.totalRevenue > 0 && (
                           <p className="text-[9px] text-muted-foreground/50 mt-0.5 ml-5">
-                            {Math.round(pctOfRevenue)}% da receita
+                            {Math.round(pctOfRevenue)}% da {isPersonal ? 'renda' : 'receita'}
                           </p>
                         )}
                       </div>
@@ -421,7 +439,7 @@ export default function Custos() {
               <div className="rounded-xl p-4 card-elevated">
                 <div className="flex items-center gap-2 mb-3">
                   <Target className="h-3.5 w-3.5 text-destructive/70" />
-                  <p className="text-xs font-semibold text-foreground">Impacto no lucro</p>
+                  <p className="text-xs font-semibold text-foreground">{isPersonal ? 'Impacto na sobra' : 'Impacto no lucro'}</p>
                 </div>
                 <div className="space-y-2">
                   {breakdown.profitImpact.slice(0, 5).map((item, i) => (
@@ -484,8 +502,8 @@ export default function Custos() {
                   <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center mx-auto mb-3">
                     <Package className="h-5 w-5 text-muted-foreground" />
                   </div>
-                  <p className="text-muted-foreground text-xs font-medium">Nenhum custo registrado</p>
-                  <p className="text-muted-foreground/40 text-[10px] mt-1">Registre custos para ver sua análise</p>
+                  <p className="text-muted-foreground text-xs font-medium">{labels.noCostsLabel}</p>
+                  <p className="text-muted-foreground/40 text-[10px] mt-1">Registre {isPersonal ? 'gastos' : 'custos'} para ver sua análise</p>
                 </div>
               ) : (
                 costs.map((c, i) => (
@@ -545,7 +563,7 @@ export default function Custos() {
           className="px-6 py-3 rounded-2xl gradient-accent text-accent-foreground font-semibold text-sm shadow-lg shadow-accent/20 flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
-          Registrar custo
+          {labels.costModalButton}
         </motion.button>
       </div>
 

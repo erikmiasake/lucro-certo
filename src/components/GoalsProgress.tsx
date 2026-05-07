@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { getGoalsProgress } from '@/lib/store';
 import { useStore } from '@/hooks/use-store';
+import { getAdaptedLabels } from '@/lib/business-config';
 import { Target, TrendingUp, Percent } from 'lucide-react';
 
 function formatCurrency(v: number) {
@@ -10,6 +11,7 @@ function formatCurrency(v: number) {
 export default function GoalsProgress() {
   const state = useStore();
   const goals = state.goals;
+  const labels = getAdaptedLabels(state.businessType);
   
   if (!goals.monthlyProfit && !goals.monthlyMargin) return null;
 
@@ -23,7 +25,7 @@ export default function GoalsProgress() {
     >
       <div className="flex items-center gap-2 mb-3">
         <Target className="h-4 w-4 text-primary" />
-        <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Metas do mês</p>
+        <p className="text-xs font-semibold text-foreground uppercase tracking-wider">{labels.goalLabel}</p>
         <span className="text-[10px] text-muted-foreground ml-auto">{progress.daysRemaining} dias restantes</span>
       </div>
 
@@ -34,7 +36,7 @@ export default function GoalsProgress() {
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-1.5">
                 <TrendingUp className="h-3 w-3 text-primary" />
-                <span className="text-xs text-muted-foreground">Lucro</span>
+                <span className="text-xs text-muted-foreground">{labels.goalProfitLabel}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-foreground">
@@ -78,7 +80,7 @@ export default function GoalsProgress() {
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-1.5">
                 <Percent className="h-3 w-3 text-blue-400" />
-                <span className="text-xs text-muted-foreground">Margem</span>
+                <span className="text-xs text-muted-foreground">{labels.goalMarginLabel}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-foreground">

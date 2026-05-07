@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BusinessConfig } from '@/lib/business-config';
+import { BusinessConfig, getAdaptedLabels, BusinessType } from '@/lib/business-config';
 import { CostClassification } from '@/lib/store';
 import { Package, Building2, ChevronLeft } from 'lucide-react';
+import { useStore } from '@/hooks/use-store';
 
 interface CostModalProps {
   open: boolean;
@@ -12,6 +13,8 @@ interface CostModalProps {
 }
 
 export default function CostModal({ open, onClose, onSubmit, config }: CostModalProps) {
+  const state = useStore();
+  const labels = getAdaptedLabels(state.businessType);
   const [step, setStep] = useState<'describe' | 'details'>('describe');
   const [description, setDescription] = useState('');
   const [costType, setCostType] = useState<'product' | 'business'>('product');
@@ -45,13 +48,10 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
   const handleSubmit = () => {
     const num = parseFloat(value.replace(',', '.'));
     if (num > 0) {
-      // Fixed costs: always 30 days (monthly). Variable costs: user-selected spreadDays.
       const finalSpreadDays = classification === 'fixed' ? 30 : spreadDays;
       onSubmit(num, costType, finalSpreadDays, description, category, subcategory, classification);
     }
   };
-
-  const allCategories = [...config.costCategories.product, ...config.costCategories.business];
 
   return (
     <AnimatePresence>
@@ -75,15 +75,15 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
 
             {step === 'describe' ? (
               <>
-                <h2 className="text-lg font-bold text-foreground mb-1">Registrar custo</h2>
-                <p className="text-muted-foreground text-xs mb-5">Descreva o custo e informe a categoria</p>
+                <h2 className="text-lg font-bold text-foreground mb-1">{labels.costModalTitle}</h2>
+                <p className="text-muted-foreground text-xs mb-5">{labels.costModalSubtitle}</p>
 
                 {/* Description input */}
                 <div className="mb-4">
                   <input
                     ref={descRef}
                     type="text"
-                    placeholder="Ex: compra de chocolate, conta de luz, aluguel..."
+                    placeholder={labels.costPlaceholder}
                     value={description}
                     onChange={(e) => setDescription(e.target.value)}
                     className="w-full px-4 py-3.5 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/40 transition-colors text-sm"
@@ -92,7 +92,7 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
 
                 {/* Manual type selection */}
                 <div className="mb-4">
-                  <p className="text-xs font-medium text-muted-foreground mb-2">Tipo de custo</p>
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Tipo</p>
                   <div className="grid grid-cols-2 gap-2">
                     <button
                       onClick={() => { setCostType('product'); setClassification('variable'); }}
@@ -101,8 +101,8 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                       }`}
                     >
                       <Package className={`h-4 w-4 mb-1 ${costType === 'product' ? 'text-accent' : 'text-muted-foreground'}`} />
-                      <p className="font-medium text-foreground text-xs">Variável</p>
-                      <p className="text-[10px] text-muted-foreground">Insumos, produtos</p>
+                      <p className="font-medium text-foreground text-xs">{labels.variableLabel}</p>
+                      <p className="text-[10px] text-muted-foreground">{labels.variableHint}</p>
                     </button>
                     <button
                       onClick={() => { setCostType('business'); setClassification('fixed'); }}
@@ -111,8 +111,8 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                       }`}
                     >
                       <Building2 className={`h-4 w-4 mb-1 ${costType === 'business' ? 'text-purple-400' : 'text-muted-foreground'}`} />
-                      <p className="font-medium text-foreground text-xs">Fixo</p>
-                      <p className="text-[10px] text-muted-foreground">Aluguel, contas</p>
+                      <p className="font-medium text-foreground text-xs">{labels.fixedLabel}</p>
+                      <p className="text-[10px] text-muted-foreground">{labels.fixedHint}</p>
                     </button>
                   </div>
                 </div>
@@ -122,7 +122,7 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                   <p className="text-xs font-medium text-muted-foreground mb-2">Categoria</p>
                   <input
                     type="text"
-                    placeholder="Ex: Energia, Aluguel, Ingredientes..."
+                    placeholder={labels.categoryPlaceholder}
                     value={category}
                     onChange={(e) => setCategory(e.target.value)}
                     className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/40 transition-colors text-sm"
@@ -176,14 +176,14 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
 
                 {classification === 'fixed' ? (
                   <div className="mb-5 p-3 rounded-xl bg-purple-500/5 border border-purple-400/15">
-                    <p className="text-xs font-medium text-purple-400 mb-1">📅 Custo mensal</p>
+                    <p className="text-xs font-medium text-purple-400 mb-1">📅 {config.isPersonal ? 'Gasto mensal' : 'Custo mensal'}</p>
                     <p className="text-[11px] text-muted-foreground">
-                      Este custo será distribuído ao longo de <span className="text-foreground font-semibold">30 dias</span> automaticamente.
+                      Este {config.isPersonal ? 'gasto' : 'custo'} será distribuído ao longo de <span className="text-foreground font-semibold">30 dias</span> automaticamente.
                     </p>
                   </div>
                 ) : (
                   <div className="mb-5">
-                    <p className="text-sm text-muted-foreground mb-3">Esse custo dura quantos dias?</p>
+                    <p className="text-sm text-muted-foreground mb-3">Esse {config.isPersonal ? 'gasto' : 'custo'} dura quantos dias?</p>
                     <div className="flex gap-2">
                       {[3, 5, 7, 15, 30].map((d) => (
                         <button
@@ -200,7 +200,9 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                       ))}
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-2">
-                      Ex: uma compra de insumos que dura {spreadDays} dias será dividida igualmente nesse período.
+                      {config.isPersonal
+                        ? `Ex: uma compra que dura ${spreadDays} dias será dividida igualmente nesse período.`
+                        : `Ex: uma compra de insumos que dura ${spreadDays} dias será dividida igualmente nesse período.`}
                     </p>
                   </div>
                 )}
@@ -210,7 +212,7 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                   disabled={!value || parseFloat(value.replace(',', '.')) <= 0}
                   className="w-full py-4 rounded-2xl gradient-accent text-accent-foreground font-semibold text-lg disabled:opacity-30 active:scale-[0.97] transition-all shadow-lg shadow-accent/15"
                 >
-                  Registrar custo
+                  {labels.costModalButton}
                 </button>
               </>
             )}

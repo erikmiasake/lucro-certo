@@ -1,5 +1,5 @@
 import { useStore } from '@/hooks/use-store';
-import { BusinessType, businessConfigs } from '@/lib/business-config';
+import { BusinessType, businessConfigs, getAdaptedLabels, isPersonalMode } from '@/lib/business-config';
 import { setBusinessType, resetAll, setGoals, setBusinessProfile } from '@/lib/store';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -23,6 +23,8 @@ const objectives = [
 
 export default function Configuracoes() {
   const state = useStore();
+  const isPersonal = isPersonalMode(state.businessType);
+  const labels = getAdaptedLabels(state.businessType);
   const navigate = useNavigate();
   const [confirmReset, setConfirmReset] = useState(false);
   const [profitGoal, setProfitGoal] = useState(state.goals?.monthlyProfit?.toString() || '');
@@ -120,7 +122,7 @@ export default function Configuracoes() {
         safeRemoveItem('lucro-real-data');
 
         // 3. Redirect to onboarding (keep user logged in)
-        toast.success('Dados limpos!', { description: 'Configure seu novo negócio.' });
+        toast.success('Dados limpos!', { description: isPersonal ? 'Configure suas finanças.' : 'Configure seu novo negócio.' });
         navigate('/onboarding');
         window.location.reload();
       } catch (err) {
@@ -207,7 +209,7 @@ export default function Configuracoes() {
     <div className="p-5 md:p-8 max-w-3xl mx-auto safe-bottom">
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Configurações</h1>
-        <p className="text-muted-foreground text-sm mt-1">Gerencie seu perfil e seu negócio.</p>
+        <p className="text-muted-foreground text-sm mt-1">{isPersonal ? 'Gerencie seu perfil e suas finanças.' : 'Gerencie seu perfil e seu negócio.'}</p>
       </div>
 
       {loadingUser ? (
@@ -286,11 +288,12 @@ export default function Configuracoes() {
 
       {/* Business Profile */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-5 card-elevated mb-5">
-        <SectionTitle icon={Building2} title="Perfil" />
+        <SectionTitle icon={Building2} title={isPersonal ? 'Perfil financeiro' : 'Perfil'} />
         <div className="space-y-4">
-          <InputField label="Nome do negócio" icon={Building2} value={businessName} onChange={setBusinessName} placeholder="Ex: Restaurante do João" />
+          <InputField label={isPersonal ? 'Nome do perfil' : 'Nome do negócio'} icon={Building2} value={businessName} onChange={setBusinessName} placeholder={isPersonal ? 'Ex: Minhas finanças' : 'Ex: Restaurante do João'} />
 
-          {/* Business type selector */}
+          {/* Business type selector — hide for personal */}
+          {!isPersonal && (
           <div>
             <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
               <Crosshair className="h-3 w-3" />
@@ -330,10 +333,12 @@ export default function Configuracoes() {
               </motion.div>
             )}
           </div>
+          )}
         </div>
       </motion.div>
 
-      {/* Operation */}
+      {/* Operation — hide for personal */}
+      {!isPersonal && (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-2xl p-5 card-elevated mb-5">
         <SectionTitle icon={Calendar} title="Operação" />
         <div className="space-y-4">
@@ -362,8 +367,10 @@ export default function Configuracoes() {
           <InputField label="Número de funcionários" icon={Users} value={employeeCount} onChange={setEmployeeCount} placeholder="0" type="number" inputMode="numeric" />
         </div>
       </motion.div>
+      )}
 
-      {/* Objective */}
+      {/* Objective — hide for personal */}
+      {!isPersonal && (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl p-5 card-elevated mb-5">
         <SectionTitle icon={Crosshair} title="Objetivo principal" />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
@@ -386,8 +393,7 @@ export default function Configuracoes() {
           })}
         </div>
       </motion.div>
-
-      {/* Save profile */}
+      )}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="mb-5">
         <button
           onClick={handleSaveProfile}
@@ -403,12 +409,12 @@ export default function Configuracoes() {
 
       {/* Goals */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl p-5 card-elevated mb-5">
-        <SectionTitle icon={Target} title="Metas mensais" />
+        <SectionTitle icon={Target} title={isPersonal ? 'Meta de economia' : 'Metas mensais'} />
         <div className="space-y-4">
           <div>
             <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
               <TrendingUp className="h-3 w-3" />
-              Meta de lucro mensal (R$)
+              {isPersonal ? 'Meta de economia mensal (R$)' : 'Meta de lucro mensal (R$)'}
             </label>
             <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 border border-border focus-within:border-primary/30 transition-colors">
               <span className="text-sm font-bold text-muted-foreground">R$</span>
@@ -426,7 +432,7 @@ export default function Configuracoes() {
           <div>
             <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
               <Percent className="h-3 w-3" />
-              Meta de margem (%)
+              {isPersonal ? 'Meta de economia (%)' : 'Meta de margem (%)'}
             </label>
             <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 border border-border focus-within:border-primary/30 transition-colors">
               <input
@@ -457,11 +463,11 @@ export default function Configuracoes() {
       {/* Categories */}
       {state.businessType && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl p-5 card-elevated mb-5">
-          <SectionTitle icon={Crosshair} title="Categorias do negócio" />
+          <SectionTitle icon={Crosshair} title={isPersonal ? 'Categorias de gastos' : 'Categorias do negócio'} />
           <div className="mb-4">
             <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-accent" />
-              Custos de produto
+              {isPersonal ? 'Gastos variáveis' : 'Custos de produto'}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {businessConfigs[state.businessType].costCategories.product.map((cat) => (
@@ -472,7 +478,7 @@ export default function Configuracoes() {
           <div>
             <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-purple-400" />
-              Custos do negócio
+              {isPersonal ? 'Gastos fixos' : 'Custos do negócio'}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {businessConfigs[state.businessType].costCategories.business.map((cat) => (

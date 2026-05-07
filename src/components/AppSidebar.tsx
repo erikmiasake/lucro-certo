@@ -1,7 +1,7 @@
 import { LayoutDashboard, ArrowLeftRight, Wallet, TrendingUp, Settings, LogOut } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useStore } from '@/hooks/use-store';
-import { businessConfigs } from '@/lib/business-config';
+import { businessConfigs, getAdaptedLabels } from '@/lib/business-config';
 import {
   Sidebar,
   SidebarContent,
@@ -13,19 +13,20 @@ import {
   useSidebar,
 } from '@/components/ui/sidebar';
 
-const items = [
-  { title: 'Visão geral', url: '/', icon: LayoutDashboard },
-  { title: 'Movimentações', url: '/movimentacoes', icon: ArrowLeftRight },
-  { title: 'Custos', url: '/custos', icon: Wallet },
-  { title: 'Desempenho', url: '/desempenho', icon: TrendingUp },
-  { title: 'Configurações', url: '/configuracoes', icon: Settings },
-];
-
 export function AppSidebar() {
   const { state: sidebarState } = useSidebar();
   const collapsed = sidebarState === 'collapsed';
   const appState = useStore();
   const config = appState.businessType ? businessConfigs[appState.businessType] : null;
+  const labels = getAdaptedLabels(appState.businessType);
+
+  const items = [
+    { title: 'Visão geral', url: '/', icon: LayoutDashboard },
+    { title: 'Movimentações', url: '/movimentacoes', icon: ArrowLeftRight },
+    { title: labels.navCosts, url: '/custos', icon: Wallet },
+    { title: labels.navPerformance, url: '/desempenho', icon: TrendingUp },
+    { title: 'Configurações', url: '/configuracoes', icon: Settings },
+  ];
 
   return (
     <Sidebar collapsible="offcanvas">
