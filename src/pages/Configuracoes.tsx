@@ -367,8 +367,10 @@ export default function Configuracoes() {
           <InputField label="Número de funcionários" icon={Users} value={employeeCount} onChange={setEmployeeCount} placeholder="0" type="number" inputMode="numeric" />
         </div>
       </motion.div>
+      )}
 
-      {/* Objective */}
+      {/* Objective — hide for personal */}
+      {!isPersonal && (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="rounded-2xl p-5 card-elevated mb-5">
         <SectionTitle icon={Crosshair} title="Objetivo principal" />
         <div className="grid grid-cols-1 sm:grid-cols-3 gap-2">
