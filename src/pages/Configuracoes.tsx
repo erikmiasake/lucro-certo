@@ -467,7 +467,7 @@ export default function Configuracoes() {
           <div className="mb-4">
             <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-accent" />
-              Custos de produto
+              {isPersonal ? 'Gastos variáveis' : 'Custos de produto'}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {businessConfigs[state.businessType].costCategories.product.map((cat) => (
