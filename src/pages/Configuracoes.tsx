@@ -333,10 +333,12 @@ export default function Configuracoes() {
               </motion.div>
             )}
           </div>
+          )}
         </div>
       </motion.div>
 
-      {/* Operation */}
+      {/* Operation — hide for personal */}
+      {!isPersonal && (
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.05 }} className="rounded-2xl p-5 card-elevated mb-5">
         <SectionTitle icon={Calendar} title="Operação" />
         <div className="space-y-4">
