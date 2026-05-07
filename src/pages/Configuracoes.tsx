@@ -463,7 +463,7 @@ export default function Configuracoes() {
       {/* Categories */}
       {state.businessType && (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="rounded-2xl p-5 card-elevated mb-5">
-          <SectionTitle icon={Crosshair} title="Categorias do negócio" />
+          <SectionTitle icon={Crosshair} title={isPersonal ? 'Categorias de gastos' : 'Categorias do negócio'} />
           <div className="mb-4">
             <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-accent" />
