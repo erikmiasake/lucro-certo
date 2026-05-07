@@ -209,7 +209,7 @@ export default function Configuracoes() {
     <div className="p-5 md:p-8 max-w-3xl mx-auto safe-bottom">
       <div className="mb-6">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Configurações</h1>
-        <p className="text-muted-foreground text-sm mt-1">Gerencie seu perfil e seu negócio.</p>
+        <p className="text-muted-foreground text-sm mt-1">{isPersonal ? 'Gerencie seu perfil e suas finanças.' : 'Gerencie seu perfil e seu negócio.'}</p>
       </div>
 
       {loadingUser ? (
