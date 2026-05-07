@@ -289,7 +289,6 @@ export default function Configuracoes() {
         <SectionTitle icon={Building2} title="Perfil" />
         <div className="space-y-4">
           <InputField label="Nome do negócio" icon={Building2} value={businessName} onChange={setBusinessName} placeholder="Ex: Restaurante do João" />
-          <InputField label="Cidade / Região" icon={MapPin} value={city} onChange={setCity} placeholder="Ex: São Paulo, SP" />
 
           {/* Business type selector */}
           <div>
