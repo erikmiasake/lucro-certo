@@ -135,8 +135,8 @@ export default function Custos() {
     <div className="p-4 md:p-8 max-w-3xl mx-auto safe-bottom pb-24">
       {/* Header */}
       <div className="mb-5">
-        <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">Mapa de custos</h1>
-        <p className="text-muted-foreground text-xs mt-0.5">Análise inteligente de onde seu dinheiro está indo</p>
+        <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">{labels.costsPageTitle}</h1>
+        <p className="text-muted-foreground text-xs mt-0.5">{labels.costsPageSubtitle}</p>
       </div>
 
       {/* Cost View Toggle: Real vs Operacional */}
