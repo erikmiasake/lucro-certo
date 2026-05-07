@@ -77,9 +77,10 @@ function getWeeksOfMonth() {
 export default function Movimentacoes() {
   const navigate = useNavigate();
   const state = useStore();
+  const isPersonal = state.businessType === 'pessoal';
   const config = businessConfigs[state.businessType!];
   const costs = getRecentCosts();
-  const [period, setPeriod] = useState<Period>('dia');
+  const [period, setPeriod] = useState<Period>(isPersonal ? 'mes' : 'dia');
   const [showCost, setShowCost] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [editingDate, setEditingDate] = useState<string | null>(null);
