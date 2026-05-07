@@ -192,7 +192,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
         selectedCosts,
         profile: {
           name: profileName || 'Minhas finanças',
-          city,
+          city: '',
           operatingDays: 7,
           operatingWeekdays: [0, 1, 2, 3, 4, 5, 6],
           employeeCount: 0,
