@@ -409,7 +409,7 @@ export default function Configuracoes() {
 
       {/* Goals */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.15 }} className="rounded-2xl p-5 card-elevated mb-5">
-        <SectionTitle icon={Target} title="Metas mensais" />
+        <SectionTitle icon={Target} title={isPersonal ? 'Meta de economia' : 'Metas mensais'} />
         <div className="space-y-4">
           <div>
             <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
