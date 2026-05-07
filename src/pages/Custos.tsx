@@ -392,7 +392,7 @@ export default function Custos() {
               <div className="rounded-xl p-4 card-elevated">
                 <div className="flex items-center gap-2 mb-3">
                   <TrendingDown className="h-3.5 w-3.5 text-muted-foreground" />
-                  <p className="text-xs font-semibold text-foreground">Ranking de custos</p>
+                  <p className="text-xs font-semibold text-foreground">{labels.costRankingTitle}</p>
                 </div>
                 <div className="space-y-2.5">
                   {breakdown.categories.map((cat, i) => {
