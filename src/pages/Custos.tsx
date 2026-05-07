@@ -203,22 +203,30 @@ export default function Custos() {
               <div className="pt-3 border-t border-border/50">
                 {costView === 'operacional' ? (
                   <div className="space-y-1.5">
-                    <p className="text-[11px] font-semibold text-foreground">Quanto custa cada dia aberto</p>
+                    <p className="text-[11px] font-semibold text-foreground">{labels.costOperationalDesc}</p>
                     <p className="text-[10px] text-muted-foreground leading-relaxed">
-                      Custos distribuídos apenas pelos <span className="text-foreground font-semibold">{opDaysInMonth} dias</span> em que o negócio abre neste mês ({opDaysPerWeek} dias/semana).
+                      {isPersonal
+                        ? `Gastos distribuídos pelos ${daysInMonth} dias do mês.`
+                        : <>Custos distribuídos apenas pelos <span className="text-foreground font-semibold">{opDaysInMonth} dias</span> em que o negócio abre neste mês ({opDaysPerWeek} dias/semana).</>}
                     </p>
                     <p className="text-[10px] text-primary/70 font-medium">
-                      👉 Mostra quanto você precisa faturar por dia aberto para cobrir custos e gerar lucro.
+                      {isPersonal
+                        ? '👉 Mostra quanto você gasta por dia em média.'
+                        : '👉 Mostra quanto você precisa faturar por dia aberto para cobrir custos e gerar lucro.'}
                     </p>
                   </div>
                 ) : (
                   <div className="space-y-1.5">
-                    <p className="text-[11px] font-semibold text-foreground">Quanto custa manter o negócio</p>
+                    <p className="text-[11px] font-semibold text-foreground">{labels.costRealDesc}</p>
                     <p className="text-[10px] text-muted-foreground leading-relaxed">
-                      Custos distribuídos por todos os <span className="text-foreground font-semibold">{daysInMonth} dias</span> do mês — aberto ou não.
+                      {isPersonal
+                        ? <>Gastos distribuídos por todos os <span className="text-foreground font-semibold">{daysInMonth} dias</span> do mês.</>
+                        : <>Custos distribuídos por todos os <span className="text-foreground font-semibold">{daysInMonth} dias</span> do mês — aberto ou não.</>}
                     </p>
                     <p className="text-[10px] text-primary/70 font-medium">
-                      👉 Mostra o peso estrutural do negócio — o que você paga mesmo sem atender clientes.
+                      {isPersonal
+                        ? '👉 Mostra o peso real dos seus gastos mensais.'
+                        : '👉 Mostra o peso estrutural do negócio — o que você paga mesmo sem atender clientes.'}
                     </p>
                   </div>
                 )}
