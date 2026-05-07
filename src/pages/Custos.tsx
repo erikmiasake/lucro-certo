@@ -88,7 +88,7 @@ export default function Custos() {
     registerCost(amount, type, spreadDays, description, category, subcategory, classification);
     setShowCost(false);
     setViewTab('map');
-    setFeedback('Custo registrado no mapa');
+    setFeedback(labels.costFeedback);
     setTimeout(() => setFeedback(null), 2500);
   };
 
