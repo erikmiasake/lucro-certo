@@ -77,9 +77,10 @@ function getWeeksOfMonth() {
 export default function Movimentacoes() {
   const navigate = useNavigate();
   const state = useStore();
+  const isPersonal = state.businessType === 'pessoal';
   const config = businessConfigs[state.businessType!];
   const costs = getRecentCosts();
-  const [period, setPeriod] = useState<Period>('dia');
+  const [period, setPeriod] = useState<Period>(isPersonal ? 'mes' : 'dia');
   const [showCost, setShowCost] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [editingDate, setEditingDate] = useState<string | null>(null);
@@ -270,9 +271,175 @@ export default function Movimentacoes() {
     <div className="p-4 md:p-8 max-w-3xl mx-auto safe-bottom pb-24">
       {/* Header */}
       <div className="mb-5">
-        <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">Visão do seu negócio</h1>
-        <p className="text-muted-foreground text-xs mt-0.5">Performance e movimentações em tempo real</p>
+        <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
+          {isPersonal ? 'Suas finanças' : 'Visão do seu negócio'}
+        </h1>
+        <p className="text-muted-foreground text-xs mt-0.5">
+          {isPersonal ? 'Entradas, gastos e quanto sobrou' : 'Performance e movimentações em tempo real'}
+        </p>
       </div>
+
+      {/* ═══════ PERSONAL MODE ═══════ */}
+      {isPersonal ? (
+        <>
+          {/* Month summary cards */}
+          <div className="grid grid-cols-3 gap-2 mb-4">
+            {[
+              { label: 'Entradas', value: monthSummary.totalRevenue, color: 'text-primary' },
+              { label: 'Gastos', value: monthSummary.totalRealCost, color: 'text-destructive/80' },
+              { label: 'Sobrou', value: monthSummary.profit, color: monthSummary.profit >= 0 ? 'text-primary' : 'text-destructive' },
+            ].map((item, i) => (
+              <motion.div
+                key={item.label}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: i * 0.05 }}
+                className="p-3 rounded-xl card-elevated"
+              >
+                <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">{item.label}</p>
+                <p className={`text-sm font-bold ${item.color}`}>{fmtShort(item.value)}</p>
+              </motion.div>
+            ))}
+          </div>
+
+          {/* Monthly income input */}
+          <motion.div
+            initial={{ opacity: 0, y: 8 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="rounded-xl p-4 card-elevated mb-4 border-l-4 border-l-primary"
+          >
+            <div className="flex items-center justify-between mb-2">
+              <div className="flex items-center gap-2">
+                <CalendarDays className="h-3.5 w-3.5 text-primary" />
+                <p className="text-xs font-semibold text-foreground">Renda mensal</p>
+              </div>
+              <span className="text-[10px] text-muted-foreground">
+                Sobrou: <span className={monthSummary.profit >= 0 ? 'text-primary font-medium' : 'text-destructive font-medium'}>{fmt(monthSummary.profit)}</span>
+              </span>
+            </div>
+
+            {editingPeriod === 'mes' ? (
+              <div className="flex items-center gap-2">
+                <span className="text-base font-bold text-muted-foreground">R$</span>
+                <input
+                  ref={periodInputRef}
+                  type="number"
+                  inputMode="decimal"
+                  placeholder="Ex: 3.000"
+                  value={periodEditValue}
+                  onChange={(e) => setPeriodEditValue(e.target.value)}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSavePeriodRevenue()}
+                  className="flex-1 text-xl font-bold bg-transparent outline-none text-foreground placeholder:text-muted"
+                />
+                <button onClick={handleSavePeriodRevenue} className="p-2 rounded-lg bg-primary text-primary-foreground active:scale-95 transition-all">
+                  <Check className="h-4 w-4" />
+                </button>
+              </div>
+            ) : (
+              <button onClick={() => startPeriodEdit('mes')} className="w-full flex items-center justify-between p-2.5 rounded-lg bg-secondary/50 hover:bg-secondary/80 transition-all group">
+                <div className="flex items-center gap-2">
+                  <ArrowUpRight className="h-4 w-4 text-primary" />
+                  <span className="text-base font-bold text-foreground">
+                    {monthSummary.totalRevenue > 0 ? fmt(monthSummary.totalRevenue) : 'Informar renda mensal'}
+                  </span>
+                </div>
+                <Edit2 className="h-3.5 w-3.5 text-muted-foreground opacity-0 group-hover:opacity-100 transition-opacity" />
+              </button>
+            )}
+
+            {monthSummary.totalRevenue > 0 && (
+              <div className="flex gap-3 mt-3 pt-3 border-t border-border/50">
+                <div className="flex-1 text-center">
+                  <p className="text-[10px] text-muted-foreground">Entradas</p>
+                  <p className="text-xs font-semibold text-foreground">{fmtShort(monthSummary.totalRevenue)}</p>
+                </div>
+                <div className="flex-1 text-center">
+                  <p className="text-[10px] text-muted-foreground">Gastos</p>
+                  <p className="text-xs font-semibold text-destructive/80">{fmtShort(monthSummary.totalRealCost)}</p>
+                </div>
+                <div className="flex-1 text-center">
+                  <p className="text-[10px] text-muted-foreground">Sobrou</p>
+                  <p className={`text-xs font-bold ${monthSummary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(monthSummary.profit)}</p>
+                </div>
+              </div>
+            )}
+          </motion.div>
+
+          {/* Gastos recentes */}
+          <div className="mt-5">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Gastos recentes</p>
+              <span className="text-[10px] text-muted-foreground">{costs.length} registros</span>
+            </div>
+            {costs.length > 0 ? (
+              <div className="flex flex-col gap-1.5">
+                {costs.slice(0, 8).map((c, i) => (
+                  <motion.div
+                    key={c.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="flex items-center justify-between p-3 rounded-xl card-elevated group"
+                  >
+                    <div className="flex items-center gap-2.5">
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-destructive/10">
+                        <ArrowDownRight className="h-3.5 w-3.5 text-destructive/70" />
+                      </div>
+                      <div>
+                        <p className="font-semibold text-xs text-foreground">{fmt(getCostAnalysisAmount(c))}</p>
+                        <p className="text-[10px] text-muted-foreground">
+                          {c.description || 'Gasto'}
+                          {' · '}{formatDateLabel(c.date)}
+                        </p>
+                      </div>
+                    </div>
+                    <button
+                      onClick={() => deleteCost(c.id)}
+                      className="p-1.5 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
+                    >
+                      <Trash2 className="h-3.5 w-3.5" />
+                    </button>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 rounded-xl card-elevated">
+                <p className="text-muted-foreground text-xs">Nenhum gasto registrado</p>
+              </div>
+            )}
+          </div>
+
+          {/* Floating Actions — Personal */}
+          <div className="fixed bottom-6 left-1/2 -translate-x-1/2 flex gap-2 z-20">
+            <motion.button
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => startPeriodEdit('mes')}
+              className="px-5 py-3 rounded-2xl gradient-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 flex items-center gap-2"
+            >
+              <Plus className="h-4 w-4" />
+              Renda mensal
+            </motion.button>
+            <motion.button
+              initial={{ y: 20, opacity: 0 }}
+              animate={{ y: 0, opacity: 1 }}
+              transition={{ delay: 0.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={() => navigate('/custos')}
+              className="px-4 py-3 rounded-2xl bg-card border border-border text-foreground font-semibold text-sm shadow-lg flex items-center gap-2"
+            >
+              <ArrowDownRight className="h-4 w-4 text-destructive/70" />
+              Gasto
+            </motion.button>
+          </div>
+
+          <CostModal open={showCost} onClose={() => setShowCost(false)} onSubmit={handleCost} config={config} />
+          <FeedbackToast message={feedback} />
+        </>
+      ) : (
+      /* ═══════ BUSINESS MODE (original) ═══════ */
+      <>
 
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-2 mb-4">
@@ -890,6 +1057,8 @@ export default function Movimentacoes() {
 
       <CostModal open={showCost} onClose={() => setShowCost(false)} onSubmit={handleCost} config={config} />
       <FeedbackToast message={feedback} />
+      </>
+      )}
     </div>
   );
 }
