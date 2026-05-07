@@ -231,7 +231,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
       ]
     : [
         { label: 'Nome do negócio', done: businessName.length > 0 },
-        { label: 'Localização', done: city.length > 0 },
+        
         { label: 'Média de vendas', done: avgSales.length > 0 },
         { label: 'Objetivo definido', done: objective.length > 0 },
         { label: 'Custos selecionados', done: selectedCosts.length > 0 },
