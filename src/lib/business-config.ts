@@ -30,13 +30,17 @@ export function getAdaptedLabels(type: BusinessType | null) {
   return {
     revenueLabel: personal ? 'Entradas' : 'Receita',
     costLabel: personal ? 'Gastos' : 'Custos',
-    profitLabel: personal ? 'Sobrou' : 'Lucro',
+    profitLabel: personal ? 'Quanto sobrou' : 'Lucro',
     profitDayLabel: personal ? 'Sobrou hoje' : 'Lucro do dia',
     marginLabel: personal ? 'Economia' : 'Margem',
     registerEntryLabel: personal ? 'Registrar entrada' : 'Registrar receita do dia',
     registerCostLabel: personal ? 'Registrar gasto' : 'Registrar custo',
     contextLabel: personal ? 'Finanças pessoais' : undefined,
     monthEndLabel: personal ? 'Você terminou o mês com' : 'Seu negócio lucrou',
+    todayProfitQuestion: personal ? 'Quanto sobrou para você hoje?' : 'Quanto seu negócio lucrou hoje?',
+    costSectionTitle: personal ? 'Seus principais gastos' : 'Seus principais custos',
+    costSectorHint: personal ? 'Pré-selecionamos os gastos mais comuns' : 'Pré-selecionamos os custos mais comuns do seu setor',
+    analysisLabel: personal ? 'sua vida financeira' : undefined,
   };
 }
 
