@@ -1,6 +1,7 @@
 import { motion } from 'framer-motion';
 import { getGoalsProgress } from '@/lib/store';
 import { useStore } from '@/hooks/use-store';
+import { getAdaptedLabels } from '@/lib/business-config';
 import { Target, TrendingUp, Percent } from 'lucide-react';
 
 function formatCurrency(v: number) {
