@@ -265,9 +265,9 @@ export default function Custos() {
         >
           <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0 mt-0.5" />
           <div>
-            <p className="text-xs font-semibold text-destructive">Custos acima do ideal</p>
+            <p className="text-xs font-semibold text-destructive">{labels.costAlertTitle}</p>
             <p className="text-[10px] text-destructive/70 mt-0.5">
-              {costPctOfRevenue.toFixed(0)}% da receita — média do setor: {bench.totalRange[0]}–{bench.totalRange[1]}%
+              {costPctOfRevenue.toFixed(0)}% da {isPersonal ? 'renda' : 'receita'} — {isPersonal ? 'ideal' : 'média do setor'}: {bench.totalRange[0]}–{bench.totalRange[1]}%
             </p>
           </div>
         </motion.div>
