@@ -25,7 +25,7 @@ export default function GoalsProgress() {
     >
       <div className="flex items-center gap-2 mb-3">
         <Target className="h-4 w-4 text-primary" />
-        <p className="text-xs font-semibold text-foreground uppercase tracking-wider">Metas do mês</p>
+        <p className="text-xs font-semibold text-foreground uppercase tracking-wider">{labels.goalLabel}</p>
         <span className="text-[10px] text-muted-foreground ml-auto">{progress.daysRemaining} dias restantes</span>
       </div>
 
