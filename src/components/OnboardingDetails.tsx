@@ -225,7 +225,6 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
   const checklistItems = isPersonal
     ? [
         { label: 'Nome do perfil', done: profileName.length > 0 },
-        { label: 'Localização', done: city.length > 0 },
         { label: 'Renda mensal', done: monthlyIncome.length > 0 },
         { label: 'Objetivo definido', done: objective.length > 0 },
         { label: 'Categorias de gastos', done: selectedCosts.length > 0 },
