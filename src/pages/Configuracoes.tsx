@@ -393,8 +393,7 @@ export default function Configuracoes() {
           })}
         </div>
       </motion.div>
-
-      {/* Save profile */}
+      )}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.12 }} className="mb-5">
         <button
           onClick={handleSaveProfile}
