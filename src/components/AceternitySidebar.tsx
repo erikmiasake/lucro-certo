@@ -158,7 +158,9 @@ function MobileSidebar() {
   const { open, setOpen } = useSidebarContext();
   const location = useLocation();
   const appState = useStore();
+  const isPersonal = appState.businessType === 'pessoal';
   const config = appState.businessType ? businessConfigs[appState.businessType] : null;
+  const links = getLinks(isPersonal);
 
   return (
     <div className="md:hidden">
