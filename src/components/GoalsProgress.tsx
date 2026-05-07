@@ -11,6 +11,7 @@ function formatCurrency(v: number) {
 export default function GoalsProgress() {
   const state = useStore();
   const goals = state.goals;
+  const labels = getAdaptedLabels(state.businessType);
   
   if (!goals.monthlyProfit && !goals.monthlyMargin) return null;
 
