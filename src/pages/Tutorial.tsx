@@ -15,7 +15,7 @@ export function markTutorialSeen() {
   safeSetItem(TUTORIAL_KEY, '1');
 }
 
-const steps = [
+const businessSteps = [
   {
     icon: ArrowUpCircle,
     title: 'Coloque o que entrou',
@@ -45,6 +45,36 @@ const steps = [
   },
 ];
 
+const personalSteps = [
+  {
+    icon: ArrowUpCircle,
+    title: 'Registre o que entrou',
+    desc: 'Ex: salário, freelance, renda extra',
+    accent: 'text-emerald-400',
+    bg: 'bg-emerald-500/10',
+    border: 'border-emerald-500/20',
+    glow: 'shadow-[0_0_40px_-10px_hsl(142_70%_45%/0.3)]',
+  },
+  {
+    icon: ArrowDownCircle,
+    title: 'Registre o que saiu',
+    desc: 'Ex: aluguel, mercado, contas',
+    accent: 'text-rose-400',
+    bg: 'bg-rose-500/10',
+    border: 'border-rose-500/20',
+    glow: 'shadow-[0_0_40px_-10px_hsl(0_70%_55%/0.3)]',
+  },
+  {
+    icon: Sparkles,
+    title: 'Veja quanto sobrou',
+    desc: 'Descubra quanto realmente sobra no mês',
+    accent: 'text-sky-400',
+    bg: 'bg-sky-500/10',
+    border: 'border-sky-500/20',
+    glow: 'shadow-[0_0_40px_-10px_hsl(200_80%_55%/0.3)]',
+  },
+];
+
 export default function Tutorial() {
   const navigate = useNavigate();
   const state = useStore();
@@ -52,6 +82,9 @@ export default function Tutorial() {
   if (!state.onboardingComplete) {
     return <Navigate to="/welcome" replace />;
   }
+
+  const isPersonal = state.businessType === 'pessoal';
+  const steps = isPersonal ? personalSteps : businessSteps;
 
   const handleEnter = () => {
     markTutorialSeen();
@@ -84,12 +117,22 @@ export default function Tutorial() {
           </motion.div>
 
           <h1 className="text-4xl sm:text-6xl font-extrabold text-foreground tracking-tight mb-4">
-            Tutorial
+            {isPersonal ? 'Como funciona' : 'Tutorial'}
           </h1>
           <p className="text-base sm:text-lg text-muted-foreground max-w-md mx-auto leading-relaxed">
-            Você só precisa colocar o que entrou e o que saiu.
-            <br />
-            <span className="text-foreground/90 font-medium">A gente mostra quanto você realmente lucrou.</span>
+            {isPersonal ? (
+              <>
+                Registre o que entrou e o que saiu.
+                <br />
+                <span className="text-foreground/90 font-medium">A gente mostra quanto realmente sobrou.</span>
+              </>
+            ) : (
+              <>
+                Você só precisa colocar o que entrou e o que saiu.
+                <br />
+                <span className="text-foreground/90 font-medium">A gente mostra quanto você realmente lucrou.</span>
+              </>
+            )}
           </p>
         </motion.div>
 
@@ -130,7 +173,11 @@ export default function Tutorial() {
           transition={{ delay: 0.7, duration: 0.6 }}
           className="text-center text-2xl sm:text-3xl font-extrabold text-foreground mb-8 tracking-tight"
         >
-          Sem planilha. <span className="text-primary">Sem complicação.</span>
+          {isPersonal ? (
+            <>Simples assim. <span className="text-primary">Sem complicação.</span></>
+          ) : (
+            <>Sem planilha. <span className="text-primary">Sem complicação.</span></>
+          )}
         </motion.p>
 
         {/* CTA */}
@@ -145,7 +192,7 @@ export default function Tutorial() {
             onClick={handleEnter}
             className="group h-14 px-8 text-base font-semibold rounded-xl shadow-lg shadow-primary/20 hover:shadow-primary/40 transition-all duration-300"
           >
-            Ir para o meu painel
+            {isPersonal ? 'Ir para minhas finanças' : 'Ir para o meu painel'}
             <ArrowRight className="ml-2 h-5 w-5 group-hover:translate-x-1 transition-transform" />
           </Button>
         </motion.div>
