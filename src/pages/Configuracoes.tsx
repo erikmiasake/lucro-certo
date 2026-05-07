@@ -432,7 +432,7 @@ export default function Configuracoes() {
           <div>
             <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
               <Percent className="h-3 w-3" />
-              Meta de margem (%)
+              {isPersonal ? 'Meta de economia (%)' : 'Meta de margem (%)'}
             </label>
             <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/50 border border-border focus-within:border-primary/30 transition-colors">
               <input
