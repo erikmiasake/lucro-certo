@@ -206,7 +206,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
         employeePayroll: totalPayroll > 0 ? totalPayroll : undefined,
         profile: {
           name: businessName,
-          city,
+          city: '',
           operatingDays: operatingWeekdays.length,
           operatingWeekdays,
           employeeCount: parsedEmployees,
