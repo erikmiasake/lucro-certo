@@ -122,7 +122,7 @@ export default function Configuracoes() {
         safeRemoveItem('lucro-real-data');
 
         // 3. Redirect to onboarding (keep user logged in)
-        toast.success('Dados limpos!', { description: 'Configure seu novo negócio.' });
+        toast.success('Dados limpos!', { description: isPersonal ? 'Configure suas finanças.' : 'Configure seu novo negócio.' });
         navigate('/onboarding');
         window.location.reload();
       } catch (err) {
