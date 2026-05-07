@@ -288,11 +288,12 @@ export default function Configuracoes() {
 
       {/* Business Profile */}
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-5 card-elevated mb-5">
-        <SectionTitle icon={Building2} title="Perfil" />
+        <SectionTitle icon={Building2} title={isPersonal ? 'Perfil financeiro' : 'Perfil'} />
         <div className="space-y-4">
-          <InputField label="Nome do negócio" icon={Building2} value={businessName} onChange={setBusinessName} placeholder="Ex: Restaurante do João" />
+          <InputField label={isPersonal ? 'Nome do perfil' : 'Nome do negócio'} icon={Building2} value={businessName} onChange={setBusinessName} placeholder={isPersonal ? 'Ex: Minhas finanças' : 'Ex: Restaurante do João'} />
 
-          {/* Business type selector */}
+          {/* Business type selector — hide for personal */}
+          {!isPersonal && (
           <div>
             <label className="flex items-center gap-1.5 text-xs text-muted-foreground mb-2">
               <Crosshair className="h-3 w-3" />
