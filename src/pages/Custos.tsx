@@ -174,7 +174,7 @@ export default function Custos() {
                   costView === 'real' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                💰 Custo Real
+                {labels.costRealLabel}
               </button>
             </div>
 
