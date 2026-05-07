@@ -439,7 +439,7 @@ export default function Custos() {
               <div className="rounded-xl p-4 card-elevated">
                 <div className="flex items-center gap-2 mb-3">
                   <Target className="h-3.5 w-3.5 text-destructive/70" />
-                  <p className="text-xs font-semibold text-foreground">Impacto no lucro</p>
+                  <p className="text-xs font-semibold text-foreground">{isPersonal ? 'Impacto na sobra' : 'Impacto no lucro'}</p>
                 </div>
                 <div className="space-y-2">
                   {breakdown.profitImpact.slice(0, 5).map((item, i) => (
