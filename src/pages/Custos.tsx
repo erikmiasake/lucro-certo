@@ -502,8 +502,8 @@ export default function Custos() {
                   <div className="w-10 h-10 rounded-xl bg-secondary/50 flex items-center justify-center mx-auto mb-3">
                     <Package className="h-5 w-5 text-muted-foreground" />
                   </div>
-                  <p className="text-muted-foreground text-xs font-medium">Nenhum custo registrado</p>
-                  <p className="text-muted-foreground/40 text-[10px] mt-1">Registre custos para ver sua análise</p>
+                  <p className="text-muted-foreground text-xs font-medium">{labels.noCostsLabel}</p>
+                  <p className="text-muted-foreground/40 text-[10px] mt-1">Registre {isPersonal ? 'gastos' : 'custos'} para ver sua análise</p>
                 </div>
               ) : (
                 costs.map((c, i) => (
