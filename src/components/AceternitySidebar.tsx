@@ -26,7 +26,7 @@ const useSidebarContext = () => {
   return context;
 };
 
-const links: SidebarLink[] = [
+const allLinks: SidebarLink[] = [
   { label: "Visão geral", href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5 shrink-0" /> },
   { label: "Movimentações", href: "/movimentacoes", icon: <ArrowLeftRight className="h-5 w-5 shrink-0" /> },
   { label: "Custos", href: "/custos", icon: <Wallet className="h-5 w-5 shrink-0" /> },
@@ -35,6 +35,9 @@ const links: SidebarLink[] = [
   { label: "Relatório", href: "/relatorio", icon: <FileText className="h-5 w-5 shrink-0" /> },
   { label: "Meu Negócio", href: "/configuracoes", icon: <Settings className="h-5 w-5 shrink-0" /> },
 ];
+
+const getLinks = (isPersonal: boolean) =>
+  isPersonal ? allLinks.filter((l) => l.href !== "/impostos") : allLinks;
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -58,7 +61,9 @@ function DesktopSidebar() {
   const { open, setOpen, animate } = useSidebarContext();
   const location = useLocation();
   const appState = useStore();
+  const isPersonal = appState.businessType === 'pessoal';
   const config = appState.businessType ? businessConfigs[appState.businessType] : null;
+  const links = getLinks(isPersonal);
 
   return (
     <motion.div
@@ -153,7 +158,9 @@ function MobileSidebar() {
   const { open, setOpen } = useSidebarContext();
   const location = useLocation();
   const appState = useStore();
+  const isPersonal = appState.businessType === 'pessoal';
   const config = appState.businessType ? businessConfigs[appState.businessType] : null;
+  const links = getLinks(isPersonal);
 
   return (
     <div className="md:hidden">
