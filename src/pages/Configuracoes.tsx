@@ -478,7 +478,7 @@ export default function Configuracoes() {
           <div>
             <p className="text-xs text-muted-foreground mb-2 flex items-center gap-1.5">
               <span className="w-2 h-2 rounded-full bg-purple-400" />
-              Custos do negócio
+              {isPersonal ? 'Gastos fixos' : 'Custos do negócio'}
             </p>
             <div className="flex flex-wrap gap-1.5">
               {businessConfigs[state.businessType].costCategories.business.map((cat) => (
