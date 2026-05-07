@@ -166,7 +166,7 @@ export default function Custos() {
                   costView === 'operacional' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
                 }`}
               >
-                ⚙️ Custo Operacional
+                {labels.costOperationalLabel}
               </button>
               <button
                 onClick={() => setCostView('real')}
