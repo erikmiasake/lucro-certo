@@ -23,6 +23,8 @@ const objectives = [
 
 export default function Configuracoes() {
   const state = useStore();
+  const isPersonal = isPersonalMode(state.businessType);
+  const labels = getAdaptedLabels(state.businessType);
   const navigate = useNavigate();
   const [confirmReset, setConfirmReset] = useState(false);
   const [profitGoal, setProfitGoal] = useState(state.goals?.monthlyProfit?.toString() || '');
