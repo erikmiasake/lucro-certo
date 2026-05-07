@@ -36,7 +36,7 @@ export default function GoalsProgress() {
             <div className="flex items-center justify-between mb-1.5">
               <div className="flex items-center gap-1.5">
                 <TrendingUp className="h-3 w-3 text-primary" />
-                <span className="text-xs text-muted-foreground">Lucro</span>
+                <span className="text-xs text-muted-foreground">{labels.goalProfitLabel}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-xs font-semibold text-foreground">
