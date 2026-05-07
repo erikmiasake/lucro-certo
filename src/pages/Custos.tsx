@@ -60,6 +60,8 @@ const CHART_COLORS = [
 export default function Custos() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
+  const labels = getAdaptedLabels(state.businessType);
+  const isPersonal = state.businessType === 'pessoal';
   // Derive from state to ensure reactivity on every store change
   const costs = useMemo(() => getRecentCosts(), [state]);
   const breakdown = useMemo(() => getCostBreakdown(), [state]);
