@@ -424,7 +424,7 @@ export default function Custos() {
                         </div>
                         {month.totalRevenue > 0 && (
                           <p className="text-[9px] text-muted-foreground/50 mt-0.5 ml-5">
-                            {Math.round(pctOfRevenue)}% da receita
+                            {Math.round(pctOfRevenue)}% da {isPersonal ? 'renda' : 'receita'}
                           </p>
                         )}
                       </div>
