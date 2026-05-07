@@ -1,7 +1,7 @@
 import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
-import { businessConfigs, BusinessType } from '@/lib/business-config';
+import { businessConfigs, BusinessType, getAdaptedLabels } from '@/lib/business-config';
 import { getRecentCosts, deleteCost, getCostBreakdown, getWeekSummary, getMonthSummary, getCostAnalysisAmount, CostClassification, registerCost, getCostMap } from '@/lib/store';
 import {
   Trash2, Plus, Package, Building2, AlertTriangle, PieChart, TrendingDown,
