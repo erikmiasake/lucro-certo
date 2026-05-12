@@ -198,21 +198,23 @@ export default function EntryModal({ open, onClose, onSubmit, isPersonal, initia
               </div>
             )}
 
-            <label className="block mt-2">
-              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                {period === 'diario' || isEdit ? 'Data' : period === 'semanal' ? 'Final da semana' : 'Mês de referência'}
-              </span>
-              <div className="mt-1 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/50">
-                <CalendarDays className="h-4 w-4 text-muted-foreground" />
-                <input
-                  type="date"
-                  value={date}
-                  max={todayStr()}
-                  onChange={(e) => setDate(e.target.value)}
-                  className="flex-1 bg-transparent outline-none text-sm text-foreground"
-                />
-              </div>
-            </label>
+            {(isEdit || period !== 'mensal') && (
+              <label className="block mt-2">
+                <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                  {period === 'diario' || isEdit ? 'Data' : 'Final da semana'}
+                </span>
+                <div className="mt-1 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/50">
+                  <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                  <input
+                    type="date"
+                    value={date}
+                    max={todayStr()}
+                    onChange={(e) => setDate(e.target.value)}
+                    className="flex-1 bg-transparent outline-none text-sm text-foreground"
+                  />
+                </div>
+              </label>
+            )}
 
             {!isEdit && period !== 'diario' && value > 0 && days.length > 0 && (
               <p className="mt-2 text-[10px] text-muted-foreground">
