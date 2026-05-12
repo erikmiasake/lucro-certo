@@ -81,9 +81,12 @@ export default function Movimentacoes() {
   const isPersonal = state.businessType === 'pessoal';
   const config = businessConfigs[state.businessType!];
   const costs = getRecentCosts();
+  const allEntries = getRecentEntries(100);
+  const visibleEntries = allEntries.filter((e) => e.source !== 'distributed');
   const [period, setPeriod] = useState<Period>(isPersonal ? 'mes' : 'dia');
   const [showCost, setShowCost] = useState(false);
   const [showEntry, setShowEntry] = useState(false);
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
