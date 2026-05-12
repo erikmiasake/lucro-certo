@@ -254,6 +254,7 @@ export default function Movimentacoes() {
       case 'manual': return 'Informado pelo usuário';
       case 'distributed': return 'Calculado automaticamente';
       case 'estimated': return 'Estimado com base na média';
+      case 'onboarding': return 'Automática do onboarding';
       default: return '';
     }
   };
@@ -263,6 +264,7 @@ export default function Movimentacoes() {
       case 'manual': return 'text-primary';
       case 'distributed': return 'text-accent';
       case 'estimated': return 'text-muted-foreground';
+      case 'onboarding': return 'text-accent';
       default: return 'text-muted-foreground';
     }
   };
