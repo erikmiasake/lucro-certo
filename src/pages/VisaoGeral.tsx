@@ -148,26 +148,26 @@ export default function VisaoGeral() {
           <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
               <ArrowUpRight className="h-3.5 w-3.5 text-blue-400" />
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.revenueLabel}</p>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.revenueLabel} no mês</p>
             </div>
-            <p className="text-xl font-bold text-foreground">{formatCurrency(summary.totalRevenue)}</p>
+            <p className="text-xl font-bold text-foreground">{formatCurrency(month.totalRevenue)}</p>
           </motion.div>
 
           <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
               <ArrowDownRight className="h-3.5 w-3.5 text-accent" />
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.costLabel}</p>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.costLabel} no mês</p>
             </div>
-            <p className="text-xl font-bold text-accent">{formatCurrency(summary.totalRealCost)}</p>
+            <p className="text-xl font-bold text-accent">{formatCurrency(month.totalRealCost)}</p>
           </motion.div>
 
           <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
-              {summary.profit >= 0 ? <TrendingUp className="h-3.5 w-3.5 text-primary" /> : <TrendingDown className="h-3.5 w-3.5 text-destructive" />}
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.profitDayLabel}</p>
+              {month.profit >= 0 ? <TrendingUp className="h-3.5 w-3.5 text-primary" /> : <TrendingDown className="h-3.5 w-3.5 text-destructive" />}
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.profitLabel} no mês</p>
             </div>
-            <p className={`text-xl font-bold ${summary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
-              {formatCurrency(summary.profit)}
+            <p className={`text-xl font-bold ${month.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
+              {formatCurrency(month.profit)}
             </p>
           </motion.div>
         </div>
