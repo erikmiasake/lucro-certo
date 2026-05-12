@@ -67,11 +67,22 @@ export default function Auth() {
           safeRemoveItem('lucro-real-session-only', 'sessionStorage');
         }
 
-        const { error } = await supabase.auth.signInWithPassword({
+        const { data: signInData, error } = await supabase.auth.signInWithPassword({
           email: data.email,
           password: data.password,
         });
         if (error) throw error;
+
+        // Block access if email is not yet verified
+        if (signInData.user && !signInData.user.email_confirmed_at) {
+          await supabase.auth.signOut();
+          toast.warning('Verifique seu e-mail antes de entrar', {
+            description: 'Enviamos um link de confirmação para sua caixa de entrada.',
+          });
+          navigate(`/verify-email?email=${encodeURIComponent(data.email)}`);
+          return;
+        }
+
         toast.success('Login realizado com sucesso!');
         
         // Load profile and financial data from database
