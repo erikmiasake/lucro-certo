@@ -32,7 +32,10 @@ serve(async (req) => {
 
 
   try {
-    const { financialSummary, businessType, mode, question } = await req.json();
+    const { financialSummary, businessType, mode, question, appMode } = await req.json();
+    // appMode: 'business' | 'personal' (novo, opcional). Compat: deriva de businessType se ausente.
+    const resolvedAppMode: 'business' | 'personal' =
+      appMode === 'personal' || businessType === 'pessoal' ? 'personal' : 'business';
 
     if (typeof businessType !== "undefined" && (typeof businessType !== "string" || businessType.length > 100)) {
       return new Response(JSON.stringify({ error: "businessType invalido" }), {
@@ -73,11 +76,14 @@ serve(async (req) => {
 
     // Validate data sufficiency
     if (!s.hasSufficientData) {
+      const isPersonalEarly = resolvedAppMode === 'personal';
       return new Response(JSON.stringify({
         insights: [
-          { category: 'receita', text: `Você tem ${s.entries} entrada(s) registrada(s). Registre mais movimentações para uma análise completa.` },
+          { category: 'receita', text: `Você tem ${s.entries} ${isPersonalEarly ? 'entrada(s)' : 'receita(s)'} registrada(s). Registre mais movimentações para uma análise completa.` },
         ],
-        recommendation: "Continue registrando suas entradas e saídas diariamente. Com pelo menos 2 dias de dados, a análise ficará precisa.",
+        recommendation: isPersonalEarly
+          ? "Continue registrando suas entradas e gastos diariamente. Com pelo menos 2 dias de dados, a análise fica precisa."
+          : "Continue registrando receitas e custos diariamente. Com pelo menos 2 dias de dados, a análise fica precisa.",
         prediction: "",
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
@@ -101,74 +107,74 @@ serve(async (req) => {
     }
 
     const isInteractive = mode === 'question' && safeQuestion;
+    const isPersonal = resolvedAppMode === 'personal';
 
-    const systemPrompt = `Você é um consultor financeiro simples para microempreendedores brasileiros (${businessType || 'pequeno negócio'}).
+    // Glossário fechado por modo — NUNCA misturar.
+    const G = isPersonal
+      ? { inflow: 'Entradas', outflow: 'Gastos', result: 'Quanto sobrou', resultLow: 'sobrou', margin: 'Economia', persona: 'organizador financeiro pessoal para brasileiros', context: 'controle financeiro pessoal', forbidden: '"faturamento", "receita", "lucro", "margem operacional", "vendas", "clientes", "ticket"' }
+      : { inflow: 'Receita', outflow: 'Custos', result: 'Lucro', resultLow: 'lucro', margin: 'Margem', persona: 'consultor financeiro para microempreendedores brasileiros', context: businessType || 'pequeno negócio', forbidden: '"quanto sobrou", "saldo do mês", "vida financeira pessoal"' };
+
+    const systemPrompt = `Você é ${G.persona} (${G.context}).
 
 REGRAS ABSOLUTAS — VIOLÁ-LAS É PROIBIDO:
 
-1. USE APENAS os dados abaixo. NÃO invente, NÃO suponha, NÃO extrapole:
-   - Faturamento: R$ ${s.revenue}
-   - Custos: R$ ${s.costs}
-   - Lucro: R$ ${s.profit}
-   - Margem: ${s.margin}%
-   - Entradas registradas: ${s.entries}
-   - Valor médio por entrada: R$ ${s.avgPerEntry}
-   - Dados reais: ${s.realDataPercentage}%
+1. USE APENAS os dados abaixo. NÃO invente, NÃO suponha, NÃO extrapole.
 
-2. NUNCA mencione "clientes", "vendas", "ticket". Use "movimentações" e "entradas".
+2. GLOSSÁRIO OBRIGATÓRIO deste modo:
+   - "${G.inflow}" para dinheiro que entra
+   - "${G.outflow}" para dinheiro que sai
+   - "${G.result}" para o resultado final
+   - "${G.margin}" para o percentual
 
-3. Linguagem simples:
-   - "quanto sobra" (não "margem operacional")
-   - "seus gastos" (não "custos estruturais")
-   - "o que entrou" (não "receita bruta")
+3. PROIBIDO usar termos do outro modo: ${G.forbidden}.
 
 4. Cada insight DEVE conter pelo menos um valor em R$ ou %.
 
 5. NÃO repita informação entre insights diferentes.
 
 DADOS VALIDADOS DO PERÍODO (${s.period}):
-- Faturamento: R$ ${s.revenue}
-- Custos: R$ ${s.costs}  
-- Lucro: R$ ${s.profit}
-- Margem: ${s.margin}%
-- Entradas: ${s.entries} | Média: R$ ${s.avgPerEntry}/entrada
-- Dias de funcionamento/semana: ${s.operatingDaysPerWeek}
+- ${G.inflow}: R$ ${s.revenue}
+- ${G.outflow}: R$ ${s.costs}
+- ${G.result}: R$ ${s.profit}
+- ${G.margin}: ${s.margin}%
+- ${G.inflow} registradas: ${s.entries} | Média: R$ ${s.avgPerEntry}
+- Dias ativos/semana: ${s.operatingDaysPerWeek}
 - Dados reais: ${s.realDataPercentage}%
-${s.topCost ? `- Maior gasto: ${s.topCost.name} (${s.topCost.percentage}% do total)` : ''}
+${s.topCost ? `- Maior ${G.outflow.toLowerCase().slice(0, -1)}: ${s.topCost.name} (${s.topCost.percentage}% do total)` : ''}
 ${s.totalFixed > 0 ? `- Fixos: R$ ${s.totalFixed} | Variáveis: R$ ${s.totalVariable}` : ''}
-${s.bestDay ? `- Melhor dia: ${s.bestDay.date} (R$ ${s.bestDay.profit} lucro)` : ''}
-${s.worstDay ? `- Pior dia: ${s.worstDay.date} (R$ ${s.worstDay.profit} lucro)` : ''}
-- Tendência margem: ${s.marginTrend === 'up' ? 'subindo' : s.marginTrend === 'down' ? 'caindo' : 'estável'}
-${cappedProjection ? `- Projeção mensal: R$ ${cappedProjection.revenue} receita, R$ ${cappedProjection.profit} lucro` : ''}
+${s.bestDay ? `- Melhor dia: ${s.bestDay.date} (R$ ${s.bestDay.profit} de ${G.resultLow})` : ''}
+${s.worstDay ? `- Pior dia: ${s.worstDay.date} (R$ ${s.worstDay.profit})` : ''}
+- Tendência: ${s.marginTrend === 'up' ? 'subindo' : s.marginTrend === 'down' ? 'caindo' : 'estável'}
+${cappedProjection ? `- Projeção mensal: R$ ${cappedProjection.revenue} de ${G.inflow.toLowerCase()}, R$ ${cappedProjection.profit} de ${G.resultLow}` : ''}
 ${s.goalMonthlyProfit ? `- Meta: R$ ${s.goalMonthlyProfit}/mês | Progresso: ${s.goalProgress}% | ${s.goalOnTrack ? 'No ritmo' : 'Abaixo'} | ${s.daysRemaining} dias restantes` : ''}
-- Lucro acumulado mês: R$ ${s.monthProfit}
+- ${G.result} acumulado mês: R$ ${s.monthProfit}
 
-${isInteractive ? `O dono perguntou: "${safeQuestion}". Responda APENAS com base nos dados acima. Se a pergunta não puder ser respondida com os dados disponíveis, diga claramente. Use texto simples, sem markdown. Separe ideias em parágrafos curtos. Destaque valores em R$ e percentuais naturalmente no texto. Máximo 4 parágrafos.` : 'Gere a análise usando a tool "generate_insights".'}`;
+${isInteractive ? `O usuário perguntou: "${safeQuestion}". Responda APENAS com base nos dados acima usando o glossário deste modo. Se não der pra responder, diga claramente. Texto simples, sem markdown. Parágrafos curtos. Máximo 4 parágrafos.` : 'Gere a análise usando a tool "generate_insights".'}`;
 
     const tools = isInteractive ? undefined : [
       {
         type: "function",
         function: {
           name: "generate_insights",
-          description: "Retorna análise financeira para microempreendedor",
+          description: `Retorna análise financeira no modo ${resolvedAppMode === 'personal' ? 'pessoal' : 'negócio'}`,
           parameters: {
             type: "object",
             properties: {
               insight_receita: {
                 type: "string",
-                description: "1 insight sobre faturamento/movimentações com valor em R$, máximo 2 frases",
+                description: `1 insight sobre ${isPersonal ? 'entradas' : 'receita'} com valor em R$, máximo 2 frases`,
               },
               insight_custos: {
                 type: "string",
-                description: "1 insight sobre gastos com valor em R$, máximo 2 frases",
+                description: `1 insight sobre ${isPersonal ? 'gastos' : 'custos'} com valor em R$, máximo 2 frases`,
               },
               insight_lucro: {
                 type: "string",
-                description: "1 insight sobre lucro/margem com valor em R$ ou %, máximo 2 frases",
+                description: `1 insight sobre ${isPersonal ? 'quanto sobrou / economia' : 'lucro / margem'} com valor em R$ ou %, máximo 2 frases`,
               },
               recommendation: {
                 type: "string",
-                description: "1 ação prática que o dono pode fazer AGORA, baseada nos dados",
+                description: `1 ação prática que o usuário pode fazer AGORA, usando o glossário do modo ${isPersonal ? 'pessoal' : 'negócio'}`,
               },
             },
             required: ["insight_receita", "insight_custos", "insight_lucro", "recommendation"],

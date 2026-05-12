@@ -1,5 +1,6 @@
 import { BusinessType, businessConfigs } from './business-config';
 import { safeGetItem, safeSetItem } from './safe-storage';
+import { getModeCopyFromType } from './modes';
 
 export type EntrySource = 'manual' | 'estimated' | 'distributed' | 'onboarding';
 
@@ -607,6 +608,9 @@ export interface ProactiveAlert {
 }
 
 export function getProactiveAlerts(): ProactiveAlert[] {
+  // Mode-aware: lê copy do dicionário central modes/.
+  const copy = getModeCopyFromType(state.businessType).alerts;
+
   const alerts: ProactiveAlert[] = [];
   const last7 = getLastNDaysSummaries(7);
   const last3 = last7.slice(0, 3);
@@ -621,9 +625,9 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     alerts.push({
       type: 'warning',
       icon: 'trend-up',
-      title: 'Custos em alta',
-      message: `Seu custo aumentou nos últimos 3 dias. Sua margem pode cair.`,
-      actionHint: 'Revise seus custos variáveis',
+      title: copy.costsRisingTitle,
+      message: copy.costsRisingMsg,
+      actionHint: copy.costsRisingHint,
     });
   }
 
@@ -632,8 +636,8 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     alerts.push({
       type: 'danger',
       icon: 'trend-down',
-      title: 'Lucro em queda',
-      message: `Seu lucro caiu 3 dias seguidos. Se continuar assim, pode ter prejuízo.`,
+      title: copy.resultDroppingTitle,
+      message: copy.resultDroppingMsg,
     });
   }
 
@@ -646,16 +650,16 @@ export function getProactiveAlerts(): ProactiveAlert[] {
       alerts.push({
         type: 'danger',
         icon: 'alert',
-        title: 'Previsão de prejuízo',
-        message: `Se continuar assim, você terminará a semana com prejuízo de ${formatCurrencySimple(Math.abs(projected))}.`,
-        actionHint: 'Aumente as entradas ou reduza custos',
+        title: copy.lossProjectionTitle,
+        message: copy.lossProjectionMsg(formatCurrencySimple(Math.abs(projected))),
+        actionHint: copy.lossProjectionHint,
       });
     } else if (avgDailyProfit > 0 && projected > week.profit) {
       alerts.push({
         type: 'success',
         icon: 'rocket',
-        title: 'Lucro crescendo',
-        message: `Se manter esse ritmo, seu lucro semanal pode chegar a ${formatCurrencySimple(projected)}.`,
+        title: copy.growthTitle,
+        message: copy.growthMsg(formatCurrencySimple(projected)),
       });
     }
   }
@@ -664,9 +668,9 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     alerts.push({
       type: 'warning',
       icon: 'zap',
-      title: 'Margem muito baixa',
-      message: `Sua margem está em ${week.margin.toFixed(0)}%. Ideal é acima de 20%.`,
-      actionHint: 'Revise seus preços ou custos',
+      title: copy.lowMarginTitle,
+      message: copy.lowMarginMsg(week.margin.toFixed(0)),
+      actionHint: copy.lowMarginHint,
     });
   }
 
@@ -676,9 +680,9 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     alerts.push({
       type: 'info',
       icon: 'lightbulb',
-      title: `${top.name}: ${top.percentage.toFixed(0)}% dos custos`,
-      message: `Reduzir esse custo em 10% economizaria ${formatCurrencySimple(potentialSaving)}/mês.`,
-      actionHint: 'Negocie com fornecedores',
+      title: `${top.name}: ${top.percentage.toFixed(0)}%`,
+      message: `Reduzir 10% economizaria ${formatCurrencySimple(potentialSaving)}/mês.`,
+      actionHint: copy.topCostHint,
     });
   }
 
@@ -690,16 +694,16 @@ export function getProactiveAlerts(): ProactiveAlert[] {
       alerts.push({
         type: 'success',
         icon: 'trophy',
-        title: 'Meta atingida!',
-        message: `Você já atingiu sua meta de lucro mensal de ${formatCurrencySimple(state.goals.monthlyProfit)}!`,
+        title: copy.goalReachedTitle,
+        message: copy.goalReachedMsg(formatCurrencySimple(state.goals.monthlyProfit)),
       });
     } else if (progress < expectedProgress * 0.7 && dayOfMonth > 7) {
       alerts.push({
         type: 'warning',
         icon: 'target',
-        title: 'Meta em risco',
-        message: `Você atingiu ${progress.toFixed(0)}% da meta, mas deveria estar em ${expectedProgress.toFixed(0)}%.`,
-        actionHint: 'Intensifique as entradas',
+        title: copy.goalAtRiskTitle,
+        message: copy.goalAtRiskMsg(progress.toFixed(0), expectedProgress.toFixed(0)),
+        actionHint: copy.goalAtRiskHint,
       });
     }
   }
@@ -709,8 +713,8 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     alerts.push({
       type: 'info',
       icon: 'chart',
-      title: `Melhor dia: ${bestDay.day}`,
-      message: `Lucro médio de ${formatCurrencySimple(bestDay.avgProfit)} às ${bestDay.day}s. Foque mais receita nesse dia.`,
+      title: copy.bestDayTitle(bestDay.day),
+      message: copy.bestDayMsg(formatCurrencySimple(bestDay.avgProfit), bestDay.day),
     });
   }
 
@@ -919,6 +923,8 @@ export function getFinancialSummary(period: string = 'semana'): FinancialSummary
 // ─── Enhanced Smart Insights ───────────────────────────────────────
 
 export function getSmartInsights(): string[] {
+  // Mode-aware: substantivos vêm do dicionário central modes/.
+  const g = getModeCopyFromType(state.businessType).glossary;
   const insights: string[] = [];
   const today = getDaySummary();
   const yesterday = getPreviousDaySummary();
@@ -930,9 +936,9 @@ export function getSmartInsights(): string[] {
   if (yesterday.totalRevenue > 0 && today.totalRevenue > 0) {
     const diff = today.profit - yesterday.profit;
     if (diff > 0) {
-      insights.push(`Lucro subiu R$ ${Math.round(diff)} vs ontem — continue assim`);
+      insights.push(`${g.result} subiu R$ ${Math.round(diff)} vs ontem — continue assim`);
     } else if (diff < -10) {
-      insights.push(`Lucro caiu R$ ${Math.round(Math.abs(diff))} vs ontem — verifique seus custos`);
+      insights.push(`${g.result} caiu R$ ${Math.round(Math.abs(diff))} vs ontem — verifique seus ${g.outflow.toLowerCase()}`);
     }
   }
 
@@ -947,21 +953,21 @@ export function getSmartInsights(): string[] {
 
   if (costBreakdown.isHighCost && month.totalRevenue > 0) {
     const excess = month.totalRealCost - month.totalRevenue * 0.6;
-    insights.push(`Custos mensais altos — reduzir ${formatCurrencySimple(excess)} colocaria margem em 40%`);
+    insights.push(`${g.outflow} mensais altos — reduzir ${formatCurrencySimple(excess)} colocaria ${g.margin.toLowerCase()} em 40%`);
   }
 
   if (costBreakdown.categories.length > 0 && costBreakdown.total > 0) {
     const top = costBreakdown.categories[0];
     if (top.percentage > 30) {
       const saving10 = top.amount * 0.1;
-      insights.push(`${top.name} = ${top.percentage.toFixed(0)}% dos custos. Reduzir 10% = +${formatCurrencySimple(saving10)}/mês de lucro`);
+      insights.push(`${top.name} = ${top.percentage.toFixed(0)}% dos ${g.outflow.toLowerCase()}. Reduzir 10% = +${formatCurrencySimple(saving10)}/mês`);
     }
   }
 
   if (today.totalRevenue > 0 && today.margin < 15) {
     const neededRevenue = today.totalRealCost / 0.8;
     const extra = neededRevenue - today.totalRevenue;
-    insights.push(`Margem baixa (${today.margin.toFixed(0)}%) — mais ${formatCurrencySimple(extra)} em receita hoje daria 20%`);
+    insights.push(`${g.margin} baixa (${today.margin.toFixed(0)}%) — mais ${formatCurrencySimple(extra)} em ${g.inflow.toLowerCase()} hoje daria 20%`);
   }
 
   if (week.totalEntries > 0) {
@@ -970,9 +976,9 @@ export function getSmartInsights(): string[] {
     const opDaysInMonth = getTotalOperatingDaysInMonth();
     const projected30 = avgDailyProfit * opDaysInMonth;
     if (projected30 > 0) {
-      insights.push(`Projeção mensal: ${formatCurrencySimple(projected30)} de lucro mantendo esse ritmo`);
+      insights.push(`Projeção mensal: ${formatCurrencySimple(projected30)} mantendo esse ritmo`);
     } else if (projected30 < 0) {
-      insights.push(`Projeção: prejuízo de ${formatCurrencySimple(Math.abs(projected30))} no mês se continuar assim`);
+      insights.push(`Projeção: déficit de ${formatCurrencySimple(Math.abs(projected30))} no mês se continuar assim`);
     }
   }
 
@@ -982,11 +988,11 @@ export function getSmartInsights(): string[] {
   }
 
   if (today.profit > 0 && today.margin > 30) {
-    insights.push(`Margem de ${today.margin.toFixed(0)}% hoje — lucro de ${formatCurrencySimple(today.profit)}`);
+    insights.push(`${g.margin} de ${today.margin.toFixed(0)}% hoje — ${g.result.toLowerCase()} de ${formatCurrencySimple(today.profit)}`);
   }
 
   if (insights.length === 0 && today.totalRevenue === 0 && today.totalRealCost === 0) {
-    insights.push('Registre suas entradas e saídas para receber insights personalizados');
+    insights.push(`Registre ${g.inflow.toLowerCase()} e ${g.outflow.toLowerCase()} para receber insights personalizados`);
   }
 
   return insights.slice(0, 5);
