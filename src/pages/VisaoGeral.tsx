@@ -127,15 +127,15 @@ export default function VisaoGeral() {
           <div className="flex items-start justify-between mb-4">
             <div>
               <p className="text-muted-foreground text-sm mb-2 flex items-center gap-2">
-                <span className={`w-2 h-2 rounded-full ${summary.profit >= 0 ? 'bg-primary' : 'bg-destructive'}`} />
-                {labels.profitDayLabel}
+                <span className={`w-2 h-2 rounded-full ${summary.margin >= 0 ? 'bg-primary' : 'bg-destructive'}`} />
+                {labels.marginLabel}
               </p>
-              <p className={`text-4xl md:text-5xl font-extrabold tracking-tight ${summary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
-                {formatCurrency(summary.profit)}
+              <p className={`text-4xl md:text-5xl font-extrabold tracking-tight ${summary.margin >= 20 ? 'text-primary' : summary.margin >= 0 ? 'text-warning' : 'text-destructive'}`}>
+                {formatPercent(summary.margin)}
               </p>
             </div>
-            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${summary.profit >= 0 ? 'bg-primary/10' : 'bg-destructive/10'}`}>
-              {summary.profit >= 0 ? <TrendingUp className="h-6 w-6 text-primary" /> : <TrendingDown className="h-6 w-6 text-destructive" />}
+            <div className={`w-12 h-12 rounded-xl flex items-center justify-center ${summary.margin >= 0 ? 'bg-primary/10' : 'bg-destructive/10'}`}>
+              <Percent className="h-6 w-6 text-primary" />
             </div>
           </div>
           {profitDiff !== null && (
