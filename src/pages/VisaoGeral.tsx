@@ -237,7 +237,7 @@ export default function VisaoGeral() {
         </button>
       </motion.div>
 
-      <EntryModal open={showEntry} onClose={() => setShowEntry(false)} onSubmit={handleEntry} label={config.entryLabel} />
+      <EntryModal open={showEntry} onClose={() => setShowEntry(false)} onSubmit={handleEntry} isPersonal={isPersonal} />
       <CostModal open={showCost} onClose={() => setShowCost(false)} onSubmit={handleCost} config={config} />
       <FeedbackToast message={feedback} />
     </div>
