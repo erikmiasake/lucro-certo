@@ -262,6 +262,14 @@ export function deleteEntry(id: string) {
   notify();
 }
 
+export function updateEntry(id: string, patch: Partial<Pick<Entry, 'amount' | 'description' | 'category' | 'date'>>) {
+  state = {
+    ...state,
+    entries: state.entries.map((e) => (e.id === id ? { ...e, ...patch } : e)),
+  };
+  notify();
+}
+
 export function deleteCost(id: string) {
   if (id.startsWith('costmap-')) {
     const mapId = id.replace('costmap-', '');

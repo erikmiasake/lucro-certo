@@ -11,7 +11,7 @@ import {
   getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, getDayRevenueSource, registerCost,
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
   getWeekDailyData, getSmartInsights, getPreviousWeekSummary, getCostAnalysisAmount,
-  isOperatingDay, addEntry, type EntrySource, type CostClassification
+  isOperatingDay, addEntry, updateEntry, deleteEntry, getRecentEntries, type EntrySource, type CostClassification
 } from '@/lib/store';
 import CostModal from '@/components/CostModal';
 import EntryModal from '@/components/EntryModal';
@@ -81,9 +81,12 @@ export default function Movimentacoes() {
   const isPersonal = state.businessType === 'pessoal';
   const config = businessConfigs[state.businessType!];
   const costs = getRecentCosts();
+  const allEntries = getRecentEntries(100);
+  const visibleEntries = allEntries.filter((e) => e.source !== 'distributed');
   const [period, setPeriod] = useState<Period>(isPersonal ? 'mes' : 'dia');
   const [showCost, setShowCost] = useState(false);
   const [showEntry, setShowEntry] = useState(false);
+  const [editingEntryId, setEditingEntryId] = useState<string | null>(null);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -272,11 +275,36 @@ export default function Movimentacoes() {
   };
 
   const handleAddEntry = (data: { amount: number; description: string; category: string; date: string }) => {
-    addEntry(data.amount, data.description, data.category, 'manual', data.date);
-    setShowEntry(false);
-    setFeedback(`${isPersonal ? 'Entrada' : 'Receita'} registrada: ${fmt(data.amount)}`);
+    if (editingEntryId) {
+      updateEntry(editingEntryId, data);
+      setEditingEntryId(null);
+      setShowEntry(false);
+      setFeedback(`Movimentação atualizada: ${fmt(data.amount)}`);
+    } else {
+      addEntry(data.amount, data.description, data.category, 'manual', data.date);
+      setShowEntry(false);
+      setFeedback(`${isPersonal ? 'Entrada' : 'Receita'} registrada: ${fmt(data.amount)}`);
+    }
     setTimeout(() => setFeedback(null), 3000);
   };
+
+  const openEditEntry = (id: string) => {
+    setEditingEntryId(id);
+    setShowEntry(true);
+  };
+
+  const handleDeleteEntry = (id: string) => {
+    deleteEntry(id);
+    setFeedback('Movimentação removida');
+    setTimeout(() => setFeedback(null), 2500);
+  };
+
+  const editingEntryData = editingEntryId
+    ? (() => {
+        const e = allEntries.find((x) => x.id === editingEntryId);
+        return e ? { amount: e.amount, description: e.description || '', category: e.category || '', date: e.date } : null;
+      })()
+    : null;
 
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto safe-bottom pb-24">
@@ -376,6 +404,66 @@ export default function Movimentacoes() {
             )}
           </motion.div>
 
+          {/* Entradas registradas */}
+          <div className="mt-5">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                {isPersonal ? 'Entradas registradas' : 'Receitas registradas'}
+              </p>
+              <span className="text-[10px] text-muted-foreground">{visibleEntries.length} registros</span>
+            </div>
+            {visibleEntries.length > 0 ? (
+              <div className="flex flex-col gap-1.5">
+                {visibleEntries.slice(0, 10).map((e, i) => (
+                  <motion.div
+                    key={e.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="flex items-center justify-between p-3 rounded-xl card-elevated group"
+                  >
+                    <button
+                      onClick={() => openEditEntry(e.id)}
+                      className="flex items-center gap-2.5 flex-1 text-left"
+                    >
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-primary/10">
+                        <ArrowUpRight className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-xs text-foreground truncate">{fmt(e.amount)}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">
+                          {e.description || e.category || (isPersonal ? 'Entrada' : 'Receita')}
+                          {e.category && e.description ? ` · ${e.category}` : ''}
+                          {' · '}{formatDateLabel(e.date)}
+                        </p>
+                      </div>
+                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => openEditEntry(e.id)}
+                        className="p-1.5 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-primary hover:bg-primary/10 transition-all"
+                        aria-label="Editar"
+                      >
+                        <Edit2 className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEntry(e.id)}
+                        className="p-1.5 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
+                        aria-label="Excluir"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 rounded-xl card-elevated">
+                <p className="text-muted-foreground text-xs">{isPersonal ? 'Nenhuma entrada registrada' : 'Nenhuma receita registrada'}</p>
+              </div>
+            )}
+          </div>
+
           {/* Gastos recentes */}
           <div className="mt-5">
             <div className="flex items-center justify-between mb-2 px-1">
@@ -446,7 +534,14 @@ export default function Movimentacoes() {
           </div>
 
           <CostModal open={showCost} onClose={() => setShowCost(false)} onSubmit={handleCost} config={config} />
-          <EntryModal open={showEntry} onClose={() => setShowEntry(false)} onSubmit={handleAddEntry} isPersonal={true} />
+          <EntryModal
+            open={showEntry}
+            onClose={() => { setShowEntry(false); setEditingEntryId(null); }}
+            onSubmit={handleAddEntry}
+            isPersonal={true}
+            initial={editingEntryData}
+            mode={editingEntryId ? 'edit' : 'create'}
+          />
           <FeedbackToast message={feedback} />
         </>
       ) : (
@@ -995,6 +1090,61 @@ export default function Movimentacoes() {
         )}
       </AnimatePresence>
 
+      {/* Receitas registradas */}
+      <div className="mt-5">
+        <div className="flex items-center justify-between mb-2 px-1">
+          <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">Receitas registradas</p>
+          <span className="text-[10px] text-muted-foreground">{visibleEntries.length} registros</span>
+        </div>
+        {visibleEntries.length > 0 ? (
+          <div className="flex flex-col gap-1.5">
+            {visibleEntries.slice(0, 8).map((e, i) => (
+              <motion.div
+                key={e.id}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ delay: i * 0.03 }}
+                className="flex items-center justify-between p-3 rounded-xl card-elevated group"
+              >
+                <button onClick={() => openEditEntry(e.id)} className="flex items-center gap-2.5 flex-1 text-left">
+                  <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-primary/10">
+                    <ArrowUpRight className="h-3.5 w-3.5 text-primary" />
+                  </div>
+                  <div className="min-w-0">
+                    <p className="font-semibold text-xs text-foreground truncate">{fmt(e.amount)}</p>
+                    <p className="text-[10px] text-muted-foreground truncate">
+                      {e.description || e.category || 'Receita'}
+                      {e.category && e.description ? ` · ${e.category}` : ''}
+                      {' · '}{formatDateLabel(e.date)}
+                    </p>
+                  </div>
+                </button>
+                <div className="flex items-center gap-1">
+                  <button
+                    onClick={() => openEditEntry(e.id)}
+                    className="p-1.5 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-primary hover:bg-primary/10 transition-all"
+                    aria-label="Editar"
+                  >
+                    <Edit2 className="h-3.5 w-3.5" />
+                  </button>
+                  <button
+                    onClick={() => handleDeleteEntry(e.id)}
+                    className="p-1.5 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
+                    aria-label="Excluir"
+                  >
+                    <Trash2 className="h-3.5 w-3.5" />
+                  </button>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        ) : (
+          <div className="text-center py-8 rounded-xl card-elevated">
+            <p className="text-muted-foreground text-xs">Nenhuma receita registrada</p>
+          </div>
+        )}
+      </div>
+
       {/* Costs Section */}
       <div className="mt-5">
         <div className="flex items-center justify-between mb-2 px-1">
@@ -1068,7 +1218,14 @@ export default function Movimentacoes() {
       </div>
 
       <CostModal open={showCost} onClose={() => setShowCost(false)} onSubmit={handleCost} config={config} />
-      <EntryModal open={showEntry} onClose={() => setShowEntry(false)} onSubmit={handleAddEntry} isPersonal={false} />
+      <EntryModal
+        open={showEntry}
+        onClose={() => { setShowEntry(false); setEditingEntryId(null); }}
+        onSubmit={handleAddEntry}
+        isPersonal={false}
+        initial={editingEntryData}
+        mode={editingEntryId ? 'edit' : 'create'}
+      />
       <FeedbackToast message={feedback} />
       </>
       )}

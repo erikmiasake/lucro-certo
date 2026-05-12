@@ -14,6 +14,8 @@ interface Props {
   onClose: () => void;
   onSubmit: (data: EntryFormData) => void;
   isPersonal: boolean;
+  initial?: Partial<EntryFormData> | null;
+  mode?: 'create' | 'edit';
 }
 
 const PERSONAL_CATEGORIES = ['Salário', 'Freelancer', 'PIX recebido', 'Renda extra', 'Venda', 'Outros'];
@@ -23,7 +25,7 @@ function todayStr() {
   return new Date().toISOString().split('T')[0];
 }
 
-export default function EntryModal({ open, onClose, onSubmit, isPersonal }: Props) {
+export default function EntryModal({ open, onClose, onSubmit, isPersonal, initial, mode = 'create' }: Props) {
   const [description, setDescription] = useState('');
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
@@ -31,20 +33,23 @@ export default function EntryModal({ open, onClose, onSubmit, isPersonal }: Prop
   const inputRef = useRef<HTMLInputElement>(null);
 
   const categories = isPersonal ? PERSONAL_CATEGORIES : BUSINESS_CATEGORIES;
-  const titleLabel = isPersonal ? 'Adicionar entrada' : 'Adicionar receita';
-  const subLabel = isPersonal
-    ? 'Registre um dinheiro que entrou'
-    : 'Registre uma nova receita do negócio';
+  const isEdit = mode === 'edit';
+  const titleLabel = isEdit
+    ? (isPersonal ? 'Editar entrada' : 'Editar receita')
+    : (isPersonal ? 'Adicionar entrada' : 'Adicionar receita');
+  const subLabel = isEdit
+    ? 'Atualize os dados desta movimentação'
+    : (isPersonal ? 'Registre um dinheiro que entrou' : 'Registre uma nova receita do negócio');
 
   useEffect(() => {
     if (open) {
-      setDescription('');
-      setAmount('');
-      setCategory('');
-      setDate(todayStr());
+      setDescription(initial?.description ?? '');
+      setAmount(initial?.amount ? String(initial.amount).replace('.', ',') : '');
+      setCategory(initial?.category ?? '');
+      setDate(initial?.date ?? todayStr());
       setTimeout(() => inputRef.current?.focus(), 80);
     }
-  }, [open]);
+  }, [open, initial]);
 
   const handleSubmit = () => {
     const value = parseFloat(amount.replace(/\./g, '').replace(',', '.'));
@@ -184,7 +189,7 @@ export default function EntryModal({ open, onClose, onSubmit, isPersonal }: Prop
               className="mt-5 w-full py-3 rounded-2xl gradient-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Check className="h-4 w-4" />
-              Salvar entrada
+              {isEdit ? 'Salvar alterações' : 'Salvar entrada'}
             </button>
           </motion.div>
         </>
