@@ -125,7 +125,15 @@ export default function OnboardingPage() {
       );
       let seeded = false;
       if (avg > 0 && !hasOnboardingEntry) {
-        addEntry(avg, 'Faturamento inicial', 'Vendas', 'onboarding');
+        // Distribute the daily average across all days of the current calendar month
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        for (let d = 1; d <= daysInMonth; d++) {
+          const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          setDayRevenue(date, avg, 'distributed');
+        }
         seeded = true;
       }
       // Pre-fill example values for cost map items still at 0
