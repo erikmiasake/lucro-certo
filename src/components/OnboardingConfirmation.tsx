@@ -7,10 +7,11 @@ interface Props {
   businessType: BusinessType;
   avgSales: string;
   selectedCosts: string[];
+  monthlyIncome?: number;
   onEnter: () => void;
 }
 
-export default function OnboardingConfirmation({ businessType, avgSales, selectedCosts, onEnter }: Props) {
+export default function OnboardingConfirmation({ businessType, avgSales, selectedCosts, monthlyIncome, onEnter }: Props) {
   const config = businessConfigs[businessType];
   const isPersonal = businessType === 'pessoal';
 
@@ -91,7 +92,7 @@ export default function OnboardingConfirmation({ businessType, avgSales, selecte
           </div>
 
           {/* Average sales / income */}
-          {avgSales && (
+          {(isPersonal ? (monthlyIncome && monthlyIncome > 0) : !!avgSales) && (
             <div className="flex items-center gap-3 p-3 rounded-xl bg-background/60 border border-border/40">
               <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
                 <DollarSign className="h-4 w-4 text-accent" />
@@ -100,7 +101,9 @@ export default function OnboardingConfirmation({ businessType, avgSales, selecte
                 <p className="text-[11px] text-muted-foreground/70 uppercase tracking-wider">
                   {isPersonal ? 'Renda mensal' : 'Vendas/dia'}
                 </p>
-                <p className="text-sm font-semibold text-foreground">R$ {avgSales}</p>
+                <p className="text-sm font-semibold text-foreground">
+                  R$ {isPersonal ? (monthlyIncome ?? 0).toLocaleString('pt-BR') : avgSales}
+                </p>
               </div>
               <CheckCircle2 className="h-4 w-4 text-primary/60" />
             </div>

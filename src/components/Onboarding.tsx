@@ -179,6 +179,7 @@ export default function Onboarding() {
             businessType={selectedType}
             avgSales={finishData.avgSales}
             selectedCosts={finishData.selectedCosts}
+            monthlyIncome={finishData.monthlyIncome}
             onEnter={handleEnterApp}
           />
         ) : null}
