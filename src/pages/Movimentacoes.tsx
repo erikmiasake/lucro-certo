@@ -83,6 +83,7 @@ export default function Movimentacoes() {
   const costs = getRecentCosts();
   const [period, setPeriod] = useState<Period>(isPersonal ? 'mes' : 'dia');
   const [showCost, setShowCost] = useState(false);
+  const [showEntry, setShowEntry] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
