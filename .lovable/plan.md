@@ -1,56 +1,34 @@
+## Problema
 
+Na tela "Suas finanças estão prontas" (após preencher o onboarding no modo Finanças Pessoais), o campo **Renda mensal** mostra um valor muito menor que o digitado. Exemplo: você informou ~R$ 3.810/mês e aparece **R$ 127**.
 
-# Plano: Fonte Única de Dados — Correções de Consistência
+### Causa
 
-## Problema atual
+Em `src/components/OnboardingDetails.tsx` (handleFinish, modo pessoal), a renda mensal é dividida por 30 para virar uma média diária antes de ser enviada para a confirmação:
 
-Existem **duas divergências** entre as abas:
+```ts
+const dailyAvg = monthlyVal > 0 ? Math.round(monthlyVal / 30) : 0;
+onFinish({ avgSales: dailyAvg.toLocaleString('pt-BR'), ... })
+```
 
-1. **`getMonthSummary()` usa janela de 30 dias** (últimos 30 dias corridos), enquanto `getMonthlySummary(year, month)` usa mês calendário. Todas as abas do dashboard (Visão Geral, Movimentações, Custos, Desempenho) usam a janela de 30 dias.
+Já a `OnboardingConfirmation` exibe esse mesmo `avgSales` com o rótulo **"Renda mensal"** — ou seja, um valor diário rotulado como mensal. As categorias e o tipo de negócio já batem; só a renda está errada.
 
-2. **`getCostBreakdown()` usa `getMonthlyViewCostAmount()`** que normaliza custos com fórmula diferente da usada por `getDaySummary()`. Resultado: o custo total na aba Custos pode divergir do custo nas outras abas.
+## Correção
 
-3. **Melhor/pior dia em `getMonthlySummary`** não filtra dias não-operacionais (ex: domingo para barbearia 6 dias/semana).
+1. **`OnboardingFinishData`** (em `OnboardingDetails.tsx`): adicionar campo opcional `monthlyIncome?: number` para guardar o valor mensal original informado pelo usuário no modo pessoal.
 
-## Solução
+2. **`handleFinish` (modo pessoal)**: continuar enviando `avgSales` como média diária (necessário para o cálculo interno de receita), mas também enviar `monthlyIncome: monthlyVal`.
 
-### 1. `getMonthSummary()` → mês calendário
+3. **`Onboarding.tsx`**: repassar `monthlyIncome` para `OnboardingConfirmation` via nova prop opcional.
 
-Trocar `getPeriodSummary(30)` por soma de `getDaySummary()` do dia 1 ao último dia do mês corrente. Isso alinha dashboard e relatório na mesma base.
+4. **`OnboardingConfirmation.tsx`**:
+   - Aceitar nova prop `monthlyIncome?: number`.
+   - No modo pessoal, exibir `R$ {monthlyIncome formatado em pt-BR}` no card "Renda mensal" em vez de `avgSales`.
+   - Manter comportamento atual para modo negócio (continua mostrando "Vendas/dia" com `avgSales`).
 
-### 2. Modularizar cálculos atômicos
+5. **Sem mudanças** em store, business-config ou lógica de cálculo: a média diária derivada continua sendo persistida normalmente.
 
-Extrair funções puras:
-- `getRevenueOnDate(date)` — receita do dia
-- `getCostsOnDate(date)` — custo total do dia
-- `getDaySummary(date)` — junta os dois (já existe, mantém)
-- `getPeriodSummary(startDate, endDate)` — soma de `getDaySummary` entre duas datas
-- `getCostBreakdownForPeriod(startDate, endDate)` — agrupa custos usando `getCostImpactOnDate` no período, exibindo **valor agregado por custo** (aluguel = R$3.000, não 30x R$100)
+## Verificação
 
-### 3. Unificar `getCostBreakdown()`
-
-Reescrever para usar `getCostImpactOnDate` somado no período do mês calendário, em vez de `getMonthlyViewCostAmount`. Assim o total do breakdown será idêntico ao `month.totalRealCost`.
-
-### 4. Dias fechados — regra explícita
-
-Em `getMonthlySummary` e `getBestAndWorstDay`:
-- Dias não-operacionais (`!isOperatingDay`) **não entram** em melhor/pior dia
-- Dias não-operacionais **não entram** na média operacional
-- Custo fixo continua rateado normalmente (impacto diário existe mesmo em dia fechado)
-- Receita e custo variável = 0 em dia fechado (natural, pois não há entradas)
-
-### 5. Eliminar `getMonthlyViewCostAmount()`
-
-Função legada que causa a divergência. Substituir todos os usos por cálculo baseado em período.
-
-## Arquivos a editar
-
-| Arquivo | Mudança |
-|---------|---------|
-| `src/lib/store.ts` | Refatorar `getMonthSummary` para mês calendário; reescrever `getCostBreakdown` usando `getCostImpactOnDate` no período; adicionar `isOperatingDay` check em `getMonthlySummary` best/worst; remover `getMonthlyViewCostAmount` |
-| `src/pages/Custos.tsx` | Ajustar para usar `month.totalRealCost` como base de percentuais (em vez de `breakdown.total`) |
-
-## Resultado esperado
-
-Todas as abas (Visão Geral, Movimentações, Custos, Desempenho, Relatório) mostrarão exatamente os mesmos números para o mesmo mês, porque todas derivam de `getDaySummary()` somado no mês calendário.
-
+- Após implementar, abrir o onboarding em modo Pessoal, informar uma renda mensal (ex: R$ 3.000) e confirmar que a tela final mostra **R$ 3.000** sob "Renda mensal".
+- Confirmar que o modo Negócio segue mostrando "Vendas/dia" inalterado.

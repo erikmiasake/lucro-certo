@@ -70,6 +70,7 @@ export interface OnboardingFinishData {
   selectedCosts: string[];
   profile: Partial<BusinessProfile>;
   employeePayroll?: number;
+  monthlyIncome?: number;
 }
 
 interface Props {
