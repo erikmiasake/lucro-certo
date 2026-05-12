@@ -63,8 +63,8 @@ export default function VisaoGeral() {
     ? 'Adicionamos sua renda mensal automaticamente para começar sua organização financeira. Você pode editar ou excluir em Movimentações.'
     : 'Criamos uma estrutura inicial com receita e custos estimados para ajudar você a visualizar seu negócio. Edite os valores em Movimentações e Custos.';
 
-  const handleEntry = (amount: number) => {
-    addEntry(amount);
+  const handleEntry = (data: { amount: number; description: string; category: string; date: string }) => {
+    addEntry(data.amount, data.description, data.category, 'manual', data.date);
     setShowEntry(false);
     const updated = getDaySummary(today);
     setFeedback(`${labels.revenueLabel} atualizada: ${formatCurrency(updated.totalRevenue)}`);
