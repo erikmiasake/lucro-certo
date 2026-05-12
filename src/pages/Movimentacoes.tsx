@@ -275,11 +275,36 @@ export default function Movimentacoes() {
   };
 
   const handleAddEntry = (data: { amount: number; description: string; category: string; date: string }) => {
-    addEntry(data.amount, data.description, data.category, 'manual', data.date);
-    setShowEntry(false);
-    setFeedback(`${isPersonal ? 'Entrada' : 'Receita'} registrada: ${fmt(data.amount)}`);
+    if (editingEntryId) {
+      updateEntry(editingEntryId, data);
+      setEditingEntryId(null);
+      setShowEntry(false);
+      setFeedback(`Movimentação atualizada: ${fmt(data.amount)}`);
+    } else {
+      addEntry(data.amount, data.description, data.category, 'manual', data.date);
+      setShowEntry(false);
+      setFeedback(`${isPersonal ? 'Entrada' : 'Receita'} registrada: ${fmt(data.amount)}`);
+    }
     setTimeout(() => setFeedback(null), 3000);
   };
+
+  const openEditEntry = (id: string) => {
+    setEditingEntryId(id);
+    setShowEntry(true);
+  };
+
+  const handleDeleteEntry = (id: string) => {
+    deleteEntry(id);
+    setFeedback('Movimentação removida');
+    setTimeout(() => setFeedback(null), 2500);
+  };
+
+  const editingEntryData = editingEntryId
+    ? (() => {
+        const e = allEntries.find((x) => x.id === editingEntryId);
+        return e ? { amount: e.amount, description: e.description || '', category: e.category || '', date: e.date } : null;
+      })()
+    : null;
 
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto safe-bottom pb-24">
