@@ -11,9 +11,10 @@ import {
   getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, getDayRevenueSource, registerCost,
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
   getWeekDailyData, getSmartInsights, getPreviousWeekSummary, getCostAnalysisAmount,
-  isOperatingDay, type EntrySource, type CostClassification
+  isOperatingDay, addEntry, type EntrySource, type CostClassification
 } from '@/lib/store';
 import CostModal from '@/components/CostModal';
+import EntryModal from '@/components/EntryModal';
 import FeedbackToast from '@/components/FeedbackToast';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
@@ -82,6 +83,7 @@ export default function Movimentacoes() {
   const costs = getRecentCosts();
   const [period, setPeriod] = useState<Period>(isPersonal ? 'mes' : 'dia');
   const [showCost, setShowCost] = useState(false);
+  const [showEntry, setShowEntry] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
   const [editingDate, setEditingDate] = useState<string | null>(null);
   const [editValue, setEditValue] = useState('');
@@ -269,6 +271,13 @@ export default function Movimentacoes() {
     }
   };
 
+  const handleAddEntry = (data: { amount: number; description: string; category: string; date: string }) => {
+    addEntry(data.amount, data.description, data.category, 'manual', data.date);
+    setShowEntry(false);
+    setFeedback(`${isPersonal ? 'Entrada' : 'Receita'} registrada: ${fmt(data.amount)}`);
+    setTimeout(() => setFeedback(null), 3000);
+  };
+
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto safe-bottom pb-24">
       {/* Header */}
@@ -417,11 +426,11 @@ export default function Movimentacoes() {
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
               whileTap={{ scale: 0.95 }}
-              onClick={() => startPeriodEdit('mes')}
+              onClick={() => setShowEntry(true)}
               className="px-5 py-3 rounded-2xl gradient-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 flex items-center gap-2"
             >
               <Plus className="h-4 w-4" />
-              Renda mensal
+              Adicionar entrada
             </motion.button>
             <motion.button
               initial={{ y: 20, opacity: 0 }}
@@ -437,6 +446,7 @@ export default function Movimentacoes() {
           </div>
 
           <CostModal open={showCost} onClose={() => setShowCost(false)} onSubmit={handleCost} config={config} />
+          <EntryModal open={showEntry} onClose={() => setShowEntry(false)} onSubmit={handleAddEntry} isPersonal={true} />
           <FeedbackToast message={feedback} />
         </>
       ) : (
@@ -1038,11 +1048,11 @@ export default function Movimentacoes() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => startEditing(today)}
+          onClick={() => setShowEntry(true)}
           className="px-5 py-3 rounded-2xl gradient-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
-          Registrar receita
+          Adicionar receita
         </motion.button>
         <motion.button
           initial={{ y: 20, opacity: 0 }}
@@ -1058,6 +1068,7 @@ export default function Movimentacoes() {
       </div>
 
       <CostModal open={showCost} onClose={() => setShowCost(false)} onSubmit={handleCost} config={config} />
+      <EntryModal open={showEntry} onClose={() => setShowEntry(false)} onSubmit={handleAddEntry} isPersonal={false} />
       <FeedbackToast message={feedback} />
       </>
       )}
