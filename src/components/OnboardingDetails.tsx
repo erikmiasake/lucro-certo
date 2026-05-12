@@ -191,6 +191,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
       onFinish({
         avgSales: dailyAvg > 0 ? dailyAvg.toLocaleString('pt-BR') : '',
         selectedCosts,
+        monthlyIncome: monthlyVal > 0 ? monthlyVal : undefined,
         profile: {
           name: profileName || 'Minhas finanças',
           city: '',
