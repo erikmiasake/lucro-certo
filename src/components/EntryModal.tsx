@@ -1,6 +1,6 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowUpRight, Check, CalendarDays, CalendarRange } from 'lucide-react';
+import { X, ArrowUpRight, Check, CalendarDays } from 'lucide-react';
 
 export interface EntryFormData {
   amount: number;
