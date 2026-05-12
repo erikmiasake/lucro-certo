@@ -143,6 +143,37 @@ export function AuthFormSplitScreen({
               <p className="text-muted-foreground">{description}</p>
             </motion.div>
 
+            {onGoogleSignIn && (
+              <>
+                <motion.div variants={itemVariants}>
+                  <Button
+                    type="button"
+                    variant="outline"
+                    onClick={handleGoogleClick}
+                    disabled={isLoading || isGoogleLoading}
+                    className="w-full h-12 gap-3 bg-white/5 border-white/10 text-white hover:bg-white/10 hover:text-white font-semibold"
+                  >
+                    {isGoogleLoading ? (
+                      <Loader2 className="h-4 w-4 animate-spin" />
+                    ) : (
+                      <GoogleIcon />
+                    )}
+                    {mode === 'login' ? 'Continuar com Google' : 'Cadastrar com Google'}
+                  </Button>
+                </motion.div>
+                <motion.div variants={itemVariants} className="relative my-1">
+                  <div className="absolute inset-0 flex items-center">
+                    <span className="w-full border-t border-white/10" />
+                  </div>
+                  <div className="relative flex justify-center">
+                    <span className="bg-background px-3 text-xs uppercase tracking-widest text-muted-foreground/70">
+                      ou com e-mail
+                    </span>
+                  </div>
+                </motion.div>
+              </>
+            )}
+
             <Form {...form}>
               <form
                 onSubmit={form.handleSubmit(handleFormSubmit)}
