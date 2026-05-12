@@ -1,5 +1,6 @@
 import { BusinessType, businessConfigs } from './business-config';
 import { safeGetItem, safeSetItem } from './safe-storage';
+import { getModeCopyFromType } from './modes';
 
 export type EntrySource = 'manual' | 'estimated' | 'distributed' | 'onboarding';
 
@@ -608,8 +609,6 @@ export interface ProactiveAlert {
 
 export function getProactiveAlerts(): ProactiveAlert[] {
   // Mode-aware: lê copy do dicionário central modes/.
-  // Importação dinâmica evita ciclo de import com business-config.
-  const { getModeCopyFromType } = require('@/lib/modes') as typeof import('@/lib/modes');
   const copy = getModeCopyFromType(state.businessType).alerts;
 
   const alerts: ProactiveAlert[] = [];
