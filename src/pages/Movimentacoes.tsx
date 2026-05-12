@@ -404,6 +404,66 @@ export default function Movimentacoes() {
             )}
           </motion.div>
 
+          {/* Entradas registradas */}
+          <div className="mt-5">
+            <div className="flex items-center justify-between mb-2 px-1">
+              <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                {isPersonal ? 'Entradas registradas' : 'Receitas registradas'}
+              </p>
+              <span className="text-[10px] text-muted-foreground">{visibleEntries.length} registros</span>
+            </div>
+            {visibleEntries.length > 0 ? (
+              <div className="flex flex-col gap-1.5">
+                {visibleEntries.slice(0, 10).map((e, i) => (
+                  <motion.div
+                    key={e.id}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: i * 0.03 }}
+                    className="flex items-center justify-between p-3 rounded-xl card-elevated group"
+                  >
+                    <button
+                      onClick={() => openEditEntry(e.id)}
+                      className="flex items-center gap-2.5 flex-1 text-left"
+                    >
+                      <div className="w-7 h-7 rounded-lg flex items-center justify-center bg-primary/10">
+                        <ArrowUpRight className="h-3.5 w-3.5 text-primary" />
+                      </div>
+                      <div className="min-w-0">
+                        <p className="font-semibold text-xs text-foreground truncate">{fmt(e.amount)}</p>
+                        <p className="text-[10px] text-muted-foreground truncate">
+                          {e.description || e.category || (isPersonal ? 'Entrada' : 'Receita')}
+                          {e.category && e.description ? ` · ${e.category}` : ''}
+                          {' · '}{formatDateLabel(e.date)}
+                        </p>
+                      </div>
+                    </button>
+                    <div className="flex items-center gap-1">
+                      <button
+                        onClick={() => openEditEntry(e.id)}
+                        className="p-1.5 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-primary hover:bg-primary/10 transition-all"
+                        aria-label="Editar"
+                      >
+                        <Edit2 className="h-3.5 w-3.5" />
+                      </button>
+                      <button
+                        onClick={() => handleDeleteEntry(e.id)}
+                        className="p-1.5 rounded-lg text-muted-foreground opacity-0 group-hover:opacity-100 hover:text-destructive hover:bg-destructive/10 transition-all"
+                        aria-label="Excluir"
+                      >
+                        <Trash2 className="h-3.5 w-3.5" />
+                      </button>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+            ) : (
+              <div className="text-center py-8 rounded-xl card-elevated">
+                <p className="text-muted-foreground text-xs">{isPersonal ? 'Nenhuma entrada registrada' : 'Nenhuma receita registrada'}</p>
+              </div>
+            )}
+          </div>
+
           {/* Gastos recentes */}
           <div className="mt-5">
             <div className="flex items-center justify-between mb-2 px-1">
