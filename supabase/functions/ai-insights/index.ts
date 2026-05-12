@@ -156,25 +156,25 @@ ${isInteractive ? `O usuário perguntou: "${safeQuestion}". Responda APENAS com 
         type: "function",
         function: {
           name: "generate_insights",
-          description: "Retorna análise financeira para microempreendedor",
+          description: `Retorna análise financeira no modo ${resolvedAppMode === 'personal' ? 'pessoal' : 'negócio'}`,
           parameters: {
             type: "object",
             properties: {
               insight_receita: {
                 type: "string",
-                description: "1 insight sobre faturamento/movimentações com valor em R$, máximo 2 frases",
+                description: `1 insight sobre ${isPersonal ? 'entradas' : 'receita'} com valor em R$, máximo 2 frases`,
               },
               insight_custos: {
                 type: "string",
-                description: "1 insight sobre gastos com valor em R$, máximo 2 frases",
+                description: `1 insight sobre ${isPersonal ? 'gastos' : 'custos'} com valor em R$, máximo 2 frases`,
               },
               insight_lucro: {
                 type: "string",
-                description: "1 insight sobre lucro/margem com valor em R$ ou %, máximo 2 frases",
+                description: `1 insight sobre ${isPersonal ? 'quanto sobrou / economia' : 'lucro / margem'} com valor em R$ ou %, máximo 2 frases`,
               },
               recommendation: {
                 type: "string",
-                description: "1 ação prática que o dono pode fazer AGORA, baseada nos dados",
+                description: `1 ação prática que o usuário pode fazer AGORA, usando o glossário do modo ${isPersonal ? 'pessoal' : 'negócio'}`,
               },
             },
             required: ["insight_receita", "insight_custos", "insight_lucro", "recommendation"],
