@@ -923,6 +923,8 @@ export function getFinancialSummary(period: string = 'semana'): FinancialSummary
 // ─── Enhanced Smart Insights ───────────────────────────────────────
 
 export function getSmartInsights(): string[] {
+  // Mode-aware: substantivos vêm do dicionário central modes/.
+  const g = getModeCopyFromType(state.businessType).glossary;
   const insights: string[] = [];
   const today = getDaySummary();
   const yesterday = getPreviousDaySummary();
@@ -934,9 +936,9 @@ export function getSmartInsights(): string[] {
   if (yesterday.totalRevenue > 0 && today.totalRevenue > 0) {
     const diff = today.profit - yesterday.profit;
     if (diff > 0) {
-      insights.push(`Lucro subiu R$ ${Math.round(diff)} vs ontem — continue assim`);
+      insights.push(`${g.result} subiu R$ ${Math.round(diff)} vs ontem — continue assim`);
     } else if (diff < -10) {
-      insights.push(`Lucro caiu R$ ${Math.round(Math.abs(diff))} vs ontem — verifique seus custos`);
+      insights.push(`${g.result} caiu R$ ${Math.round(Math.abs(diff))} vs ontem — verifique seus ${g.outflow.toLowerCase()}`);
     }
   }
 
@@ -951,21 +953,21 @@ export function getSmartInsights(): string[] {
 
   if (costBreakdown.isHighCost && month.totalRevenue > 0) {
     const excess = month.totalRealCost - month.totalRevenue * 0.6;
-    insights.push(`Custos mensais altos — reduzir ${formatCurrencySimple(excess)} colocaria margem em 40%`);
+    insights.push(`${g.outflow} mensais altos — reduzir ${formatCurrencySimple(excess)} colocaria ${g.margin.toLowerCase()} em 40%`);
   }
 
   if (costBreakdown.categories.length > 0 && costBreakdown.total > 0) {
     const top = costBreakdown.categories[0];
     if (top.percentage > 30) {
       const saving10 = top.amount * 0.1;
-      insights.push(`${top.name} = ${top.percentage.toFixed(0)}% dos custos. Reduzir 10% = +${formatCurrencySimple(saving10)}/mês de lucro`);
+      insights.push(`${top.name} = ${top.percentage.toFixed(0)}% dos ${g.outflow.toLowerCase()}. Reduzir 10% = +${formatCurrencySimple(saving10)}/mês`);
     }
   }
 
   if (today.totalRevenue > 0 && today.margin < 15) {
     const neededRevenue = today.totalRealCost / 0.8;
     const extra = neededRevenue - today.totalRevenue;
-    insights.push(`Margem baixa (${today.margin.toFixed(0)}%) — mais ${formatCurrencySimple(extra)} em receita hoje daria 20%`);
+    insights.push(`${g.margin} baixa (${today.margin.toFixed(0)}%) — mais ${formatCurrencySimple(extra)} em ${g.inflow.toLowerCase()} hoje daria 20%`);
   }
 
   if (week.totalEntries > 0) {
@@ -974,9 +976,9 @@ export function getSmartInsights(): string[] {
     const opDaysInMonth = getTotalOperatingDaysInMonth();
     const projected30 = avgDailyProfit * opDaysInMonth;
     if (projected30 > 0) {
-      insights.push(`Projeção mensal: ${formatCurrencySimple(projected30)} de lucro mantendo esse ritmo`);
+      insights.push(`Projeção mensal: ${formatCurrencySimple(projected30)} mantendo esse ritmo`);
     } else if (projected30 < 0) {
-      insights.push(`Projeção: prejuízo de ${formatCurrencySimple(Math.abs(projected30))} no mês se continuar assim`);
+      insights.push(`Projeção: déficit de ${formatCurrencySimple(Math.abs(projected30))} no mês se continuar assim`);
     }
   }
 
@@ -986,11 +988,11 @@ export function getSmartInsights(): string[] {
   }
 
   if (today.profit > 0 && today.margin > 30) {
-    insights.push(`Margem de ${today.margin.toFixed(0)}% hoje — lucro de ${formatCurrencySimple(today.profit)}`);
+    insights.push(`${g.margin} de ${today.margin.toFixed(0)}% hoje — ${g.result.toLowerCase()} de ${formatCurrencySimple(today.profit)}`);
   }
 
   if (insights.length === 0 && today.totalRevenue === 0 && today.totalRealCost === 0) {
-    insights.push('Registre suas entradas e saídas para receber insights personalizados');
+    insights.push(`Registre ${g.inflow.toLowerCase()} e ${g.outflow.toLowerCase()} para receber insights personalizados`);
   }
 
   return insights.slice(0, 5);
