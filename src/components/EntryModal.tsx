@@ -189,7 +189,7 @@ export default function EntryModal({ open, onClose, onSubmit, isPersonal, initia
               className="mt-5 w-full py-3 rounded-2xl gradient-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
             >
               <Check className="h-4 w-4" />
-              Salvar entrada
+              {isEdit ? 'Salvar alterações' : 'Salvar entrada'}
             </button>
           </motion.div>
         </>
