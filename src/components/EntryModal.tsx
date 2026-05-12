@@ -1,82 +1,193 @@
-import { useState, useRef, useEffect } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { ArrowUpRight } from 'lucide-react';
+import { X, ArrowUpRight, Check, CalendarDays } from 'lucide-react';
 
-interface EntryModalProps {
-  open: boolean;
-  onClose: () => void;
-  onSubmit: (amount: number) => void;
-  label: string;
+export interface EntryFormData {
+  amount: number;
+  description: string;
+  category: string;
+  date: string; // YYYY-MM-DD
 }
 
-export default function EntryModal({ open, onClose, onSubmit, label }: EntryModalProps) {
-  const [value, setValue] = useState('');
+interface Props {
+  open: boolean;
+  onClose: () => void;
+  onSubmit: (data: EntryFormData) => void;
+  isPersonal: boolean;
+}
+
+const PERSONAL_CATEGORIES = ['Salário', 'Freelancer', 'PIX recebido', 'Renda extra', 'Venda', 'Outros'];
+const BUSINESS_CATEGORIES = ['Venda', 'Serviço', 'PIX recebido', 'Encomenda', 'Outros'];
+
+function todayStr() {
+  return new Date().toISOString().split('T')[0];
+}
+
+export default function EntryModal({ open, onClose, onSubmit, isPersonal }: Props) {
+  const [description, setDescription] = useState('');
+  const [amount, setAmount] = useState('');
+  const [category, setCategory] = useState('');
+  const [date, setDate] = useState(todayStr());
   const inputRef = useRef<HTMLInputElement>(null);
+
+  const categories = isPersonal ? PERSONAL_CATEGORIES : BUSINESS_CATEGORIES;
+  const titleLabel = isPersonal ? 'Adicionar entrada' : 'Adicionar receita';
+  const subLabel = isPersonal
+    ? 'Registre um dinheiro que entrou'
+    : 'Registre uma nova receita do negócio';
 
   useEffect(() => {
     if (open) {
-      setValue('');
-      setTimeout(() => inputRef.current?.focus(), 100);
+      setDescription('');
+      setAmount('');
+      setCategory('');
+      setDate(todayStr());
+      setTimeout(() => inputRef.current?.focus(), 80);
     }
   }, [open]);
 
   const handleSubmit = () => {
-    const num = parseFloat(value.replace(',', '.'));
-    if (num > 0) onSubmit(num);
+    const value = parseFloat(amount.replace(/\./g, '').replace(',', '.'));
+    if (!description.trim() || !value || value <= 0) return;
+    onSubmit({
+      amount: value,
+      description: description.trim().slice(0, 80),
+      category: (category || 'Outros').slice(0, 40),
+      date,
+    });
+    onClose();
   };
 
   return (
     <AnimatePresence>
       {open && (
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          className="fixed inset-0 z-50 flex items-end justify-center bg-background/60 backdrop-blur-md"
-          onClick={onClose}
-        >
+        <>
           <motion.div
-            initial={{ y: '100%' }}
-            animate={{ y: 0 }}
-            exit={{ y: '100%' }}
-            transition={{ type: 'spring', damping: 25, stiffness: 300 }}
-            className="w-full max-w-lg rounded-t-3xl p-6 safe-bottom card-elevated border-t border-border"
-            onClick={(e) => e.stopPropagation()}
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            onClick={onClose}
+            className="fixed inset-0 bg-black/60 backdrop-blur-sm z-40"
+          />
+          <motion.div
+            initial={{ y: '100%', opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            exit={{ y: '100%', opacity: 0 }}
+            transition={{ type: 'spring', damping: 28, stiffness: 280 }}
+            className="fixed bottom-0 left-0 right-0 z-50 bg-card border-t border-border rounded-t-3xl p-5 max-w-lg mx-auto safe-bottom"
           >
-            <div className="w-10 h-1 bg-muted rounded-full mx-auto mb-6" />
-            
-            <div className="flex items-center gap-3 mb-6">
-              <div className="w-10 h-10 rounded-xl bg-blue-500/10 flex items-center justify-center">
-                <ArrowUpRight className="h-5 w-5 text-blue-400" />
+            <div className="flex items-center justify-between mb-4">
+              <div className="flex items-center gap-2">
+                <div className="w-8 h-8 rounded-xl bg-primary/15 flex items-center justify-center">
+                  <ArrowUpRight className="h-4 w-4 text-primary" />
+                </div>
+                <div>
+                  <h3 className="text-sm font-bold text-foreground">{titleLabel}</h3>
+                  <p className="text-[10px] text-muted-foreground">{subLabel}</p>
+                </div>
               </div>
-              <div>
-                <h2 className="text-lg font-bold text-foreground">Registrar {label.toLowerCase()}</h2>
-                <p className="text-muted-foreground text-xs">Quanto você recebeu?</p>
-              </div>
+              <button
+                onClick={onClose}
+                className="p-1.5 rounded-lg text-muted-foreground hover:bg-secondary/60"
+              >
+                <X className="h-4 w-4" />
+              </button>
             </div>
 
-            <div className="flex items-center gap-2 mb-6 p-4 rounded-xl bg-secondary/50 border border-border">
-              <span className="text-xl font-bold text-muted-foreground">R$</span>
+            {/* Nome */}
+            <label className="block">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                Nome da entrada
+              </span>
               <input
                 ref={inputRef}
-                type="number"
-                inputMode="decimal"
-                placeholder="0,00"
-                value={value}
-                onChange={(e) => setValue(e.target.value)}
-                className="flex-1 text-3xl font-bold bg-transparent outline-none text-foreground placeholder:text-muted"
+                type="text"
+                maxLength={80}
+                value={description}
+                onChange={(e) => setDescription(e.target.value)}
+                placeholder="Ex: Salário, venda do dia, freelancer, PIX recebido"
+                className="mt-1 w-full px-3 py-2.5 rounded-xl bg-secondary/40 border border-border outline-none text-sm text-foreground placeholder:text-muted focus:border-primary/50"
+              />
+            </label>
+
+            {/* Valor */}
+            <label className="block mt-3">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                Valor
+              </span>
+              <div className="mt-1 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/50">
+                <span className="text-sm font-bold text-muted-foreground">R$</span>
+                <input
+                  type="text"
+                  inputMode="decimal"
+                  value={amount}
+                  onChange={(e) => setAmount(e.target.value.replace(/[^\d.,]/g, ''))}
+                  onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+                  placeholder="Ex: 500"
+                  className="flex-1 bg-transparent outline-none text-base font-bold text-foreground placeholder:text-muted"
+                />
+              </div>
+            </label>
+
+            {/* Data */}
+            <label className="block mt-3">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                Data
+              </span>
+              <div className="mt-1 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/50">
+                <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                <input
+                  type="date"
+                  value={date}
+                  max={todayStr()}
+                  onChange={(e) => setDate(e.target.value)}
+                  className="flex-1 bg-transparent outline-none text-sm text-foreground"
+                />
+              </div>
+            </label>
+
+            {/* Categoria */}
+            <div className="mt-3">
+              <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                Categoria
+              </span>
+              <div className="mt-1 flex flex-wrap gap-1.5">
+                {categories.map((c) => (
+                  <button
+                    key={c}
+                    type="button"
+                    onClick={() => setCategory(c)}
+                    className={`px-2.5 py-1 rounded-lg text-[11px] font-medium border transition-all ${
+                      category === c
+                        ? 'bg-primary/15 border-primary/40 text-primary'
+                        : 'bg-secondary/40 border-border text-muted-foreground hover:text-foreground'
+                    }`}
+                  >
+                    {c}
+                  </button>
+                ))}
+              </div>
+              <input
+                type="text"
+                maxLength={40}
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                placeholder="Ou digite uma categoria"
+                className="mt-2 w-full px-3 py-2 rounded-xl bg-secondary/40 border border-border outline-none text-xs text-foreground placeholder:text-muted focus:border-primary/50"
               />
             </div>
 
+            {/* Submit */}
             <button
               onClick={handleSubmit}
-              disabled={!value || parseFloat(value.replace(',', '.')) <= 0}
-              className="w-full py-4 rounded-2xl gradient-primary text-primary-foreground font-semibold text-lg disabled:opacity-30 active:scale-[0.97] transition-all shadow-lg shadow-primary/20"
+              disabled={!description.trim() || !amount}
+              className="mt-5 w-full py-3 rounded-2xl gradient-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 flex items-center justify-center gap-2 disabled:opacity-40 disabled:cursor-not-allowed"
             >
-              Confirmar
+              <Check className="h-4 w-4" />
+              Salvar entrada
             </button>
           </motion.div>
-        </motion.div>
+        </>
       )}
     </AnimatePresence>
   );
