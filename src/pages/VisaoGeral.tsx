@@ -138,14 +138,9 @@ export default function VisaoGeral() {
               <Percent className="h-6 w-6 text-primary" />
             </div>
           </div>
-          {profitDiff !== null && (
-            <div className={`inline-flex items-center gap-1 px-2.5 py-1 rounded-lg text-xs font-medium ${
-              profitDiff >= 0 ? 'bg-primary/10 text-primary' : 'bg-destructive/10 text-destructive'
-            }`}>
-              {profitDiff >= 0 ? <ArrowUpRight className="h-3 w-3" /> : <ArrowDownRight className="h-3 w-3" />}
-              {profitDiff >= 0 ? '+' : ''}{formatCurrency(profitDiff)} vs ontem
-            </div>
-          )}
+          <p className="text-[10px] text-muted-foreground/80 mt-1">
+            (Entradas − Gastos) ÷ Entradas
+          </p>
         </motion.div>
 
         {/* KPI row */}
