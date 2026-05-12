@@ -50,13 +50,18 @@ export default function VisaoGeral() {
   const [showEntry, setShowEntry] = useState(false);
   const [showCost, setShowCost] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const isPersonal = state.businessType === 'pessoal';
+  const seedKey = isPersonal ? 'lr_personal_seed_msg' : 'lr_business_seed_msg';
   const [showSeedMsg, setShowSeedMsg] = useState(() => {
-    try { return sessionStorage.getItem('lr_personal_seed_msg') === '1'; } catch { return false; }
+    try { return sessionStorage.getItem(seedKey) === '1'; } catch { return false; }
   });
   const dismissSeedMsg = () => {
-    try { sessionStorage.removeItem('lr_personal_seed_msg'); } catch {}
+    try { sessionStorage.removeItem(seedKey); } catch {}
     setShowSeedMsg(false);
   };
+  const seedMsgText = isPersonal
+    ? 'Adicionamos sua renda mensal automaticamente para começar sua organização financeira. Você pode editar ou excluir em Movimentações.'
+    : 'Criamos uma estrutura inicial com receita e custos estimados para ajudar você a visualizar seu negócio. Edite os valores em Movimentações e Custos.';
 
   const handleEntry = (amount: number) => {
     addEntry(amount);
