@@ -3,6 +3,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, RefreshCw, DollarSign, ShoppingBag, TrendingUp, Target, Send } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { getFinancialSummary, type FinancialSummary } from '@/lib/store';
+import { getModeCopyFromType, getMode } from '@/lib/modes';
 import { useStore } from '@/hooks/use-store';
 import { cn } from '@/lib/utils';
 
@@ -76,17 +77,20 @@ interface InsightItem { category: 'receita' | 'custos' | 'lucro'; text: string; 
 interface AIInsightsData { insights: InsightItem[]; recommendation: string; }
 interface AIInsightsPanelProps { businessType: string; period?: string; }
 
-const categoryConfig: Record<string, { label: string; icon: typeof DollarSign; colorClass: string }> = {
-  receita: { label: 'Receita', icon: DollarSign, colorClass: 'text-primary' },
-  custos: { label: 'Custos', icon: ShoppingBag, colorClass: 'text-accent' },
-  lucro: { label: 'Lucro', icon: TrendingUp, colorClass: 'text-primary' },
-};
+// Labels do painel são resolvidos no componente via modes/.
 
 const SPRING = { type: 'spring', stiffness: 300, damping: 30 } as const;
 
 // ── Main component ──────────────────────────────────────────────────
 export default function AIInsightsPanel({ businessType, period = 'semana' }: AIInsightsPanelProps) {
   const store = useStore();
+  const appMode = getMode(businessType as any);
+  const copy = getModeCopyFromType(businessType as any);
+  const categoryConfig: Record<string, { label: string; icon: typeof DollarSign; colorClass: string }> = {
+    receita: { label: copy.glossary.inflow, icon: DollarSign, colorClass: 'text-primary' },
+    custos: { label: copy.glossary.outflow, icon: ShoppingBag, colorClass: 'text-accent' },
+    lucro: { label: copy.glossary.result, icon: TrendingUp, colorClass: 'text-primary' },
+  };
   const [data, setData] = useState<AIInsightsData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -105,7 +109,7 @@ export default function AIInsightsPanel({ businessType, period = 'semana' }: AII
     try {
       const summary = buildSummary();
       const { data: result, error: fnError } = await supabase.functions.invoke('ai-insights', {
-        body: { financialSummary: summary, businessType, mode: 'auto' },
+        body: { financialSummary: summary, businessType, appMode, mode: 'auto' },
       });
       if (fnError) throw new Error(fnError.message);
       if (result?.error) throw new Error(result.error);
@@ -123,7 +127,7 @@ export default function AIInsightsPanel({ businessType, period = 'semana' }: AII
     try {
       const summary = buildSummary();
       const { data: result, error: fnError } = await supabase.functions.invoke('ai-insights', {
-        body: { financialSummary: summary, businessType, mode: 'question', question: question.trim() },
+        body: { financialSummary: summary, businessType, appMode, mode: 'question', question: question.trim() },
       });
       if (fnError) throw new Error(fnError.message);
       if (result?.error) throw new Error(result.error);
