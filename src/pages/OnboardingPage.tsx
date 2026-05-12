@@ -2,7 +2,31 @@ import { useState, useCallback } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BusinessType, UsageMode, businessConfigs } from '@/lib/business-config';
-import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState, addCostMapItem, addEntry } from '@/lib/store';
+import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState, addCostMapItem, addEntry, updateCostMapItem } from '@/lib/store';
+
+// Example seed values for common cost categories (used to pre-fill business onboarding)
+const COST_SEED_VALUES: Array<{ match: RegExp; value: number }> = [
+  { match: /aluguel/i, value: 1500 },
+  { match: /sal[áa]rio|folha/i, value: 1800 },
+  { match: /internet|telefone/i, value: 150 },
+  { match: /energia|luz/i, value: 300 },
+  { match: /[áa]gua/i, value: 100 },
+  { match: /contador|contabil/i, value: 250 },
+  { match: /marketing|an[úu]ncio|publicidade/i, value: 200 },
+  { match: /fornecedor|insumo|mat[ée]ria/i, value: 800 },
+  { match: /transporte|frete|combust[íi]vel/i, value: 200 },
+  { match: /embalagem/i, value: 150 },
+  { match: /manuten[çc][ãa]o/i, value: 200 },
+  { match: /limpeza/i, value: 100 },
+  { match: /imposto|taxa/i, value: 300 },
+];
+
+function seedValueForCost(name: string, classification: 'fixed' | 'variable'): number {
+  for (const { match, value } of COST_SEED_VALUES) {
+    if (match.test(name)) return value;
+  }
+  return classification === 'fixed' ? 300 : 150;
+}
 import AILoadingScreen from '@/components/AILoadingScreen';
 import OnboardingDetails, { OnboardingFinishData } from '@/components/OnboardingDetails';
 import { Sparkles, Clock, Zap, Store, Wallet } from 'lucide-react';
@@ -79,6 +103,31 @@ export default function OnboardingPage() {
         addEntry(avg, 'Renda mensal', 'Renda mensal', 'onboarding');
         try {
           sessionStorage.setItem('lr_personal_seed_msg', '1');
+        } catch {}
+      }
+    }
+
+    // Business mode: auto-seed initial revenue + example cost values (only once)
+    if (selectedType !== 'pessoal') {
+      const current = getState();
+      const hasOnboardingEntry = current.entries.some(
+        (e) => e.source === 'onboarding' || e.category === 'Vendas'
+      );
+      let seeded = false;
+      if (avg > 0 && !hasOnboardingEntry) {
+        addEntry(avg, 'Faturamento inicial', 'Vendas', 'onboarding');
+        seeded = true;
+      }
+      // Pre-fill example values for cost map items still at 0
+      getState().costMap.forEach((item) => {
+        if (!item.value || item.value <= 0) {
+          updateCostMapItem(item.id, { value: seedValueForCost(item.name, item.classification) });
+          seeded = true;
+        }
+      });
+      if (seeded) {
+        try {
+          sessionStorage.setItem('lr_business_seed_msg', '1');
         } catch {}
       }
     }
