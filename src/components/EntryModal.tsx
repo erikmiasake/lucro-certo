@@ -1,12 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowUpRight, Check, CalendarDays } from 'lucide-react';
+import { X, ArrowUpRight, Check, CalendarDays, CalendarRange } from 'lucide-react';
 
 export interface EntryFormData {
   amount: number;
   description: string;
   category: string;
   date: string; // YYYY-MM-DD
+}
+
+function eachDay(start: string, end: string): string[] {
+  const s = new Date(start + 'T00:00:00');
+  const e = new Date(end + 'T00:00:00');
+  if (isNaN(s.getTime()) || isNaN(e.getTime()) || e < s) return [start];
+  const out: string[] = [];
+  const cur = new Date(s);
+  while (cur <= e) {
+    out.push(cur.toISOString().split('T')[0]);
+    cur.setDate(cur.getDate() + 1);
+  }
+  return out;
 }
 
 interface Props {
