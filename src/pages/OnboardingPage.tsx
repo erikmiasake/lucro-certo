@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BusinessType, UsageMode, businessConfigs } from '@/lib/business-config';
-import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState, addCostMapItem, addEntry, updateCostMapItem } from '@/lib/store';
+import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState, addCostMapItem, addEntry, updateCostMapItem, setDayRevenue } from '@/lib/store';
 
 // Example seed values for common cost categories (used to pre-fill business onboarding)
 const COST_SEED_VALUES: Array<{ match: RegExp; value: number }> = [
@@ -94,14 +94,23 @@ export default function OnboardingPage() {
     }
     setBusinessType(selectedType);
 
-    // Personal mode: auto-seed monthly income as initial entry (only once)
-    const monthlyAmount = data.monthlyIncome && data.monthlyIncome > 0 ? data.monthlyIncome : avg;
+    // Personal mode: distribute monthly income across the days of the current calendar month
+    // so weekly view shows ~1 week of income and monthly shows the full amount.
+    const monthlyAmount = data.monthlyIncome && data.monthlyIncome > 0 ? data.monthlyIncome : avg * 30;
     if (selectedType === 'pessoal' && monthlyAmount > 0) {
       const hasOnboardingEntry = getState().entries.some(
-        (e) => e.source === 'onboarding' || e.category === 'Renda mensal'
+        (e) => e.source === 'onboarding' || e.source === 'distributed' || e.category === 'Renda mensal'
       );
       if (!hasOnboardingEntry) {
-        addEntry(monthlyAmount, 'Renda mensal', 'Renda mensal', 'onboarding');
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const perDay = monthlyAmount / daysInMonth;
+        for (let d = 1; d <= daysInMonth; d++) {
+          const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          setDayRevenue(date, perDay, 'distributed');
+        }
         try {
           sessionStorage.setItem('lr_personal_seed_msg', '1');
         } catch {}
@@ -112,11 +121,19 @@ export default function OnboardingPage() {
     if (selectedType !== 'pessoal') {
       const current = getState();
       const hasOnboardingEntry = current.entries.some(
-        (e) => e.source === 'onboarding' || e.category === 'Vendas'
+        (e) => e.source === 'onboarding' || e.source === 'distributed' || e.category === 'Vendas'
       );
       let seeded = false;
       if (avg > 0 && !hasOnboardingEntry) {
-        addEntry(avg, 'Faturamento inicial', 'Vendas', 'onboarding');
+        // Distribute the daily average across all days of the current calendar month
+        const now = new Date();
+        const year = now.getFullYear();
+        const month = now.getMonth();
+        const daysInMonth = new Date(year, month + 1, 0).getDate();
+        for (let d = 1; d <= daysInMonth; d++) {
+          const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+          setDayRevenue(date, avg, 'distributed');
+        }
         seeded = true;
       }
       // Pre-fill example values for cost map items still at 0
