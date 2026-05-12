@@ -43,6 +43,9 @@ export default function EntryModal({ open, onClose, onSubmit, isPersonal, initia
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [date, setDate] = useState(todayStr());
+  const [periodMode, setPeriodMode] = useState<'single' | 'period'>('single');
+  const [endDate, setEndDate] = useState(todayStr());
+  const [split, setSplit] = useState<'equal' | 'repeat'>('equal');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const categories = isPersonal ? PERSONAL_CATEGORIES : BUSINESS_CATEGORIES;
@@ -60,19 +63,29 @@ export default function EntryModal({ open, onClose, onSubmit, isPersonal, initia
       setAmount(initial?.amount ? String(initial.amount).replace('.', ',') : '');
       setCategory(initial?.category ?? '');
       setDate(initial?.date ?? todayStr());
+      setPeriodMode('single');
+      setEndDate(initial?.date ?? todayStr());
+      setSplit('equal');
       setTimeout(() => inputRef.current?.focus(), 80);
     }
   }, [open, initial]);
 
+  const days = periodMode === 'period' ? eachDay(date, endDate) : [date];
+  const value = parseFloat(amount.replace(/\./g, '').replace(',', '.'));
+  const perDay = split === 'equal' && days.length > 0 ? value / days.length : value;
+
   const handleSubmit = () => {
-    const value = parseFloat(amount.replace(/\./g, '').replace(',', '.'));
     if (!description.trim() || !value || value <= 0) return;
-    onSubmit({
-      amount: value,
-      description: description.trim().slice(0, 80),
-      category: (category || 'Outros').slice(0, 40),
-      date,
-    });
+    const baseDesc = description.trim().slice(0, 80);
+    const cat = (category || 'Outros').slice(0, 40);
+    if (periodMode === 'period' && !isEdit && days.length > 1) {
+      const amountPerDay = split === 'equal' ? value / days.length : value;
+      days.forEach((d) => {
+        onSubmit({ amount: amountPerDay, description: baseDesc, category: cat, date: d });
+      });
+    } else {
+      onSubmit({ amount: value, description: baseDesc, category: cat, date });
+    }
     onClose();
   };
 
