@@ -32,7 +32,10 @@ serve(async (req) => {
 
 
   try {
-    const { financialSummary, businessType, mode, question } = await req.json();
+    const { financialSummary, businessType, mode, question, appMode } = await req.json();
+    // appMode: 'business' | 'personal' (novo, opcional). Compat: deriva de businessType se ausente.
+    const resolvedAppMode: 'business' | 'personal' =
+      appMode === 'personal' || businessType === 'pessoal' ? 'personal' : 'business';
 
     if (typeof businessType !== "undefined" && (typeof businessType !== "string" || businessType.length > 100)) {
       return new Response(JSON.stringify({ error: "businessType invalido" }), {
