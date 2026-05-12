@@ -271,6 +271,13 @@ export default function Movimentacoes() {
     }
   };
 
+  const handleAddEntry = (data: { amount: number; description: string; category: string; date: string }) => {
+    addEntry(data.amount, data.description, data.category, 'manual', data.date);
+    setShowEntry(false);
+    setFeedback(`${isPersonal ? 'Entrada' : 'Receita'} registrada: ${fmt(data.amount)}`);
+    setTimeout(() => setFeedback(null), 3000);
+  };
+
   return (
     <div className="p-4 md:p-8 max-w-3xl mx-auto safe-bottom pb-24">
       {/* Header */}
