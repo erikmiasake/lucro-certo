@@ -7,10 +7,11 @@ interface Props {
   businessType: BusinessType;
   avgSales: string;
   selectedCosts: string[];
+  monthlyIncome?: number;
   onEnter: () => void;
 }
 
-export default function OnboardingConfirmation({ businessType, avgSales, selectedCosts, onEnter }: Props) {
+export default function OnboardingConfirmation({ businessType, avgSales, selectedCosts, monthlyIncome, onEnter }: Props) {
   const config = businessConfigs[businessType];
   const isPersonal = businessType === 'pessoal';
 
