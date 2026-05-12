@@ -5,7 +5,7 @@ import { BusinessProfile } from '@/lib/store';
 import {
   ArrowRight, ArrowLeft, DollarSign, Tag, Brain, Plus, X, Sparkles,
   Building2, MapPin, Calendar, Users, Crosshair, TrendingUp, Percent,
-  CheckCircle2, Wallet, PiggyBank, BarChart3, Shield
+  CheckCircle2, Wallet, PiggyBank, BarChart3, Shield, Package, Repeat
 } from 'lucide-react';
 
 const businessImages: Partial<Record<BusinessType, string>> = {
