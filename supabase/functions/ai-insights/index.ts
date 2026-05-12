@@ -76,11 +76,14 @@ serve(async (req) => {
 
     // Validate data sufficiency
     if (!s.hasSufficientData) {
+      const isPersonalEarly = resolvedAppMode === 'personal';
       return new Response(JSON.stringify({
         insights: [
-          { category: 'receita', text: `Você tem ${s.entries} entrada(s) registrada(s). Registre mais movimentações para uma análise completa.` },
+          { category: 'receita', text: `Você tem ${s.entries} ${isPersonalEarly ? 'entrada(s)' : 'receita(s)'} registrada(s). Registre mais movimentações para uma análise completa.` },
         ],
-        recommendation: "Continue registrando suas entradas e saídas diariamente. Com pelo menos 2 dias de dados, a análise ficará precisa.",
+        recommendation: isPersonalEarly
+          ? "Continue registrando suas entradas e gastos diariamente. Com pelo menos 2 dias de dados, a análise fica precisa."
+          : "Continue registrando receitas e custos diariamente. Com pelo menos 2 dias de dados, a análise fica precisa.",
         prediction: "",
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
