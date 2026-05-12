@@ -94,16 +94,14 @@ export default function VisaoGeral() {
       </motion.div>
 
       <AnimatePresence>
-        {state.businessType === 'pessoal' && showSeedMsg && (
+        {showSeedMsg && (
           <motion.div
             initial={{ opacity: 0, y: -8 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: -8 }}
             className="mb-4 flex items-start justify-between gap-3 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3"
           >
-            <p className="text-sm text-foreground">
-              Adicionamos sua renda mensal automaticamente para começar sua organização financeira. Você pode editar ou excluir em Movimentações.
-            </p>
+            <p className="text-sm text-foreground">{seedMsgText}</p>
             <button
               onClick={dismissSeedMsg}
               className="text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0"
