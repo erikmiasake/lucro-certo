@@ -1,12 +1,25 @@
 import { useEffect, useRef, useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { X, ArrowUpRight, Check, CalendarDays } from 'lucide-react';
+import { X, ArrowUpRight, Check, CalendarDays, CalendarRange } from 'lucide-react';
 
 export interface EntryFormData {
   amount: number;
   description: string;
   category: string;
   date: string; // YYYY-MM-DD
+}
+
+function eachDay(start: string, end: string): string[] {
+  const s = new Date(start + 'T00:00:00');
+  const e = new Date(end + 'T00:00:00');
+  if (isNaN(s.getTime()) || isNaN(e.getTime()) || e < s) return [start];
+  const out: string[] = [];
+  const cur = new Date(s);
+  while (cur <= e) {
+    out.push(cur.toISOString().split('T')[0]);
+    cur.setDate(cur.getDate() + 1);
+  }
+  return out;
 }
 
 interface Props {
@@ -30,6 +43,9 @@ export default function EntryModal({ open, onClose, onSubmit, isPersonal, initia
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [date, setDate] = useState(todayStr());
+  const [periodMode, setPeriodMode] = useState<'single' | 'period'>('single');
+  const [endDate, setEndDate] = useState(todayStr());
+  const [split, setSplit] = useState<'equal' | 'repeat'>('equal');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const categories = isPersonal ? PERSONAL_CATEGORIES : BUSINESS_CATEGORIES;
@@ -47,19 +63,29 @@ export default function EntryModal({ open, onClose, onSubmit, isPersonal, initia
       setAmount(initial?.amount ? String(initial.amount).replace('.', ',') : '');
       setCategory(initial?.category ?? '');
       setDate(initial?.date ?? todayStr());
+      setPeriodMode('single');
+      setEndDate(initial?.date ?? todayStr());
+      setSplit('equal');
       setTimeout(() => inputRef.current?.focus(), 80);
     }
   }, [open, initial]);
 
+  const days = periodMode === 'period' ? eachDay(date, endDate) : [date];
+  const value = parseFloat(amount.replace(/\./g, '').replace(',', '.'));
+  const perDay = split === 'equal' && days.length > 0 ? value / days.length : value;
+
   const handleSubmit = () => {
-    const value = parseFloat(amount.replace(/\./g, '').replace(',', '.'));
     if (!description.trim() || !value || value <= 0) return;
-    onSubmit({
-      amount: value,
-      description: description.trim().slice(0, 80),
-      category: (category || 'Outros').slice(0, 40),
-      date,
-    });
+    const baseDesc = description.trim().slice(0, 80);
+    const cat = (category || 'Outros').slice(0, 40);
+    if (periodMode === 'period' && !isEdit && days.length > 1) {
+      const amountPerDay = split === 'equal' ? value / days.length : value;
+      days.forEach((d) => {
+        onSubmit({ amount: amountPerDay, description: baseDesc, category: cat, date: d });
+      });
+    } else {
+      onSubmit({ amount: value, description: baseDesc, category: cat, date });
+    }
     onClose();
   };
 
@@ -134,10 +160,37 @@ export default function EntryModal({ open, onClose, onSubmit, isPersonal, initia
               </div>
             </label>
 
-            {/* Data */}
-            <label className="block mt-3">
+            {/* Período / Data */}
+            {!isEdit && (
+              <div className="mt-3 flex gap-1.5">
+                <button
+                  type="button"
+                  onClick={() => setPeriodMode('single')}
+                  className={`flex-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all flex items-center justify-center gap-1 ${
+                    periodMode === 'single'
+                      ? 'bg-primary/15 border-primary/40 text-primary'
+                      : 'bg-secondary/40 border-border text-muted-foreground'
+                  }`}
+                >
+                  <CalendarDays className="h-3 w-3" /> Data única
+                </button>
+                <button
+                  type="button"
+                  onClick={() => setPeriodMode('period')}
+                  className={`flex-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all flex items-center justify-center gap-1 ${
+                    periodMode === 'period'
+                      ? 'bg-primary/15 border-primary/40 text-primary'
+                      : 'bg-secondary/40 border-border text-muted-foreground'
+                  }`}
+                >
+                  <CalendarRange className="h-3 w-3" /> Período
+                </button>
+              </div>
+            )}
+
+            <label className="block mt-2">
               <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
-                Data
+                {periodMode === 'period' ? 'Início' : 'Data'}
               </span>
               <div className="mt-1 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/50">
                 <CalendarDays className="h-4 w-4 text-muted-foreground" />
@@ -150,6 +203,61 @@ export default function EntryModal({ open, onClose, onSubmit, isPersonal, initia
                 />
               </div>
             </label>
+
+            {periodMode === 'period' && !isEdit && (
+              <>
+                <label className="block mt-2">
+                  <span className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium">
+                    Fim
+                  </span>
+                  <div className="mt-1 flex items-center gap-2 px-3 py-2.5 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/50">
+                    <CalendarDays className="h-4 w-4 text-muted-foreground" />
+                    <input
+                      type="date"
+                      value={endDate}
+                      min={date}
+                      max={todayStr()}
+                      onChange={(e) => setEndDate(e.target.value)}
+                      className="flex-1 bg-transparent outline-none text-sm text-foreground"
+                    />
+                  </div>
+                </label>
+
+                <div className="mt-2 flex gap-1.5">
+                  <button
+                    type="button"
+                    onClick={() => setSplit('equal')}
+                    className={`flex-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all ${
+                      split === 'equal'
+                        ? 'bg-primary/15 border-primary/40 text-primary'
+                        : 'bg-secondary/40 border-border text-muted-foreground'
+                    }`}
+                  >
+                    Dividir igualmente
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => setSplit('repeat')}
+                    className={`flex-1 px-2.5 py-1.5 rounded-lg text-[11px] font-medium border transition-all ${
+                      split === 'repeat'
+                        ? 'bg-primary/15 border-primary/40 text-primary'
+                        : 'bg-secondary/40 border-border text-muted-foreground'
+                    }`}
+                  >
+                    Repetir em cada dia
+                  </button>
+                </div>
+
+                {value > 0 && days.length > 0 && (
+                  <p className="mt-2 text-[10px] text-muted-foreground">
+                    {days.length} {days.length === 1 ? 'dia' : 'dias'} ·{' '}
+                    {split === 'equal'
+                      ? `R$ ${perDay.toFixed(2).replace('.', ',')} por dia`
+                      : `R$ ${value.toFixed(2).replace('.', ',')} em cada dia (total R$ ${(value * days.length).toFixed(2).replace('.', ',')})`}
+                  </p>
+                )}
+              </>
+            )}
 
             {/* Categoria */}
             <div className="mt-3">
