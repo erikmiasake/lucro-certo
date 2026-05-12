@@ -1218,7 +1218,14 @@ export default function Movimentacoes() {
       </div>
 
       <CostModal open={showCost} onClose={() => setShowCost(false)} onSubmit={handleCost} config={config} />
-      <EntryModal open={showEntry} onClose={() => setShowEntry(false)} onSubmit={handleAddEntry} isPersonal={false} />
+      <EntryModal
+        open={showEntry}
+        onClose={() => { setShowEntry(false); setEditingEntryId(null); }}
+        onSubmit={handleAddEntry}
+        isPersonal={false}
+        initial={editingEntryData}
+        mode={editingEntryId ? 'edit' : 'create'}
+      />
       <FeedbackToast message={feedback} />
       </>
       )}
