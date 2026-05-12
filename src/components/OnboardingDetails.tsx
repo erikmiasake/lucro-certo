@@ -5,7 +5,7 @@ import { BusinessProfile } from '@/lib/store';
 import {
   ArrowRight, ArrowLeft, DollarSign, Tag, Brain, Plus, X, Sparkles,
   Building2, MapPin, Calendar, Users, Crosshair, TrendingUp, Percent,
-  CheckCircle2, Wallet, PiggyBank, BarChart3, Shield
+  CheckCircle2, Wallet, PiggyBank, BarChart3, Shield, Package, Repeat
 } from 'lucide-react';
 
 const businessImages: Partial<Record<BusinessType, string>> = {
@@ -60,10 +60,13 @@ const incomeFrequencies = [
   { value: 'variable', label: 'Variável' },
 ] as const;
 
-const personalExpenseCategories = [
-  'Alimentação', 'Transporte', 'Moradia', 'Contas fixas',
-  'Saúde', 'Lazer', 'Educação', 'Assinaturas', 'Compras', 'Outros',
+const personalVariableCategories = [
+  'Alimentação', 'Transporte', 'Lazer', 'Compras', 'Saúde',
 ];
+const personalFixedCategories = [
+  'Moradia', 'Contas fixas', 'Assinaturas', 'Educação',
+];
+const personalExpenseCategories = [...personalVariableCategories, ...personalFixedCategories];
 
 export interface OnboardingFinishData {
   avgSales: string;
@@ -360,76 +363,108 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
         </div>
       </motion.div>
 
-      {/* Expense Categories */}
+      {/* Expense Categories — separated by type */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.35 }} className="mb-4">
         <div className="flex items-center gap-2 mb-1">
           <Tag className="h-4 w-4 text-accent" />
           <label className="text-sm font-medium text-foreground">Principais categorias de gastos</label>
         </div>
-        <p className="text-xs text-muted-foreground/60 mb-2.5 flex items-center gap-1.5">
+        <p className="text-xs text-muted-foreground/60 mb-3 flex items-center gap-1.5">
           <Brain className="h-3 w-3 text-primary/60" />
-          Pré-selecionamos os gastos mais comuns
+          Separamos seus gastos entre variáveis (mudam mês a mês) e fixos (sempre iguais)
         </p>
-        <div className="flex flex-wrap gap-2">
-          {allCostCategories.map((cost) => (
-            <motion.button
-              key={cost}
-              whileTap={{ scale: 0.93 }}
-              onClick={() => toggleCost(cost)}
-              className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
-                selectedCosts.includes(cost)
-                  ? 'bg-primary/15 text-primary border border-primary/30 shadow-sm shadow-primary/10'
-                  : 'bg-secondary/50 text-muted-foreground border border-border hover:text-foreground hover:border-border'
-              }`}
-            >
-              {cost}
-            </motion.button>
-          ))}
 
-          {selectedCosts
-            .filter(c => !allCostCategories.includes(c))
-            .map(cost => (
+        {/* Variable expenses */}
+        <div className="mb-3">
+          <div className="flex items-center gap-1.5 mb-2">
+            <Package className="h-3 w-3 text-accent" />
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-accent">Gastos Variáveis</span>
+            <span className="text-[10px] text-muted-foreground/50">— variam por mês</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {personalVariableCategories.map(cost => (
               <motion.button
                 key={cost}
-                initial={{ scale: 0.8, opacity: 0 }}
-                animate={{ scale: 1, opacity: 1 }}
                 whileTap={{ scale: 0.93 }}
                 onClick={() => toggleCost(cost)}
-                className="px-3 py-1.5 rounded-lg text-xs font-medium bg-primary/15 text-primary border border-primary/30 flex items-center gap-1"
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  selectedCosts.includes(cost)
+                    ? 'bg-accent/15 text-accent border border-accent/30 shadow-sm shadow-accent/10'
+                    : 'bg-secondary/50 text-muted-foreground border border-border hover:text-foreground'
+                }`}
               >
                 {cost}
-                <X className="h-3 w-3" />
               </motion.button>
             ))}
-
-          {showAddCost ? (
-            <motion.div initial={{ width: 0, opacity: 0 }} animate={{ width: 'auto', opacity: 1 }} className="flex items-center gap-1">
-              <input
-                type="text"
-                value={newCost}
-                onChange={e => setNewCost(e.target.value)}
-                onKeyDown={e => e.key === 'Enter' && addCustomCost()}
-                placeholder="Nome do gasto"
-                autoFocus
-                className="px-3 py-1.5 rounded-lg text-xs bg-secondary/50 border border-border text-foreground outline-none focus:border-primary/40 w-28"
-              />
-              <button onClick={addCustomCost} className="p-1.5 rounded-lg bg-primary/10 text-primary hover:bg-primary/20 transition-colors">
+            {selectedCosts
+              .filter(c => !personalExpenseCategories.includes(c))
+              .map(cost => (
+                <motion.button
+                  key={cost}
+                  initial={{ scale: 0.8, opacity: 0 }}
+                  animate={{ scale: 1, opacity: 1 }}
+                  whileTap={{ scale: 0.93 }}
+                  onClick={() => toggleCost(cost)}
+                  className="px-3 py-1.5 rounded-lg text-xs font-medium bg-accent/15 text-accent border border-accent/30 flex items-center gap-1"
+                >
+                  {cost}
+                  <X className="h-3 w-3" />
+                </motion.button>
+              ))}
+            {showAddCost ? (
+              <motion.div initial={{ width: 0, opacity: 0 }} animate={{ width: 'auto', opacity: 1 }} className="flex items-center gap-1">
+                <input
+                  type="text"
+                  value={newCost}
+                  onChange={e => setNewCost(e.target.value)}
+                  onKeyDown={e => e.key === 'Enter' && addCustomCost()}
+                  placeholder="Nome do gasto"
+                  autoFocus
+                  className="px-3 py-1.5 rounded-lg text-xs bg-secondary/50 border border-border text-foreground outline-none focus:border-accent/40 w-28"
+                />
+                <button onClick={addCustomCost} className="p-1.5 rounded-lg bg-accent/10 text-accent hover:bg-accent/20 transition-colors">
+                  <Plus className="h-3 w-3" />
+                </button>
+                <button onClick={() => { setShowAddCost(false); setNewCost(''); }} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors">
+                  <X className="h-3 w-3" />
+                </button>
+              </motion.div>
+            ) : (
+              <motion.button
+                whileTap={{ scale: 0.93 }}
+                onClick={() => setShowAddCost(true)}
+                className="px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground border border-dashed border-border hover:border-accent/30 hover:text-accent transition-all flex items-center gap-1"
+              >
                 <Plus className="h-3 w-3" />
-              </button>
-              <button onClick={() => { setShowAddCost(false); setNewCost(''); }} className="p-1.5 rounded-lg text-muted-foreground hover:text-foreground transition-colors">
-                <X className="h-3 w-3" />
-              </button>
-            </motion.div>
-          ) : (
-            <motion.button
-              whileTap={{ scale: 0.93 }}
-              onClick={() => setShowAddCost(true)}
-              className="px-3 py-1.5 rounded-lg text-xs font-medium text-muted-foreground border border-dashed border-border hover:border-primary/30 hover:text-primary transition-all flex items-center gap-1"
-            >
-              <Plus className="h-3 w-3" />
-              Adicionar
-            </motion.button>
-          )}
+                Adicionar
+              </motion.button>
+            )}
+          </div>
+        </div>
+
+        {/* Fixed expenses */}
+        <div>
+          <div className="flex items-center gap-1.5 mb-2">
+            <Repeat className="h-3 w-3 text-purple-400" />
+            <span className="text-[11px] font-semibold uppercase tracking-wider text-purple-400">Gastos Fixos</span>
+            <span className="text-[10px] text-muted-foreground/50">— todo mês</span>
+          </div>
+          <div className="flex flex-wrap gap-2">
+            {personalFixedCategories.map(cost => (
+              <motion.button
+                key={cost}
+                whileTap={{ scale: 0.93 }}
+                onClick={() => toggleCost(cost)}
+                className={`px-3 py-1.5 rounded-lg text-xs font-medium transition-all ${
+                  selectedCosts.includes(cost)
+                    ? 'bg-purple-500/15 text-purple-400 border border-purple-400/30 shadow-sm shadow-purple-500/10'
+                    : 'bg-secondary/50 text-muted-foreground border border-border hover:text-foreground'
+                }`}
+              >
+                {cost}
+              </motion.button>
+            ))}
+          </div>
         </div>
       </motion.div>
 

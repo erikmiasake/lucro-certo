@@ -253,7 +253,7 @@ export default function CostMapSection() {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Package className="h-3.5 w-3.5 text-accent" />
-            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Custos Variáveis</h3>
+            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">{state.businessType === 'pessoal' ? 'Gastos Variáveis' : 'Custos Variáveis'}</h3>
             <span className="text-[10px] text-muted-foreground ml-auto">
               ≈ {fmt(Math.round(monthlyVariable))}/mês
             </span>
@@ -281,7 +281,7 @@ export default function CostMapSection() {
         <div>
           <div className="flex items-center gap-2 mb-2">
             <Building2 className="h-3.5 w-3.5 text-purple-400" />
-            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">Custos Fixos</h3>
+            <h3 className="text-xs font-bold text-foreground uppercase tracking-wider">{state.businessType === 'pessoal' ? 'Gastos Fixos' : 'Custos Fixos'}</h3>
             <span className="text-[10px] text-muted-foreground ml-auto">{fmt(costMap.totalFixed)}/mês</span>
           </div>
           <div className="space-y-1.5">
