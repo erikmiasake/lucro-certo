@@ -1,34 +1,30 @@
-## Problema
+## Objetivo
 
-Na tela "Suas finanças estão prontas" (após preencher o onboarding no modo Finanças Pessoais), o campo **Renda mensal** mostra um valor muito menor que o digitado. Exemplo: você informou ~R$ 3.810/mês e aparece **R$ 127**.
+Adicionar o botão **Continuar com Google** na tela de login (e cadastro) usando o Google OAuth gerenciado pelo Lovable Cloud, sem precisar de credenciais próprias.
 
-### Causa
+## O que será feito
 
-Em `src/components/OnboardingDetails.tsx` (handleFinish, modo pessoal), a renda mensal é dividida por 30 para virar uma média diária antes de ser enviada para a confirmação:
+1. **Habilitar Google OAuth gerenciado** via `configure_social_auth(["google"])`. Isso gera o módulo `src/integrations/lovable/` e instala `@lovable.dev/cloud-auth-js`. Email/senha permanece habilitado.
 
-```ts
-const dailyAvg = monthlyVal > 0 ? Math.round(monthlyVal / 30) : 0;
-onFinish({ avgSales: dailyAvg.toLocaleString('pt-BR'), ... })
-```
+2. **Atualizar `src/components/ui/login.tsx`** (`AuthFormSplitScreen`):
+   - Adicionar nova prop `onGoogleSignIn?: () => Promise<void>`.
+   - Renderizar um botão **Continuar com Google** acima do formulário de e-mail/senha, com ícone do Google e divisor "ou continue com e-mail".
+   - Estilo consistente com o tema escuro premium e botão primário Emerald.
 
-Já a `OnboardingConfirmation` exibe esse mesmo `avgSales` com o rótulo **"Renda mensal"** — ou seja, um valor diário rotulado como mensal. As categorias e o tipo de negócio já batem; só a renda está errada.
+3. **Atualizar `src/pages/Auth.tsx`**:
+   - Implementar `handleGoogleSignIn` chamando `lovable.auth.signInWithOAuth("google", { redirect_uri: window.location.origin })`.
+   - Tratar `result.error` (toast) e `result.redirected` (apenas retornar — o navegador redireciona).
+   - Passar a função para `AuthFormSplitScreen` via `onGoogleSignIn`.
 
-## Correção
-
-1. **`OnboardingFinishData`** (em `OnboardingDetails.tsx`): adicionar campo opcional `monthlyIncome?: number` para guardar o valor mensal original informado pelo usuário no modo pessoal.
-
-2. **`handleFinish` (modo pessoal)**: continuar enviando `avgSales` como média diária (necessário para o cálculo interno de receita), mas também enviar `monthlyIncome: monthlyVal`.
-
-3. **`Onboarding.tsx`**: repassar `monthlyIncome` para `OnboardingConfirmation` via nova prop opcional.
-
-4. **`OnboardingConfirmation.tsx`**:
-   - Aceitar nova prop `monthlyIncome?: number`.
-   - No modo pessoal, exibir `R$ {monthlyIncome formatado em pt-BR}` no card "Renda mensal" em vez de `avgSales`.
-   - Manter comportamento atual para modo negócio (continua mostrando "Vendas/dia" com `avgSales`).
-
-5. **Sem mudanças** em store, business-config ou lógica de cálculo: a média diária derivada continua sendo persistida normalmente.
+4. **Pós-callback**: o `AuthGuard` já detecta a sessão; usuários OAuth chegam com `email_confirmed_at` preenchido (Google já confirma e-mail), então o fluxo de verificação não bloqueia. O redirect leva para `/` que vai para `/welcome` ou `/dashboard` dependendo do estado de onboarding.
 
 ## Verificação
 
-- Após implementar, abrir o onboarding em modo Pessoal, informar uma renda mensal (ex: R$ 3.000) e confirmar que a tela final mostra **R$ 3.000** sob "Renda mensal".
-- Confirmar que o modo Negócio segue mostrando "Vendas/dia" inalterado.
+- Clicar em "Continuar com Google" no `/login` redireciona para a tela de consentimento do Google.
+- Após autorizar, o usuário cai logado no app sem passar por verificação de e-mail.
+- Login com e-mail/senha continua funcionando exatamente como antes.
+
+## Fora do escopo
+
+- Apple Sign-In, outros provedores.
+- BYOK (credenciais Google próprias) — usaremos as gerenciadas pelo Lovable Cloud.

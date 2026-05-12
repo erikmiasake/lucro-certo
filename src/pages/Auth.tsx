@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, useLocation, Navigate } from 'react-route
 import { AuthFormSplitScreen, FormValues } from '@/components/ui/login';
 import { Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable';
 import { toast } from 'sonner';
 import { getState, mergeState } from '@/lib/store';
 import { loadProfileFromDB } from '@/lib/profile-sync';
@@ -111,6 +112,23 @@ export default function Auth() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        toast.error('Erro ao entrar com Google', {
+          description: (result.error as Error).message,
+        });
+        return;
+      }
+      // If redirected, browser navigates away. Otherwise session was set.
+    } catch (err: any) {
+      toast.error('Erro ao entrar com Google', { description: err.message });
+    }
+  };
+
   return (
     <AuthFormSplitScreen
       mode={mode}
@@ -127,6 +145,7 @@ export default function Auth() {
       imageSrc="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1200"
       imageAlt="Escritório moderno com dashboard financeiro"
       onSubmit={handleAuth}
+      onGoogleSignIn={handleGoogleSignIn}
       forgotPasswordHref="/forgot-password"
       createAccountHref="/register"
       toggleModeHref={mode === 'login' ? "/register" : "/login"}
