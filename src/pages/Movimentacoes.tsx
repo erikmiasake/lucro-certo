@@ -11,9 +11,10 @@ import {
   getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, getDayRevenueSource, registerCost,
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
   getWeekDailyData, getSmartInsights, getPreviousWeekSummary, getCostAnalysisAmount,
-  isOperatingDay, type EntrySource, type CostClassification
+  isOperatingDay, addEntry, type EntrySource, type CostClassification
 } from '@/lib/store';
 import CostModal from '@/components/CostModal';
+import EntryModal from '@/components/EntryModal';
 import FeedbackToast from '@/components/FeedbackToast';
 import { BarChart, Bar, XAxis, YAxis, Tooltip, ResponsiveContainer, Cell } from 'recharts';
 
