@@ -3,6 +3,7 @@ import { useNavigate, useSearchParams, useLocation, Navigate } from 'react-route
 import { AuthFormSplitScreen, FormValues } from '@/components/ui/login';
 import { Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable';
 import { toast } from 'sonner';
 import { getState, mergeState } from '@/lib/store';
 import { loadProfileFromDB } from '@/lib/profile-sync';
