@@ -1048,11 +1048,11 @@ export default function Movimentacoes() {
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           whileTap={{ scale: 0.95 }}
-          onClick={() => startEditing(today)}
+          onClick={() => setShowEntry(true)}
           className="px-5 py-3 rounded-2xl gradient-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
-          Registrar receita
+          Adicionar receita
         </motion.button>
         <motion.button
           initial={{ y: 20, opacity: 0 }}
