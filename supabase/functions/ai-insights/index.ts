@@ -149,7 +149,24 @@ ${cappedProjection ? `- Projeção mensal: R$ ${cappedProjection.revenue} de ${G
 ${s.goalMonthlyProfit ? `- Meta: R$ ${s.goalMonthlyProfit}/mês | Progresso: ${s.goalProgress}% | ${s.goalOnTrack ? 'No ritmo' : 'Abaixo'} | ${s.daysRemaining} dias restantes` : ''}
 - ${G.result} acumulado mês: R$ ${s.monthProfit}
 
-${isInteractive ? `O usuário perguntou: "${safeQuestion}". Responda APENAS com base nos dados acima usando o glossário deste modo. Se não der pra responder, diga claramente. Texto simples, sem markdown. Parágrafos curtos. Máximo 4 parágrafos.` : 'Gere a análise usando a tool "generate_insights".'}`;
+${isInteractive ? `O usuário perguntou: "${safeQuestion}".
+
+ESTILO DE RESPOSTA (OBRIGATÓRIO — assistente financeiro premium):
+
+- MÁXIMO 3 parágrafos curtos. Cada parágrafo com 1 ou 2 frases.
+- Resposta total entre 25 e 60 palavras. Nunca ultrapasse 70 palavras.
+- Estrutura ideal:
+  1) Insight principal (1 frase direta com o número ou categoria que importa).
+  2) Contexto rápido (1 frase explicando ou comparando).
+  3) Sugestão prática opcional (só se agregar valor — pode omitir).
+- Separe parágrafos com UMA linha em branco. Não use listas, bullets, títulos, emojis, nem tabelas.
+- Destaque valores e categorias-chave com **negrito** (markdown **texto**). Use no máximo 2 destaques na resposta inteira.
+- NUNCA repita o mesmo número, categoria ou ideia em frases diferentes.
+- Linguagem humana, calma, profissional. Nada de "período analisado", "valores totais", "resultado positivo", "conforme os dados".
+- Se faltar dado pra responder, diga em UMA frase curta o que falta. Não invente.
+- Use exclusivamente o glossário deste modo. Proibido o glossário do outro modo.
+
+Responda agora seguindo essas regras.` : 'Gere a análise usando a tool "generate_insights".'}`;
 
     const tools = isInteractive ? undefined : [
       {
