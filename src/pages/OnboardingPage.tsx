@@ -121,7 +121,7 @@ export default function OnboardingPage() {
     if (selectedType !== 'pessoal') {
       const current = getState();
       const hasOnboardingEntry = current.entries.some(
-        (e) => e.source === 'onboarding' || e.category === 'Vendas'
+        (e) => e.source === 'onboarding' || e.source === 'distributed' || e.category === 'Vendas'
       );
       let seeded = false;
       if (avg > 0 && !hasOnboardingEntry) {
