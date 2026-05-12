@@ -50,6 +50,13 @@ export default function VisaoGeral() {
   const [showEntry, setShowEntry] = useState(false);
   const [showCost, setShowCost] = useState(false);
   const [feedback, setFeedback] = useState<string | null>(null);
+  const [showSeedMsg, setShowSeedMsg] = useState(() => {
+    try { return sessionStorage.getItem('lr_personal_seed_msg') === '1'; } catch { return false; }
+  });
+  const dismissSeedMsg = () => {
+    try { sessionStorage.removeItem('lr_personal_seed_msg'); } catch {}
+    setShowSeedMsg(false);
+  };
 
   const handleEntry = (amount: number) => {
     addEntry(amount);
