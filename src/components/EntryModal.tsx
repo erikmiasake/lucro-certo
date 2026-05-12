@@ -43,9 +43,7 @@ export default function EntryModal({ open, onClose, onSubmit, isPersonal, initia
   const [amount, setAmount] = useState('');
   const [category, setCategory] = useState('');
   const [date, setDate] = useState(todayStr());
-  const [periodMode, setPeriodMode] = useState<'single' | 'period'>('single');
-  const [endDate, setEndDate] = useState(todayStr());
-  const [split, setSplit] = useState<'equal' | 'repeat'>('equal');
+  const [period, setPeriod] = useState<'diario' | 'semanal' | 'mensal'>('diario');
   const inputRef = useRef<HTMLInputElement>(null);
 
   const categories = isPersonal ? PERSONAL_CATEGORIES : BUSINESS_CATEGORIES;
@@ -63,25 +61,41 @@ export default function EntryModal({ open, onClose, onSubmit, isPersonal, initia
       setAmount(initial?.amount ? String(initial.amount).replace('.', ',') : '');
       setCategory(initial?.category ?? '');
       setDate(initial?.date ?? todayStr());
-      setPeriodMode('single');
-      setEndDate(initial?.date ?? todayStr());
-      setSplit('equal');
+      setPeriod('diario');
       setTimeout(() => inputRef.current?.focus(), 80);
     }
   }, [open, initial]);
 
-  const days = periodMode === 'period' ? eachDay(date, endDate) : [date];
+  const computeDays = (): string[] => {
+    if (period === 'diario' || isEdit) return [date];
+    const ref = new Date(date + 'T00:00:00');
+    if (isNaN(ref.getTime())) return [date];
+    if (period === 'semanal') {
+      // 7 dias terminando na data selecionada
+      const start = new Date(ref);
+      start.setDate(ref.getDate() - 6);
+      return eachDay(start.toISOString().split('T')[0], ref.toISOString().split('T')[0]);
+    }
+    // mensal: dias do mês da data selecionada (limitado até hoje se for o mês atual)
+    const first = new Date(ref.getFullYear(), ref.getMonth(), 1);
+    const last = new Date(ref.getFullYear(), ref.getMonth() + 1, 0);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    const end = last > today ? today : last;
+    return eachDay(first.toISOString().split('T')[0], end.toISOString().split('T')[0]);
+  };
+
+  const days = computeDays();
   const value = parseFloat(amount.replace(/\./g, '').replace(',', '.'));
-  const perDay = split === 'equal' && days.length > 0 ? value / days.length : value;
+  const perDay = days.length > 0 ? value / days.length : value;
 
   const handleSubmit = () => {
     if (!description.trim() || !value || value <= 0) return;
     const baseDesc = description.trim().slice(0, 80);
     const cat = (category || 'Outros').slice(0, 40);
-    if (periodMode === 'period' && !isEdit && days.length > 1) {
-      const amountPerDay = split === 'equal' ? value / days.length : value;
+    if (!isEdit && days.length > 1) {
       days.forEach((d) => {
-        onSubmit({ amount: amountPerDay, description: baseDesc, category: cat, date: d });
+        onSubmit({ amount: perDay, description: baseDesc, category: cat, date: d });
       });
     } else {
       onSubmit({ amount: value, description: baseDesc, category: cat, date });
