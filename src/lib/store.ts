@@ -1,7 +1,7 @@
 import { BusinessType, businessConfigs } from './business-config';
 import { safeGetItem, safeSetItem } from './safe-storage';
 
-export type EntrySource = 'manual' | 'estimated' | 'distributed';
+export type EntrySource = 'manual' | 'estimated' | 'distributed' | 'onboarding';
 
 export interface Entry {
   id: string;

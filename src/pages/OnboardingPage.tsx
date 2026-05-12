@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BusinessType, UsageMode, businessConfigs } from '@/lib/business-config';
-import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState, addCostMapItem } from '@/lib/store';
+import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState, addCostMapItem, addEntry } from '@/lib/store';
 import AILoadingScreen from '@/components/AILoadingScreen';
 import OnboardingDetails, { OnboardingFinishData } from '@/components/OnboardingDetails';
 import { Sparkles, Clock, Zap, Store, Wallet } from 'lucide-react';
@@ -69,6 +69,19 @@ export default function OnboardingPage() {
       addCostMapItem('Folha de pagamento', 'fixed', data.employeePayroll);
     }
     setBusinessType(selectedType);
+
+    // Personal mode: auto-seed monthly income as initial entry (only once)
+    if (selectedType === 'pessoal' && avg > 0) {
+      const hasOnboardingEntry = getState().entries.some(
+        (e) => e.source === 'onboarding' || e.category === 'Renda mensal'
+      );
+      if (!hasOnboardingEntry) {
+        addEntry(avg, 'Renda mensal', 'Renda mensal', 'onboarding');
+        try {
+          sessionStorage.setItem('lr_personal_seed_msg', '1');
+        } catch {}
+      }
+    }
 
     // Navigate to summary with data in state
     navigate('/summary', {
