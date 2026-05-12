@@ -60,10 +60,13 @@ const incomeFrequencies = [
   { value: 'variable', label: 'Variável' },
 ] as const;
 
-const personalExpenseCategories = [
-  'Alimentação', 'Transporte', 'Moradia', 'Contas fixas',
-  'Saúde', 'Lazer', 'Educação', 'Assinaturas', 'Compras', 'Outros',
+const personalVariableCategories = [
+  'Alimentação', 'Transporte', 'Lazer', 'Compras', 'Saúde',
 ];
+const personalFixedCategories = [
+  'Moradia', 'Contas fixas', 'Assinaturas', 'Educação',
+];
+const personalExpenseCategories = [...personalVariableCategories, ...personalFixedCategories];
 
 export interface OnboardingFinishData {
   avgSales: string;
