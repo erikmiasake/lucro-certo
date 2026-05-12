@@ -107,6 +107,31 @@ export default function OnboardingPage() {
       }
     }
 
+    // Business mode: auto-seed initial revenue + example cost values (only once)
+    if (selectedType !== 'pessoal') {
+      const current = getState();
+      const hasOnboardingEntry = current.entries.some(
+        (e) => e.source === 'onboarding' || e.category === 'Vendas'
+      );
+      let seeded = false;
+      if (avg > 0 && !hasOnboardingEntry) {
+        addEntry(avg, 'Faturamento inicial', 'Vendas', 'onboarding');
+        seeded = true;
+      }
+      // Pre-fill example values for cost map items still at 0
+      getState().costMap.forEach((item) => {
+        if (!item.value || item.value <= 0) {
+          updateCostMapItem(item.id, { value: seedValueForCost(item.name, item.classification) });
+          seeded = true;
+        }
+      });
+      if (seeded) {
+        try {
+          sessionStorage.setItem('lr_business_seed_msg', '1');
+        } catch {}
+      }
+    }
+
     // Navigate to summary with data in state
     navigate('/summary', {
       state: {
