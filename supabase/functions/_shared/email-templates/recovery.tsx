@@ -9,7 +9,9 @@ import {
   Head,
   Heading,
   Html,
+  Link,
   Preview,
+  Section,
   Text,
 } from 'npm:@react-email/components@0.0.22'
 
@@ -18,26 +20,34 @@ interface RecoveryEmailProps {
   confirmationUrl: string
 }
 
-export const RecoveryEmail = ({
-  siteName,
-  confirmationUrl,
-}: RecoveryEmailProps) => (
-  <Html lang="en" dir="ltr">
+export const RecoveryEmail = ({ confirmationUrl }: RecoveryEmailProps) => (
+  <Html lang="pt-BR" dir="ltr">
     <Head />
-    <Preview>Reset your password for {siteName}</Preview>
+    <Preview>Redefinir sua senha do Lucro Real</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Heading style={h1}>Reset your password</Heading>
+        <Section style={brandBar}>
+          <Text style={brand}>Lucro Real</Text>
+        </Section>
+        <Heading style={h1}>Redefinir sua senha</Heading>
         <Text style={text}>
-          We received a request to reset your password for {siteName}. Click
-          the button below to choose a new password.
+          Recebemos um pedido para redefinir a senha da sua conta.
+          Clique no botão abaixo para escolher uma nova senha.
         </Text>
-        <Button style={button} href={confirmationUrl}>
-          Reset Password
-        </Button>
+        <Section style={{ textAlign: 'center' as const, margin: '32px 0' }}>
+          <Button style={button} href={confirmationUrl}>
+            Redefinir senha
+          </Button>
+        </Section>
+        <Text style={muted}>
+          Se o botão não funcionar, copie e cole este link no navegador:
+        </Text>
+        <Text style={linkFallback}>{confirmationUrl}</Text>
         <Text style={footer}>
-          If you didn't request a password reset, you can safely ignore this
-          email. Your password will not be changed.
+          Se você não pediu para redefinir sua senha, pode ignorar este
+          e-mail — sua senha continua a mesma.
+          <br />
+          <Link href="https://lucroreal.live" style={footerLink}>lucroreal.live</Link>
         </Text>
       </Container>
     </Body>
@@ -46,26 +56,50 @@ export const RecoveryEmail = ({
 
 export default RecoveryEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
-const container = { padding: '20px 25px' }
+const main = {
+  backgroundColor: '#ffffff',
+  fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif",
+}
+const container = { padding: '32px 28px', maxWidth: '560px' }
+const brandBar = { paddingBottom: '24px', borderBottom: '1px solid #eef0f2', marginBottom: '28px' }
+const brand = {
+  fontSize: '18px',
+  fontWeight: 700 as const,
+  color: 'hsl(152, 76%, 38%)',
+  margin: 0,
+  letterSpacing: '-0.01em',
+}
 const h1 = {
-  fontSize: '22px',
-  fontWeight: 'bold' as const,
-  color: '#000000',
-  margin: '0 0 20px',
+  fontSize: '24px',
+  fontWeight: 700 as const,
+  color: '#0f1419',
+  margin: '0 0 16px',
+  letterSpacing: '-0.02em',
 }
-const text = {
-  fontSize: '14px',
-  color: '#55575d',
-  lineHeight: '1.5',
-  margin: '0 0 25px',
+const text = { fontSize: '15px', color: '#3a3f46', lineHeight: '1.6', margin: '0 0 16px' }
+const muted = { fontSize: '12px', color: '#8a8f96', margin: '0 0 6px' }
+const linkFallback = {
+  fontSize: '12px',
+  color: 'hsl(152, 76%, 38%)',
+  wordBreak: 'break-all' as const,
+  margin: '0 0 28px',
 }
+const footerLink = { color: 'hsl(152, 76%, 38%)', textDecoration: 'none' }
 const button = {
-  backgroundColor: '#000000',
-  color: '#ffffff',
-  fontSize: '14px',
-  borderRadius: '8px',
-  padding: '12px 20px',
+  backgroundColor: 'hsl(152, 76%, 45%)',
+  color: '#0f1419',
+  fontSize: '15px',
+  fontWeight: 600 as const,
+  borderRadius: '14px',
+  padding: '14px 28px',
   textDecoration: 'none',
+  display: 'inline-block',
 }
-const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
+const footer = {
+  fontSize: '12px',
+  color: '#8a8f96',
+  margin: '32px 0 0',
+  paddingTop: '20px',
+  borderTop: '1px solid #eef0f2',
+  lineHeight: '1.6',
+}
