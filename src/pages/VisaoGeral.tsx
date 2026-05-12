@@ -168,11 +168,11 @@ export default function VisaoGeral() {
 
           <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
-              <Percent className="h-3.5 w-3.5 text-primary" />
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.marginLabel}</p>
+              {summary.profit >= 0 ? <TrendingUp className="h-3.5 w-3.5 text-primary" /> : <TrendingDown className="h-3.5 w-3.5 text-destructive" />}
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.profitDayLabel}</p>
             </div>
-            <p className={`text-xl font-bold ${summary.margin >= 20 ? 'text-primary' : summary.margin >= 0 ? 'text-warning' : 'text-destructive'}`}>
-              {formatPercent(summary.margin)}
+            <p className={`text-xl font-bold ${summary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
+              {formatCurrency(summary.profit)}
             </p>
           </motion.div>
         </div>
