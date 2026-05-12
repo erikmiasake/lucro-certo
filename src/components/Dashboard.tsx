@@ -121,7 +121,7 @@ export default function Dashboard() {
         </button>
       </div>
 
-      <EntryModal open={showEntry} onClose={() => setShowEntry(false)} onSubmit={handleEntry} label={config.entryLabel} />
+      <EntryModal open={showEntry} onClose={() => setShowEntry(false)} onSubmit={handleEntry} isPersonal={state.businessType === 'pessoal'} />
       <CostModal open={showCost} onClose={() => setShowCost(false)} onSubmit={handleCost} config={config} />
       <FeedbackToast message={feedback} />
     </div>
