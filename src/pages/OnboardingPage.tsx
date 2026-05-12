@@ -70,6 +70,19 @@ export default function OnboardingPage() {
     }
     setBusinessType(selectedType);
 
+    // Personal mode: auto-seed monthly income as initial entry (only once)
+    if (selectedType === 'pessoal' && avg > 0) {
+      const hasOnboardingEntry = getState().entries.some(
+        (e) => e.source === 'onboarding' || e.category === 'Renda mensal'
+      );
+      if (!hasOnboardingEntry) {
+        addEntry(avg, 'Renda mensal', 'Renda mensal', 'onboarding');
+        try {
+          sessionStorage.setItem('lr_personal_seed_msg', '1');
+        } catch {}
+      }
+    }
+
     // Navigate to summary with data in state
     navigate('/summary', {
       state: {
