@@ -607,6 +607,11 @@ export interface ProactiveAlert {
 }
 
 export function getProactiveAlerts(): ProactiveAlert[] {
+  // Mode-aware: lê copy do dicionário central modes/.
+  // Importação dinâmica evita ciclo de import com business-config.
+  const { getModeCopyFromType } = require('@/lib/modes') as typeof import('@/lib/modes');
+  const copy = getModeCopyFromType(state.businessType).alerts;
+
   const alerts: ProactiveAlert[] = [];
   const last7 = getLastNDaysSummaries(7);
   const last3 = last7.slice(0, 3);
@@ -621,9 +626,9 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     alerts.push({
       type: 'warning',
       icon: 'trend-up',
-      title: 'Custos em alta',
-      message: `Seu custo aumentou nos últimos 3 dias. Sua margem pode cair.`,
-      actionHint: 'Revise seus custos variáveis',
+      title: copy.costsRisingTitle,
+      message: copy.costsRisingMsg,
+      actionHint: copy.costsRisingHint,
     });
   }
 
@@ -632,8 +637,8 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     alerts.push({
       type: 'danger',
       icon: 'trend-down',
-      title: 'Lucro em queda',
-      message: `Seu lucro caiu 3 dias seguidos. Se continuar assim, pode ter prejuízo.`,
+      title: copy.resultDroppingTitle,
+      message: copy.resultDroppingMsg,
     });
   }
 
@@ -646,16 +651,16 @@ export function getProactiveAlerts(): ProactiveAlert[] {
       alerts.push({
         type: 'danger',
         icon: 'alert',
-        title: 'Previsão de prejuízo',
-        message: `Se continuar assim, você terminará a semana com prejuízo de ${formatCurrencySimple(Math.abs(projected))}.`,
-        actionHint: 'Aumente as entradas ou reduza custos',
+        title: copy.lossProjectionTitle,
+        message: copy.lossProjectionMsg(formatCurrencySimple(Math.abs(projected))),
+        actionHint: copy.lossProjectionHint,
       });
     } else if (avgDailyProfit > 0 && projected > week.profit) {
       alerts.push({
         type: 'success',
         icon: 'rocket',
-        title: 'Lucro crescendo',
-        message: `Se manter esse ritmo, seu lucro semanal pode chegar a ${formatCurrencySimple(projected)}.`,
+        title: copy.growthTitle,
+        message: copy.growthMsg(formatCurrencySimple(projected)),
       });
     }
   }
@@ -664,9 +669,9 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     alerts.push({
       type: 'warning',
       icon: 'zap',
-      title: 'Margem muito baixa',
-      message: `Sua margem está em ${week.margin.toFixed(0)}%. Ideal é acima de 20%.`,
-      actionHint: 'Revise seus preços ou custos',
+      title: copy.lowMarginTitle,
+      message: copy.lowMarginMsg(week.margin.toFixed(0)),
+      actionHint: copy.lowMarginHint,
     });
   }
 
@@ -676,9 +681,9 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     alerts.push({
       type: 'info',
       icon: 'lightbulb',
-      title: `${top.name}: ${top.percentage.toFixed(0)}% dos custos`,
-      message: `Reduzir esse custo em 10% economizaria ${formatCurrencySimple(potentialSaving)}/mês.`,
-      actionHint: 'Negocie com fornecedores',
+      title: `${top.name}: ${top.percentage.toFixed(0)}%`,
+      message: `Reduzir 10% economizaria ${formatCurrencySimple(potentialSaving)}/mês.`,
+      actionHint: copy.topCostHint,
     });
   }
 
@@ -690,16 +695,16 @@ export function getProactiveAlerts(): ProactiveAlert[] {
       alerts.push({
         type: 'success',
         icon: 'trophy',
-        title: 'Meta atingida!',
-        message: `Você já atingiu sua meta de lucro mensal de ${formatCurrencySimple(state.goals.monthlyProfit)}!`,
+        title: copy.goalReachedTitle,
+        message: copy.goalReachedMsg(formatCurrencySimple(state.goals.monthlyProfit)),
       });
     } else if (progress < expectedProgress * 0.7 && dayOfMonth > 7) {
       alerts.push({
         type: 'warning',
         icon: 'target',
-        title: 'Meta em risco',
-        message: `Você atingiu ${progress.toFixed(0)}% da meta, mas deveria estar em ${expectedProgress.toFixed(0)}%.`,
-        actionHint: 'Intensifique as entradas',
+        title: copy.goalAtRiskTitle,
+        message: copy.goalAtRiskMsg(progress.toFixed(0), expectedProgress.toFixed(0)),
+        actionHint: copy.goalAtRiskHint,
       });
     }
   }
@@ -709,8 +714,8 @@ export function getProactiveAlerts(): ProactiveAlert[] {
     alerts.push({
       type: 'info',
       icon: 'chart',
-      title: `Melhor dia: ${bestDay.day}`,
-      message: `Lucro médio de ${formatCurrencySimple(bestDay.avgProfit)} às ${bestDay.day}s. Foque mais receita nesse dia.`,
+      title: copy.bestDayTitle(bestDay.day),
+      message: copy.bestDayMsg(formatCurrencySimple(bestDay.avgProfit), bestDay.day),
     });
   }
 
