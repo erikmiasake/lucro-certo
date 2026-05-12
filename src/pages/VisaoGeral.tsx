@@ -88,6 +88,28 @@ export default function VisaoGeral() {
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">Visão geral</h1>
       </motion.div>
 
+      <AnimatePresence>
+        {state.businessType === 'pessoal' && showSeedMsg && (
+          <motion.div
+            initial={{ opacity: 0, y: -8 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -8 }}
+            className="mb-4 flex items-start justify-between gap-3 rounded-xl border border-accent/30 bg-accent/10 px-4 py-3"
+          >
+            <p className="text-sm text-foreground">
+              Adicionamos sua renda mensal automaticamente para começar sua organização financeira. Você pode editar ou excluir em Movimentações.
+            </p>
+            <button
+              onClick={dismissSeedMsg}
+              className="text-xs text-muted-foreground hover:text-foreground transition-colors shrink-0"
+              aria-label="Dispensar"
+            >
+              Ok
+            </button>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
 
       {/* Hero profit card */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid gap-3 md:gap-4">
