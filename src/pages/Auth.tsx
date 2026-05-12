@@ -112,6 +112,23 @@ export default function Auth() {
     }
   };
 
+  const handleGoogleSignIn = async () => {
+    try {
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: window.location.origin,
+      });
+      if (result.error) {
+        toast.error('Erro ao entrar com Google', {
+          description: (result.error as Error).message,
+        });
+        return;
+      }
+      // If redirected, browser navigates away. Otherwise session was set.
+    } catch (err: any) {
+      toast.error('Erro ao entrar com Google', { description: err.message });
+    }
+  };
+
   return (
     <AuthFormSplitScreen
       mode={mode}
