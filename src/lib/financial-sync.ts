@@ -105,53 +105,104 @@ export async function deleteCostFromDB(id: string): Promise<void> {
   if (error) console.error('Error deleting cost:', error);
 }
 
+/**
+ * Sync entries to DB using a non-destructive diff:
+ * - UPSERT all current entries
+ * - DELETE only the rows whose ids no longer exist locally
+ *
+ * This replaces the old DELETE-ALL + INSERT pattern, which would wipe the
+ * user's data any time the local state was momentarily empty (cleared cache,
+ * fresh login on another device, race during hydration, etc.).
+ */
 export async function saveAllEntriesToDB(entries: Entry[]): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
-  await supabase.from('entries').delete().eq('user_id', user.id);
+  // Upsert current entries
+  if (entries.length > 0) {
+    const rows = entries.map(e => ({
+      id: e.id,
+      user_id: user.id,
+      amount: e.amount,
+      date: e.date,
+      created_at: e.createdAt,
+      description: e.description || null,
+      category: e.category || null,
+      source: e.source || 'manual',
+    }));
+    const { error: upsertErr } = await supabase
+      .from('entries')
+      .upsert(rows, { onConflict: 'id' });
+    if (upsertErr) {
+      console.error('Error upserting entries:', upsertErr);
+      // Bail out before any destructive delete — better stale than wiped.
+      return;
+    }
+  }
 
-  if (entries.length === 0) return;
+  // Delete only rows that exist in DB but no longer locally
+  const { data: existing, error: fetchErr } = await supabase
+    .from('entries')
+    .select('id')
+    .eq('user_id', user.id);
+  if (fetchErr || !existing) return;
 
-  const rows = entries.map(e => ({
-    id: e.id,
-    user_id: user.id,
-    amount: e.amount,
-    date: e.date,
-    created_at: e.createdAt,
-    description: e.description || null,
-    category: e.category || null,
-    source: e.source || 'manual',
-  }));
-
-  const { error } = await supabase.from('entries').insert(rows);
-  if (error) console.error('Error saving entries:', error);
+  const localIds = new Set(entries.map(e => e.id));
+  const toDelete = existing.filter((r: any) => !localIds.has(r.id)).map((r: any) => r.id);
+  if (toDelete.length > 0) {
+    const { error: delErr } = await supabase
+      .from('entries')
+      .delete()
+      .in('id', toDelete)
+      .eq('user_id', user.id);
+    if (delErr) console.error('Error deleting stale entries:', delErr);
+  }
 }
 
+/** Same non-destructive diff strategy as saveAllEntriesToDB. */
 export async function saveAllCostsToDB(costs: Cost[]): Promise<void> {
   const { data: { user } } = await supabase.auth.getUser();
   if (!user) return;
 
   const manualCosts = costs.filter(cost => !isDerivedCost(cost));
 
-  await supabase.from('costs').delete().eq('user_id', user.id);
+  if (manualCosts.length > 0) {
+    const rows = manualCosts.map(c => ({
+      id: c.id,
+      user_id: user.id,
+      amount: c.amount,
+      type: c.type,
+      classification: c.classification,
+      spread_days: c.spreadDays,
+      date: c.date,
+      created_at: c.createdAt,
+      description: c.description || null,
+      category: c.category || null,
+      subcategory: c.subcategory || null,
+    }));
+    const { error: upsertErr } = await supabase
+      .from('costs')
+      .upsert(rows, { onConflict: 'id' });
+    if (upsertErr) {
+      console.error('Error upserting costs:', upsertErr);
+      return;
+    }
+  }
 
-  if (manualCosts.length === 0) return;
+  const { data: existing, error: fetchErr } = await supabase
+    .from('costs')
+    .select('id')
+    .eq('user_id', user.id);
+  if (fetchErr || !existing) return;
 
-  const rows = manualCosts.map(c => ({
-    id: c.id,
-    user_id: user.id,
-    amount: c.amount,
-    type: c.type,
-    classification: c.classification,
-    spread_days: c.spreadDays,
-    date: c.date,
-    created_at: c.createdAt,
-    description: c.description || null,
-    category: c.category || null,
-    subcategory: c.subcategory || null,
-  }));
-
-  const { error } = await supabase.from('costs').insert(rows);
-  if (error) console.error('Error saving costs:', error);
+  const localIds = new Set(manualCosts.map(c => c.id));
+  const toDelete = existing.filter((r: any) => !localIds.has(r.id)).map((r: any) => r.id);
+  if (toDelete.length > 0) {
+    const { error: delErr } = await supabase
+      .from('costs')
+      .delete()
+      .in('id', toDelete)
+      .eq('user_id', user.id);
+    if (delErr) console.error('Error deleting stale costs:', delErr);
+  }
 }
