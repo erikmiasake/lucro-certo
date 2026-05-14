@@ -130,26 +130,43 @@ export default function Auth() {
     }
   };
 
+  const isRegister = mode === 'register';
+  const pageTitle = isRegister ? 'Criar conta — LucroReal' : 'Entrar — LucroReal';
+  const pageDesc = isRegister
+    ? 'Crie sua conta no LucroReal e comece a organizar receitas, custos e lucro real do seu negócio em minutos.'
+    : 'Acesse sua conta LucroReal para acompanhar lucro real, custos e insights de IA do seu negócio.';
+  const canonical = `https://lucroreal.live${isRegister ? '/register' : '/login'}`;
+
   return (
-    <AuthFormSplitScreen
-      mode={mode}
-      logo={
-        <div className="flex items-center gap-2">
-          <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
-            <Sparkles className="w-4 h-4 text-primary" />
+    <>
+      <Helmet>
+        <title>{pageTitle}</title>
+        <meta name="description" content={pageDesc} />
+        <link rel="canonical" href={canonical} />
+        <meta property="og:title" content={pageTitle} />
+        <meta property="og:description" content={pageDesc} />
+        <meta property="og:url" content={canonical} />
+      </Helmet>
+      <AuthFormSplitScreen
+        mode={mode}
+        logo={
+          <div className="flex items-center gap-2">
+            <div className="w-8 h-8 rounded-lg bg-primary/20 flex items-center justify-center">
+              <Sparkles className="w-4 h-4 text-primary" />
+            </div>
+            <span className="text-xl font-bold tracking-tight text-white">Lucro Real</span>
           </div>
-          <span className="text-xl font-bold tracking-tight text-white">Lucro Real</span>
-        </div>
-      }
-      title={mode === 'login' ? "Bem-vindo de volta" : "Crie sua conta"}
-      description={mode === 'login' ? "Acesse sua conta para gerenciar seu lucro real" : "Comece a organizar seu negócio em segundos"}
-      imageSrc="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1200"
-      imageAlt="Escritório moderno com dashboard financeiro"
-      onSubmit={handleAuth}
-      onGoogleSignIn={handleGoogleSignIn}
-      forgotPasswordHref="/forgot-password"
-      createAccountHref="/register"
-      toggleModeHref={mode === 'login' ? "/register" : "/login"}
-    />
+        }
+        title={mode === 'login' ? "Bem-vindo de volta" : "Crie sua conta"}
+        description={mode === 'login' ? "Acesse sua conta para gerenciar seu lucro real" : "Comece a organizar seu negócio em segundos"}
+        imageSrc="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1200"
+        imageAlt="Escritório moderno com dashboard financeiro"
+        onSubmit={handleAuth}
+        onGoogleSignIn={handleGoogleSignIn}
+        forgotPasswordHref="/forgot-password"
+        createAccountHref="/register"
+        toggleModeHref={mode === 'login' ? "/register" : "/login"}
+      />
+    </>
   );
 }
