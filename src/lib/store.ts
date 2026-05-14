@@ -119,8 +119,25 @@ syncCostMapToCosts();
 let listeners: (() => void)[] = [];
 
 let _dbSyncTimer: ReturnType<typeof setTimeout> | null = null;
+// DB sync is gated until the initial DB hydration completes after login.
+// This prevents a stale/empty local cache from overwriting real data in the
+// backend during the brief window between login and hydration.
+let _dbSyncEnabled = false;
+
+export function enableDBSync() {
+  _dbSyncEnabled = true;
+}
+
+export function disableDBSync() {
+  _dbSyncEnabled = false;
+  if (_dbSyncTimer) {
+    clearTimeout(_dbSyncTimer);
+    _dbSyncTimer = null;
+  }
+}
 
 function scheduleDBSync() {
+  if (!_dbSyncEnabled) return;
   if (_dbSyncTimer) clearTimeout(_dbSyncTimer);
   _dbSyncTimer = setTimeout(async () => {
     try {
@@ -141,6 +158,25 @@ function notify() {
   saveState(state);
   listeners.forEach((l) => l());
   scheduleDBSync();
+}
+
+/**
+ * Replace local state with the authoritative DB snapshot after login.
+ * Skips scheduleDBSync to avoid round-tripping data straight back to the DB.
+ */
+export function hydrateFromDB(partial: Partial<AppState>) {
+  state = { ...state, ...partial };
+  syncCostMapToCosts();
+  saveState(state);
+  listeners.forEach((l) => l());
+}
+
+/** Wipe local cached state. Call on logout. */
+export function clearLocalState() {
+  disableDBSync();
+  state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
+  saveState(state);
+  listeners.forEach((l) => l());
 }
 
 export function subscribe(listener: () => void) {
