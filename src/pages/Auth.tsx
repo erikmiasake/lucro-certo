@@ -6,7 +6,7 @@ import { Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable';
 import { toast } from 'sonner';
-import { getState, mergeState } from '@/lib/store';
+import { getState, hydrateFromDB, clearLocalState, disableDBSync, enableDBSync } from '@/lib/store';
 import { loadProfileFromDB } from '@/lib/profile-sync';
 import { loadEntriesFromDB, loadCostsFromDB } from '@/lib/financial-sync';
 import { safeRemoveItem, safeSetItem } from '@/lib/safe-storage';
@@ -86,19 +86,24 @@ export default function Auth() {
         }
 
         toast.success('Login realizado com sucesso!');
-        
-        // Load profile and financial data from database
-        const [dbProfile, dbEntries, dbCosts] = await Promise.all([
-          loadProfileFromDB(),
-          loadEntriesFromDB(),
-          loadCostsFromDB(),
-        ]);
-        if (dbProfile) {
-          mergeState({ ...dbProfile, entries: dbEntries, costs: dbCosts });
-        } else {
-          mergeState({ entries: dbEntries, costs: dbCosts });
+
+        // Wipe any cached state from a previous user/session, then load this
+        // user's authoritative data from the backend before re-enabling sync.
+        clearLocalState();
+        disableDBSync();
+        try {
+          const [dbProfile, dbEntries, dbCosts] = await Promise.all([
+            loadProfileFromDB(),
+            loadEntriesFromDB(),
+            loadCostsFromDB(),
+          ]);
+          const merge: any = { entries: dbEntries, costs: dbCosts };
+          if (dbProfile) Object.assign(merge, dbProfile);
+          hydrateFromDB(merge);
+        } finally {
+          enableDBSync();
         }
-        
+
         const appState = getState();
         if (appState.onboardingComplete) {
           navigate('/dashboard', { replace: true });
