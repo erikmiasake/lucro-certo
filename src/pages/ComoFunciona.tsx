@@ -86,6 +86,25 @@ const benefits = [
 export default function ComoFunciona() {
   return (
     <div className="min-h-screen bg-background text-foreground overflow-x-hidden">
+      <Helmet>
+        <title>Como funciona — LucroReal</title>
+        <meta name="description" content="Veja como a IA do LucroReal analisa seu negócio em 3 passos simples e revela seu lucro real, custos escondidos e oportunidades de crescimento." />
+        <link rel="canonical" href="https://lucroreal.live/como-funciona" />
+        <meta property="og:title" content="Como funciona — LucroReal" />
+        <meta property="og:description" content="Veja como a IA do LucroReal analisa seu negócio em 3 passos simples e revela seu lucro real, custos escondidos e oportunidades de crescimento." />
+        <meta property="og:url" content="https://lucroreal.live/como-funciona" />
+        <script type="application/ld+json">{JSON.stringify({
+          "@context": "https://schema.org",
+          "@type": "HowTo",
+          "name": "Como funciona o LucroReal",
+          "description": "Diagnóstico financeiro do seu negócio em 3 passos com IA.",
+          "step": [
+            { "@type": "HowToStep", "position": 1, "name": "Informe seu negócio", "text": "Tipo de negócio, vendas diárias e custos principais." },
+            { "@type": "HowToStep", "position": 2, "name": "A IA analisa", "text": "Organiza custos, identifica padrões e calcula sua margem real." },
+            { "@type": "HowToStep", "position": 3, "name": "Receba insights", "text": "Veja lucro real, identifique problemas e saiba o que melhorar." }
+          ]
+        })}</script>
+      </Helmet>
       {/* ── Nav ── */}
       <nav className="fixed top-0 w-full z-50 bg-background/60 backdrop-blur-xl border-b border-border/40">
         <div className="max-w-5xl mx-auto flex items-center justify-between px-5 h-14">
