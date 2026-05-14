@@ -86,19 +86,24 @@ export default function Auth() {
         }
 
         toast.success('Login realizado com sucesso!');
-        
-        // Load profile and financial data from database
-        const [dbProfile, dbEntries, dbCosts] = await Promise.all([
-          loadProfileFromDB(),
-          loadEntriesFromDB(),
-          loadCostsFromDB(),
-        ]);
-        if (dbProfile) {
-          mergeState({ ...dbProfile, entries: dbEntries, costs: dbCosts });
-        } else {
-          mergeState({ entries: dbEntries, costs: dbCosts });
+
+        // Wipe any cached state from a previous user/session, then load this
+        // user's authoritative data from the backend before re-enabling sync.
+        clearLocalState();
+        disableDBSync();
+        try {
+          const [dbProfile, dbEntries, dbCosts] = await Promise.all([
+            loadProfileFromDB(),
+            loadEntriesFromDB(),
+            loadCostsFromDB(),
+          ]);
+          const merge: any = { entries: dbEntries, costs: dbCosts };
+          if (dbProfile) Object.assign(merge, dbProfile);
+          hydrateFromDB(merge);
+        } finally {
+          enableDBSync();
         }
-        
+
         const appState = getState();
         if (appState.onboardingComplete) {
           navigate('/dashboard', { replace: true });
