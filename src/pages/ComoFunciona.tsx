@@ -1,3 +1,4 @@
+import { Helmet } from 'react-helmet-async';
 import { motion, useInView } from 'framer-motion';
 import { useRef } from 'react';
 import { Link } from 'react-router-dom';
