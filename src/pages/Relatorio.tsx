@@ -83,17 +83,31 @@ export default function Relatorio() {
   const handleDownloadPDF = async () => {
     if (!reportRef.current) return;
     try {
-      const html2pdf = (await import('html2pdf.js')).default;
+      const [{ default: jsPDF }, { default: html2canvas }] = await Promise.all([
+        import('jspdf'),
+        import('html2canvas'),
+      ]);
       const element = reportRef.current;
-      const opt = {
-        margin: [10, 10, 10, 10],
-        filename: `relatorio-${report?.summary.monthLabel?.replace(/\s/g, '-')}.pdf`,
-        image: { type: 'jpeg', quality: 0.95 },
-        html2canvas: { scale: 2, useCORS: true },
-        jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' as const },
-        pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
-      };
-      await html2pdf().set(opt).from(element).save();
+      const canvas = await html2canvas(element, { scale: 2, useCORS: true });
+      const imgData = canvas.toDataURL('image/jpeg', 0.95);
+      const pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      const pageWidth = pdf.internal.pageSize.getWidth();
+      const pageHeight = pdf.internal.pageSize.getHeight();
+      const margin = 10;
+      const imgWidth = pageWidth - margin * 2;
+      const imgHeight = (canvas.height * imgWidth) / canvas.width;
+
+      let heightLeft = imgHeight;
+      let position = margin;
+      pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+      heightLeft -= pageHeight - margin * 2;
+      while (heightLeft > 0) {
+        pdf.addPage();
+        position = margin - (imgHeight - heightLeft);
+        pdf.addImage(imgData, 'JPEG', margin, position, imgWidth, imgHeight);
+        heightLeft -= pageHeight - margin * 2;
+      }
+      pdf.save(`relatorio-${report?.summary.monthLabel?.replace(/\s/g, '-')}.pdf`);
       toast.success('PDF baixado com sucesso!');
     } catch {
       toast.error('Erro ao gerar PDF');
