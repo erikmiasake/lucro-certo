@@ -1,4 +1,5 @@
 import { createRoot } from "react-dom/client";
+import { HelmetProvider } from "react-helmet-async";
 import { supabase } from "@/integrations/supabase/client";
 import { safeGetItem, safeRemoveItem, safeSetItem } from "@/lib/safe-storage";
 import App from "./App.tsx";
@@ -16,4 +17,8 @@ if (sessionOnly === null && !safeGetItem('lucro-real-tab-active', 'sessionStorag
 }
 safeSetItem('lucro-real-tab-active', 'true', 'sessionStorage');
 
-createRoot(document.getElementById("root")!).render(<App />);
+createRoot(document.getElementById("root")!).render(
+  <HelmetProvider>
+    <App />
+  </HelmetProvider>
+);

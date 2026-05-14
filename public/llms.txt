@@ -1,0 +1,16 @@
+# LucroReal
+
+> Plataforma de gestão financeira com IA que mostra quanto realmente sobra no seu negócio. Controla receitas, custos e gera insights acionáveis para aumentar o lucro real.
+
+LucroReal é uma plataforma brasileira em português que ajuda empreendedores e pessoas físicas a entenderem seu lucro real (não apenas a receita), categorizar custos fixos e variáveis, e tomar decisões financeiras com apoio de uma IA conversacional.
+
+## Pages
+
+- [Home](/): Apresentação da plataforma, demonstração do dashboard e narrativa do produto.
+- [Como funciona](/como-funciona): Explicação em 3 passos de como a IA analisa o negócio e entrega insights.
+- [Entrar](/login): Acesso à conta para começar a usar a plataforma.
+
+## Optional
+
+- [Criar conta](/register): Cadastro de novos usuários.
+- [Recuperar senha](/forgot-password): Fluxo de recuperação de acesso.
