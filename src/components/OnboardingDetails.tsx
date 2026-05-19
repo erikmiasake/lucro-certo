@@ -1,21 +1,12 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BusinessType, businessConfigs, isPersonalMode } from '@/lib/business-config';
+import { BusinessType, businessConfigs, businessImages, isPersonalMode } from '@/lib/business-config';
 import { BusinessProfile } from '@/lib/finance';
 import {
   ArrowRight, ArrowLeft, DollarSign, Tag, Brain, Plus, X, Sparkles,
   Building2, MapPin, Calendar, Users, Crosshair, TrendingUp, Percent,
   CheckCircle2, Wallet, PiggyBank, BarChart3, Shield, Package, Repeat
 } from 'lucide-react';
-
-const businessImages: Partial<Record<BusinessType, string>> = {
-  restaurante: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop',
-  salao: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=600&auto=format&fit=crop',
-  petshop: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=600&auto=format&fit=crop',
-  loja: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=600&auto=format&fit=crop',
-  academia: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&auto=format&fit=crop',
-  outro: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600&auto=format&fit=crop',
-};
 
 const suggestedAvgSales: Partial<Record<BusinessType, string>> = {
   restaurante: '1.500',

@@ -1,5 +1,25 @@
 export type BusinessType = 'restaurante' | 'salao' | 'petshop' | 'loja' | 'academia' | 'outro' | 'pessoal';
 
+export const costBenchmarks: Record<BusinessType, { fixedRange: [number, number]; variableRange: [number, number]; totalRange: [number, number] }> = {
+  restaurante: { fixedRange: [15, 25], variableRange: [25, 35], totalRange: [40, 60] },
+  salao: { fixedRange: [20, 30], variableRange: [10, 20], totalRange: [30, 50] },
+  petshop: { fixedRange: [15, 25], variableRange: [30, 40], totalRange: [45, 65] },
+  loja: { fixedRange: [10, 20], variableRange: [40, 55], totalRange: [50, 75] },
+  academia: { fixedRange: [30, 45], variableRange: [5, 15], totalRange: [35, 60] },
+  outro: { fixedRange: [15, 30], variableRange: [20, 35], totalRange: [35, 65] },
+  pessoal: { fixedRange: [30, 50], variableRange: [20, 40], totalRange: [50, 80] },
+};
+
+export const businessImages: Partial<Record<BusinessType, string>> = {
+  restaurante: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop',
+  salao: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=600&auto=format&fit=crop',
+  petshop: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=600&auto=format&fit=crop',
+  loja: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=600&auto=format&fit=crop',
+  academia: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&auto=format&fit=crop',
+  outro: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600&auto=format&fit=crop',
+};
+
+
 export type UsageMode = 'business' | 'personal';
 
 export interface BusinessConfig {
