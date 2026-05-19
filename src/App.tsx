@@ -1,27 +1,28 @@
-import { lazy, Suspense } from "react";
+import { Suspense } from "react";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Route, Routes, Navigate } from "react-router-dom";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { lazyWithRetry } from "@/lib/lazy-retry";
 import AuthGuard from "./components/auth/AuthGuard.tsx";
 
 
 // Lazy load everything else — massive initial bundle reduction (esp. on mobile)
-const Auth = lazy(() => import("./pages/Auth.tsx"));
-const Welcome = lazy(() => import("./pages/Welcome.tsx"));
-const VerifyEmail = lazy(() => import("./pages/VerifyEmail.tsx"));
-const OnboardingPage = lazy(() => import("./pages/OnboardingPage.tsx"));
-const Summary = lazy(() => import("./pages/Summary.tsx"));
-const Processing = lazy(() => import("./pages/Processing.tsx"));
-const Tutorial = lazy(() => import("./pages/Tutorial.tsx"));
-const Index = lazy(() => import("./pages/Index.tsx"));
-const Impostos = lazy(() => import("./pages/Impostos.tsx"));
+const Auth = lazyWithRetry(() => import("./pages/Auth.tsx"));
+const Welcome = lazyWithRetry(() => import("./pages/Welcome.tsx"));
+const VerifyEmail = lazyWithRetry(() => import("./pages/VerifyEmail.tsx"));
+const OnboardingPage = lazyWithRetry(() => import("./pages/OnboardingPage.tsx"));
+const Summary = lazyWithRetry(() => import("./pages/Summary.tsx"));
+const Processing = lazyWithRetry(() => import("./pages/Processing.tsx"));
+const Tutorial = lazyWithRetry(() => import("./pages/Tutorial.tsx"));
+const Index = lazyWithRetry(() => import("./pages/Index.tsx"));
+const Impostos = lazyWithRetry(() => import("./pages/Impostos.tsx"));
 
-const NotFound = lazy(() => import("./pages/NotFound.tsx"));
+const NotFound = lazyWithRetry(() => import("./pages/NotFound.tsx"));
 
-const ResetPassword = lazy(() => import("./pages/ResetPassword.tsx"));
-const ForgotPassword = lazy(() => import("./pages/ForgotPassword.tsx"));
+const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword.tsx"));
+const ForgotPassword = lazyWithRetry(() => import("./pages/ForgotPassword.tsx"));
 
 const queryClient = new QueryClient();
 
