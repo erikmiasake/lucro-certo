@@ -6,8 +6,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AuthGuard from "./components/auth/AuthGuard.tsx";
 
-// Eagerly load only the entry point (Landing)
-import Landing from "./pages/Landing.tsx";
 
 // Lazy load everything else — massive initial bundle reduction (esp. on mobile)
 const Auth = lazy(() => import("./pages/Auth.tsx"));
@@ -19,7 +17,7 @@ const Processing = lazy(() => import("./pages/Processing.tsx"));
 const Tutorial = lazy(() => import("./pages/Tutorial.tsx"));
 const Index = lazy(() => import("./pages/Index.tsx"));
 const Impostos = lazy(() => import("./pages/Impostos.tsx"));
-const ComoFunciona = lazy(() => import("./pages/ComoFunciona.tsx"));
+
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const ResetPassword = lazy(() => import("./pages/ResetPassword.tsx"));
@@ -42,15 +40,14 @@ const App = () => (
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             {/* Public routes */}
-            <Route path="/" element={<Landing />} />
-            <Route path="/landing" element={<Navigate to="/" replace />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/register" element={<Auth />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/como-funciona" element={<ComoFunciona />} />
+
 
             {/* Protected routes */}
             <Route path="/welcome" element={<AuthGuard><Welcome /></AuthGuard>} />
