@@ -69,7 +69,7 @@ export default function VisaoGeral() {
     addEntry(data.amount, data.description, data.category, 'manual', data.date);
     setShowEntry(false);
     const updated = getDaySummary(today);
-    setFeedback(`${labels.revenueLabel} atualizada: ${formatCurrency(updated.totalRevenue)}`);
+    setFeedback(`${copy.inflow} atualizada: ${formatCurrency(updated.totalRevenue)}`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
@@ -77,7 +77,7 @@ export default function VisaoGeral() {
     registerCost(amount, type, spreadDays, description, category, subcategory, classification);
     setShowCost(false);
     const updated = getDaySummary(today);
-    setFeedback(`${labels.profitLabel} atual: ${formatCurrency(updated.profit)}`);
+    setFeedback(`${copy.result} atual: ${formatCurrency(updated.profit)}`);
     setTimeout(() => setFeedback(null), 3000);
   };
 
@@ -150,7 +150,7 @@ export default function VisaoGeral() {
           <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
               <ArrowUpRight className="h-3.5 w-3.5 text-blue-400" />
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.revenueLabel} no mês</p>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{copy.inflow} no mês</p>
             </div>
             <p className="text-xl font-bold text-foreground">{formatCurrency(month.totalRevenue)}</p>
           </motion.div>
@@ -158,7 +158,7 @@ export default function VisaoGeral() {
           <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
               <ArrowDownRight className="h-3.5 w-3.5 text-accent" />
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.costLabel} no mês</p>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{copy.outflow} no mês</p>
             </div>
             <p className="text-xl font-bold text-accent">{formatCurrency(month.totalRealCost)}</p>
           </motion.div>
@@ -166,7 +166,7 @@ export default function VisaoGeral() {
           <motion.div variants={fadeUp} className="rounded-2xl p-4 card-elevated card-interactive" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
             <div className="flex items-center gap-2 mb-2">
               {month.profit >= 0 ? <TrendingUp className="h-3.5 w-3.5 text-primary" /> : <TrendingDown className="h-3.5 w-3.5 text-destructive" />}
-              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{labels.profitLabel} no mês</p>
+              <p className="text-[11px] uppercase tracking-wider text-muted-foreground font-medium">{copy.result} no mês</p>
             </div>
             <p className={`text-xl font-bold ${month.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
               {formatCurrency(month.profit)}
@@ -196,7 +196,7 @@ export default function VisaoGeral() {
             {formatCurrency(week.profit)}
           </p>
           <div className="flex items-center gap-2 mt-1.5">
-            <span className="text-[10px] text-muted-foreground">{formatCurrency(week.totalRevenue)} {labels.revenueLabel.toLowerCase()}</span>
+            <span className="text-[10px] text-muted-foreground">{formatCurrency(week.totalRevenue)} {copy.inflowSingular}</span>
             <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${week.margin >= 20 ? 'bg-primary/10 text-primary' : 'bg-accent/10 text-accent'}`}>
               {formatPercent(week.margin)}
             </span>
@@ -208,7 +208,7 @@ export default function VisaoGeral() {
             {formatCurrency(month.profit)}
           </p>
           <div className="flex items-center gap-2 mt-1.5">
-            <span className="text-[10px] text-muted-foreground">{formatCurrency(month.totalRevenue)} {labels.revenueLabel.toLowerCase()}</span>
+            <span className="text-[10px] text-muted-foreground">{formatCurrency(month.totalRevenue)} {copy.inflowSingular}</span>
             <span className={`text-[10px] font-medium px-1.5 py-0.5 rounded ${month.margin >= 20 ? 'bg-primary/10 text-primary' : 'bg-accent/10 text-accent'}`}>
               {formatPercent(month.margin)}
             </span>
@@ -223,14 +223,14 @@ export default function VisaoGeral() {
           className="flex-1 py-4 rounded-2xl gradient-primary text-primary-foreground font-semibold text-base active:scale-[0.97] transition-all shadow-lg shadow-primary/20 flex items-center justify-center gap-2"
         >
           <Plus className="h-5 w-5" />
-          {labels.registerEntryLabel}
+          {copy.addInflow}
         </button>
         <button
           onClick={() => setShowCost(true)}
           className="flex-1 py-4 rounded-2xl card-elevated text-foreground font-semibold text-base active:scale-[0.97] transition-all hover:border-accent/40 flex items-center justify-center gap-2"
         >
           <Minus className="h-5 w-5 text-accent" />
-          {labels.registerCostLabel}
+          {copy.addOutflow}
         </button>
       </motion.div>
 
