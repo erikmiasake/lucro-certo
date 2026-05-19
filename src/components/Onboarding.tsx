@@ -61,8 +61,8 @@ export default function Onboarding() {
     if (finishData.employeePayroll && finishData.employeePayroll > 0) {
       addCostMapItem('Folha de pagamento', 'fixed', finishData.employeePayroll);
     }
-    navigate('/', { replace: true });
     setBusinessType(selectedType);
+    navigate('/dashboard', { replace: true });
     setTimeout(() => {
       toast.success('Sua personalização foi realizada com sucesso!', {
         description: 'Seu painel está pronto para uso.',
