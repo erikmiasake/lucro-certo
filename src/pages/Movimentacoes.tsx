@@ -11,7 +11,8 @@ import {
   getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, getDayRevenueSource, registerCost,
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
   getWeekDailyData, getSmartInsights, getPreviousWeekSummary, getCostAnalysisAmount,
-  isOperatingDay, addEntry, updateEntry, deleteEntry, getRecentEntries, type EntrySource, type CostClassification
+  isOperatingDay, addEntry, updateEntry, deleteEntry, getRecentEntries, getWeeksOfMonth,
+  type EntrySource, type CostClassification
 } from '@/lib/finance';
 import CostModal from '@/components/CostModal';
 import EntryModal from '@/components/EntryModal';
@@ -59,21 +60,7 @@ function getLast30Days(): string[] {
   return days;
 }
 
-function getWeeksOfMonth() {
-  const weeks: { label: string; revenue: number; cost: number; profit: number }[] = [];
-  for (let w = 0; w < 4; w++) {
-    let revenue = 0, cost = 0;
-    for (let d = 0; d < 7; d++) {
-      const date = new Date();
-      date.setDate(date.getDate() - (w * 7 + d));
-      const s = getDaySummary(getDateString(date));
-      revenue += s.totalRevenue;
-      cost += s.totalRealCost;
-    }
-    weeks.push({ label: `Semana ${4 - w}`, revenue, cost, profit: revenue - cost });
-  }
-  return weeks.reverse();
-}
+// getWeeksOfMonth moved to @/lib/finance (single source of truth)
 
 export default function Movimentacoes() {
   const navigate = useNavigate();
