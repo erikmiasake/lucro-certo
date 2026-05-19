@@ -1,7 +1,8 @@
 import { LayoutDashboard, ArrowLeftRight, Wallet, TrendingUp, Settings, LogOut } from 'lucide-react';
 import { NavLink } from '@/components/NavLink';
 import { useStore } from '@/hooks/use-store';
-import { businessConfigs, getAdaptedLabels } from '@/lib/business-config';
+import { businessConfigs } from '@/lib/business-config';
+import { getModeCopyFromType } from '@/lib/modes';
 import {
   Sidebar,
   SidebarContent,
@@ -18,7 +19,7 @@ export function AppSidebar() {
   const collapsed = sidebarState === 'collapsed';
   const appState = useStore();
   const config = appState.businessType ? businessConfigs[appState.businessType] : null;
-  const labels = getAdaptedLabels(appState.businessType);
+  const labels = getModeCopyFromType(appState.businessType).glossary;
 
   const items = [
     { title: 'Visão geral', url: '/', icon: LayoutDashboard },

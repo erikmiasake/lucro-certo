@@ -41,6 +41,17 @@ export interface ModeGlossary {
   noCostsLabel: string;
   costFeedback: string;
   costModalButton: string;
+  costModalTitle: string;
+  costModalSubtitle: string;
+  costPlaceholder: string;
+  categoryPlaceholder: string;
+  variableLabel: string;
+  variableHint: string;
+  fixedLabel: string;
+  fixedHint: string;
+  goalLabel: string;
+  goalProfitLabel: string;
+  goalMarginLabel: string;
   navCosts: string;
   navPerformance: string;
 }
