@@ -375,7 +375,11 @@ function getTotalOperatingDaysInMonth(): number {
 function getCostImpactOnDate(cost: Cost, targetDate: string): number {
   if (isDerivedCost(cost)) {
     if (cost.classification === 'fixed') {
-      return cost.amount / 30;
+      // Spread monthly fixed amount across the actual days of the target month
+      // so the monthly total always equals cost.amount (not 31/30 * amount).
+      const target = new Date(targetDate + 'T00:00:00');
+      const daysInMonth = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+      return cost.amount / daysInMonth;
     }
 
     const spreadDays = Math.max(cost.spreadDays || 1, 1);
