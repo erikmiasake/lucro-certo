@@ -17,7 +17,7 @@ const Processing = lazy(() => import("./pages/Processing.tsx"));
 const Tutorial = lazy(() => import("./pages/Tutorial.tsx"));
 const Index = lazy(() => import("./pages/Index.tsx"));
 const Impostos = lazy(() => import("./pages/Impostos.tsx"));
-const ComoFunciona = lazy(() => import("./pages/ComoFunciona.tsx"));
+
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
 const ResetPassword = lazy(() => import("./pages/ResetPassword.tsx"));
