@@ -40,15 +40,14 @@ const App = () => (
         <Suspense fallback={<RouteFallback />}>
           <Routes>
             {/* Public routes */}
-            <Route path="/" element={<Landing />} />
-            <Route path="/landing" element={<Navigate to="/" replace />} />
+            <Route path="/" element={<Navigate to="/login" replace />} />
             <Route path="/login" element={<Auth />} />
             <Route path="/register" element={<Auth />} />
             <Route path="/auth" element={<Auth />} />
             <Route path="/verify-email" element={<VerifyEmail />} />
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
-            <Route path="/como-funciona" element={<ComoFunciona />} />
+
 
             {/* Protected routes */}
             <Route path="/welcome" element={<AuthGuard><Welcome /></AuthGuard>} />
