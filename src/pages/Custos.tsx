@@ -135,7 +135,7 @@ export default function Custos() {
 
       {/* Cost View Toggle: Real vs Operacional */}
       {(() => {
-        const totalMonthly = costMap.totalMonthly || 0;
+        const totalMonthly = month.totalRealCost;
         if (totalMonthly === 0) return null;
 
         const now = new Date();
