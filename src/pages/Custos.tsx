@@ -1,7 +1,8 @@
 import { useState, useMemo, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
-import { businessConfigs, BusinessType, getAdaptedLabels } from '@/lib/business-config';
+import { businessConfigs, BusinessType, costBenchmarks } from '@/lib/business-config';
+import { getModeCopyFromType } from '@/lib/modes';
 import { getRecentCosts, deleteCost, getCostBreakdown, getWeekSummary, getMonthSummary, getCostAnalysisAmount, CostClassification, registerCost, getCostMap } from '@/lib/finance';
 import {
   Trash2, Plus, Package, Building2, AlertTriangle, PieChart, TrendingDown,
@@ -26,15 +27,7 @@ function formatDate(dateStr: string) {
   return `${d}/${m}`;
 }
 
-const benchmarks: Record<BusinessType, { fixedRange: [number, number]; variableRange: [number, number]; totalRange: [number, number] }> = {
-  restaurante: { fixedRange: [15, 25], variableRange: [25, 35], totalRange: [40, 60] },
-  salao: { fixedRange: [20, 30], variableRange: [10, 20], totalRange: [30, 50] },
-  petshop: { fixedRange: [15, 25], variableRange: [30, 40], totalRange: [45, 65] },
-  loja: { fixedRange: [10, 20], variableRange: [40, 55], totalRange: [50, 75] },
-  academia: { fixedRange: [30, 45], variableRange: [5, 15], totalRange: [35, 60] },
-  outro: { fixedRange: [15, 30], variableRange: [20, 35], totalRange: [35, 65] },
-  pessoal: { fixedRange: [30, 50], variableRange: [20, 40], totalRange: [50, 80] },
-};
+// costBenchmarks moved to src/lib/business-config.ts
 
 function getBenchmarkStatus(value: number, range: [number, number]): 'good' | 'warning' | 'danger' {
   if (value <= range[1]) return 'good';
@@ -60,7 +53,8 @@ const CHART_COLORS = [
 export default function Custos() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
-  const labels = getAdaptedLabels(state.businessType);
+  const copy = getModeCopyFromType(state.businessType).glossary;
+  const labels = copy;
   const isPersonal = state.businessType === 'pessoal';
   // Derive from state to ensure reactivity on every store change
   const costs = useMemo(() => getRecentCosts(), [state]);
@@ -74,7 +68,7 @@ export default function Custos() {
   const [costView, setCostView] = useState<'real' | 'operacional'>('operacional');
 
   const bType = state.businessType || 'outro';
-  const bench = benchmarks[bType];
+  const bench = costBenchmarks[bType];
 
   const costPctOfRevenue = month.totalRevenue > 0 ? (month.totalRealCost / month.totalRevenue) * 100 : 0;
   const fixedPctOfRevenue = month.totalRevenue > 0 ? (breakdown.totalFixed / month.totalRevenue) * 100 : 0;
