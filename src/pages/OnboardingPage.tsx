@@ -4,29 +4,6 @@ import { AnimatePresence, motion } from 'framer-motion';
 import { BusinessType, UsageMode, businessConfigs, businessImages } from '@/lib/business-config';
 import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState, addCostMapItem, addEntry, updateCostMapItem, setDayRevenue } from '@/lib/finance';
 
-// Example seed values for common cost categories (used to pre-fill business onboarding)
-const COST_SEED_VALUES: Array<{ match: RegExp; value: number }> = [
-  { match: /aluguel/i, value: 1500 },
-  { match: /sal[áa]rio|folha/i, value: 1800 },
-  { match: /internet|telefone/i, value: 150 },
-  { match: /energia|luz/i, value: 300 },
-  { match: /[áa]gua/i, value: 100 },
-  { match: /contador|contabil/i, value: 250 },
-  { match: /marketing|an[úu]ncio|publicidade/i, value: 200 },
-  { match: /fornecedor|insumo|mat[ée]ria/i, value: 800 },
-  { match: /transporte|frete|combust[íi]vel/i, value: 200 },
-  { match: /embalagem/i, value: 150 },
-  { match: /manuten[çc][ãa]o/i, value: 200 },
-  { match: /limpeza/i, value: 100 },
-  { match: /imposto|taxa/i, value: 300 },
-];
-
-function seedValueForCost(name: string, classification: 'fixed' | 'variable'): number {
-  for (const { match, value } of COST_SEED_VALUES) {
-    if (match.test(name)) return value;
-  }
-  return classification === 'fixed' ? 300 : 150;
-}
 import AILoadingScreen from '@/components/AILoadingScreen';
 import OnboardingDetails, { OnboardingFinishData } from '@/components/OnboardingDetails';
 import { Sparkles, Clock, Zap, Store, Wallet } from 'lucide-react';
