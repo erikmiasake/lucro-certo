@@ -1,6 +1,6 @@
 import { useStore } from '@/hooks/use-store';
 import { BusinessType, businessConfigs, isPersonalMode } from '@/lib/business-config';
-import { setBusinessType, resetAll, setGoals, setBusinessProfile } from '@/lib/finance';
+import { setBusinessType, resetAllWithDB, setGoals, setBusinessProfile } from '@/lib/finance';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
@@ -117,8 +117,8 @@ export default function Configuracoes() {
           }).eq('user_id', currentUser.id);
         }
 
-        // 2. Clear all local state
-        resetAll();
+        // 2. Clear all local state + ensure DB wipe via store helper
+        await resetAllWithDB();
         safeRemoveItem('lucro-real-data');
 
         // 3. Redirect to onboarding (keep user logged in)

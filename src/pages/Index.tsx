@@ -30,7 +30,7 @@ export default function Index() {
     return <Navigate to="/welcome" replace />;
   }
 
-  if (!hasSeenTutorial()) {
+  if (!hasSeenTutorial(state.businessType)) {
     return <Navigate to="/tutorial" replace />;
   }
 

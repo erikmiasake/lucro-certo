@@ -5,14 +5,17 @@ import { Button } from '@/components/ui/button';
 import { useStore } from '@/hooks/use-store';
 import { safeGetItem, safeSetItem } from '@/lib/safe-storage';
 
-const TUTORIAL_KEY = 'lucro_real_tutorial_seen';
-
-export function hasSeenTutorial() {
-  return safeGetItem(TUTORIAL_KEY) === '1';
+function tutorialKey(businessType: string | null | undefined) {
+  const mode = businessType === 'pessoal' ? 'personal' : 'business';
+  return `lucro_real_tutorial_seen_${mode}`;
 }
 
-export function markTutorialSeen() {
-  safeSetItem(TUTORIAL_KEY, '1');
+export function hasSeenTutorial(businessType?: string | null) {
+  return safeGetItem(tutorialKey(businessType)) === '1';
+}
+
+export function markTutorialSeen(businessType?: string | null) {
+  safeSetItem(tutorialKey(businessType), '1');
 }
 
 const businessSteps = [
@@ -87,7 +90,7 @@ export default function Tutorial() {
   const steps = isPersonal ? personalSteps : businessSteps;
 
   const handleEnter = () => {
-    markTutorialSeen();
+    markTutorialSeen(state.businessType);
     navigate('/dashboard', { replace: true });
   };
 

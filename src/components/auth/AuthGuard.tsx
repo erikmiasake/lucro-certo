@@ -92,8 +92,15 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     return <Navigate to="/login" state={{ from: location.pathname }} replace />;
   }
 
-  // Block access until email is verified (skip for OAuth providers which auto-confirm)
-  if (!session.user.email_confirmed_at && location.pathname !== '/verify-email') {
+  // Block access until email is verified — but skip the check for OAuth users
+  // (Google, etc.) since they never receive a verification email.
+  const provider = (session.user.app_metadata as any)?.provider as string | undefined;
+  const isOAuthUser = !!provider && provider !== 'email';
+  if (
+    !isOAuthUser &&
+    !session.user.email_confirmed_at &&
+    location.pathname !== '/verify-email'
+  ) {
     return <Navigate to={`/verify-email?email=${encodeURIComponent(session.user.email || '')}`} replace />;
   }
 
