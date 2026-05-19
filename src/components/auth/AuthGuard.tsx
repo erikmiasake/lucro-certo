@@ -2,14 +2,19 @@ import { useEffect, useState, useRef } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import type { Session } from '@supabase/supabase-js';
-import { hydrateFromDB, clearLocalState, enableDBSync, disableDBSync } from '@/lib/store';
-import { loadProfileFromDB } from '@/lib/profile-sync';
-import { loadEntriesFromDB, loadCostsFromDB } from '@/lib/financial-sync';
 
 interface AuthGuardProps {
   children: React.ReactNode;
 }
 
+/**
+ * AuthGuard intentionally does NOT statically import the financial store,
+ * profile-sync, or financial-sync modules. Those pull in ~50KB of code and
+ * are NOT needed on public pages (Landing, Login). Since AuthGuard itself
+ * is eagerly imported by App.tsx (to keep route definitions sync), we
+ * dynamically import the heavy data-layer modules only when a real session
+ * exists. This cuts the landing-page critical path significantly on mobile.
+ */
 export default function AuthGuard({ children }: AuthGuardProps) {
   const [session, setSession] = useState<Session | null | undefined>(undefined);
   const hydratedUserId = useRef<string | null>(null);
@@ -21,7 +26,7 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         setSession(session);
         if (event === 'SIGNED_OUT') {
           // Wipe local cache so the next user (or next login) doesn't inherit stale data.
-          clearLocalState();
+          import('@/lib/store').then(({ clearLocalState }) => clearLocalState());
           hydratedUserId.current = null;
         }
       }
@@ -40,22 +45,35 @@ export default function AuthGuard({ children }: AuthGuardProps) {
     if (hydratedUserId.current === session.user.id) return;
     hydratedUserId.current = session.user.id;
 
-    // Block any DB writes until hydration finishes — prevents stale local cache
-    // from overwriting the user's real data in the backend.
-    disableDBSync();
+    (async () => {
+      const [
+        { hydrateFromDB, enableDBSync, disableDBSync },
+        { loadProfileFromDB },
+        { loadEntriesFromDB, loadCostsFromDB },
+      ] = await Promise.all([
+        import('@/lib/store'),
+        import('@/lib/profile-sync'),
+        import('@/lib/financial-sync'),
+      ]);
 
-    Promise.all([loadProfileFromDB(), loadEntriesFromDB(), loadCostsFromDB()])
-      .then(([profile, entries, costs]) => {
+      // Block any DB writes until hydration finishes — prevents stale local cache
+      // from overwriting the user's real data in the backend.
+      disableDBSync();
+      try {
+        const [profile, entries, costs] = await Promise.all([
+          loadProfileFromDB(),
+          loadEntriesFromDB(),
+          loadCostsFromDB(),
+        ]);
         const merge: any = { entries, costs };
         if (profile) Object.assign(merge, profile);
         hydrateFromDB(merge);
-      })
-      .catch((e) => {
+      } catch (e) {
         console.error('AuthGuard hydration error:', e);
-      })
-      .finally(() => {
+      } finally {
         enableDBSync();
-      });
+      }
+    })();
   }, [session]);
 
   if (session === undefined) {
