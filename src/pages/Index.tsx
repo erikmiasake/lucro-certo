@@ -1,14 +1,24 @@
+import { lazy, Suspense } from 'react';
 import { useStore } from '@/hooks/use-store';
 import AppLayout from '@/components/AceternitySidebar';
 import { useLocation, Navigate } from 'react-router-dom';
 import VisaoGeral from './VisaoGeral';
-import Movimentacoes from './Movimentacoes';
-import Custos from './Custos';
-import Desempenho from './Desempenho';
-import Configuracoes from './Configuracoes';
-import Relatorio from './Relatorio';
-import Impostos from './Impostos';
 import { hasSeenTutorial } from './Tutorial';
+
+// Lazy-load heavy sub-pages so the dashboard entry only pays for VisaoGeral.
+// Movimentacoes + Custos pull in recharts; Relatorio pulls in jspdf/html2canvas.
+const Movimentacoes = lazy(() => import('./Movimentacoes'));
+const Custos = lazy(() => import('./Custos'));
+const Desempenho = lazy(() => import('./Desempenho'));
+const Configuracoes = lazy(() => import('./Configuracoes'));
+const Relatorio = lazy(() => import('./Relatorio'));
+const Impostos = lazy(() => import('./Impostos'));
+
+const PageFallback = () => (
+  <div className="min-h-[60vh] w-full flex items-center justify-center">
+    <div className="h-8 w-8 rounded-full border-2 border-primary/30 border-t-primary animate-spin" />
+  </div>
+);
 
 export default function Index() {
   const state = useStore();
@@ -35,7 +45,9 @@ export default function Index() {
 
   return (
     <AppLayout>
-      {renderPage()}
+      <Suspense fallback={<PageFallback />}>
+        {renderPage()}
+      </Suspense>
     </AppLayout>
   );
 }
