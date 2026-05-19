@@ -2,7 +2,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Send, RefreshCw, ArrowUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { getFinancialSummary } from '@/lib/store';
+import { getFinancialSummary } from '@/lib/finance';
 import { getModeCopyFromType, getMode } from '@/lib/modes';
 import { cn } from '@/lib/utils';
 

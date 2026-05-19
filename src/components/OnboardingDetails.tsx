@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BusinessType, businessConfigs, isPersonalMode } from '@/lib/business-config';
-import { BusinessProfile } from '@/lib/store';
+import { BusinessProfile } from '@/lib/finance';
 import {
   ArrowRight, ArrowLeft, DollarSign, Tag, Brain, Plus, X, Sparkles,
   Building2, MapPin, Calendar, Users, Crosshair, TrendingUp, Percent,

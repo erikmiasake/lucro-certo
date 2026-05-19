@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
-import { getMonthSummary } from '@/lib/store';
+import { getMonthSummary } from '@/lib/finance';
 import {
   BookOpen, AlertTriangle, Calculator, CheckCircle2,
   ChevronDown, ExternalLink, Landmark, ShieldCheck, Calendar,

@@ -6,7 +6,7 @@ import { Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { lovable } from '@/integrations/lovable';
 import { toast } from 'sonner';
-import { getState, hydrateFromDB, clearLocalState, disableDBSync, enableDBSync } from '@/lib/store';
+import { getState, hydrateFromDB, clearLocalState, disableDBSync, enableDBSync } from '@/lib/finance';
 import { loadProfileFromDB } from '@/lib/profile-sync';
 import { loadEntriesFromDB, loadCostsFromDB } from '@/lib/financial-sync';
 import { safeRemoveItem, safeSetItem } from '@/lib/safe-storage';

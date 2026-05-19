@@ -6,7 +6,7 @@ import {
   getWeekDailyData, getPreviousWeekSummary,
   getMonthlyProjection,
   isOperatingDay,
-} from '@/lib/store';
+} from '@/lib/finance';
 
 import GoalsProgress from '@/components/GoalsProgress';
 import { StatCard } from '@/components/ui/stat-card';

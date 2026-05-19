@@ -12,7 +12,7 @@ import {
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
   getWeekDailyData, getSmartInsights, getPreviousWeekSummary, getCostAnalysisAmount,
   isOperatingDay, addEntry, updateEntry, deleteEntry, getRecentEntries, type EntrySource, type CostClassification
-} from '@/lib/store';
+} from '@/lib/finance';
 import CostModal from '@/components/CostModal';
 import EntryModal from '@/components/EntryModal';
 import FeedbackToast from '@/components/FeedbackToast';

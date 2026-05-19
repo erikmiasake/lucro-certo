@@ -6,7 +6,7 @@ import {
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
   addEntry, getWeekDailyData, getPreviousDaySummary,
   registerCost, CostClassification,
-} from '@/lib/store';
+} from '@/lib/finance';
 import EntryModal from '@/components/EntryModal';
 import CostModal from '@/components/CostModal';
 import FeedbackToast from '@/components/FeedbackToast';
