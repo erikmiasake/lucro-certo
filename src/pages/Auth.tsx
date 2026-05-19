@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { AuthFormSplitScreen, FormValues } from '@/components/ui/login';
 import { Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable';
 import { toast } from 'sonner';
 import { getState, hydrateFromDB, clearLocalState, disableDBSync, enableDBSync } from '@/lib/finance';
 import { loadProfileFromDB } from '@/lib/profile-sync';
@@ -119,20 +120,17 @@ export default function Auth() {
 
   const handleGoogleSignIn = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`,
-        },
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: `${window.location.origin}/dashboard`,
       });
-      if (error) {
-        toast.error('Erro ao entrar com Google', { description: error.message });
+      if (result.error) {
+        toast.error('Erro ao entrar com Google', { description: result.error.message });
       }
-      // On success, the browser is redirected to Google then back.
     } catch (err: any) {
       toast.error('Erro ao entrar com Google', { description: err.message });
     }
   };
+
 
   const isRegister = mode === 'register';
   const pageTitle = isRegister ? 'Criar conta — LucroReal' : 'Entrar — LucroReal';
