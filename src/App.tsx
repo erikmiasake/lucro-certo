@@ -6,8 +6,6 @@ import { Toaster } from "@/components/ui/toaster";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import AuthGuard from "./components/auth/AuthGuard.tsx";
 
-// Eagerly load only the entry point (Landing)
-import Landing from "./pages/Landing.tsx";
 
 // Lazy load everything else — massive initial bundle reduction (esp. on mobile)
 const Auth = lazy(() => import("./pages/Auth.tsx"));
