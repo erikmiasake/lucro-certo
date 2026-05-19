@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
-import { businessConfigs, getAdaptedLabels } from '@/lib/business-config';
+import { businessConfigs } from '@/lib/business-config';
+import { getModeCopyFromType } from '@/lib/modes';
 import { getDaySummary, getDateString, addEntry, registerCost, getDayRevenueSource, CostClassification } from '@/lib/finance';
 import EntryModal from './EntryModal';
 import CostModal from './CostModal';
