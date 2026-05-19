@@ -12,6 +12,7 @@ const Custos = lazy(() => import('./Custos'));
 const Desempenho = lazy(() => import('./Desempenho'));
 const Configuracoes = lazy(() => import('./Configuracoes'));
 const Relatorio = lazy(() => import('./Relatorio'));
+const Impostos = lazy(() => import('./Impostos'));
 
 
 const PageFallback = () => (
@@ -40,6 +41,7 @@ export default function Index() {
     if (path === '/desempenho' || path === '/dashboard/desempenho') return <Desempenho />;
     if (path === '/configuracoes' || path === '/dashboard/configuracoes') return <Configuracoes />;
     if (path === '/relatorio' || path === '/dashboard/relatorio') return <Relatorio />;
+    if (path === '/impostos' || path === '/dashboard/impostos') return <Impostos />;
     return <VisaoGeral />;
   };
 

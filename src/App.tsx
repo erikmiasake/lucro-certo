@@ -18,6 +18,7 @@ const Summary = lazy(() => import("./pages/Summary.tsx"));
 const Processing = lazy(() => import("./pages/Processing.tsx"));
 const Tutorial = lazy(() => import("./pages/Tutorial.tsx"));
 const Index = lazy(() => import("./pages/Index.tsx"));
+const Impostos = lazy(() => import("./pages/Impostos.tsx"));
 const ComoFunciona = lazy(() => import("./pages/ComoFunciona.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
 
@@ -63,6 +64,8 @@ const App = () => (
             <Route path="/desempenho" element={<AuthGuard><Index /></AuthGuard>} />
             <Route path="/configuracoes" element={<AuthGuard><Index /></AuthGuard>} />
             <Route path="/relatorio" element={<AuthGuard><Index /></AuthGuard>} />
+            <Route path="/impostos" element={<AuthGuard><Index /></AuthGuard>} />
+
 
             <Route path="*" element={<NotFound />} />
           </Routes>

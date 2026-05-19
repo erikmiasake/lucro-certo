@@ -1,7 +1,7 @@
 import React, { useState, createContext, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { LayoutDashboard, ArrowLeftRight, Wallet, TrendingUp, Settings, Menu, X, Activity, FileText } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Wallet, TrendingUp, Settings, Menu, X, Activity, FileText, Landmark } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
 import { businessConfigs } from "@/lib/business-config";
@@ -31,11 +31,13 @@ const allLinks: SidebarLink[] = [
   { label: "Movimentações", href: "/movimentacoes", icon: <ArrowLeftRight className="h-5 w-5 shrink-0" /> },
   { label: "Custos", href: "/custos", icon: <Wallet className="h-5 w-5 shrink-0" /> },
   { label: "Desempenho", href: "/desempenho", icon: <TrendingUp className="h-5 w-5 shrink-0" /> },
+  { label: "Impostos", href: "/impostos", icon: <Landmark className="h-5 w-5 shrink-0" /> },
   { label: "Relatório", href: "/relatorio", icon: <FileText className="h-5 w-5 shrink-0" /> },
   { label: "Meu Negócio", href: "/configuracoes", icon: <Settings className="h-5 w-5 shrink-0" /> },
 ];
 
-const getLinks = (_isPersonal: boolean) => allLinks;
+const getLinks = (isPersonal: boolean) =>
+  isPersonal ? allLinks.filter(l => l.href !== '/impostos') : allLinks;
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
