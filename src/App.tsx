@@ -50,7 +50,6 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/como-funciona" element={<ComoFunciona />} />
-            <Route path="/generative-art-demo" element={<GenerativeArtDemo />} />
 
             {/* Protected routes */}
             <Route path="/welcome" element={<AuthGuard><Welcome /></AuthGuard>} />
