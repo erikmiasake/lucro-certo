@@ -41,6 +41,7 @@ export default function VisaoGeral() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
   const labels = getAdaptedLabels(state.businessType);
+  const copy = getModeCopyFromType(state.businessType).glossary;
   const today = getDateString();
   const summary = getDaySummary(today);
   const yesterday = getPreviousDaySummary();
