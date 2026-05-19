@@ -4,7 +4,7 @@ import { getMonthlySummary, type MonthlySummary } from '@/lib/finance';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { FileText, Download, Loader2, AlertCircle, TrendingUp, TrendingDown, DollarSign, Target, Lightbulb, AlertTriangle, CheckCircle } from 'lucide-react';
+import { FileText, Download, Loader2, AlertCircle, TrendingUp, TrendingDown, DollarSign, Target, Lightbulb, AlertTriangle, CheckCircle, Stethoscope, Sparkles } from 'lucide-react';
 import { toast } from 'sonner';
 
 interface AIReport {
@@ -153,6 +153,33 @@ export default function Relatorio() {
           </Button>
         )}
       </div>
+
+      {/* Empty state — visible before report is generated */}
+      {!report && !loading && (
+        <div className="bg-card border border-border rounded-2xl p-8 md:p-12 text-center">
+          <div className="w-16 h-16 rounded-2xl bg-primary/10 flex items-center justify-center mx-auto mb-5">
+            <FileText className="h-8 w-8 text-primary" />
+          </div>
+          <h2 className="text-lg md:text-xl font-bold text-foreground mb-2">
+            Selecione um mês e gere seu relatório
+          </h2>
+          <p className="text-sm text-muted-foreground max-w-md mx-auto mb-8">
+            A IA analisa seus dados e entrega um diagnóstico completo com recomendações.
+          </p>
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 max-w-2xl mx-auto">
+            {[
+              { icon: Stethoscope, label: 'Diagnóstico financeiro' },
+              { icon: AlertTriangle, label: 'Pontos de atenção' },
+              { icon: Sparkles, label: 'Recomendações práticas' },
+            ].map(({ icon: Icon, label }) => (
+              <div key={label} className="flex flex-col items-center gap-2 p-3 rounded-xl bg-muted/30">
+                <Icon className="h-5 w-5 text-primary" />
+                <p className="text-xs text-muted-foreground font-medium">{label}</p>
+              </div>
+            ))}
+          </div>
+        </div>
+      )}
 
       {/* Report Preview */}
       {report && s && ai && (
