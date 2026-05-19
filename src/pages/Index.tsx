@@ -1,5 +1,6 @@
-import { lazy, Suspense } from 'react';
+import { Suspense } from 'react';
 import { useStore } from '@/hooks/use-store';
+import { lazyWithRetry } from '@/lib/lazy-retry';
 import AppLayout from '@/components/AceternitySidebar';
 import { useLocation, Navigate } from 'react-router-dom';
 import VisaoGeral from './VisaoGeral';
@@ -7,12 +8,12 @@ import { hasSeenTutorial } from './Tutorial';
 
 // Lazy-load heavy sub-pages so the dashboard entry only pays for VisaoGeral.
 // Movimentacoes + Custos pull in recharts; Relatorio pulls in jspdf/html2canvas.
-const Movimentacoes = lazy(() => import('./Movimentacoes'));
-const Custos = lazy(() => import('./Custos'));
-const Desempenho = lazy(() => import('./Desempenho'));
-const Configuracoes = lazy(() => import('./Configuracoes'));
-const Relatorio = lazy(() => import('./Relatorio'));
-const Impostos = lazy(() => import('./Impostos'));
+const Movimentacoes = lazyWithRetry(() => import('./Movimentacoes'));
+const Custos = lazyWithRetry(() => import('./Custos'));
+const Desempenho = lazyWithRetry(() => import('./Desempenho'));
+const Configuracoes = lazyWithRetry(() => import('./Configuracoes'));
+const Relatorio = lazyWithRetry(() => import('./Relatorio'));
+const Impostos = lazyWithRetry(() => import('./Impostos'));
 
 
 const PageFallback = () => (
