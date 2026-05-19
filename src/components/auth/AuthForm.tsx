@@ -24,19 +24,17 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
 
   const handleGoogleLogin = async () => {
     try {
-      const { error } = await supabase.auth.signInWithOAuth({
-        provider: 'google',
-        options: {
-          redirectTo: `${window.location.origin}/dashboard`
-        }
+      const result = await lovable.auth.signInWithOAuth('google', {
+        redirect_uri: `${window.location.origin}/dashboard`,
       });
-      if (error) throw error;
+      if (result.error) throw result.error;
     } catch (err: any) {
       toast.error('Erro ao conectar com Google', {
-        description: err.message
+        description: err.message,
       });
     }
   };
+
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
