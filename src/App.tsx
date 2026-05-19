@@ -20,7 +20,7 @@ const Tutorial = lazy(() => import("./pages/Tutorial.tsx"));
 const Index = lazy(() => import("./pages/Index.tsx"));
 const ComoFunciona = lazy(() => import("./pages/ComoFunciona.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
-const GenerativeArtDemo = lazy(() => import("./pages/GenerativeArtDemo.tsx"));
+
 const ResetPassword = lazy(() => import("./pages/ResetPassword.tsx"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword.tsx"));
 
