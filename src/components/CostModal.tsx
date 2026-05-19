@@ -1,9 +1,10 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
-import { BusinessConfig, getAdaptedLabels, BusinessType } from '@/lib/business-config';
+import { BusinessConfig, BusinessType } from '@/lib/business-config';
 import { CostClassification } from '@/lib/finance';
 import { Package, Building2, ChevronLeft } from 'lucide-react';
 import { useStore } from '@/hooks/use-store';
+import { getModeCopyFromType } from '@/lib/modes';
 
 interface CostModalProps {
   open: boolean;
@@ -14,7 +15,7 @@ interface CostModalProps {
 
 export default function CostModal({ open, onClose, onSubmit, config }: CostModalProps) {
   const state = useStore();
-  const labels = getAdaptedLabels(state.businessType);
+  const labels = getModeCopyFromType(state.businessType).glossary;
   const [step, setStep] = useState<'describe' | 'details'>('describe');
   const [description, setDescription] = useState('');
   const [costType, setCostType] = useState<'product' | 'business'>('product');

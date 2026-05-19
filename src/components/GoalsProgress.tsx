@@ -1,7 +1,7 @@
 import { motion } from 'framer-motion';
 import { getGoalsProgress } from '@/lib/finance';
 import { useStore } from '@/hooks/use-store';
-import { getAdaptedLabels } from '@/lib/business-config';
+import { getModeCopyFromType } from '@/lib/modes';
 import { Target, TrendingUp, Percent } from 'lucide-react';
 
 function formatCurrency(v: number) {
@@ -11,7 +11,7 @@ function formatCurrency(v: number) {
 export default function GoalsProgress() {
   const state = useStore();
   const goals = state.goals;
-  const labels = getAdaptedLabels(state.businessType);
+  const labels = getModeCopyFromType(state.businessType).glossary;
   
   if (!goals.monthlyProfit && !goals.monthlyMargin) return null;
 

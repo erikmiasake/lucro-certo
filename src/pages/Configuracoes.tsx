@@ -1,5 +1,5 @@
 import { useStore } from '@/hooks/use-store';
-import { BusinessType, businessConfigs, getAdaptedLabels, isPersonalMode } from '@/lib/business-config';
+import { BusinessType, businessConfigs, isPersonalMode } from '@/lib/business-config';
 import { setBusinessType, resetAll, setGoals, setBusinessProfile } from '@/lib/finance';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
@@ -24,7 +24,7 @@ const objectives = [
 export default function Configuracoes() {
   const state = useStore();
   const isPersonal = isPersonalMode(state.businessType);
-  const labels = getAdaptedLabels(state.businessType);
+  
   const navigate = useNavigate();
   const [confirmReset, setConfirmReset] = useState(false);
   const [profitGoal, setProfitGoal] = useState(state.goals?.monthlyProfit?.toString() || '');
