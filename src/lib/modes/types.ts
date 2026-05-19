@@ -8,22 +8,41 @@
 export type AppMode = 'business' | 'personal';
 
 export interface ModeGlossary {
-  /** Substantivo para entradas de dinheiro (ex: "Receita" / "Entradas") */
   inflow: string;
   inflowSingular: string;
-  /** Substantivo para saídas de dinheiro */
   outflow: string;
   outflowSingular: string;
-  /** Resultado final (ex: "Lucro" / "Quanto sobrou") */
   result: string;
   resultDay: string;
-  /** Margem (ex: "Margem" / "Economia") */
   margin: string;
-  /** Verbo de criação */
   addInflow: string;
   addOutflow: string;
-  /** Tom da IA */
   aiPersona: string;
+  // Expanded fields (Fase 2)
+  contextLabel: string;
+  marginLabel: string;
+  marginLongLabel: string;
+  performanceTitle: string;
+  performanceSubtitle: string;
+  revenueOfLabel: string;
+  profitRealLabel: string;
+  profitPerDay: string;
+  costPerDay: string;
+  weekSummaryLabel: string;
+  weeklySummaryProfit: string;
+  costsPageTitle: string;
+  costsPageSubtitle: string;
+  costOperationalLabel: string;
+  costRealLabel: string;
+  costOperationalDesc: string;
+  costRealDesc: string;
+  costAlertTitle: string;
+  costRankingTitle: string;
+  noCostsLabel: string;
+  costFeedback: string;
+  costModalButton: string;
+  navCosts: string;
+  navPerformance: string;
 }
 
 export interface ModeAlerts {

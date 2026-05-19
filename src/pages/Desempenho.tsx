@@ -1,6 +1,6 @@
 import { motion } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
-import { businessConfigs, getAdaptedLabels } from '@/lib/business-config';
+import { businessConfigs } from '@/lib/business-config';
 import { getModeCopyFromType } from '@/lib/modes';
 import {
   getWeekSummary, getMonthSummary, getDaySummary, getDateString,
@@ -42,8 +42,8 @@ const stagger = {
 export default function Desempenho() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
-  const labels = getAdaptedLabels(state.businessType);
   const copy = getModeCopyFromType(state.businessType).glossary;
+  const labels = copy;
   const week = getWeekSummary();
   const month = getMonthSummary();
   const prevWeek = getPreviousWeekSummary();

@@ -1,7 +1,7 @@
 import { useState } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
-import { businessConfigs, getAdaptedLabels } from '@/lib/business-config';
+import { businessConfigs } from '@/lib/business-config';
 import { getModeCopyFromType } from '@/lib/modes';
 import {
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
@@ -40,8 +40,8 @@ const fadeUp = {
 export default function VisaoGeral() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
-  const labels = getAdaptedLabels(state.businessType);
   const copy = getModeCopyFromType(state.businessType).glossary;
+  const labels = copy;
   const today = getDateString();
   const summary = getDaySummary(today);
   const yesterday = getPreviousDaySummary();

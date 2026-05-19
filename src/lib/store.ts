@@ -533,6 +533,22 @@ export function getWeekDailyData(filterNonOperating = false) {
   return days;
 }
 
+export function getWeeksOfMonth(): { label: string; revenue: number; cost: number; profit: number }[] {
+  const weeks: { label: string; revenue: number; cost: number; profit: number }[] = [];
+  for (let w = 0; w < 4; w++) {
+    let revenue = 0, cost = 0;
+    for (let d = 0; d < 7; d++) {
+      const date = new Date();
+      date.setDate(date.getDate() - (w * 7 + d));
+      const s = getDaySummary(getDateString(date));
+      revenue += s.totalRevenue;
+      cost += s.totalRealCost;
+    }
+    weeks.push({ label: `Semana ${4 - w}`, revenue, cost, profit: revenue - cost });
+  }
+  return weeks.reverse();
+}
+
 export function getBestAndWorstDay(days: number = 30) {
   const dates = getDateRange(days);
   let best = { date: '', profit: -Infinity };

@@ -1,7 +1,7 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { AnimatePresence } from 'framer-motion';
-import { BusinessType } from '@/lib/business-config';
+import { BusinessType, businessConfigs, businessImages } from '@/lib/business-config';
 import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, addCostMapItem } from '@/lib/finance';
 import HeroScreen from '@/components/HeroScreen';
 import AILoadingScreen from '@/components/AILoadingScreen';
@@ -12,19 +12,9 @@ import { toast } from 'sonner';
 
 import { motion } from 'framer-motion';
 import { Sparkles, Clock, Zap } from 'lucide-react';
-import { businessConfigs } from '@/lib/business-config';
 import { TextEffect } from '@/components/ui/text-effect';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'academia', 'outro'];
-
-const businessImages: Partial<Record<BusinessType, string>> = {
-  restaurante: 'https://images.unsplash.com/photo-1517248135467-4c7edcad34c4?q=80&w=600&auto=format&fit=crop',
-  salao: 'https://images.unsplash.com/photo-1560066984-138dadb4c035?q=80&w=600&auto=format&fit=crop',
-  petshop: 'https://images.unsplash.com/photo-1601758228041-f3b2795255f1?q=80&w=600&auto=format&fit=crop',
-  loja: 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?q=80&w=600&auto=format&fit=crop',
-  academia: 'https://images.unsplash.com/photo-1534438327276-14e5300c3a48?q=80&w=600&auto=format&fit=crop',
-  outro: 'https://images.unsplash.com/photo-1454165804606-c3d57bc86b40?q=80&w=600&auto=format&fit=crop',
-};
 
 export default function Onboarding() {
   const navigate = useNavigate();
@@ -71,8 +61,8 @@ export default function Onboarding() {
     if (finishData.employeePayroll && finishData.employeePayroll > 0) {
       addCostMapItem('Folha de pagamento', 'fixed', finishData.employeePayroll);
     }
-    navigate('/', { replace: true });
     setBusinessType(selectedType);
+    navigate('/dashboard', { replace: true });
     setTimeout(() => {
       toast.success('Sua personalização foi realizada com sucesso!', {
         description: 'Seu painel está pronto para uso.',
