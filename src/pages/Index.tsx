@@ -36,7 +36,7 @@ export default function Index() {
     const path = location.pathname;
     if (path === '/movimentacoes' || path === '/dashboard/movimentacoes') return <Movimentacoes />;
     if (path === '/custos' || path === '/dashboard/custos') return <Custos />;
-    if (path === '/impostos' || path === '/dashboard/impostos') return <Impostos />;
+    
     if (path === '/desempenho' || path === '/dashboard/desempenho') return <Desempenho />;
     if (path === '/configuracoes' || path === '/dashboard/configuracoes') return <Configuracoes />;
     if (path === '/relatorio' || path === '/dashboard/relatorio') return <Relatorio />;
