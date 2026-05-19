@@ -70,6 +70,10 @@ export default function AuthGuard({ children }: AuthGuardProps) {
         hydrateFromDB(merge);
       } catch (e) {
         console.error('AuthGuard hydration error:', e);
+        const { toast } = await import('sonner');
+        toast.error('Não foi possível sincronizar seus dados', {
+          description: 'Verifique sua conexão e tente novamente.',
+        });
       } finally {
         enableDBSync();
       }
