@@ -7,6 +7,7 @@ import {
 } from 'lucide-react';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
+import { getModeCopyFromType } from '@/lib/modes';
 import {
   getRecentCosts, deleteCost, setDayRevenue, getDayRevenue, getDayRevenueSource, registerCost,
   getDaySummary, getDateString, getWeekSummary, getMonthSummary,
@@ -67,6 +68,7 @@ export default function Movimentacoes() {
   const state = useStore();
   const isPersonal = state.businessType === 'pessoal';
   const config = businessConfigs[state.businessType!];
+  const glossary = getModeCopyFromType(state.businessType).glossary;
   const costs = getRecentCosts();
   const allEntries = getRecentEntries(100);
   const visibleEntries = allEntries.filter((e) => e.source !== 'distributed');
@@ -244,7 +246,7 @@ export default function Movimentacoes() {
   const sourceLabel = (source: EntrySource): string => {
     switch (source) {
       case 'manual': return 'Informado pelo usuário';
-      case 'distributed': return 'Calculado automaticamente';
+      case 'distributed': return '';
       case 'estimated': return 'Estimado com base na média';
       case 'onboarding': return 'Automática do onboarding';
       default: return '';
@@ -298,10 +300,10 @@ export default function Movimentacoes() {
       {/* Header */}
       <div className="mb-5">
         <h1 className="text-xl md:text-2xl font-bold text-foreground tracking-tight">
-          {isPersonal ? 'Suas finanças' : 'Visão do seu negócio'}
+          {isPersonal ? 'Suas finanças' : 'Movimentações'}
         </h1>
         <p className="text-muted-foreground text-xs mt-0.5">
-          {isPersonal ? 'Entradas, gastos e quanto sobrou' : 'Performance e movimentações em tempo real'}
+          {isPersonal ? 'Entradas, gastos e quanto sobrou' : 'Receitas e custos do seu negócio'}
         </p>
       </div>
 
@@ -1189,7 +1191,7 @@ export default function Movimentacoes() {
           className="px-5 py-3 rounded-2xl gradient-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 flex items-center gap-2"
         >
           <Plus className="h-4 w-4" />
-          Adicionar receita
+          {glossary.addInflow}
         </motion.button>
         <motion.button
           initial={{ y: 20, opacity: 0 }}
@@ -1200,7 +1202,7 @@ export default function Movimentacoes() {
           className="px-4 py-3 rounded-2xl bg-card border border-border text-foreground font-semibold text-sm shadow-lg flex items-center gap-2"
         >
           <ArrowDownRight className="h-4 w-4 text-destructive/70" />
-          Custo
+          {glossary.addOutflow}
         </motion.button>
       </div>
 
