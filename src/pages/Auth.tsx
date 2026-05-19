@@ -119,16 +119,16 @@ export default function Auth() {
 
   const handleGoogleSignIn = async () => {
     try {
-      const result = await lovable.auth.signInWithOAuth('google', {
-        redirect_uri: window.location.origin,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
       });
-      if (result.error) {
-        toast.error('Erro ao entrar com Google', {
-          description: (result.error as Error).message,
-        });
-        return;
+      if (error) {
+        toast.error('Erro ao entrar com Google', { description: error.message });
       }
-      // If redirected, browser navigates away. Otherwise session was set.
+      // On success, the browser is redirected to Google then back.
     } catch (err: any) {
       toast.error('Erro ao entrar com Google', { description: err.message });
     }
