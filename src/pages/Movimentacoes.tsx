@@ -217,9 +217,14 @@ export default function Movimentacoes() {
   }, [editingWeekIdx]);
 
   const startWeekEdit = (idx: number) => {
+    // For the current week (last item in weeksOfMonth, idx === 3), use
+    // weekSummary.totalRevenue so the prefilled value matches the rest of the
+    // page. Older weeks keep using weeksOfMonth (historical chart data).
     const week = weeksOfMonth[idx];
+    const isCurrentWeek = idx === weeksOfMonth.length - 1;
+    const prefill = isCurrentWeek ? weekSummary.totalRevenue : week.revenue;
     setEditingWeekIdx(idx);
-    setWeekEditValue(week.revenue > 0 ? week.revenue.toFixed(0) : '');
+    setWeekEditValue(prefill > 0 ? prefill.toFixed(0) : '');
   };
 
   const handleSaveWeekRevenue = () => {

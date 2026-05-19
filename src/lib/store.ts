@@ -297,6 +297,15 @@ export function addCost(
 export function deleteEntry(id: string) {
   state = { ...state, entries: state.entries.filter((e) => e.id !== id) };
   notify();
+  // Fire-and-forget DB sync so deletions persist across devices.
+  (async () => {
+    try {
+      const { deleteEntryFromDB } = await import('@/lib/financial-sync');
+      await deleteEntryFromDB(id);
+    } catch (e) {
+      console.error('deleteEntry DB sync error:', e);
+    }
+  })();
 }
 
 export function updateEntry(id: string, patch: Partial<Pick<Entry, 'amount' | 'description' | 'category' | 'date'>>) {
@@ -305,6 +314,18 @@ export function updateEntry(id: string, patch: Partial<Pick<Entry, 'amount' | 'd
     entries: state.entries.map((e) => (e.id === id ? { ...e, ...patch } : e)),
   };
   notify();
+  // Fire-and-forget DB sync so edits persist across devices.
+  const updated = state.entries.find((e) => e.id === id);
+  if (updated) {
+    (async () => {
+      try {
+        const { saveEntryToDB } = await import('@/lib/financial-sync');
+        await saveEntryToDB(updated);
+      } catch (e) {
+        console.error('updateEntry DB sync error:', e);
+      }
+    })();
+  }
 }
 
 export function deleteCost(id: string) {
@@ -314,6 +335,15 @@ export function deleteCost(id: string) {
     syncCostMapToCosts();
   } else {
     state = { ...state, costs: state.costs.filter((c) => c.id !== id) };
+    // Fire-and-forget DB sync for non-derived costs.
+    (async () => {
+      try {
+        const { deleteCostFromDB } = await import('@/lib/financial-sync');
+        await deleteCostFromDB(id);
+      } catch (e) {
+        console.error('deleteCost DB sync error:', e);
+      }
+    })();
   }
   notify();
 }
@@ -1482,4 +1512,18 @@ export function getMonthlySummary(year: number, month: number): MonthlySummary {
 export function resetAll() {
   state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
   notify();
+}
+
+/**
+ * Reset all local state AND wipe the user's data in the backend so the next
+ * hydrateFromDB doesn't restore deleted records.
+ */
+export async function resetAllWithDB() {
+  resetAll();
+  try {
+    const { saveAllEntriesToDB, saveAllCostsToDB } = await import('@/lib/financial-sync');
+    await Promise.all([saveAllEntriesToDB([]), saveAllCostsToDB([])]);
+  } catch (e) {
+    console.error('resetAllWithDB error:', e);
+  }
 }
