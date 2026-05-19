@@ -220,7 +220,7 @@ export default function DashboardShowcase({ onCtaClick }: DashboardShowcaseProps
               className="w-full sm:w-auto h-12 px-8 rounded-xl border-white/10 bg-white/5 hover:bg-white/10 text-white transition-all backdrop-blur-md"
               asChild
             >
-              <Link to="/como-funciona">Ver como funciona</Link>
+              <Link to="/login">Ver como funciona</Link>
             </Button>
           </motion.div>
         </div>

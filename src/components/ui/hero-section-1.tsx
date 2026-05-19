@@ -106,7 +106,7 @@ export function HeroSection() {
               </div>
               <div>
                 <Button size="lg" variant="ghost" className="rounded-xl px-6 text-base" asChild>
-                  <Link to="/como-funciona">
+                  <Link to="/login">
                     <span>Como funciona</span>
                     <ChevronRight className="ml-1 h-4 w-4" />
                   </Link>
@@ -204,7 +204,7 @@ export function HeroSection() {
 }
 
 const menuItems = [
-  { name: 'Como funciona', href: '/como-funciona' },
+  { name: 'Como funciona', href: '/login' },
   { name: 'Para quem', href: '#como-funciona' },
 ];
 

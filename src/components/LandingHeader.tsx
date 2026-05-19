@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button';
 import { cn } from '@/lib/utils';
 
 const menuItems = [
-  { name: 'Como funciona', href: '/como-funciona' },
+  { name: 'Como funciona', href: '/login' },
 ];
 
 export function LandingHeader({ onCtaClick }: { onCtaClick?: () => void }) {

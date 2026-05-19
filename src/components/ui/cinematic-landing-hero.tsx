@@ -416,7 +416,7 @@ export function CinematicHero({
               Começar agora →
             </button>
             <a
-              href="/como-funciona"
+              href="/login"
               className="btn-modern-dark px-8 py-3.5 rounded-xl text-sm font-semibold"
             >
               Ver como funciona

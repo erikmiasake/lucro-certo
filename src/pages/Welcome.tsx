@@ -14,7 +14,7 @@ export default function Welcome() {
     <div className="min-h-screen bg-background flex flex-col items-center justify-center">
       <HeroScreen
         onStart={() => navigate('/onboarding')}
-        onLearnMore={() => navigate('/como-funciona')}
+        onLearnMore={() => navigate('/login')}
       />
     </div>
   );
