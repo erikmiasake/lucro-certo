@@ -1,7 +1,7 @@
 import React, { useState, createContext, useContext } from "react";
 import { Link, useLocation } from "react-router-dom";
 import { AnimatePresence, motion } from "framer-motion";
-import { LayoutDashboard, ArrowLeftRight, Wallet, TrendingUp, Settings, Menu, X, Activity, FileText, Landmark } from "lucide-react";
+import { LayoutDashboard, ArrowLeftRight, Wallet, TrendingUp, Settings, Menu, X, Activity, FileText } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
 import { businessConfigs } from "@/lib/business-config";
