@@ -12,7 +12,7 @@ const Custos = lazy(() => import('./Custos'));
 const Desempenho = lazy(() => import('./Desempenho'));
 const Configuracoes = lazy(() => import('./Configuracoes'));
 const Relatorio = lazy(() => import('./Relatorio'));
-const Impostos = lazy(() => import('./Impostos'));
+
 
 const PageFallback = () => (
   <div className="min-h-[60vh] w-full flex items-center justify-center">
