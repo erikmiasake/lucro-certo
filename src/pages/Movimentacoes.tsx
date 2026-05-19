@@ -625,7 +625,7 @@ export default function Movimentacoes() {
                       <span className="text-base font-bold text-foreground">
                         {getDayRevenue(today) > 0 ? fmt(getDayRevenue(today)) : 'Registrar receita do dia'}
                       </span>
-                      {getDayRevenue(today) > 0 && (
+                      {getDayRevenue(today) > 0 && sourceLabel(getDayRevenueSource(today)) && (
                         <p className={`text-[10px] ${sourceColor(getDayRevenueSource(today))}`}>
                           {sourceLabel(getDayRevenueSource(today))}
                         </p>
@@ -711,7 +711,7 @@ export default function Movimentacoes() {
                                 Lucro: <span className={summary.profit >= 0 ? 'text-primary' : 'text-destructive'}>{fmt(summary.profit)}</span>
                                 {aboveAvg && <span className="ml-1 text-primary/60">acima da média</span>}
                                 {belowAvg && <span className="ml-1 text-destructive/50">abaixo da média</span>}
-                                <span className={`ml-1.5 ${sourceColor(source)}`}>· {sourceLabel(source)}</span>
+                                {sourceLabel(source) && <span className={`ml-1.5 ${sourceColor(source)}`}>· {sourceLabel(source)}</span>}
                               </p>
                             )}
                           </div>
