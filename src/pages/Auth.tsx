@@ -4,6 +4,7 @@ import { Helmet } from 'react-helmet-async';
 import { AuthFormSplitScreen, FormValues } from '@/components/ui/login';
 import { Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { lovable } from '@/integrations/lovable';
 import { toast } from 'sonner';
 import { getState, hydrateFromDB, clearLocalState, disableDBSync, enableDBSync } from '@/lib/finance';
 import { loadProfileFromDB } from '@/lib/profile-sync';
