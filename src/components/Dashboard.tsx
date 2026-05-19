@@ -64,11 +64,6 @@ export default function Dashboard() {
             <p className="text-3xl font-extrabold text-foreground">
               {formatCurrency(summary.totalRevenue)}
             </p>
-            {summary.totalRevenue > 0 && (
-              <p className={`text-[10px] mt-1 ${getDayRevenueSource(today) === 'manual' ? 'text-primary' : getDayRevenueSource(today) === 'distributed' ? 'text-accent' : 'text-muted-foreground'}`}>
-                {getDayRevenueSource(today) === 'manual' ? 'Informado pelo usuário' : getDayRevenueSource(today) === 'distributed' ? 'Calculado automaticamente' : 'Estimado com base na média'}
-              </p>
-            )}
           </motion.div>
 
           <motion.div

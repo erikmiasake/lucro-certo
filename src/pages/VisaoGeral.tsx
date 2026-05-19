@@ -140,9 +140,6 @@ export default function VisaoGeral() {
               <Percent className="h-6 w-6 text-primary" />
             </div>
           </div>
-          <p className="text-[10px] text-muted-foreground/80 mt-1">
-            (Entradas − Gastos) ÷ Entradas
-          </p>
         </motion.div>
 
         {/* KPI row */}

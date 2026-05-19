@@ -163,8 +163,6 @@ export default function Auth() {
         }
         title={mode === 'login' ? "Bem-vindo de volta" : "Crie sua conta"}
         description={mode === 'login' ? "Acesse sua conta para gerenciar seu lucro real" : "Comece a organizar seu negócio em segundos"}
-        imageSrc="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&q=80&w=1200"
-        imageAlt="Escritório moderno com dashboard financeiro"
         onSubmit={handleAuth}
         onGoogleSignIn={handleGoogleSignIn}
         forgotPasswordHref="/forgot-password"

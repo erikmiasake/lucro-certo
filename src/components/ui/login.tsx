@@ -38,8 +38,8 @@ interface AuthFormSplitScreenProps {
   logo: React.ReactNode;
   title: string;
   description: string;
-  imageSrc: string;
-  imageAlt: string;
+  imageSrc?: string;
+  imageAlt?: string;
   onSubmit: (data: FormValues) => Promise<void>;
   onGoogleSignIn?: () => Promise<void>;
   forgotPasswordHref: string;
@@ -316,16 +316,18 @@ export function AuthFormSplitScreen({
         </div>
       </div>
 
-      {/* Right Panel: Image */}
-      <div className="relative hidden w-1/2 md:block overflow-hidden">
-        <img
-          src={imageSrc}
-          alt={imageAlt}
-          className="h-full w-full object-cover grayscale opacity-60"
-        />
-        <div className="absolute inset-0 bg-gradient-to-t from-[#0A0A0B] via-transparent to-transparent" />
-        <div className="absolute inset-0 bg-gradient-to-r from-[#0A0A0B] to-transparent opacity-40" />
-        
+      {/* Right Panel: Dark gradient with brand accent */}
+      <div
+        className="relative hidden w-1/2 md:block overflow-hidden"
+        style={{
+          background:
+            'radial-gradient(circle at 30% 20%, hsl(152 76% 52% / 0.18), transparent 55%), radial-gradient(circle at 80% 80%, hsl(152 76% 52% / 0.10), transparent 60%), linear-gradient(135deg, #0A0A0B 0%, #0F1411 60%, #0A0A0B 100%)',
+        }}
+      >
+        <div className="absolute inset-0 bg-[radial-gradient(ellipse_at_center,_rgba(20,184,105,0.05),_transparent_70%)]" />
+        <div className="absolute -top-32 -right-32 w-96 h-96 rounded-full blur-[120px] bg-primary/10" />
+        <div className="absolute -bottom-40 -left-32 w-[28rem] h-[28rem] rounded-full blur-[140px] bg-primary/5" />
+
         {/* Optional Overlay Text for Premium Feel */}
         <div className="absolute bottom-12 left-12 right-12 z-20">
           <motion.div

@@ -5,6 +5,7 @@ import { LayoutDashboard, ArrowLeftRight, Wallet, TrendingUp, Settings, Menu, X,
 import { cn } from "@/lib/utils";
 import { useStore } from "@/hooks/use-store";
 import { businessConfigs } from "@/lib/business-config";
+import { getModeCopyFromType } from "@/lib/modes";
 
 interface SidebarLink {
   label: string;
@@ -26,18 +27,18 @@ const useSidebarContext = () => {
   return context;
 };
 
-const allLinks: SidebarLink[] = [
-  { label: "Visão geral", href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5 shrink-0" /> },
-  { label: "Movimentações", href: "/movimentacoes", icon: <ArrowLeftRight className="h-5 w-5 shrink-0" /> },
-  { label: "Custos", href: "/custos", icon: <Wallet className="h-5 w-5 shrink-0" /> },
-  { label: "Desempenho", href: "/desempenho", icon: <TrendingUp className="h-5 w-5 shrink-0" /> },
-  { label: "Impostos", href: "/impostos", icon: <Landmark className="h-5 w-5 shrink-0" /> },
-  { label: "Relatório", href: "/relatorio", icon: <FileText className="h-5 w-5 shrink-0" /> },
-  { label: "Meu Negócio", href: "/configuracoes", icon: <Settings className="h-5 w-5 shrink-0" /> },
-];
-
-const getLinks = (isPersonal: boolean) =>
-  isPersonal ? allLinks.filter(l => l.href !== '/impostos') : allLinks;
+const getLinks = (isPersonal: boolean, glossary: ReturnType<typeof getModeCopyFromType>['glossary']): SidebarLink[] => {
+  const links: SidebarLink[] = [
+    { label: "Visão geral", href: "/dashboard", icon: <LayoutDashboard className="h-5 w-5 shrink-0" /> },
+    { label: "Movimentações", href: "/movimentacoes", icon: <ArrowLeftRight className="h-5 w-5 shrink-0" /> },
+    { label: glossary.navCosts, href: "/custos", icon: <Wallet className="h-5 w-5 shrink-0" /> },
+    { label: glossary.navPerformance, href: "/desempenho", icon: <TrendingUp className="h-5 w-5 shrink-0" /> },
+    ...(isPersonal ? [] : [{ label: "Impostos", href: "/impostos", icon: <Landmark className="h-5 w-5 shrink-0" /> }]),
+    { label: "Relatório", href: "/relatorio", icon: <FileText className="h-5 w-5 shrink-0" /> },
+    { label: isPersonal ? "Meu Perfil" : "Meu Negócio", href: "/configuracoes", icon: <Settings className="h-5 w-5 shrink-0" /> },
+  ];
+  return links;
+};
 
 export default function AppLayout({ children }: { children: React.ReactNode }) {
   const [open, setOpen] = useState(false);
@@ -63,7 +64,8 @@ function DesktopSidebar() {
   const appState = useStore();
   const isPersonal = appState.businessType === 'pessoal';
   const config = appState.businessType ? businessConfigs[appState.businessType] : null;
-  const links = getLinks(isPersonal);
+  const glossary = getModeCopyFromType(appState.businessType).glossary;
+  const links = getLinks(isPersonal, glossary);
 
   return (
     <motion.div
@@ -133,23 +135,6 @@ function DesktopSidebar() {
         })}
       </nav>
 
-      {/* Bottom info */}
-      <AnimatePresence>
-        {open && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="mt-auto px-1"
-          >
-            <div className="rounded-xl bg-muted/50 border border-border p-3">
-              <p className="text-[11px] text-muted-foreground leading-relaxed">
-                Dados armazenados localmente.
-              </p>
-            </div>
-          </motion.div>
-        )}
-      </AnimatePresence>
     </motion.div>
   );
 }
@@ -160,7 +145,8 @@ function MobileSidebar() {
   const appState = useStore();
   const isPersonal = appState.businessType === 'pessoal';
   const config = appState.businessType ? businessConfigs[appState.businessType] : null;
-  const links = getLinks(isPersonal);
+  const glossary = getModeCopyFromType(appState.businessType).glossary;
+  const links = getLinks(isPersonal, glossary);
 
   return (
     <div className="md:hidden">
@@ -236,13 +222,6 @@ function MobileSidebar() {
                 })}
               </nav>
 
-              <div className="mt-auto">
-                <div className="rounded-xl bg-muted/50 border border-border p-3">
-                  <p className="text-[11px] text-muted-foreground leading-relaxed">
-                    Dados armazenados localmente.
-                  </p>
-                </div>
-              </div>
             </motion.div>
           </>
         )}
