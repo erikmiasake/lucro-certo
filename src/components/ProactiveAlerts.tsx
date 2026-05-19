@@ -1,5 +1,5 @@
 import { motion, AnimatePresence } from 'framer-motion';
-import { getProactiveAlerts, ProactiveAlert } from '@/lib/store';
+import { getProactiveAlerts, ProactiveAlert } from '@/lib/finance';
 import { ChevronRight, AlertTriangle, TrendingUp, TrendingDown, Lightbulb, Target, Flame, Zap, BarChart3 } from 'lucide-react';
 
 const alertStyles: Record<ProactiveAlert['type'], { border: string; bg: string }> = {

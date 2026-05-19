@@ -4,7 +4,7 @@ import { useStore } from '@/hooks/use-store';
 import {
   getCostMap, updateCostMapItem, deleteCostMapItem, addCostMapItem,
   getMonthlyEquivalent, CostClassification, CostMapItem
-} from '@/lib/store';
+} from '@/lib/finance';
 import {
   Package, Building2, Trash2, Plus, ArrowRightLeft, Sparkles, X, Clock
 } from 'lucide-react';

@@ -1,6 +1,6 @@
 import { useState, useRef } from 'react';
 import { useStore } from '@/hooks/use-store';
-import { getMonthlySummary, type MonthlySummary } from '@/lib/store';
+import { getMonthlySummary, type MonthlySummary } from '@/lib/finance';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';

@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BusinessConfig, getAdaptedLabels, BusinessType } from '@/lib/business-config';
-import { CostClassification } from '@/lib/store';
+import { CostClassification } from '@/lib/finance';
 import { Package, Building2, ChevronLeft } from 'lucide-react';
 import { useStore } from '@/hooks/use-store';
 

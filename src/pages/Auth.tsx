@@ -4,9 +4,8 @@ import { Helmet } from 'react-helmet-async';
 import { AuthFormSplitScreen, FormValues } from '@/components/ui/login';
 import { Sparkles } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { lovable } from '@/integrations/lovable';
 import { toast } from 'sonner';
-import { getState, hydrateFromDB, clearLocalState, disableDBSync, enableDBSync } from '@/lib/store';
+import { getState, hydrateFromDB, clearLocalState, disableDBSync, enableDBSync } from '@/lib/finance';
 import { loadProfileFromDB } from '@/lib/profile-sync';
 import { loadEntriesFromDB, loadCostsFromDB } from '@/lib/financial-sync';
 import { safeRemoveItem, safeSetItem } from '@/lib/safe-storage';
@@ -120,16 +119,16 @@ export default function Auth() {
 
   const handleGoogleSignIn = async () => {
     try {
-      const result = await lovable.auth.signInWithOAuth('google', {
-        redirect_uri: window.location.origin,
+      const { error } = await supabase.auth.signInWithOAuth({
+        provider: 'google',
+        options: {
+          redirectTo: `${window.location.origin}/dashboard`,
+        },
       });
-      if (result.error) {
-        toast.error('Erro ao entrar com Google', {
-          description: (result.error as Error).message,
-        });
-        return;
+      if (error) {
+        toast.error('Erro ao entrar com Google', { description: error.message });
       }
-      // If redirected, browser navigates away. Otherwise session was set.
+      // On success, the browser is redirected to Google then back.
     } catch (err: any) {
       toast.error('Erro ao entrar com Google', { description: err.message });
     }

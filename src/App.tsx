@@ -20,7 +20,7 @@ const Tutorial = lazy(() => import("./pages/Tutorial.tsx"));
 const Index = lazy(() => import("./pages/Index.tsx"));
 const ComoFunciona = lazy(() => import("./pages/ComoFunciona.tsx"));
 const NotFound = lazy(() => import("./pages/NotFound.tsx"));
-const GenerativeArtDemo = lazy(() => import("./pages/GenerativeArtDemo.tsx"));
+
 const ResetPassword = lazy(() => import("./pages/ResetPassword.tsx"));
 const ForgotPassword = lazy(() => import("./pages/ForgotPassword.tsx"));
 
@@ -50,7 +50,6 @@ const App = () => (
             <Route path="/reset-password" element={<ResetPassword />} />
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/como-funciona" element={<ComoFunciona />} />
-            <Route path="/generative-art-demo" element={<GenerativeArtDemo />} />
 
             {/* Protected routes */}
             <Route path="/welcome" element={<AuthGuard><Welcome /></AuthGuard>} />
@@ -63,7 +62,6 @@ const App = () => (
             <Route path="/custos" element={<AuthGuard><Index /></AuthGuard>} />
             <Route path="/desempenho" element={<AuthGuard><Index /></AuthGuard>} />
             <Route path="/configuracoes" element={<AuthGuard><Index /></AuthGuard>} />
-            <Route path="/impostos" element={<AuthGuard><Index /></AuthGuard>} />
             <Route path="/relatorio" element={<AuthGuard><Index /></AuthGuard>} />
 
             <Route path="*" element={<NotFound />} />

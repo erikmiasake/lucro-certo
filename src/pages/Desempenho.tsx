@@ -1,12 +1,13 @@
 import { motion } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs, getAdaptedLabels } from '@/lib/business-config';
+import { getModeCopyFromType } from '@/lib/modes';
 import {
   getWeekSummary, getMonthSummary, getDaySummary, getDateString,
   getWeekDailyData, getPreviousWeekSummary,
   getMonthlyProjection,
   isOperatingDay,
-} from '@/lib/store';
+} from '@/lib/finance';
 
 import GoalsProgress from '@/components/GoalsProgress';
 import { StatCard } from '@/components/ui/stat-card';
@@ -42,6 +43,7 @@ export default function Desempenho() {
   const state = useStore();
   const config = businessConfigs[state.businessType!];
   const labels = getAdaptedLabels(state.businessType);
+  const copy = getModeCopyFromType(state.businessType).glossary;
   const week = getWeekSummary();
   const month = getMonthSummary();
   const prevWeek = getPreviousWeekSummary();
@@ -78,7 +80,7 @@ export default function Desempenho() {
               </span>
             )}
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(week.totalRevenue)} {labels.revenueOfLabel} · {formatCurrency(week.totalRealCost)} {labels.costLabel.toLowerCase()}</p>
+          <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(week.totalRevenue)} {labels.revenueOfLabel} · {formatCurrency(week.totalRealCost)} {copy.outflowSingular}</p>
         </motion.div>
 
         <motion.div variants={fadeUp} className="rounded-2xl p-5 card-elevated card-interactive relative overflow-hidden" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
@@ -91,7 +93,7 @@ export default function Desempenho() {
               {formatPercent(month.margin)} {labels.marginLabel.toLowerCase()}
             </span>
           </div>
-          <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(month.totalRevenue)} {labels.revenueOfLabel} · {formatCurrency(month.totalRealCost)} {labels.costLabel.toLowerCase()}</p>
+          <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(month.totalRevenue)} {labels.revenueOfLabel} · {formatCurrency(month.totalRealCost)} {copy.outflowSingular}</p>
         </motion.div>
       </motion.div>
 
@@ -99,7 +101,7 @@ export default function Desempenho() {
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-3 gap-2 mb-4">
         <motion.div variants={fadeUp}>
           <StatCard
-            label={labels.revenueLabel}
+            label={copy.inflow}
             value={week.totalRevenue}
             icon={<ArrowUpRight className="h-3.5 w-3.5 text-primary" />}
             format={(n) => formatCurrency(n)}
@@ -109,7 +111,7 @@ export default function Desempenho() {
         </motion.div>
         <motion.div variants={fadeUp}>
           <StatCard
-            label={labels.costLabel}
+            label={copy.outflow}
             value={week.totalRealCost}
             icon={<ArrowDownRight className="h-3.5 w-3.5 text-accent" />}
             format={(n) => formatCurrency(n)}
@@ -171,11 +173,11 @@ export default function Desempenho() {
         <p className="text-sm font-semibold text-foreground mb-4">{labels.weekSummaryLabel}</p>
         <div className="space-y-3">
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">{labels.revenueLabel} ({week.totalEntries})</span>
+            <span className="text-sm text-muted-foreground">{copy.inflow} ({week.totalEntries})</span>
             <span className="text-sm font-semibold text-foreground">{formatCurrency(week.totalRevenue)}</span>
           </div>
           <div className="flex justify-between items-center">
-            <span className="text-sm text-muted-foreground">{labels.costLabel}</span>
+            <span className="text-sm text-muted-foreground">{copy.outflow}</span>
             <span className="text-sm font-semibold text-accent">{formatCurrency(week.totalRealCost)}</span>
           </div>
           <div className="flex justify-between items-center">
