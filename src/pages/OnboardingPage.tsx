@@ -105,13 +105,9 @@ export default function OnboardingPage() {
         }
         seeded = true;
       }
-      // Pre-fill example values for cost map items still at 0
-      getState().costMap.forEach((item) => {
-        if (!item.value || item.value <= 0) {
-          updateCostMapItem(item.id, { value: seedValueForCost(item.name, item.classification) });
-          seeded = true;
-        }
-      });
+      // Cost map items stay at R$ 0 (skeleton only) — user fills values manually.
+      // Only "Folha de pagamento" is auto-filled (added above from employeePayroll).
+
       if (seeded) {
         try {
           sessionStorage.setItem('lr_business_seed_msg', '1');
