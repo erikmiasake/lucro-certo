@@ -12,8 +12,8 @@ const Movimentacoes = lazyWithRetry(() => import('./Movimentacoes'));
 const Custos = lazyWithRetry(() => import('./Custos'));
 const Desempenho = lazyWithRetry(() => import('./Desempenho'));
 const Configuracoes = lazyWithRetry(() => import('./Configuracoes'));
-const Relatorio = lazyWithRetry(() => import('./Relatorio'));
-const Impostos = lazyWithRetry(() => import('./Impostos'));
+// const Relatorio = lazyWithRetry(() => import('./Relatorio'));
+// const Impostos = lazyWithRetry(() => import('./Impostos'));
 
 
 const PageFallback = () => (
@@ -41,8 +41,8 @@ export default function Index() {
     
     if (path === '/desempenho' || path === '/dashboard/desempenho') return <Desempenho />;
     if (path === '/configuracoes' || path === '/dashboard/configuracoes') return <Configuracoes />;
-    if (path === '/relatorio' || path === '/dashboard/relatorio') return <Relatorio />;
-    if (path === '/impostos' || path === '/dashboard/impostos') return <Impostos />;
+    // if (path === '/relatorio' || path === '/dashboard/relatorio') return <Relatorio />;
+    // if (path === '/impostos' || path === '/dashboard/impostos') return <Impostos />;
     return <VisaoGeral />;
   };
 

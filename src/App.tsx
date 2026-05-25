@@ -17,7 +17,6 @@ const Summary = lazyWithRetry(() => import("./pages/Summary.tsx"));
 const Processing = lazyWithRetry(() => import("./pages/Processing.tsx"));
 const Tutorial = lazyWithRetry(() => import("./pages/Tutorial.tsx"));
 const Index = lazyWithRetry(() => import("./pages/Index.tsx"));
-const Impostos = lazyWithRetry(() => import("./pages/Impostos.tsx"));
 
 const NotFound = lazyWithRetry(() => import("./pages/NotFound.tsx"));
 
@@ -61,8 +60,6 @@ const App = () => (
             <Route path="/custos" element={<AuthGuard><Index /></AuthGuard>} />
             <Route path="/desempenho" element={<AuthGuard><Index /></AuthGuard>} />
             <Route path="/configuracoes" element={<AuthGuard><Index /></AuthGuard>} />
-            <Route path="/relatorio" element={<AuthGuard><Index /></AuthGuard>} />
-            <Route path="/impostos" element={<AuthGuard><Index /></AuthGuard>} />
 
 
             <Route path="*" element={<NotFound />} />
