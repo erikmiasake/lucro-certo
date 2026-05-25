@@ -162,7 +162,7 @@ export default function AIChat({ businessType, period = 'semana' }: AIChatProps)
     setMessages(prev => [...prev, userMsg]);
     setLoading(true);
     try {
-      const summary = getFinancialSummary(period);
+      const summary = buildAIFinancialSummary(period);
       const { data: result, error: fnError } = await supabase.functions.invoke('ai-insights', {
         body: { financialSummary: summary, businessType, appMode, mode: 'question', question },
       });
