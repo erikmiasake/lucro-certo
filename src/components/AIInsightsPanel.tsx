@@ -2,7 +2,60 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { Sparkles, Send, RefreshCw, ArrowUp } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { getFinancialSummary } from '@/lib/finance';
+import { getMonthSummary, getWeekSummary, getDaySummary, getCostBreakdown } from '@/lib/finance';
+
+// Constrói o contexto da IA usando EXCLUSIVAMENTE as mesmas funções
+// que alimentam o Dashboard e o Desempenho: getMonthSummary,
+// getWeekSummary, getDaySummary e getCostBreakdown. Nenhum cálculo
+// próprio ou função derivada (projeções, tendências, metas, melhores
+// dias) deve ser adicionado aqui — mantém-se consistência total com as
+// telas do app.
+function buildAIFinancialSummary(period: string) {
+  const week = getWeekSummary();
+  const month = getMonthSummary();
+  const today = getDaySummary();
+  const breakdown = getCostBreakdown();
+
+  const revenue = Math.round(week.totalRevenue);
+  const costs = Math.round(week.totalRealCost);
+  const profit = Math.round(week.profit);
+  const entries = week.totalEntries;
+  const margin = revenue > 0 ? Math.round(((revenue - costs) / revenue) * 100) : 0;
+  const hasSufficientData = entries >= 2;
+
+  return {
+    period,
+    revenue,
+    costs,
+    profit,
+    margin,
+    entries,
+    avgPerEntry: entries > 0 ? Math.round(revenue / entries) : 0,
+    operatingDaysPerWeek: 7,
+    operatingWeekdays: [0, 1, 2, 3, 4, 5, 6],
+    realDataPercentage: 100,
+    bestDay: null,
+    worstDay: null,
+    marginTrend: 'stable' as const,
+    monthlyProjection: null,
+    topCost: breakdown.topCost
+      ? { name: breakdown.topCost.name, percentage: Math.round(breakdown.topCost.percentage) }
+      : null,
+    totalFixed: Math.round(breakdown.totalFixed),
+    totalVariable: Math.round(breakdown.totalVariable),
+    goalMonthlyProfit: null,
+    goalProgress: 0,
+    goalOnTrack: false,
+    daysRemaining: 0,
+    monthProfit: Math.round(month.profit),
+    monthRevenue: Math.round(month.totalRevenue),
+    monthCosts: Math.round(month.totalRealCost),
+    todayRevenue: Math.round(today.totalRevenue),
+    todayCosts: Math.round(today.totalRealCost),
+    todayProfit: Math.round(today.profit),
+    hasSufficientData,
+  };
+}
 import { getModeCopyFromType, getMode } from '@/lib/modes';
 import { cn } from '@/lib/utils';
 
@@ -109,7 +162,7 @@ export default function AIChat({ businessType, period = 'semana' }: AIChatProps)
     setMessages(prev => [...prev, userMsg]);
     setLoading(true);
     try {
-      const summary = getFinancialSummary(period);
+      const summary = buildAIFinancialSummary(period);
       const { data: result, error: fnError } = await supabase.functions.invoke('ai-insights', {
         body: { financialSummary: summary, businessType, appMode, mode: 'question', question },
       });
