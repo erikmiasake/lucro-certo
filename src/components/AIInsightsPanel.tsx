@@ -6,15 +6,72 @@ import { getMonthSummary, getWeekSummary, getDaySummary, getCostBreakdown } from
 
 // Constrói o contexto da IA usando EXCLUSIVAMENTE as mesmas funções
 // que alimentam o Dashboard e o Desempenho: getMonthSummary,
-// getWeekSummary, getDaySummary e getCostBreakdown. Nenhum cálculo
-// próprio ou função derivada (projeções, tendências, metas, melhores
-// dias) deve ser adicionado aqui — mantém-se consistência total com as
-// telas do app.
+// getWeekSummary, getDaySummary e getCostBreakdown.
+//
+// As derivações abaixo (bestDay/worstDay e marginTrend) também são
+// construídas APENAS a partir dessas funções centrais — nenhum acesso
+// direto a state.entries/state.costs ou cálculos próprios.
+
+// Formata uma data (Date) em "YYYY-MM-DD" — mesma chave usada por getDaySummary.
+function toDateKey(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+
+// Itera sobre os últimos 30 dias chamando getDaySummary(date) para cada
+// data e retorna o dia de maior e menor lucro. Considera apenas dias
+// com alguma movimentação (receita ou custo > 0).
+function deriveBestAndWorstDay() {
+  let best: { date: string; profit: number } | null = null;
+  let worst: { date: string; profit: number } | null = null;
+  const today = new Date();
+  for (let i = 0; i < 30; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const date = toDateKey(d);
+    const s = getDaySummary(date);
+    if (s.totalRevenue === 0 && s.totalRealCost === 0) continue;
+    if (best === null || s.profit > best.profit) best = { date, profit: s.profit };
+    if (worst === null || s.profit < worst.profit) worst = { date, profit: s.profit };
+  }
+  return { best, worst };
+}
+
+// Compara a margem da semana atual (getWeekSummary) com a margem da
+// semana anterior (derivada via getDaySummary para os dias 7..13) e
+// retorna 'up' | 'down' | 'stable'.
+function deriveMarginTrend(): 'up' | 'down' | 'stable' {
+  const week = getWeekSummary();
+  const currentMargin =
+    week.totalRevenue > 0 ? ((week.totalRevenue - week.totalRealCost) / week.totalRevenue) * 100 : 0;
+
+  let prevRevenue = 0;
+  let prevCost = 0;
+  const today = new Date();
+  for (let i = 7; i < 14; i++) {
+    const d = new Date(today);
+    d.setDate(d.getDate() - i);
+    const s = getDaySummary(toDateKey(d));
+    prevRevenue += s.totalRevenue;
+    prevCost += s.totalRealCost;
+  }
+  const prevMargin = prevRevenue > 0 ? ((prevRevenue - prevCost) / prevRevenue) * 100 : 0;
+
+  const diff = currentMargin - prevMargin;
+  if (diff > 2) return 'up';
+  if (diff < -2) return 'down';
+  return 'stable';
+}
+
 function buildAIFinancialSummary(period: string) {
   const week = getWeekSummary();
   const month = getMonthSummary();
   const today = getDaySummary();
   const breakdown = getCostBreakdown();
+  const bestWorst = deriveBestAndWorstDay();
+  const marginTrend = deriveMarginTrend();
 
   const revenue = Math.round(week.totalRevenue);
   const costs = Math.round(week.totalRealCost);
@@ -34,9 +91,9 @@ function buildAIFinancialSummary(period: string) {
     operatingDaysPerWeek: 7,
     operatingWeekdays: [0, 1, 2, 3, 4, 5, 6],
     realDataPercentage: 100,
-    bestDay: null,
-    worstDay: null,
-    marginTrend: 'stable' as const,
+    bestDay: bestWorst.best ? { date: bestWorst.best.date, profit: Math.round(bestWorst.best.profit) } : null,
+    worstDay: bestWorst.worst ? { date: bestWorst.worst.date, profit: Math.round(bestWorst.worst.profit) } : null,
+    marginTrend,
     monthlyProjection: null,
     topCost: breakdown.topCost
       ? { name: breakdown.topCost.name, percentage: Math.round(breakdown.topCost.percentage) }
