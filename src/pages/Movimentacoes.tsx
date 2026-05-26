@@ -397,7 +397,7 @@ export default function Movimentacoes() {
                 </div>
                 <div className="flex-1 text-center">
                   <p className="text-[10px] text-muted-foreground">Gastos</p>
-                  <p className="text-xs font-semibold text-destructive/80">{fmtShort(monthSummary.totalRealCost)}</p>
+                  <p className="text-xs font-semibold text-destructive/80">{fmtShort(monthSummary.totalCosts)}</p>
                 </div>
                 <div className="flex-1 text-center">
                   <p className="text-[10px] text-muted-foreground">Sobrou</p>
