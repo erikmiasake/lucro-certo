@@ -23,7 +23,24 @@ const NotFound = lazyWithRetry(() => import("./pages/NotFound.tsx"));
 const ResetPassword = lazyWithRetry(() => import("./pages/ResetPassword.tsx"));
 const ForgotPassword = lazyWithRetry(() => import("./pages/ForgotPassword.tsx"));
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      // Cache data for 5 min before marking stale — cuts repeated network
+      // fetches when navigating between tabs on mobile.
+      staleTime: 5 * 60 * 1000,
+      // Keep unused data in memory for 10 min (avoids re-fetching on back-nav).
+      gcTime: 10 * 60 * 1000,
+      // Single retry on failure is enough; 3 retries block the UI too long on
+      // a slow mobile connection.
+      retry: 1,
+      // Don't refetch just because the user switches browser tabs.
+      refetchOnWindowFocus: false,
+      // Do refetch when the device reconnects (important for offline-then-back).
+      refetchOnReconnect: "always",
+    },
+  },
+});
 
 const RouteFallback = () => (
   <div className="min-h-screen w-full bg-background flex items-center justify-center">

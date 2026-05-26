@@ -3,11 +3,14 @@ import { useStore } from '@/hooks/use-store';
 import { lazyWithRetry } from '@/lib/lazy-retry';
 import AppLayout from '@/components/AceternitySidebar';
 import { useLocation, Navigate } from 'react-router-dom';
-import VisaoGeral from './VisaoGeral';
 import { hasSeenTutorial } from './Tutorial';
 
-// Lazy-load heavy sub-pages so the dashboard entry only pays for VisaoGeral.
-// Movimentacoes + Custos pull in recharts; Relatorio pulls in jspdf/html2canvas.
+// Lazy-load ALL sub-pages so the dashboard entry chunk stays small.
+// VisaoGeral itself pulls in EntryModal, CostModal, AIInsightsPanel + framer-motion
+// variants that don't need to block the sidebar/nav from rendering.
+// Movimentacoes + Custos pull in recharts (~200 KB) — deferred until first visit.
+// Relatorio / Impostos pull in jspdf/html2canvas — deferred until needed.
+const VisaoGeral = lazyWithRetry(() => import('./VisaoGeral'));
 const Movimentacoes = lazyWithRetry(() => import('./Movimentacoes'));
 const Custos = lazyWithRetry(() => import('./Custos'));
 const Desempenho = lazyWithRetry(() => import('./Desempenho'));
