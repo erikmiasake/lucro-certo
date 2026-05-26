@@ -341,8 +341,30 @@ export default function Configuracoes() {
             )}
           </div>
           )}
-        </div>
-      </motion.div>
+          </div>
+
+          {/* Logout button */}
+          <div className="mt-4 pt-4 border-t border-border/50">
+            <button
+              onClick={() => {
+                if (confirmLogout) {
+                  handleLogoutOnly();
+                } else {
+                  setConfirmLogout(true);
+                  setTimeout(() => setConfirmLogout(false), 4000);
+                }
+              }}
+              className={`w-full py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+                confirmLogout
+                  ? 'bg-destructive text-destructive-foreground shadow-lg shadow-destructive/20'
+                  : 'border border-destructive/40 text-destructive hover:bg-destructive/10'
+              }`}
+            >
+              <LogOut className="h-4 w-4" />
+              {confirmLogout ? 'Tem certeza que deseja sair da conta?' : 'Sair da conta'}
+            </button>
+          </div>
+        </motion.div>
 
       {/* Operation — hide for personal */}
       {!isPersonal && (
