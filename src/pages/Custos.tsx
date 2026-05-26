@@ -68,15 +68,15 @@ export default function Custos() {
   const [costView, setCostView] = useState<'real' | 'operacional'>('operacional');
 
   const bType = state.businessType || 'outro';
-  const bench = costBenchmarks[bType];
+  const bench = useMemo(() => costBenchmarks[bType], [bType]);
 
-  const costPctOfRevenue = month.totalRevenue > 0 ? (month.totalRealCost / month.totalRevenue) * 100 : 0;
-  const fixedPctOfRevenue = month.totalRevenue > 0 ? (breakdown.totalFixed / month.totalRevenue) * 100 : 0;
-  const variablePctOfRevenue = month.totalRevenue > 0 ? (breakdown.totalVariable / month.totalRevenue) * 100 : 0;
+  const costPctOfRevenue = useMemo(() => month.totalRevenue > 0 ? (month.totalRealCost / month.totalRevenue) * 100 : 0, [month]);
+  const fixedPctOfRevenue = useMemo(() => month.totalRevenue > 0 ? (breakdown.totalFixed / month.totalRevenue) * 100 : 0, [month, breakdown]);
+  const variablePctOfRevenue = useMemo(() => month.totalRevenue > 0 ? (breakdown.totalVariable / month.totalRevenue) * 100 : 0, [month, breakdown]);
 
-  const totalStatus = getBenchmarkStatus(costPctOfRevenue, bench.totalRange);
-  const fixedStatus = getBenchmarkStatus(fixedPctOfRevenue, bench.fixedRange);
-  const variableStatus = getBenchmarkStatus(variablePctOfRevenue, bench.variableRange);
+  const totalStatus = useMemo(() => getBenchmarkStatus(costPctOfRevenue, bench.totalRange), [costPctOfRevenue, bench]);
+  const fixedStatus = useMemo(() => getBenchmarkStatus(fixedPctOfRevenue, bench.fixedRange), [fixedPctOfRevenue, bench]);
+  const variableStatus = useMemo(() => getBenchmarkStatus(variablePctOfRevenue, bench.variableRange), [variablePctOfRevenue, bench]);
 
   const handleCost = (amount: number, type: 'product' | 'business', spreadDays: number, description?: string, category?: string, subcategory?: string, classification?: CostClassification) => {
     registerCost(amount, type, spreadDays, description, category, subcategory, classification);
@@ -86,27 +86,30 @@ export default function Custos() {
     setTimeout(() => setFeedback(null), 2500);
   };
 
-  const costInsights: string[] = [];
-  if (costPctOfRevenue > bench.totalRange[1]) {
-    costInsights.push(isPersonal
-      ? `Gastos em ${costPctOfRevenue.toFixed(0)}% da sua renda — acima do ideal (${bench.totalRange[0]}–${bench.totalRange[1]}%).`
-      : `Custos em ${costPctOfRevenue.toFixed(0)}% da receita — acima da média do setor (${bench.totalRange[0]}–${bench.totalRange[1]}%).`);
-  } else if (costPctOfRevenue > 0 && costPctOfRevenue <= bench.totalRange[1]) {
-    costInsights.push(isPersonal
-      ? `Seus gastos estão dentro de uma faixa saudável (${bench.totalRange[0]}–${bench.totalRange[1]}% da renda).`
-      : `Custos dentro da faixa saudável para ${config.label.toLowerCase()} (${bench.totalRange[0]}–${bench.totalRange[1]}%).`);
-  }
-  if (variablePctOfRevenue > bench.variableRange[1]) {
-    costInsights.push(isPersonal
-      ? `Gastos variáveis em ${variablePctOfRevenue.toFixed(0)}% da renda — acima do ideal de ${bench.variableRange[1]}%.`
-      : `Custos variáveis em ${variablePctOfRevenue.toFixed(0)}% da receita — acima do ideal de ${bench.variableRange[1]}%.`);
-  }
-  if (breakdown.topCost && breakdown.topCost.percentage > 35) {
-    const saving = breakdown.topCost.amount * 0.1;
-    costInsights.push(isPersonal
-      ? `${breakdown.topCost.name} concentra ${breakdown.topCost.percentage.toFixed(0)}% dos gastos. Reduzir 10% = +${fmtShort(saving)} de sobra.`
-      : `${breakdown.topCost.name} concentra ${breakdown.topCost.percentage.toFixed(0)}% dos custos. Reduzir 10% = +${fmtShort(saving)} de lucro.`);
-  }
+  const costInsights: string[] = useMemo(() => {
+    const insights: string[] = [];
+    if (costPctOfRevenue > bench.totalRange[1]) {
+      insights.push(isPersonal
+        ? `Gastos em ${costPctOfRevenue.toFixed(0)}% da sua renda — acima do ideal (${bench.totalRange[0]}–${bench.totalRange[1]}%).`
+        : `Custos em ${costPctOfRevenue.toFixed(0)}% da receita — acima da média do setor (${bench.totalRange[0]}–${bench.totalRange[1]}%).`);
+    } else if (costPctOfRevenue > 0 && costPctOfRevenue <= bench.totalRange[1]) {
+      insights.push(isPersonal
+        ? `Seus gastos estão dentro de uma faixa saudável (${bench.totalRange[0]}–${bench.totalRange[1]}% da renda).`
+        : `Custos dentro da faixa saudável para ${config.label.toLowerCase()} (${bench.totalRange[0]}–${bench.totalRange[1]}%).`);
+    }
+    if (variablePctOfRevenue > bench.variableRange[1]) {
+      insights.push(isPersonal
+        ? `Gastos variáveis em ${variablePctOfRevenue.toFixed(0)}% da renda — acima do ideal de ${bench.variableRange[1]}%.`
+        : `Custos variáveis em ${variablePctOfRevenue.toFixed(0)}% da receita — acima do ideal de ${bench.variableRange[1]}%.`);
+    }
+    if (breakdown.topCost && breakdown.topCost.percentage > 35) {
+      const saving = breakdown.topCost.amount * 0.1;
+      insights.push(isPersonal
+        ? `${breakdown.topCost.name} concentra ${breakdown.topCost.percentage.toFixed(0)}% dos gastos. Reduzir 10% = +${fmtShort(saving)} de sobra.`
+        : `${breakdown.topCost.name} concentra ${breakdown.topCost.percentage.toFixed(0)}% dos custos. Reduzir 10% = +${fmtShort(saving)} de lucro.`);
+    }
+    return insights;
+  }, [costPctOfRevenue, variablePctOfRevenue, breakdown.topCost, bench, isPersonal, config.label]);
 
   const pieData = useMemo(() => {
     if (breakdown.categories.length === 0) return [];
@@ -177,6 +180,7 @@ export default function Custos() {
               key={costView}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
+              transition={{ duration: 0.15 }}
               className="rounded-xl p-4 card-elevated space-y-3"
             >
               <div className="grid grid-cols-3 gap-3">
@@ -255,6 +259,7 @@ export default function Custos() {
         <motion.div
           initial={{ opacity: 0, y: -8 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15 }}
           className="mb-4 p-3 rounded-xl bg-destructive/8 border border-destructive/15 flex items-start gap-2.5"
         >
           <AlertTriangle className="h-3.5 w-3.5 text-destructive shrink-0 mt-0.5" />
@@ -272,6 +277,7 @@ export default function Custos() {
         <motion.div
           initial={{ opacity: 0, y: 5 }}
           animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.15 }}
           className="flex items-start gap-2.5 p-3 rounded-xl bg-primary/5 border border-primary/10 mb-4"
         >
           <Brain className="h-3.5 w-3.5 text-primary shrink-0 mt-0.5" />
@@ -317,11 +323,11 @@ export default function Custos() {
 
       <AnimatePresence mode="wait">
         {viewTab === 'map' ? (
-          <motion.div key="map" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+          <motion.div key="map" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
             <CostMapSection />
           </motion.div>
         ) : viewTab === 'overview' ? (
-          <motion.div key="overview" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} className="space-y-3">
+          <motion.div key="overview" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }} className="space-y-3">
 
 
             {/* Distribution Chart */}
@@ -411,7 +417,7 @@ export default function Custos() {
                           <motion.div
                             initial={{ width: 0 }}
                             animate={{ width: `${cat.percentage}%` }}
-                            transition={{ delay: 0.15 + i * 0.05, duration: 0.5, ease: [0.16, 1, 0.3, 1] }}
+                            transition={{ delay: 0.05 + i * 0.02, duration: 0.15 }}
                             className="h-full rounded-full"
                             style={{ background: CHART_COLORS[i % CHART_COLORS.length] }}
                           />
@@ -489,7 +495,7 @@ export default function Custos() {
 
           </motion.div>
         ) : (
-          <motion.div key="list" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }}>
+          <motion.div key="list" initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
             <div className="flex flex-col gap-1.5">
               {costs.length === 0 ? (
                 <div className="text-center py-12 rounded-xl card-elevated">
@@ -505,7 +511,7 @@ export default function Custos() {
                     key={c.id}
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.02, ease: [0.16, 1, 0.3, 1] }}
+                    transition={{ delay: i * 0.02, duration: 0.15 }}
                     className="flex items-center justify-between p-3 rounded-xl card-elevated group"
                   >
                     <div className="flex items-center gap-2.5 flex-1 min-w-0">
@@ -552,6 +558,7 @@ export default function Custos() {
         <motion.button
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.15 }}
           whileTap={{ scale: 0.96 }}
           onClick={() => setShowCost(true)}
           className="px-6 py-3 rounded-2xl gradient-accent text-accent-foreground font-semibold text-sm shadow-lg shadow-accent/20 flex items-center gap-2"

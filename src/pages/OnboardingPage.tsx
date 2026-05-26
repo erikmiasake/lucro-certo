@@ -145,17 +145,17 @@ export default function OnboardingPage() {
         ) : step === 'mode' ? (
           <motion.div
             key="mode-step"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
             className="w-full max-w-lg px-4 sm:px-6 py-6 sm:py-10"
           >
             <div className="text-center mb-6 sm:mb-10">
               <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.2 }}
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg glow-primary"
               >
                 <Sparkles className="h-6 w-6 text-primary-foreground" />
@@ -166,7 +166,7 @@ export default function OnboardingPage() {
               <motion.p
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
+                transition={{ delay: 0.08, duration: 0.15 }}
                 className="text-muted-foreground text-sm sm:text-base max-w-md mx-auto"
               >
                 Escolha o modo que melhor se encaixa na sua realidade
@@ -175,10 +175,9 @@ export default function OnboardingPage() {
 
             <div className="flex flex-col gap-3 sm:gap-4">
               <motion.button
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.2, duration: 0.5 }}
-                whileHover={{ scale: 1.02, y: -2 }}
+                transition={{ delay: 0.08, duration: 0.15 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleModeSelect('business')}
                 className="group relative rounded-2xl p-5 sm:p-6 border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--primary)/0.12)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40"
@@ -196,10 +195,9 @@ export default function OnboardingPage() {
               </motion.button>
 
               <motion.button
-                initial={{ opacity: 0, y: 20 }}
+                initial={{ opacity: 0, y: 12 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.35, duration: 0.5 }}
-                whileHover={{ scale: 1.02, y: -2 }}
+                transition={{ delay: 0.12, duration: 0.15 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={() => handleModeSelect('personal')}
                 className="group relative rounded-2xl p-5 sm:p-6 border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--accent)/0.12)] hover:border-accent/30 focus:outline-none focus:ring-2 focus:ring-accent/40"
@@ -217,24 +215,24 @@ export default function OnboardingPage() {
               </motion.button>
             </div>
 
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.6 }} className="text-center text-muted-foreground/50 text-xs mt-6 sm:mt-8">
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.25, duration: 0.15 }} className="text-center text-muted-foreground/50 text-xs mt-6 sm:mt-8">
               Powered by inteligência artificial
             </motion.p>
           </motion.div>
         ) : step === 'type' ? (
           <motion.div
             key="type-step"
-            initial={{ opacity: 0, y: 30 }}
+            initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
-            exit={{ opacity: 0, y: -20 }}
-            transition={{ duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
+            exit={{ opacity: 0, y: -10 }}
+            transition={{ duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
             className="w-full max-w-3xl px-4 sm:px-6 py-6 sm:py-10"
           >
             <div className="text-center mb-5 sm:mb-8">
               <motion.div
                 initial={{ scale: 0.5, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
-                transition={{ type: 'spring', bounce: 0.4, duration: 0.8 }}
+                transition={{ type: 'spring', bounce: 0, duration: 0.2 }}
                 className="w-10 h-10 sm:w-12 sm:h-12 rounded-xl gradient-primary flex items-center justify-center mx-auto mb-3 sm:mb-4 shadow-lg glow-primary"
               >
                 <Sparkles className="h-6 w-6 text-primary-foreground" />
@@ -247,7 +245,7 @@ export default function OnboardingPage() {
               <motion.div
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: 0.3, duration: 0.5 }}
+                transition={{ delay: 0.08, duration: 0.15 }}
               >
                 <p className="text-muted-foreground text-sm sm:text-base mb-2 max-w-md mx-auto">
                   Escolha seu tipo de negócio e receba análises inteligentes personalizadas
@@ -267,10 +265,9 @@ export default function OnboardingPage() {
                 return (
                   <motion.button
                     key={type}
-                    initial={{ opacity: 0, y: 40, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: isClicked ? 0.95 : 1 }}
-                    transition={{ delay: index * 0.08, duration: 0.5, ease: [0.22, 1, 0.36, 1] }}
-                    whileHover={{ scale: 1.03, y: -4 }}
+                    initial={{ opacity: 0, y: 16, scale: 0.97 }}
+                    animate={{ opacity: 1, y: 0, scale: isClicked ? 0.97 : 1 }}
+                    transition={{ delay: index * 0.03, duration: 0.15, ease: [0.22, 1, 0.36, 1] }}
                     whileTap={{ scale: 0.97 }}
                     onClick={() => handleSelectType(type)}
                     className="group relative rounded-xl sm:rounded-2xl overflow-hidden border border-border bg-card text-left transition-shadow duration-300 hover:shadow-[0_8px_40px_hsl(var(--primary)/0.12)] hover:border-primary/30 focus:outline-none focus:ring-2 focus:ring-primary/40"
@@ -293,7 +290,7 @@ export default function OnboardingPage() {
               })}
             </div>
 
-            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.8 }} className="text-center text-muted-foreground/50 text-xs mt-5 sm:mt-8">
+            <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3, duration: 0.15 }} className="text-center text-muted-foreground/50 text-xs mt-5 sm:mt-8">
               Powered by inteligência artificial
             </motion.p>
           </motion.div>

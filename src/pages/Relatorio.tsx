@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useMemo } from 'react';
 import { useStore } from '@/hooks/use-store';
 import { getMonthlySummary, type MonthlySummary } from '@/lib/finance';
 import { supabase } from '@/integrations/supabase/client';
@@ -48,7 +48,7 @@ export default function Relatorio() {
   const [report, setReport] = useState<{ summary: MonthlySummary; ai: AIReport } | null>(null);
   const reportRef = useRef<HTMLDivElement>(null);
 
-  const monthOptions = getMonthOptions();
+  const monthOptions = useMemo(() => getMonthOptions(), []);
 
   const handleGenerate = async () => {
     const [yearStr, monthStr] = selectedMonth.split('-');

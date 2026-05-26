@@ -21,6 +21,7 @@ export default function GoalsProgress() {
     <motion.div
       initial={{ opacity: 0, y: 8 }}
       animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.15 }}
       className="rounded-2xl p-4 card-elevated"
     >
       <div className="flex items-center gap-2 mb-3">
@@ -51,7 +52,7 @@ export default function GoalsProgress() {
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(progress.profit.progress, 100)}%` }}
-                transition={{ duration: 0.8, ease: 'easeOut' }}
+                transition={{ duration: 0.15, ease: 'easeOut' }}
                 className={`h-full rounded-full ${
                   progress.profit.progress >= 100
                     ? 'bg-primary'
@@ -95,7 +96,7 @@ export default function GoalsProgress() {
               <motion.div
                 initial={{ width: 0 }}
                 animate={{ width: `${Math.min(progress.margin.progress, 100)}%` }}
-                transition={{ duration: 0.8, ease: 'easeOut', delay: 0.1 }}
+                transition={{ duration: 0.15, ease: 'easeOut' }}
                 className={`h-full rounded-full ${
                   progress.margin.progress >= 100
                     ? 'bg-blue-400'

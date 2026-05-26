@@ -68,6 +68,7 @@ function CostItemRow({ item, onUpdate, onDelete, onToggle, onRename, onSpreadCha
       initial={{ opacity: 0, y: 6 }}
       animate={{ opacity: 1, y: 0 }}
       exit={{ opacity: 0, x: -20 }}
+      transition={{ duration: 0.15 }}
       className="p-3 rounded-xl card-elevated group"
     >
       <div className="flex items-center gap-2">
@@ -309,6 +310,7 @@ export default function CostMapSection() {
             initial={{ opacity: 0, height: 0 }}
             animate={{ opacity: 1, height: 'auto' }}
             exit={{ opacity: 0, height: 0 }}
+            transition={{ duration: 0.15 }}
             className="overflow-hidden"
           >
             <div className="p-3 rounded-xl card-elevated space-y-3">

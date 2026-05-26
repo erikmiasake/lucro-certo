@@ -99,11 +99,11 @@ export default function Movimentacoes() {
     return () => clearInterval(interval);
   }, []);
 
-  const todaySummary = getDaySummary(today);
-  const weekSummary = getWeekSummary();
-  const monthSummary = getMonthSummary();
-  const prevWeek = getPreviousWeekSummary();
-  const weekData = getWeekDailyData(true).map(d => {
+  const todaySummary = useMemo(() => getDaySummary(today), [today, state]);
+  const weekSummary = useMemo(() => getWeekSummary(), [state]);
+  const monthSummary = useMemo(() => getMonthSummary(), [state]);
+  const prevWeek = useMemo(() => getPreviousWeekSummary(), [state]);
+  const weekData = useMemo(() => getWeekDailyData(true).map(d => {
     const s = getDaySummary(d.date);
     const opProfit = s.totalRevenue - s.totalCosts;
     return {
@@ -112,12 +112,12 @@ export default function Movimentacoes() {
       profit: opProfit,
       margin: s.totalRevenue > 0 ? (opProfit / s.totalRevenue) * 100 : 0,
     };
-  });
-  const insights = getSmartInsights();
+  }), [state]);
+  const insights = useMemo(() => getSmartInsights(), [state]);
 
-  const weekChange = prevWeek.totalRevenue > 0
+  const weekChange = useMemo(() => prevWeek.totalRevenue > 0
     ? ((weekSummary.totalRevenue - prevWeek.totalRevenue) / prevWeek.totalRevenue * 100)
-    : 0;
+    : 0, [weekSummary, prevWeek]);
 
   useEffect(() => {
     if (editingDate) setTimeout(() => inputRef.current?.focus(), 50);
@@ -335,7 +335,7 @@ export default function Movimentacoes() {
                 key={item.label}
                 initial={{ opacity: 0, y: 10 }}
                 animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: i * 0.05 }}
+                transition={{ delay: i * 0.04, duration: 0.15 }}
                 className="p-3 rounded-xl card-elevated"
               >
                 <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-1">{item.label}</p>
@@ -348,6 +348,7 @@ export default function Movimentacoes() {
           <motion.div
             initial={{ opacity: 0, y: 8 }}
             animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.15 }}
             className="rounded-xl p-4 card-elevated mb-4 border-l-4 border-l-primary"
           >
             <div className="flex items-center justify-between mb-2">
@@ -422,7 +423,7 @@ export default function Movimentacoes() {
                     key={e.id}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: i * 0.03 }}
+                    transition={{ delay: i * 0.02, duration: 0.15 }}
                     className="flex items-center justify-between p-3 rounded-xl card-elevated group"
                   >
                     <button
@@ -480,7 +481,7 @@ export default function Movimentacoes() {
                     key={c.id}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: i * 0.03 }}
+                    transition={{ delay: i * 0.02, duration: 0.15 }}
                     className="flex items-center justify-between p-3 rounded-xl card-elevated group"
                   >
                     <div className="flex items-center gap-2.5">
@@ -516,6 +517,7 @@ export default function Movimentacoes() {
             <motion.button
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
+              transition={{ duration: 0.15 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => setShowEntry(true)}
               className="px-5 py-3 rounded-2xl gradient-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 flex items-center gap-2"
@@ -526,7 +528,7 @@ export default function Movimentacoes() {
             <motion.button
               initial={{ y: 20, opacity: 0 }}
               animate={{ y: 0, opacity: 1 }}
-              transition={{ delay: 0.05 }}
+              transition={{ delay: 0.05, duration: 0.15 }}
               whileTap={{ scale: 0.95 }}
               onClick={() => navigate('/custos')}
               className="px-4 py-3 rounded-2xl bg-card border border-border text-foreground font-semibold text-sm shadow-lg flex items-center gap-2"
@@ -563,7 +565,7 @@ export default function Movimentacoes() {
             key={item.label}
             initial={{ opacity: 0, y: 10 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: i * 0.05 }}
+            transition={{ delay: i * 0.04, duration: 0.15 }}
             onClick={() => setPeriod(i === 0 ? 'dia' : i === 1 ? 'semana' : 'mes')}
             className={`p-3 rounded-xl cursor-pointer transition-all ${
               (i === 0 && period === 'dia') || (i === 1 && period === 'semana') || (i === 2 && period === 'mes')
@@ -602,7 +604,7 @@ export default function Movimentacoes() {
       <AnimatePresence mode="wait">
         {/* ───── DIA ───── */}
         {period === 'dia' && (
-          <motion.div key="dia" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div key="dia" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
             {/* Today Input */}
             <div className="rounded-xl p-4 card-elevated mb-3 border-l-4 border-l-primary">
               <div className="flex items-center justify-between mb-2">
@@ -689,7 +691,7 @@ export default function Movimentacoes() {
                     key={date}
                     initial={{ opacity: 0, x: -8 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.03 }}
+                    transition={{ delay: i * 0.02, duration: 0.15 }}
                     className={`flex items-center justify-between p-3 rounded-xl card-elevated group transition-all ${!operating ? 'opacity-50' : 'hover:border-primary/20'}`}
                   >
                     {isEditing ? (
@@ -746,7 +748,7 @@ export default function Movimentacoes() {
 
         {/* ───── SEMANA ───── */}
         {period === 'semana' && (
-          <motion.div key="semana" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div key="semana" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
             {/* Week chart — Receita, Custo, Lucro */}
             <div className="rounded-xl p-4 card-elevated mb-3">
               <div className="flex items-center justify-between mb-3">
@@ -846,6 +848,7 @@ export default function Movimentacoes() {
                       className={`h-full rounded-full ${weekSummary.margin >= 20 ? 'bg-primary' : 'bg-destructive'}`}
                       initial={{ width: 0 }}
                       animate={{ width: `${Math.min(weekSummary.margin, 100)}%` }}
+                      transition={{ duration: 0.15 }}
                     />
                   </div>
                 </div>
@@ -862,7 +865,7 @@ export default function Movimentacoes() {
                     key={day.date}
                     initial={{ opacity: 0, x: -5 }}
                     animate={{ opacity: 1, x: 0 }}
-                    transition={{ delay: i * 0.03 }}
+                    transition={{ delay: i * 0.02, duration: 0.15 }}
                     className="flex items-center justify-between p-3 rounded-xl card-elevated group hover:border-primary/20 transition-all"
                   >
                     {isEditing ? (
@@ -916,7 +919,7 @@ export default function Movimentacoes() {
 
         {/* ───── MÊS ───── */}
         {period === 'mes' && (
-          <motion.div key="mes" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }}>
+          <motion.div key="mes" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.15 }}>
             {/* Month summary */}
             <div className="rounded-xl p-4 card-elevated mb-3">
               <p className="text-[10px] uppercase tracking-wider text-muted-foreground font-medium mb-3 flex items-center justify-between">
@@ -995,7 +998,7 @@ export default function Movimentacoes() {
                   key={week.label}
                   initial={{ opacity: 0, x: -5 }}
                   animate={{ opacity: 1, x: 0 }}
-                  transition={{ delay: i * 0.05 }}
+                  transition={{ delay: i * 0.03, duration: 0.15 }}
                   className="flex items-center justify-between p-3 rounded-xl card-elevated group hover:border-primary/20 transition-all cursor-pointer"
                   onClick={() => editingWeekIdx !== i && startWeekEdit(i)}
                 >
@@ -1049,7 +1052,7 @@ export default function Movimentacoes() {
                     key={date}
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
-                    transition={{ delay: Math.min(i * 0.02, 0.3) }}
+                    transition={{ delay: Math.min(i * 0.01, 0.1), duration: 0.15 }}
                     className="flex items-center justify-between p-3 rounded-xl card-elevated group hover:border-primary/20 transition-all"
                   >
                     {isEditing ? (
@@ -1204,6 +1207,7 @@ export default function Movimentacoes() {
         <motion.button
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
+          transition={{ duration: 0.15 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => setShowEntry(true)}
           className="px-5 py-3 rounded-2xl gradient-primary text-primary-foreground font-semibold text-sm shadow-lg shadow-primary/25 flex items-center gap-2"
@@ -1214,7 +1218,7 @@ export default function Movimentacoes() {
         <motion.button
           initial={{ y: 20, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.05 }}
+          transition={{ delay: 0.05, duration: 0.15 }}
           whileTap={{ scale: 0.95 }}
           onClick={() => navigate('/custos')}
           className="px-4 py-3 rounded-2xl bg-card border border-border text-foreground font-semibold text-sm shadow-lg flex items-center gap-2"

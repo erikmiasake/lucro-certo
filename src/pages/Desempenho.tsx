@@ -1,3 +1,4 @@
+import { useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { useStore } from '@/hooks/use-store';
 import { businessConfigs } from '@/lib/business-config';
@@ -31,12 +32,12 @@ function formatDateBR(dateStr: string) {
 
 const fadeUp = {
   hidden: { opacity: 0, y: 16 },
-  visible: { opacity: 1, y: 0, transition: { duration: 0.45, ease: [0.25, 0.46, 0.45, 0.94] } },
+  visible: { opacity: 1, y: 0, transition: { duration: 0.15, ease: [0.25, 0.46, 0.45, 0.94] } },
 };
 
 const stagger = {
   hidden: {},
-  visible: { transition: { staggerChildren: 0.06 } },
+  visible: { transition: { staggerChildren: 0.04 } },
 };
 
 export default function Desempenho() {
@@ -44,27 +45,24 @@ export default function Desempenho() {
   const config = businessConfigs[state.businessType!];
   const copy = getModeCopyFromType(state.businessType).glossary;
   const labels = copy;
-  const week = getWeekSummary();
-  const month = getMonthSummary();
-  const prevWeek = getPreviousWeekSummary();
-  const weekData = getWeekDailyData(true);
-  
+  const week = useMemo(() => getWeekSummary(), [state]);
+  const month = useMemo(() => getMonthSummary(), [state]);
+  const prevWeek = useMemo(() => getPreviousWeekSummary(), [state]);
+  const weekData = useMemo(() => getWeekDailyData(true), [state]);
   const todayDate = getDateString();
-  
-  const projection = getMonthlyProjection();
-
-  const weekDiff = prevWeek.totalRevenue > 0 ? week.profit - prevWeek.profit : null;
+  const projection = useMemo(() => getMonthlyProjection(), [state]);
+  const weekDiff = useMemo(() => prevWeek.totalRevenue > 0 ? week.profit - prevWeek.profit : null, [week, prevWeek]);
 
   return (
     <div className="p-5 md:p-8 max-w-4xl mx-auto safe-bottom">
-      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} className="mb-5">
+      <motion.div initial={{ opacity: 0, y: -10 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.15 }} className="mb-5">
         <h1 className="text-2xl md:text-3xl font-bold text-foreground tracking-tight">{labels.performanceTitle}</h1>
         <p className="text-muted-foreground text-sm mt-1">{labels.performanceSubtitle}</p>
       </motion.div>
 
       {/* Period cards */}
       <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 gap-3 mb-4">
-        <motion.div variants={fadeUp} className="rounded-2xl p-5 card-elevated card-interactive relative overflow-hidden" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
+        <motion.div variants={fadeUp} className="rounded-2xl p-5 card-elevated card-interactive relative overflow-hidden">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">Semana</p>
           <p className={`text-2xl font-extrabold tracking-tight ${week.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
             {formatCurrency(week.profit)}
@@ -83,7 +81,7 @@ export default function Desempenho() {
           <p className="text-[11px] text-muted-foreground mt-1">{formatCurrency(week.totalRevenue)} {labels.revenueOfLabel} · {formatCurrency(week.totalRealCost)} {copy.outflowSingular}</p>
         </motion.div>
 
-        <motion.div variants={fadeUp} className="rounded-2xl p-5 card-elevated card-interactive relative overflow-hidden" whileHover={{ scale: 1.06 }} transition={{ type: "spring", stiffness: 260, damping: 18 }}>
+        <motion.div variants={fadeUp} className="rounded-2xl p-5 card-elevated card-interactive relative overflow-hidden">
           <p className="text-[11px] uppercase tracking-wider text-muted-foreground mb-2 font-medium">Mês</p>
           <p className={`text-2xl font-extrabold tracking-tight ${month.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>
             {formatCurrency(month.profit)}
@@ -160,7 +158,7 @@ export default function Desempenho() {
       </div>
 
       {/* Weekly summary */}
-      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} className="rounded-2xl p-5 md:p-6 card-elevated">
+      <motion.div initial={{ opacity: 0, y: 12 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1, duration: 0.15 }} className="rounded-2xl p-5 md:p-6 card-elevated">
         <p className="text-sm font-semibold text-foreground mb-4">{labels.weekSummaryLabel}</p>
         <div className="space-y-3">
           <div className="flex justify-between items-center">
