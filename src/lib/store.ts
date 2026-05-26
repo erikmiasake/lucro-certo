@@ -511,19 +511,21 @@ function getCurrentMonthDates(): string[] {
 function getDateRangeSummary(dates: string[]) {
   let totalRevenue = 0;
   let totalRealCost = 0;
+  let totalCosts = 0;
   let totalEntries = 0;
 
   for (const date of dates) {
     const summary = getDaySummary(date);
     totalRevenue += summary.totalRevenue;
     totalRealCost += summary.totalRealCost;
+    totalCosts += summary.totalCosts;
     totalEntries += summary.entryCount;
   }
 
   const profit = totalRevenue - totalRealCost;
   const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
 
-  return { totalRevenue, totalRealCost, profit, margin, totalEntries };
+  return { totalRevenue, totalRealCost, totalCosts, profit, margin, totalEntries };
 }
 
 function getPeriodSummary(days: number) {

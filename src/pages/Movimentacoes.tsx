@@ -328,8 +328,8 @@ export default function Movimentacoes() {
           <div className="grid grid-cols-3 gap-2 mb-4">
             {[
               { label: 'Entradas', value: monthSummary.totalRevenue, color: 'text-primary' },
-              { label: 'Gastos', value: monthSummary.totalRealCost, color: 'text-destructive/80' },
-              { label: 'Sobrou', value: monthSummary.profit, color: monthSummary.profit >= 0 ? 'text-primary' : 'text-destructive' },
+              { label: 'Gastos', value: monthSummary.totalCosts, color: 'text-destructive/80' },
+              { label: 'Sobrou', value: monthSummary.totalRevenue - monthSummary.totalCosts, color: (monthSummary.totalRevenue - monthSummary.totalCosts) >= 0 ? 'text-primary' : 'text-destructive' },
             ].map((item, i) => (
               <motion.div
                 key={item.label}
@@ -397,7 +397,7 @@ export default function Movimentacoes() {
                 </div>
                 <div className="flex-1 text-center">
                   <p className="text-[10px] text-muted-foreground">Gastos</p>
-                  <p className="text-xs font-semibold text-destructive/80">{fmtShort(monthSummary.totalRealCost)}</p>
+                  <p className="text-xs font-semibold text-destructive/80">{fmtShort(monthSummary.totalCosts)}</p>
                 </div>
                 <div className="flex-1 text-center">
                   <p className="text-[10px] text-muted-foreground">Sobrou</p>
@@ -828,11 +828,11 @@ export default function Movimentacoes() {
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground">Custos</p>
-                  <p className="text-sm font-bold text-destructive/80">{fmtShort(weekSummary.totalRealCost)}</p>
+                  <p className="text-sm font-bold text-destructive/80">{fmtShort(weekSummary.totalCosts)}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground">Lucro</p>
-                  <p className={`text-sm font-bold ${weekSummary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(weekSummary.profit)}</p>
+                  <p className={`text-sm font-bold ${(weekSummary.totalRevenue - weekSummary.totalCosts) >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(weekSummary.totalRevenue - weekSummary.totalCosts)}</p>
                 </div>
               </div>
               {weekSummary.totalRevenue > 0 && (
@@ -951,11 +951,11 @@ export default function Movimentacoes() {
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground">Custos</p>
-                  <p className="text-sm font-bold text-destructive/80">{fmtShort(monthSummary.totalRealCost)}</p>
+                  <p className="text-sm font-bold text-destructive/80">{fmtShort(monthSummary.totalCosts)}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground">Lucro</p>
-                  <p className={`text-sm font-bold ${monthSummary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(monthSummary.profit)}</p>
+                  <p className={`text-sm font-bold ${(monthSummary.totalRevenue - monthSummary.totalCosts) >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(monthSummary.totalRevenue - monthSummary.totalCosts)}</p>
                 </div>
               </div>
               {monthSummary.totalRevenue > 0 && (
