@@ -456,11 +456,31 @@ export function getDaySummary(date: string = getDateString()) {
     (sum, c) => sum + getCostImpactOnDate(c, date),
     0
   );
+
+  // Operational cost: monthly total spread only across operating days of that month.
+  // Non-operating days return 0.
+  const target = new Date(date + 'T00:00:00');
+  const year = target.getFullYear();
+  const monthIdx = target.getMonth();
+  const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
+  const opWeekdays = state.businessProfile?.operatingWeekdays ?? [1, 2, 3, 4, 5, 6];
+  let opDaysInMonth = 0;
+  let monthTotalReal = 0;
+  for (let d = 1; d <= daysInMonth; d++) {
+    const ds = `${year}-${String(monthIdx + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
+    const dt = new Date(ds + 'T00:00:00');
+    if (opWeekdays.includes(dt.getDay())) opDaysInMonth++;
+    monthTotalReal += state.costs.reduce((s, c) => s + getCostImpactOnDate(c, ds), 0);
+  }
+  const isOp = opWeekdays.includes(target.getDay());
+  const totalCosts = isOp && opDaysInMonth > 0 ? monthTotalReal / opDaysInMonth : 0;
+
   const profit = totalRevenue - totalRealCost;
   const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
   const entryCount = dayEntries.length;
-  return { totalRevenue, totalRealCost, profit, margin, entryCount };
+  return { totalRevenue, totalRealCost, totalCosts, profit, margin, entryCount };
 }
+
 
 function getDateRange(days: number): string[] {
   const dates: string[] = [];
