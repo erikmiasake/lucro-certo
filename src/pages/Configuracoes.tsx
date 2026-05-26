@@ -27,6 +27,7 @@ export default function Configuracoes() {
   
   const navigate = useNavigate();
   const [confirmReset, setConfirmReset] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const [profitGoal, setProfitGoal] = useState(state.goals?.monthlyProfit?.toString() || '');
   const [marginGoal, setMarginGoal] = useState(state.goals?.monthlyMargin?.toString() || '');
   const [goalsSaved, setGoalsSaved] = useState(false);
