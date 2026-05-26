@@ -94,14 +94,26 @@ export default function OnboardingPage() {
       );
       let seeded = false;
       if (avg > 0 && !hasOnboardingEntry) {
-        // Distribute the daily average across all days of the current calendar month
+        // Distribute monthly revenue only across operating weekdays.
+        // Monthly total stays the same (avg * daysInMonth); we split it across
+        // the days the business actually operates, and put 0 on closed days.
         const now = new Date();
         const year = now.getFullYear();
         const month = now.getMonth();
         const daysInMonth = new Date(year, month + 1, 0).getDate();
+        const opWeekdays = data.profile?.operatingWeekdays
+          ?? getState().businessProfile.operatingWeekdays
+          ?? [1, 2, 3, 4, 5, 6];
+        let operatingDaysInMonth = 0;
+        for (let d = 1; d <= daysInMonth; d++) {
+          if (opWeekdays.includes(new Date(year, month, d).getDay())) operatingDaysInMonth++;
+        }
+        const monthlyTotal = avg * daysInMonth;
+        const perOperatingDay = operatingDaysInMonth > 0 ? monthlyTotal / operatingDaysInMonth : 0;
         for (let d = 1; d <= daysInMonth; d++) {
           const date = `${year}-${String(month + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-          setDayRevenue(date, avg, 'distributed');
+          const isOperating = opWeekdays.includes(new Date(year, month, d).getDay());
+          setDayRevenue(date, isOperating ? perOperatingDay : 0, 'distributed');
         }
         seeded = true;
       }
