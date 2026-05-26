@@ -55,6 +55,12 @@ export function BeamsBackground({
     };
 
     useEffect(() => {
+        // Mobile / reduced-motion fallback: skip the animated canvas entirely.
+        // The per-frame canvas blur(35px) over the full viewport freezes iOS Safari.
+        const isMobile = typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches;
+        const prefersReducedMotion = typeof window !== "undefined" && window.matchMedia("(prefers-reduced-motion: reduce)").matches;
+        if (isMobile || prefersReducedMotion) return;
+
         const canvas = canvasRef.current;
         if (!canvas) return;
 
@@ -139,9 +145,19 @@ export function BeamsBackground({
 
     return (
         <div className={cn("relative w-full", className)}>
+            {/* Static gradient fallback — always rendered, cheap on mobile */}
+            <div
+                aria-hidden
+                className="fixed inset-0 pointer-events-none z-0 md:hidden"
+                style={{
+                    background:
+                        "radial-gradient(ellipse at 20% 10%, hsla(155, 85%, 45%, 0.18), transparent 55%), radial-gradient(ellipse at 80% 90%, hsla(160, 80%, 40%, 0.14), transparent 55%), hsl(var(--background))",
+                }}
+            />
+            {/* Animated canvas — desktop only */}
             <canvas
                 ref={canvasRef}
-                className="fixed inset-0 pointer-events-none z-0"
+                className="fixed inset-0 pointer-events-none z-0 hidden md:block"
                 style={{ filter: "blur(15px)", willChange: "transform" }}
             />
             <div className="relative z-10">
