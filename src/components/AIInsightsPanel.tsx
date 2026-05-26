@@ -77,7 +77,7 @@ function buildAIFinancialSummary(period: string) {
   const costs = Math.round(week.totalRealCost);
   const profit = Math.round(week.profit);
   const entries = week.totalEntries;
-  const margin = revenue > 0 ? Math.round(((revenue - costs) / revenue) * 100) : 0;
+  const margin = Math.round(month.margin);
   const hasSufficientData = entries >= 2;
 
   return {
