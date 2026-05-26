@@ -103,7 +103,16 @@ export default function Movimentacoes() {
   const weekSummary = getWeekSummary();
   const monthSummary = getMonthSummary();
   const prevWeek = getPreviousWeekSummary();
-  const weekData = getWeekDailyData(true);
+  const weekData = getWeekDailyData(true).map(d => {
+    const s = getDaySummary(d.date);
+    const opProfit = s.totalRevenue - s.totalCosts;
+    return {
+      ...d,
+      cost: s.totalCosts,
+      profit: opProfit,
+      margin: s.totalRevenue > 0 ? (opProfit / s.totalRevenue) * 100 : 0,
+    };
+  });
   const insights = getSmartInsights();
 
   const weekChange = prevWeek.totalRevenue > 0
