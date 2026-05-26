@@ -469,13 +469,15 @@ export function getDaySummary(date: string = getDateString()) {
   for (let d = 1; d <= daysInMonth; d++) {
     const ds = `${year}-${String(monthIdx + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
     const dt = new Date(ds + 'T00:00:00');
-    if (opWeekdays.includes(dt.getDay())) opDaysInMonth++;
-    monthTotalReal += state.costs.reduce((s, c) => s + getCostImpactOnDate(c, ds), 0);
+    if (opWeekdays.includes(dt.getDay())) {
+      opDaysInMonth++;
+      monthTotalReal += state.costs.reduce((s, c) => s + getCostImpactOnDate(c, ds), 0);
+    }
   }
   const isOp = opWeekdays.includes(target.getDay());
   const totalCosts = isOp && opDaysInMonth > 0 ? monthTotalReal / opDaysInMonth : 0;
 
-  const profit = totalRevenue - totalRealCost;
+  const profit = totalRevenue - totalCosts;
   const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
   const entryCount = dayEntries.length;
   return { totalRevenue, totalRealCost, totalCosts, profit, margin, entryCount };
