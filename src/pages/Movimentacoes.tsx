@@ -103,7 +103,16 @@ export default function Movimentacoes() {
   const weekSummary = getWeekSummary();
   const monthSummary = getMonthSummary();
   const prevWeek = getPreviousWeekSummary();
-  const weekData = getWeekDailyData(true);
+  const weekData = getWeekDailyData(true).map(d => {
+    const s = getDaySummary(d.date);
+    const opProfit = s.totalRevenue - s.totalCosts;
+    return {
+      ...d,
+      cost: s.totalCosts,
+      profit: opProfit,
+      margin: s.totalRevenue > 0 ? (opProfit / s.totalRevenue) * 100 : 0,
+    };
+  });
   const insights = getSmartInsights();
 
   const weekChange = prevWeek.totalRevenue > 0
@@ -545,9 +554,10 @@ export default function Movimentacoes() {
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-2 mb-4">
         {[
-          { label: 'Diário', revenue: todaySummary.totalRevenue, profit: todaySummary.profit },
+          { label: 'Diário', revenue: todaySummary.totalRevenue, profit: todaySummary.totalRevenue - todaySummary.totalCosts },
           { label: 'Semana', revenue: weekSummary.totalRevenue, profit: weekSummary.profit },
           { label: 'Mês', revenue: monthSummary.totalRevenue, profit: monthSummary.profit },
+
         ].map((item, i) => (
           <motion.div
             key={item.label}
@@ -601,7 +611,8 @@ export default function Movimentacoes() {
                   <p className="text-xs font-semibold text-foreground">Hoje</p>
                 </div>
                 <span className="text-[10px] text-muted-foreground">
-                  Lucro: <span className={todaySummary.profit >= 0 ? 'text-primary font-medium' : 'text-destructive font-medium'}>{fmt(todaySummary.profit)}</span>
+                  Lucro: <span className={(todaySummary.totalRevenue - todaySummary.totalCosts) >= 0 ? 'text-primary font-medium' : 'text-destructive font-medium'}>{fmt(todaySummary.totalRevenue - todaySummary.totalCosts)}</span>
+
                 </span>
               </div>
 
@@ -650,12 +661,13 @@ export default function Movimentacoes() {
                   </div>
                   <div className="flex-1 text-center">
                     <p className="text-[10px] text-muted-foreground">Custos</p>
-                    <p className="text-xs font-semibold text-destructive/80">{fmtShort(todaySummary.totalRealCost)}</p>
+                    <p className="text-xs font-semibold text-destructive/80">{fmtShort(todaySummary.totalCosts)}</p>
                   </div>
                   <div className="flex-1 text-center">
                     <p className="text-[10px] text-muted-foreground">Lucro</p>
-                    <p className={`text-xs font-bold ${todaySummary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(todaySummary.profit)}</p>
+                    <p className={`text-xs font-bold ${(todaySummary.totalRevenue - todaySummary.totalCosts) >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(todaySummary.totalRevenue - todaySummary.totalCosts)}</p>
                   </div>
+
                 </div>
               )}
             </div>
@@ -713,7 +725,8 @@ export default function Movimentacoes() {
                             </div>
                             {revenue > 0 && (
                               <p className="text-[10px] text-muted-foreground">
-                                Lucro: <span className={summary.profit >= 0 ? 'text-primary' : 'text-destructive'}>{fmt(summary.profit)}</span>
+                                Lucro: <span className={(summary.totalRevenue - summary.totalCosts) >= 0 ? 'text-primary' : 'text-destructive'}>{fmt(summary.totalRevenue - summary.totalCosts)}</span>
+
                                 {aboveAvg && <span className="ml-1 text-primary/60">acima da média</span>}
                                 {belowAvg && <span className="ml-1 text-destructive/50">abaixo da média</span>}
                                 {sourceLabel(source) && <span className={`ml-1.5 ${sourceColor(source)}`}>· {sourceLabel(source)}</span>}
