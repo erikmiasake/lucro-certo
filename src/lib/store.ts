@@ -464,16 +464,17 @@ export function getDaySummary(date: string = getDateString()) {
   const monthIdx = target.getMonth();
   const daysInMonth = new Date(year, monthIdx + 1, 0).getDate();
   const opWeekdays = state.businessProfile?.operatingWeekdays ?? [1, 2, 3, 4, 5, 6];
-  let opDaysInMonth = 0;
   let monthTotalReal = 0;
   for (let d = 1; d <= daysInMonth; d++) {
     const ds = `${year}-${String(monthIdx + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-    const dt = new Date(ds + 'T00:00:00');
-    if (opWeekdays.includes(dt.getDay())) opDaysInMonth++;
     monthTotalReal += state.costs.reduce((s, c) => s + getCostImpactOnDate(c, ds), 0);
   }
+  // Match Mapa de Custos formula exactly: opDaysPerWeek * weeksInMonth, rounded
+  const opDaysPerWeek = opWeekdays.length;
+  const weeksInMonth = daysInMonth / 7;
+  const opDaysInMonth = Math.max(1, Math.round(opDaysPerWeek * weeksInMonth));
   const isOp = opWeekdays.includes(target.getDay());
-  const totalCosts = isOp && opDaysInMonth > 0 ? monthTotalReal / opDaysInMonth : 0;
+  const totalCosts = isOp ? monthTotalReal / opDaysInMonth : 0;
 
   const profit = totalRevenue - totalCosts;
   const margin = totalRevenue > 0 ? (profit / totalRevenue) * 100 : 0;
