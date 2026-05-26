@@ -664,8 +664,9 @@ export default function Movimentacoes() {
                   </div>
                   <div className="flex-1 text-center">
                     <p className="text-[10px] text-muted-foreground">Lucro</p>
-                    <p className={`text-xs font-bold ${todaySummary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(todaySummary.profit)}</p>
+                    <p className={`text-xs font-bold ${(todaySummary.totalRevenue - todaySummary.totalCosts) >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(todaySummary.totalRevenue - todaySummary.totalCosts)}</p>
                   </div>
+
                 </div>
               )}
             </div>
