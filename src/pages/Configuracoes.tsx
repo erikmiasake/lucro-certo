@@ -79,6 +79,12 @@ export default function Configuracoes() {
     window.location.reload();
   };
 
+  const handleLogoutOnly = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
+    window.location.reload();
+  };
+
   const handlePasswordReset = async () => {
     if (!user?.email) return;
     try {
