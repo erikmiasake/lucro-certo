@@ -554,9 +554,10 @@ export default function Movimentacoes() {
       {/* Summary Cards */}
       <div className="grid grid-cols-3 gap-2 mb-4">
         {[
-          { label: 'Diário', revenue: todaySummary.totalRevenue, profit: todaySummary.profit },
+          { label: 'Diário', revenue: todaySummary.totalRevenue, profit: todaySummary.totalRevenue - todaySummary.totalCosts },
           { label: 'Semana', revenue: weekSummary.totalRevenue, profit: weekSummary.profit },
           { label: 'Mês', revenue: monthSummary.totalRevenue, profit: monthSummary.profit },
+
         ].map((item, i) => (
           <motion.div
             key={item.label}
