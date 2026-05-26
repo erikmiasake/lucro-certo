@@ -610,7 +610,8 @@ export default function Movimentacoes() {
                   <p className="text-xs font-semibold text-foreground">Hoje</p>
                 </div>
                 <span className="text-[10px] text-muted-foreground">
-                  Lucro: <span className={todaySummary.profit >= 0 ? 'text-primary font-medium' : 'text-destructive font-medium'}>{fmt(todaySummary.profit)}</span>
+                  Lucro: <span className={(todaySummary.totalRevenue - todaySummary.totalCosts) >= 0 ? 'text-primary font-medium' : 'text-destructive font-medium'}>{fmt(todaySummary.totalRevenue - todaySummary.totalCosts)}</span>
+
                 </span>
               </div>
 
