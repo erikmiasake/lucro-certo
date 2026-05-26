@@ -328,8 +328,8 @@ export default function Movimentacoes() {
           <div className="grid grid-cols-3 gap-2 mb-4">
             {[
               { label: 'Entradas', value: monthSummary.totalRevenue, color: 'text-primary' },
-              { label: 'Gastos', value: monthSummary.totalRealCost, color: 'text-destructive/80' },
-              { label: 'Sobrou', value: monthSummary.profit, color: monthSummary.profit >= 0 ? 'text-primary' : 'text-destructive' },
+              { label: 'Gastos', value: monthSummary.totalCosts, color: 'text-destructive/80' },
+              { label: 'Sobrou', value: monthSummary.totalRevenue - monthSummary.totalCosts, color: (monthSummary.totalRevenue - monthSummary.totalCosts) >= 0 ? 'text-primary' : 'text-destructive' },
             ].map((item, i) => (
               <motion.div
                 key={item.label}
