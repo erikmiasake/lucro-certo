@@ -27,6 +27,7 @@ export default function Configuracoes() {
   
   const navigate = useNavigate();
   const [confirmReset, setConfirmReset] = useState(false);
+  const [confirmLogout, setConfirmLogout] = useState(false);
   const [profitGoal, setProfitGoal] = useState(state.goals?.monthlyProfit?.toString() || '');
   const [marginGoal, setMarginGoal] = useState(state.goals?.monthlyMargin?.toString() || '');
   const [goalsSaved, setGoalsSaved] = useState(false);
@@ -75,6 +76,12 @@ export default function Configuracoes() {
     await supabase.auth.signOut();
     safeRemoveItem('lucro-real-data');
     navigate('/');
+    window.location.reload();
+  };
+
+  const handleLogoutOnly = async () => {
+    await supabase.auth.signOut();
+    navigate('/login');
     window.location.reload();
   };
 
@@ -266,7 +273,28 @@ export default function Configuracoes() {
               </button>
             )}
           </div>
-          
+
+          {/* Logout button */}
+          <div className="mt-4 pt-4 border-t border-border/50">
+            <button
+              onClick={() => {
+                if (confirmLogout) {
+                  handleLogoutOnly();
+                } else {
+                  setConfirmLogout(true);
+                  setTimeout(() => setConfirmLogout(false), 4000);
+                }
+              }}
+              className={`w-full py-3 rounded-xl font-semibold text-sm transition-all flex items-center justify-center gap-2 ${
+                confirmLogout
+                  ? 'bg-destructive text-destructive-foreground shadow-lg shadow-destructive/20'
+                  : 'border border-destructive/40 text-destructive hover:bg-destructive/10'
+              }`}
+            >
+              <LogOut className="h-4 w-4" />
+              {confirmLogout ? 'Tem certeza que deseja sair da conta?' : 'Sair da conta'}
+            </button>
+          </div>
         </motion.div>
       ) : (
         <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} className="rounded-2xl p-6 card-elevated mb-5 border border-dashed border-border flex flex-col items-center text-center">
