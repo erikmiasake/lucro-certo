@@ -2,7 +2,7 @@
 
 import React from "react"
 import { cx } from "class-variance-authority"
-import { AnimatePresence, motion } from "motion/react"
+import { AnimatePresence, motion } from "framer-motion"
 
 import { Button } from "@/components/ui/button"
 import { cn } from "@/lib/utils"
