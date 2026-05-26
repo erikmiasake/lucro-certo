@@ -28,7 +28,7 @@ const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
 
     React.useEffect(() => {
       const controls = animate(motionValue, value, {
-        duration: 1.2,
+        duration: 0.4,
         ease: "easeOut",
       });
       return controls.stop;
@@ -41,8 +41,7 @@ const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
           "group relative rounded-2xl p-3.5 card-elevated text-center cursor-default overflow-hidden",
           className
         )}
-        whileHover={{ y: -4, scale: 1.03 }}
-        transition={{ type: "spring", stiffness: 300, damping: 20 }}
+        transition={{ duration: 0.15 }}
         {...(props as any)}
       >
         {/* Glow on hover */}
@@ -50,8 +49,7 @@ const StatCard = React.forwardRef<HTMLDivElement, StatCardProps>(
 
         <motion.div
           className="flex justify-center mb-1 relative"
-          whileHover={{ rotate: -8, scale: 1.15 }}
-          transition={{ type: "spring", stiffness: 400, damping: 12 }}
+          transition={{ duration: 0.15 }}
         >
           {icon}
         </motion.div>
