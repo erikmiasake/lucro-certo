@@ -757,7 +757,7 @@ export default function Movimentacoes() {
                         <YAxis hide />
                         <Tooltip
                           contentStyle={{ background: 'hsl(var(--card))', border: '1px solid hsl(var(--border))', borderRadius: '8px', fontSize: '11px' }}
-                          formatter={(value: number, name: string) => [fmt(value), name === 'revenue' ? 'Receita' : name === 'cost' ? 'Custo' : 'Lucro']}
+                          formatter={(value: number, name: string) => [fmt(value), name]}
                           labelFormatter={(label) => label}
                         />
                         <Bar dataKey="revenue" name="Receita" fill="hsl(var(--primary))" opacity={0.8} radius={[4, 4, 0, 0]} />
