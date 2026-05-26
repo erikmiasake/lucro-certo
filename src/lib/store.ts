@@ -533,11 +533,31 @@ function getPeriodSummary(days: number) {
 }
 
 export function getWeekSummary() {
-  return getPeriodSummary(7);
+  const base = getPeriodSummary(7);
+  // Operational cost for the week = dailyOpCost * number of op days in this 7-day window
+  const opWeekdays = state.businessProfile?.operatingWeekdays ?? [1, 2, 3, 4, 5, 6];
+  const dates = getDateRange(7);
+  let opDaysInWeek = 0;
+  for (const ds of dates) {
+    const dt = new Date(ds + 'T00:00:00');
+    if (opWeekdays.includes(dt.getDay())) opDaysInWeek++;
+  }
+  const today = getDateString();
+  const dailyOp = getDaySummary(today).totalCosts || (opWeekdays.length > 0 ? getDaySummary(dates.find(d => opWeekdays.includes(new Date(d + 'T00:00:00').getDay())) || today).totalCosts : 0);
+  return { ...base, totalCosts: dailyOp * opDaysInWeek };
 }
 
 export function getMonthSummary() {
-  return getDateRangeSummary(getCurrentMonthDates());
+  const base = getDateRangeSummary(getCurrentMonthDates());
+  // Operational monthly cost = full monthly real cost (matches Mapa de Custos)
+  const today = getDateString();
+  const opWeekdays = state.businessProfile?.operatingWeekdays ?? [1, 2, 3, 4, 5, 6];
+  const dates = getCurrentMonthDates();
+  const dailyOp = getDaySummary(dates.find(d => opWeekdays.includes(new Date(d + 'T00:00:00').getDay())) || today).totalCosts;
+  const daysInMonth = dates.length;
+  const opDaysPerWeek = opWeekdays.length;
+  const opDaysInMonth = Math.max(1, Math.round(opDaysPerWeek * daysInMonth / 7));
+  return { ...base, totalCosts: dailyOp * opDaysInMonth };
 }
 
 export function getPreviousDaySummary() {
