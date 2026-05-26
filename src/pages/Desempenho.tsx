@@ -130,17 +130,7 @@ export default function Desempenho() {
           />
         </motion.div>
       </motion.div>
-      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-3 gap-2 mb-4">
-        <motion.div variants={fadeUp}>
-          <StatCard
-            label={labels.profitRealLabel}
-            value={week.profit}
-            icon={<TrendingUp className="h-3.5 w-3.5 text-primary" />}
-            format={(n) => formatCurrency(n)}
-            valueClassName={week.profit >= 0 ? 'text-primary' : 'text-destructive'}
-            placeholder={week.totalRevenue > 0 ? undefined : '—'}
-          />
-        </motion.div>
+      <motion.div variants={stagger} initial="hidden" animate="visible" className="grid grid-cols-2 gap-2 mb-4">
         <motion.div variants={fadeUp}>
           <StatCard
             label={labels.profitPerDay}
@@ -162,6 +152,7 @@ export default function Desempenho() {
           />
         </motion.div>
       </motion.div>
+
 
       {/* Goals progress */}
       <div className="mb-4">
