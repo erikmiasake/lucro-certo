@@ -828,11 +828,11 @@ export default function Movimentacoes() {
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground">Custos</p>
-                  <p className="text-sm font-bold text-destructive/80">{fmtShort(weekSummary.totalRealCost)}</p>
+                  <p className="text-sm font-bold text-destructive/80">{fmtShort(weekSummary.totalCosts)}</p>
                 </div>
                 <div>
                   <p className="text-[10px] text-muted-foreground">Lucro</p>
-                  <p className={`text-sm font-bold ${weekSummary.profit >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(weekSummary.profit)}</p>
+                  <p className={`text-sm font-bold ${(weekSummary.totalRevenue - weekSummary.totalCosts) >= 0 ? 'text-primary' : 'text-destructive'}`}>{fmtShort(weekSummary.totalRevenue - weekSummary.totalCosts)}</p>
                 </div>
               </div>
               {weekSummary.totalRevenue > 0 && (
