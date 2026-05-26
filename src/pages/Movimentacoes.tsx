@@ -724,7 +724,8 @@ export default function Movimentacoes() {
                             </div>
                             {revenue > 0 && (
                               <p className="text-[10px] text-muted-foreground">
-                                Lucro: <span className={summary.profit >= 0 ? 'text-primary' : 'text-destructive'}>{fmt(summary.profit)}</span>
+                                Lucro: <span className={(summary.totalRevenue - summary.totalCosts) >= 0 ? 'text-primary' : 'text-destructive'}>{fmt(summary.totalRevenue - summary.totalCosts)}</span>
+
                                 {aboveAvg && <span className="ml-1 text-primary/60">acima da média</span>}
                                 {belowAvg && <span className="ml-1 text-destructive/50">abaixo da média</span>}
                                 {sourceLabel(source) && <span className={`ml-1.5 ${sourceColor(source)}`}>· {sourceLabel(source)}</span>}
