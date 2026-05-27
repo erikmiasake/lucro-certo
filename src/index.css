@@ -154,15 +154,22 @@
   }
 }
 
-/* Mobile perf: backdrop-filter (Tailwind backdrop-blur-*) re-samples the entire
-   layer beneath on every frame. Combined with our animated background, that
-   freezes Safari/Chrome on phones. Strip all backdrop blur below the md breakpoint
-   and substitute a slightly more opaque background so glass surfaces still read. */
+/* Mobile perf: backdrop-filter + giant `filter: blur(...)` glow layers re-paint
+   the screen every frame and freeze Safari/Chrome on phones. Strip both below md. */
 @media (max-width: 767px) {
   *,
   *::before,
   *::after {
     backdrop-filter: none !important;
     -webkit-backdrop-filter: none !important;
+  }
+  /* Tailwind `blur-2xl`, `blur-3xl` and arbitrary `blur-[NNpx]` utilities all
+     compile to `filter: blur(...)`. They're only ever used as decorative halos
+     here — safe to disable on mobile. */
+  .blur-2xl,
+  .blur-3xl,
+  [class*="blur-["] {
+    filter: none !important;
+    -webkit-filter: none !important;
   }
 }
