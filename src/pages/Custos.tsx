@@ -155,29 +155,31 @@ export default function Custos() {
 
         return (
           <div className="mb-4 space-y-3">
-            {/* Toggle */}
-            <div className="flex gap-1 p-0.5 rounded-lg bg-secondary/50">
-              <button
-                onClick={() => setCostView('operacional')}
-                className={`flex-1 py-2 rounded-md font-medium text-xs transition-all ${
-                  costView === 'operacional' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {labels.costOperationalLabel}
-              </button>
-              <button
-                onClick={() => setCostView('real')}
-                className={`flex-1 py-2 rounded-md font-medium text-xs transition-all ${
-                  costView === 'real' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
-                }`}
-              >
-                {labels.costRealLabel}
-              </button>
-            </div>
+            {/* Toggle Operacional vs Real — apenas no modo negócio */}
+            {!isPersonal && (
+              <div className="flex gap-1 p-0.5 rounded-lg bg-secondary/50">
+                <button
+                  onClick={() => setCostView('operacional')}
+                  className={`flex-1 py-2 rounded-md font-medium text-xs transition-all ${
+                    costView === 'operacional' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {labels.costOperationalLabel}
+                </button>
+                <button
+                  onClick={() => setCostView('real')}
+                  className={`flex-1 py-2 rounded-md font-medium text-xs transition-all ${
+                    costView === 'real' ? 'bg-card text-primary shadow-sm' : 'text-muted-foreground hover:text-foreground'
+                  }`}
+                >
+                  {labels.costRealLabel}
+                </button>
+              </div>
+            )}
 
             {/* Values */}
             <motion.div
-              key={costView}
+              key={isPersonal ? 'real' : costView}
               initial={{ opacity: 0, y: 6 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.15 }}
@@ -186,11 +188,11 @@ export default function Custos() {
               <div className="grid grid-cols-3 gap-3">
                 <div className="text-center">
                   <p className="text-[10px] text-muted-foreground font-medium">Diário</p>
-                  <p className="text-lg font-bold text-foreground">{fmt(Math.round(costView === 'real' ? realDaily : opDaily))}</p>
+                  <p className="text-lg font-bold text-foreground">{fmt(Math.round((isPersonal || costView === 'real') ? realDaily : opDaily))}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-[10px] text-muted-foreground font-medium">Semanal</p>
-                  <p className="text-lg font-bold text-foreground">{fmt(Math.round(costView === 'real' ? realWeekly : opWeekly))}</p>
+                  <p className="text-lg font-bold text-foreground">{fmt(Math.round((isPersonal || costView === 'real') ? realWeekly : opWeekly))}</p>
                 </div>
                 <div className="text-center">
                   <p className="text-[10px] text-muted-foreground font-medium">Mensal</p>
@@ -198,37 +200,31 @@ export default function Custos() {
                 </div>
               </div>
 
-              <div className="pt-3 border-t border-border/50">
-                {costView === 'operacional' ? (
-                  <div className="space-y-1.5">
-                    <p className="text-[11px] font-semibold text-foreground">{labels.costOperationalDesc}</p>
-                    <p className="text-[10px] text-muted-foreground leading-relaxed">
-                      {isPersonal
-                        ? `Gastos distribuídos pelos ${daysInMonth} dias do mês.`
-                        : <>Custos distribuídos apenas pelos <span className="text-foreground font-semibold">{opDaysInMonth} dias</span> em que o negócio abre neste mês ({opDaysPerWeek} dias/semana).</>}
-                    </p>
-                    <p className="text-[10px] text-primary/70 font-medium">
-                      {isPersonal
-                        ? '👉 Mostra quanto você gasta por dia em média.'
-                        : '👉 Mostra quanto você precisa faturar por dia aberto para cobrir custos e gerar lucro.'}
-                    </p>
-                  </div>
-                ) : (
-                  <div className="space-y-1.5">
-                    <p className="text-[11px] font-semibold text-foreground">{labels.costRealDesc}</p>
-                    <p className="text-[10px] text-muted-foreground leading-relaxed">
-                      {isPersonal
-                        ? <>Gastos distribuídos por todos os <span className="text-foreground font-semibold">{daysInMonth} dias</span> do mês.</>
-                        : <>Custos distribuídos por todos os <span className="text-foreground font-semibold">{daysInMonth} dias</span> do mês — aberto ou não.</>}
-                    </p>
-                    <p className="text-[10px] text-primary/70 font-medium">
-                      {isPersonal
-                        ? '👉 Mostra o peso real dos seus gastos mensais.'
-                        : '👉 Mostra o peso estrutural do negócio — o que você paga mesmo sem atender clientes.'}
-                    </p>
-                  </div>
-                )}
-              </div>
+              {!isPersonal && (
+                <div className="pt-3 border-t border-border/50">
+                  {costView === 'operacional' ? (
+                    <div className="space-y-1.5">
+                      <p className="text-[11px] font-semibold text-foreground">{labels.costOperationalDesc}</p>
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        Custos distribuídos apenas pelos <span className="text-foreground font-semibold">{opDaysInMonth} dias</span> em que o negócio abre neste mês ({opDaysPerWeek} dias/semana).
+                      </p>
+                      <p className="text-[10px] text-primary/70 font-medium">
+                        👉 Mostra quanto você precisa faturar por dia aberto para cobrir custos e gerar lucro.
+                      </p>
+                    </div>
+                  ) : (
+                    <div className="space-y-1.5">
+                      <p className="text-[11px] font-semibold text-foreground">{labels.costRealDesc}</p>
+                      <p className="text-[10px] text-muted-foreground leading-relaxed">
+                        Custos distribuídos por todos os <span className="text-foreground font-semibold">{daysInMonth} dias</span> do mês — aberto ou não.
+                      </p>
+                      <p className="text-[10px] text-primary/70 font-medium">
+                        👉 Mostra o peso estrutural do negócio — o que você paga mesmo sem atender clientes.
+                      </p>
+                    </div>
+                  )}
+                </div>
+              )}
             </motion.div>
 
             {/* Fixed vs Variable summary */}
