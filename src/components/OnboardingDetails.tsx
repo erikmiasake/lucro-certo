@@ -200,8 +200,23 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
         },
       });
     } else {
+      // avgSales aqui contém o faturamento MENSAL digitado pelo usuário
+      const monthlyVal = parseInt(avgSales.replace(/\D/g, '')) || 0;
+      // Conta dias operacionais do mês corrente para converter mensal → diário
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      let opDaysInMonth = 0;
+      for (let d = 1; d <= daysInMonth; d++) {
+        if (operatingWeekdays.includes(new Date(year, month, d).getDay())) opDaysInMonth++;
+      }
+      const dailyAvg = opDaysInMonth > 0 && monthlyVal > 0
+        ? Math.round(monthlyVal / opDaysInMonth)
+        : 0;
       onFinish({
-        avgSales,
+        avgSales: dailyAvg > 0 ? dailyAvg.toLocaleString('pt-BR') : '',
+        monthlyRevenue: monthlyVal > 0 ? monthlyVal : undefined,
         selectedCosts,
         employeePayroll: totalPayroll > 0 ? totalPayroll : undefined,
         profile: {
