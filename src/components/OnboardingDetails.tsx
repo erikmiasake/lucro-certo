@@ -5,7 +5,7 @@ import { BusinessProfile } from '@/lib/finance';
 import {
   ArrowRight, ArrowLeft, DollarSign, Tag, Brain, Plus, X, Sparkles,
   Building2, MapPin, Calendar, Users, Crosshair, TrendingUp, Percent,
-  CheckCircle2, Wallet, PiggyBank, BarChart3, Shield, Package, Repeat
+  CheckCircle2, Wallet, PiggyBank, BarChart3, Shield, Package, Repeat, Target
 } from 'lucide-react';
 
 // Sugestão de faturamento médio MENSAL por tipo de negócio
