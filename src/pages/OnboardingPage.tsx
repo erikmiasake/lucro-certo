@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BusinessType, UsageMode, businessConfigs, businessImages } from '@/lib/business-config';
-import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState, addCostMapItem, addEntry, updateCostMapItem, setDayRevenue } from '@/lib/finance';
+import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState, addCostMapItem, addEntry, updateCostMapItem, setDayRevenue, setGoals } from '@/lib/finance';
 
 import AILoadingScreen from '@/components/AILoadingScreen';
 import OnboardingDetails, { OnboardingFinishData } from '@/components/OnboardingDetails';
