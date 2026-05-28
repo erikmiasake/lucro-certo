@@ -255,19 +255,31 @@ export default function AuthForm({ onSuccess }: AuthFormProps) {
           )}
         </AnimatePresence>
 
-        <div className="mt-6 text-center">
-          <button
-            type="button"
-            onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
-            className="text-base text-muted-foreground hover:text-foreground transition-all duration-300"
-          >
-            {mode === 'login' ? (
-              <>Não possui conta? <span className="text-primary font-medium">Cadastre-se para começar</span></>
-            ) : (
-              <>Já possui uma conta? <span className="text-primary font-medium">Faça login</span></>
-            )}
-          </button>
-        </div>
+      <div className="mt-6 text-center">
+        {mode === 'register' && (
+          <p className="text-xs text-muted-foreground mb-3 leading-relaxed">
+            Ao criar sua conta, você aceita os{" "}
+            <a href="/terms" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              Termos de Uso
+            </a>{" "}
+            e a{" "}
+            <a href="/privacy" target="_blank" rel="noopener noreferrer" className="text-primary hover:underline">
+              Política de Privacidade
+            </a>.
+          </p>
+        )}
+        <button
+          type="button"
+          onClick={() => setMode(mode === 'login' ? 'register' : 'login')}
+          className="text-base text-muted-foreground hover:text-foreground transition-all duration-300"
+        >
+          {mode === 'login' ? (
+            <>Não possui conta? <span className="text-primary font-medium">Cadastre-se para começar</span></>
+          ) : (
+            <>Já possui uma conta? <span className="text-primary font-medium">Faça login</span></>
+          )}
+        </button>
+      </div>
       </div>
     </div>
   );

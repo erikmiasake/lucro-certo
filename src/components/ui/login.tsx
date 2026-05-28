@@ -29,6 +29,16 @@ const formSchema = z.object({
     .string()
     .min(8, { message: "A senha deve ter pelo menos 8 caracteres." }),
   rememberMe: z.boolean().default(false).optional(),
+  acceptTerms: z.boolean().default(false).optional(),
+}).superRefine((data, ctx) => {
+  // acceptTerms is only required during registration
+  if (data.name && data.name.length > 0 && !data.acceptTerms) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["acceptTerms"],
+      message: "Você precisa aceitar os Termos de Uso e a Política de Privacidade.",
+    });
+  }
 });
 
 export type FormValues = z.infer<typeof formSchema>;
@@ -94,6 +104,7 @@ export function AuthFormSplitScreen({
       email: "",
       password: "",
       rememberMe: false,
+      acceptTerms: false,
     },
   });
 
@@ -274,6 +285,38 @@ export function AuthFormSplitScreen({
                     Esqueceu a senha?
                   </Link>
                 </motion.div>
+
+                {mode === 'register' && (
+                  <motion.div variants={itemVariants}>
+                    <FormField
+                      control={form.control}
+                      name="acceptTerms"
+                      render={({ field }) => (
+                        <FormItem className="flex flex-row items-start space-x-2 space-y-0">
+                          <FormControl>
+                            <Checkbox
+                              checked={field.value}
+                              onCheckedChange={field.onChange}
+                              disabled={isLoading}
+                              className="mt-0.5"
+                            />
+                          </FormControl>
+                          <FormLabel className="text-sm font-normal text-muted-foreground leading-relaxed cursor-pointer">
+                            Li e aceito os{" "}
+                            <Link to="/terms" target="_blank" className="text-primary hover:underline">
+                              Termos de Uso
+                            </Link>{" "}
+                            e a{" "}
+                            <Link to="/privacy" target="_blank" className="text-primary hover:underline">
+                              Política de Privacidade
+                            </Link>
+                            .
+                          </FormLabel>
+                        </FormItem>
+                      )}
+                    />
+                  </motion.div>
+                )}
 
                 <motion.div variants={itemVariants}>
                   <Button type="submit" className="w-full h-12 text-base font-bold bg-primary hover:bg-primary/90 text-primary-foreground shadow-[0_0_20px_rgba(20,184,105,0.2)]" disabled={isLoading}>
