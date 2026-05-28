@@ -5,7 +5,7 @@ import { BusinessProfile } from '@/lib/finance';
 import {
   ArrowRight, ArrowLeft, DollarSign, Tag, Brain, Plus, X, Sparkles,
   Building2, MapPin, Calendar, Users, Crosshair, TrendingUp, Percent,
-  CheckCircle2, Wallet, PiggyBank, BarChart3, Shield, Package, Repeat
+  CheckCircle2, Wallet, PiggyBank, BarChart3, Shield, Package, Repeat, Target
 } from 'lucide-react';
 
 // Sugestão de faturamento médio MENSAL por tipo de negócio
@@ -69,6 +69,10 @@ export interface OnboardingFinishData {
   monthlyIncome?: number;
   /** Faturamento médio mensal do negócio (modo business) */
   monthlyRevenue?: number;
+  /** Meta de lucro/sobra mensal em R$ */
+  goalProfit?: number;
+  /** Meta de margem mensal em % */
+  goalMargin?: number;
 }
 
 interface Props {
@@ -100,6 +104,10 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
   const [profileName, setProfileName] = useState('');
   const [incomeFrequency, setIncomeFrequency] = useState('');
   const [monthlyIncome, setMonthlyIncome] = useState('');
+
+  // Goals (both modes)
+  const [goalProfit, setGoalProfit] = useState('');
+  const [goalMargin, setGoalMargin] = useState('');
 
   const config = businessConfigs[selectedType];
 
@@ -182,6 +190,13 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
   };
 
   const handleFinish = () => {
+    const parsedGoalProfit = parseInt(goalProfit.replace(/\D/g, '')) || 0;
+    const parsedGoalMargin = parseFloat(goalMargin.replace(',', '.')) || 0;
+    const goalsPayload = {
+      goalProfit: parsedGoalProfit > 0 ? parsedGoalProfit : undefined,
+      goalMargin: parsedGoalMargin > 0 && parsedGoalMargin <= 100 ? parsedGoalMargin : undefined,
+    };
+
     if (isPersonal) {
       // Convert monthly income to a daily average (30 days)
       const monthlyVal = parseInt(monthlyIncome.replace(/\D/g, '')) || 0;
@@ -190,6 +205,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
         avgSales: dailyAvg > 0 ? dailyAvg.toLocaleString('pt-BR') : '',
         selectedCosts,
         monthlyIncome: monthlyVal > 0 ? monthlyVal : undefined,
+        ...goalsPayload,
         profile: {
           name: profileName || 'Minhas finanças',
           city: '',
@@ -219,6 +235,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
         monthlyRevenue: monthlyVal > 0 ? monthlyVal : undefined,
         selectedCosts,
         employeePayroll: totalPayroll > 0 ? totalPayroll : undefined,
+        ...goalsPayload,
         profile: {
           name: businessName,
           city: '',
@@ -477,6 +494,49 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
           </div>
         </div>
       </motion.div>
+
+      {/* Goals (optional) - Personal */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }} className="mb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <Target className="h-4 w-4 text-primary" />
+          <label className="text-sm font-medium text-foreground">Suas metas do mês</label>
+          <span className="text-[10px] text-muted-foreground/60 ml-1">(opcional)</span>
+        </div>
+        <p className="text-xs text-muted-foreground/60 mb-2.5">
+          Aparecem no Dashboard com o progresso em tempo real
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+            <label className="text-[10px] text-muted-foreground/60 mb-0.5 block">Quanto quer poupar</label>
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-bold text-muted-foreground">R$</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="500"
+                value={goalProfit}
+                onChange={(e) => setGoalProfit(formatCurrency(e.target.value))}
+                className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
+              />
+            </div>
+          </div>
+          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+            <label className="text-[10px] text-muted-foreground/60 mb-0.5 block">% da renda</label>
+            <div className="flex items-center gap-1">
+              <input
+                type="text"
+                inputMode="decimal"
+                placeholder="20"
+                value={goalMargin}
+                onChange={(e) => setGoalMargin(e.target.value.replace(/[^\d.,]/g, ''))}
+                className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
+              />
+              <span className="text-xs font-bold text-muted-foreground">%</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
 
       {/* AI Hint */}
       <AnimatePresence mode="wait">
@@ -750,6 +810,49 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
           )}
         </div>
       </motion.div>
+
+      {/* Goals (optional) */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }} className="mb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <Target className="h-4 w-4 text-primary" />
+          <label className="text-sm font-medium text-foreground">Suas metas do mês</label>
+          <span className="text-[10px] text-muted-foreground/60 ml-1">(opcional)</span>
+        </div>
+        <p className="text-xs text-muted-foreground/60 mb-2.5">
+          Aparecem no Dashboard com o progresso em tempo real
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+            <label className="text-[10px] text-muted-foreground/60 mb-0.5 block">Lucro mensal</label>
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-bold text-muted-foreground">R$</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="10.000"
+                value={goalProfit}
+                onChange={(e) => setGoalProfit(formatCurrency(e.target.value))}
+                className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
+              />
+            </div>
+          </div>
+          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+            <label className="text-[10px] text-muted-foreground/60 mb-0.5 block">Margem desejada</label>
+            <div className="flex items-center gap-1">
+              <input
+                type="text"
+                inputMode="decimal"
+                placeholder="20"
+                value={goalMargin}
+                onChange={(e) => setGoalMargin(e.target.value.replace(/[^\d.,]/g, ''))}
+                className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
+              />
+              <span className="text-xs font-bold text-muted-foreground">%</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
 
       {/* AI Hint */}
       <AnimatePresence mode="wait">

@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react';
 import { useNavigate, Navigate } from 'react-router-dom';
 import { AnimatePresence, motion } from 'framer-motion';
 import { BusinessType, UsageMode, businessConfigs, businessImages } from '@/lib/business-config';
-import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState, addCostMapItem, addEntry, updateCostMapItem, setDayRevenue } from '@/lib/finance';
+import { setBusinessType, setOnboardingData, setBusinessProfile, initCostMapFromOnboarding, getState, addCostMapItem, addEntry, updateCostMapItem, setDayRevenue, setGoals } from '@/lib/finance';
 
 import AILoadingScreen from '@/components/AILoadingScreen';
 import OnboardingDetails, { OnboardingFinishData } from '@/components/OnboardingDetails';
@@ -60,6 +60,13 @@ export default function OnboardingPage() {
     // Add employee payroll as fixed cost
     if (data.employeePayroll && data.employeePayroll > 0) {
       addCostMapItem('Folha de pagamento', 'fixed', data.employeePayroll);
+    }
+    // Save monthly goals if provided — show up in Dashboard immediately
+    if ((data.goalProfit && data.goalProfit > 0) || (data.goalMargin && data.goalMargin > 0)) {
+      setGoals({
+        monthlyProfit: data.goalProfit && data.goalProfit > 0 ? data.goalProfit : null,
+        monthlyMargin: data.goalMargin && data.goalMargin > 0 ? data.goalMargin : null,
+      });
     }
     setBusinessType(selectedType);
 
