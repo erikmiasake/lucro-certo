@@ -69,6 +69,10 @@ export interface OnboardingFinishData {
   monthlyIncome?: number;
   /** Faturamento médio mensal do negócio (modo business) */
   monthlyRevenue?: number;
+  /** Meta de lucro/sobra mensal em R$ */
+  goalProfit?: number;
+  /** Meta de margem mensal em % */
+  goalMargin?: number;
 }
 
 interface Props {
