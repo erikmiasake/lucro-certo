@@ -12,6 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
 import { safeRemoveItem } from '@/lib/safe-storage';
+import { getAppUrl } from '@/lib/appUrl';
 
 const types: BusinessType[] = ['restaurante', 'salao', 'petshop', 'loja', 'academia', 'outro'];
 
@@ -89,7 +90,7 @@ export default function Configuracoes() {
     if (!user?.email) return;
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${getAppUrl()}/reset-password`,
       });
       if (error) throw error;
       toast.success('E-mail enviado!', { description: 'Verifique sua caixa de entrada para redefinir a senha.' });
