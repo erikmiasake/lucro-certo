@@ -105,6 +105,10 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
   const [incomeFrequency, setIncomeFrequency] = useState('');
   const [monthlyIncome, setMonthlyIncome] = useState('');
 
+  // Goals (both modes)
+  const [goalProfit, setGoalProfit] = useState('');
+  const [goalMargin, setGoalMargin] = useState('');
+
   const config = businessConfigs[selectedType];
 
   const allCostCategories = useMemo(
