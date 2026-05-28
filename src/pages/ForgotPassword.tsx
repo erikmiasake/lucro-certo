@@ -5,6 +5,7 @@ import { Mail, ArrowLeft, Send } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { supabase } from '@/integrations/supabase/client';
+import { getAppUrl } from '@/lib/appUrl';
 import { toast } from 'sonner';
 
 export default function ForgotPassword() {
