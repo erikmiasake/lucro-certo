@@ -102,6 +102,28 @@ export default function ResetPassword() {
     );
   }
 
+  if (verifying) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <p className="text-muted-foreground">Validando link...</p>
+      </div>
+    );
+  }
+
+  if (verifyError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="w-full max-w-md text-center space-y-4">
+          <h1 className="text-2xl font-bold text-foreground">Link inválido ou expirado</h1>
+          <p className="text-muted-foreground">Solicite um novo link de redefinição de senha.</p>
+          <Button onClick={() => navigate('/forgot-password')} className="w-full h-12 rounded-xl font-semibold">
+            Solicitar novo link
+          </Button>
+        </div>
+      </div>
+    );
+  }
+
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-6">
       <motion.div
