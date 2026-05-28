@@ -17,6 +17,8 @@ const Summary = lazyWithRetry(() => import("./pages/Summary.tsx"));
 const Processing = lazyWithRetry(() => import("./pages/Processing.tsx"));
 const Tutorial = lazyWithRetry(() => import("./pages/Tutorial.tsx"));
 const Index = lazyWithRetry(() => import("./pages/Index.tsx"));
+const Privacy = lazyWithRetry(() => import("./pages/Privacy.tsx"));
+const Terms = lazyWithRetry(() => import("./pages/Terms.tsx"));
 
 const NotFound = lazyWithRetry(() => import("./pages/NotFound.tsx"));
 
