@@ -93,17 +93,17 @@ export default function OnboardingConfirmation({ businessType, avgSales, selecte
           </div>
 
           {/* Average sales / income */}
-          {(isPersonal ? (monthlyIncome && monthlyIncome > 0) : !!avgSales) && (
+          {(isPersonal ? (monthlyIncome && monthlyIncome > 0) : (monthlyRevenue && monthlyRevenue > 0)) && (
             <div className="flex items-center gap-3 p-3 rounded-xl bg-background/60 border border-border/40">
               <div className="w-9 h-9 rounded-lg bg-accent/10 flex items-center justify-center shrink-0">
                 <DollarSign className="h-4 w-4 text-accent" />
               </div>
               <div className="text-left flex-1">
                 <p className="text-[11px] text-muted-foreground/70 uppercase tracking-wider">
-                  {isPersonal ? 'Renda mensal' : 'Vendas/dia'}
+                  {isPersonal ? 'Renda mensal' : 'Faturamento mensal'}
                 </p>
                 <p className="text-sm font-semibold text-foreground">
-                  R$ {isPersonal ? (monthlyIncome ?? 0).toLocaleString('pt-BR') : avgSales}
+                  R$ {(isPersonal ? (monthlyIncome ?? 0) : (monthlyRevenue ?? 0)).toLocaleString('pt-BR')}
                 </p>
               </div>
               <CheckCircle2 className="h-4 w-4 text-primary/60" />
