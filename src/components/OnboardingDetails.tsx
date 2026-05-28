@@ -67,6 +67,8 @@ export interface OnboardingFinishData {
   profile: Partial<BusinessProfile>;
   employeePayroll?: number;
   monthlyIncome?: number;
+  /** Faturamento médio mensal do negócio (modo business) */
+  monthlyRevenue?: number;
 }
 
 interface Props {
