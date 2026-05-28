@@ -8,13 +8,15 @@ import {
   CheckCircle2, Wallet, PiggyBank, BarChart3, Shield, Package, Repeat
 } from 'lucide-react';
 
+// Sugestão de faturamento médio MENSAL por tipo de negócio
+// (≈ média diária × 26 dias operacionais por mês)
 const suggestedAvgSales: Partial<Record<BusinessType, string>> = {
-  restaurante: '1.500',
-  salao: '800',
-  petshop: '1.200',
-  loja: '2.000',
-  academia: '3.000',
-  outro: '1.000',
+  restaurante: '40.000',
+  salao: '20.000',
+  petshop: '30.000',
+  loja: '50.000',
+  academia: '80.000',
+  outro: '25.000',
 };
 
 const aiHints = [
@@ -65,6 +67,8 @@ export interface OnboardingFinishData {
   profile: Partial<BusinessProfile>;
   employeePayroll?: number;
   monthlyIncome?: number;
+  /** Faturamento médio mensal do negócio (modo business) */
+  monthlyRevenue?: number;
 }
 
 interface Props {
@@ -196,8 +200,23 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
         },
       });
     } else {
+      // avgSales aqui contém o faturamento MENSAL digitado pelo usuário
+      const monthlyVal = parseInt(avgSales.replace(/\D/g, '')) || 0;
+      // Conta dias operacionais do mês corrente para converter mensal → diário
+      const now = new Date();
+      const year = now.getFullYear();
+      const month = now.getMonth();
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      let opDaysInMonth = 0;
+      for (let d = 1; d <= daysInMonth; d++) {
+        if (operatingWeekdays.includes(new Date(year, month, d).getDay())) opDaysInMonth++;
+      }
+      const dailyAvg = opDaysInMonth > 0 && monthlyVal > 0
+        ? Math.round(monthlyVal / opDaysInMonth)
+        : 0;
       onFinish({
-        avgSales,
+        avgSales: dailyAvg > 0 ? dailyAvg.toLocaleString('pt-BR') : '',
+        monthlyRevenue: monthlyVal > 0 ? monthlyVal : undefined,
         selectedCosts,
         employeePayroll: totalPayroll > 0 ? totalPayroll : undefined,
         profile: {
@@ -228,7 +247,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     : [
         { label: 'Nome do negócio', done: businessName.length > 0 },
         
-        { label: 'Média de vendas', done: avgSales.length > 0 },
+        { label: 'Faturamento mensal', done: avgSales.length > 0 },
         { label: 'Objetivo definido', done: objective.length > 0 },
         { label: 'Custos selecionados', done: selectedCosts.length > 0 },
       ];
@@ -614,19 +633,22 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.29 }} className="mb-4">
         <div className="flex items-center gap-2 mb-1.5">
           <DollarSign className="h-4 w-4 text-primary" />
-          <label className="text-sm font-medium text-foreground">Média de vendas por dia</label>
+          <label className="text-sm font-medium text-foreground">Faturamento médio mensal</label>
         </div>
         <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
           <span className="text-sm font-bold text-muted-foreground">R$</span>
           <input
             type="text"
             inputMode="numeric"
-            placeholder={`Ex: R$ ${suggestedAvgSales[selectedType]} por dia`}
+            placeholder={`Ex: R$ ${suggestedAvgSales[selectedType]} por mês`}
             value={avgSales}
             onChange={handleSalesChange}
             className="flex-1 text-sm font-bold bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40 placeholder:font-normal"
           />
         </div>
+        <p className="text-[10px] text-muted-foreground/60 mt-1.5">
+          Quanto seu negócio fatura por mês (vendas brutas, antes dos custos). Vamos dividir automaticamente pelos seus dias de funcionamento.
+        </p>
       </motion.div>
 
       {/* Objective */}

@@ -12,11 +12,15 @@ export default function Summary() {
     businessType?: string;
     avgSales?: string;
     selectedCosts?: string[];
+    monthlyRevenue?: number;
+    monthlyIncome?: number;
   } | null;
 
   const businessType = state.businessType;
   const avgSales = routeState?.avgSales || '';
   const selectedCosts = routeState?.selectedCosts || state.mainCosts || [];
+  const monthlyRevenue = routeState?.monthlyRevenue;
+  const monthlyIncome = routeState?.monthlyIncome;
 
   useEffect(() => {
     if (!businessType) {
@@ -32,6 +36,8 @@ export default function Summary() {
         businessType={businessType}
         avgSales={avgSales}
         selectedCosts={selectedCosts}
+        monthlyRevenue={monthlyRevenue}
+        monthlyIncome={monthlyIncome}
         onEnter={() => navigate('/processing')}
       />
     </div>
