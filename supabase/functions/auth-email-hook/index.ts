@@ -218,12 +218,29 @@ async function handleWebhook(req: Request): Promise<Response> {
     )
   }
 
+  // Build a client-side verification URL to avoid email scanners
+  // (Yahoo/Outlook) consuming the one-time token before the user clicks.
+  // The destination page calls verifyOtp with the token_hash.
+  const redirectTo = payload.data.redirect_to || `https://${ROOT_DOMAIN}`
+  const tokenHash = payload.data.token_hash
+  let confirmationUrl = payload.data.url
+  if (tokenHash && ['recovery', 'magiclink', 'signup', 'invite', 'email_change'].includes(emailType)) {
+    try {
+      const u = new URL(redirectTo)
+      u.searchParams.set('token_hash', tokenHash)
+      u.searchParams.set('type', emailType === 'magiclink' ? 'magiclink' : emailType)
+      confirmationUrl = u.toString()
+    } catch (_) {
+      // fall back to payload.data.url
+    }
+  }
+
   // Build template props from payload.data (HookData structure)
   const templateProps = {
     siteName: SITE_NAME,
     siteUrl: `https://${ROOT_DOMAIN}`,
     recipient: payload.data.email,
-    confirmationUrl: payload.data.url,
+    confirmationUrl,
     token: payload.data.token,
     email: payload.data.email,
     oldEmail: payload.data.old_email,
