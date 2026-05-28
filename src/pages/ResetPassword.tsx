@@ -15,22 +15,45 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
 
+  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+
   useEffect(() => {
-    // Check for recovery event from the auth redirect
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setIsRecovery(true);
       }
     });
 
-    // Also check hash for type=recovery
-    const hash = window.location.hash;
-    if (hash.includes('type=recovery')) {
-      setIsRecovery(true);
+    // New flow: token_hash in query string -> verify on the client
+    const params = new URLSearchParams(window.location.search);
+    const tokenHash = params.get('token_hash');
+    const type = params.get('type');
+    if (tokenHash && type) {
+      setVerifying(true);
+      supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as any })
+        .then(({ error }) => {
+          if (error) {
+            setVerifyError(error.message);
+            toast.error('Link inválido ou expirado', { description: 'Solicite um novo link de redefinição.' });
+          } else {
+            setIsRecovery(true);
+            // clean URL
+            window.history.replaceState({}, '', '/reset-password');
+          }
+        })
+        .finally(() => setVerifying(false));
+    } else {
+      // Legacy implicit flow: hash contains type=recovery
+      const hash = window.location.hash;
+      if (hash.includes('type=recovery')) {
+        setIsRecovery(true);
+      }
     }
 
     return () => subscription.unsubscribe();
   }, []);
+
 
   const handleReset = async () => {
     if (password.length < 8) {
@@ -75,6 +98,28 @@ export default function ResetPassword() {
           <h1 className="text-2xl font-bold text-foreground mb-2">Senha redefinida!</h1>
           <p className="text-muted-foreground">Redirecionando para o login...</p>
         </motion.div>
+      </div>
+    );
+  }
+
+  if (verifying) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <p className="text-muted-foreground">Validando link...</p>
+      </div>
+    );
+  }
+
+  if (verifyError) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center p-6">
+        <div className="w-full max-w-md text-center space-y-4">
+          <h1 className="text-2xl font-bold text-foreground">Link inválido ou expirado</h1>
+          <p className="text-muted-foreground">Solicite um novo link de redefinição de senha.</p>
+          <Button onClick={() => navigate('/forgot-password')} className="w-full h-12 rounded-xl font-semibold">
+            Solicitar novo link
+          </Button>
+        </div>
       </div>
     );
   }
