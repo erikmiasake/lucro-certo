@@ -29,6 +29,16 @@ const formSchema = z.object({
     .string()
     .min(8, { message: "A senha deve ter pelo menos 8 caracteres." }),
   rememberMe: z.boolean().default(false).optional(),
+  acceptTerms: z.boolean().default(false).optional(),
+}).superRefine((data, ctx) => {
+  // acceptTerms is only required during registration
+  if (data.name && data.name.length > 0 && !data.acceptTerms) {
+    ctx.addIssue({
+      code: z.ZodIssueCode.custom,
+      path: ["acceptTerms"],
+      message: "Você precisa aceitar os Termos de Uso e a Política de Privacidade.",
+    });
+  }
 });
 
 export type FormValues = z.infer<typeof formSchema>;
@@ -94,6 +104,7 @@ export function AuthFormSplitScreen({
       email: "",
       password: "",
       rememberMe: false,
+      acceptTerms: false,
     },
   });
 
