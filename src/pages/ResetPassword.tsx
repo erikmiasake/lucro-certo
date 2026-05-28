@@ -15,22 +15,45 @@ export default function ResetPassword() {
   const [success, setSuccess] = useState(false);
   const [isRecovery, setIsRecovery] = useState(false);
 
+  const [verifying, setVerifying] = useState(false);
+  const [verifyError, setVerifyError] = useState<string | null>(null);
+
   useEffect(() => {
-    // Check for recovery event from the auth redirect
     const { data: { subscription } } = supabase.auth.onAuthStateChange((event) => {
       if (event === 'PASSWORD_RECOVERY') {
         setIsRecovery(true);
       }
     });
 
-    // Also check hash for type=recovery
-    const hash = window.location.hash;
-    if (hash.includes('type=recovery')) {
-      setIsRecovery(true);
+    // New flow: token_hash in query string -> verify on the client
+    const params = new URLSearchParams(window.location.search);
+    const tokenHash = params.get('token_hash');
+    const type = params.get('type');
+    if (tokenHash && type) {
+      setVerifying(true);
+      supabase.auth.verifyOtp({ token_hash: tokenHash, type: type as any })
+        .then(({ error }) => {
+          if (error) {
+            setVerifyError(error.message);
+            toast.error('Link inválido ou expirado', { description: 'Solicite um novo link de redefinição.' });
+          } else {
+            setIsRecovery(true);
+            // clean URL
+            window.history.replaceState({}, '', '/reset-password');
+          }
+        })
+        .finally(() => setVerifying(false));
+    } else {
+      // Legacy implicit flow: hash contains type=recovery
+      const hash = window.location.hash;
+      if (hash.includes('type=recovery')) {
+        setIsRecovery(true);
+      }
     }
 
     return () => subscription.unsubscribe();
   }, []);
+
 
   const handleReset = async () => {
     if (password.length < 8) {
