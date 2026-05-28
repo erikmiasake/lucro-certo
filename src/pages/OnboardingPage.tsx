@@ -133,6 +133,8 @@ export default function OnboardingPage() {
       state: {
         businessType: selectedType,
         avgSales: data.avgSales,
+        monthlyRevenue: data.monthlyRevenue,
+        monthlyIncome: data.monthlyIncome,
         selectedCosts: data.selectedCosts,
       },
     });
