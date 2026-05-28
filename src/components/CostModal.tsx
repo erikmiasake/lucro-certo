@@ -91,32 +91,34 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                   />
                 </div>
 
-                {/* Manual type selection */}
-                <div className="mb-4">
-                  <p className="text-xs font-medium text-muted-foreground mb-2">Tipo</p>
-                  <div className="grid grid-cols-2 gap-2">
-                    <button
-                      onClick={() => { setCostType('product'); setClassification('variable'); }}
-                      className={`p-3 rounded-xl border text-left transition-all text-sm ${
-                        costType === 'product' ? 'border-accent/40 bg-accent/5' : 'border-border bg-secondary/30 hover:bg-secondary/50'
-                      }`}
-                    >
-                      <Package className={`h-4 w-4 mb-1 ${costType === 'product' ? 'text-accent' : 'text-muted-foreground'}`} />
-                      <p className="font-medium text-foreground text-xs">{labels.variableLabel}</p>
-                      <p className="text-[10px] text-muted-foreground">{labels.variableHint}</p>
-                    </button>
-                    <button
-                      onClick={() => { setCostType('business'); setClassification('fixed'); }}
-                      className={`p-3 rounded-xl border text-left transition-all text-sm ${
-                        costType === 'business' ? 'border-purple-400/40 bg-purple-500/5' : 'border-border bg-secondary/30 hover:bg-secondary/50'
-                      }`}
-                    >
-                      <Building2 className={`h-4 w-4 mb-1 ${costType === 'business' ? 'text-purple-400' : 'text-muted-foreground'}`} />
-                      <p className="font-medium text-foreground text-xs">{labels.fixedLabel}</p>
-                      <p className="text-[10px] text-muted-foreground">{labels.fixedHint}</p>
-                    </button>
+                {/* Manual type selection — escondido no modo pessoal (gasto único) */}
+                {!config.isPersonal && (
+                  <div className="mb-4">
+                    <p className="text-xs font-medium text-muted-foreground mb-2">Tipo</p>
+                    <div className="grid grid-cols-2 gap-2">
+                      <button
+                        onClick={() => { setCostType('product'); setClassification('variable'); }}
+                        className={`p-3 rounded-xl border text-left transition-all text-sm ${
+                          costType === 'product' ? 'border-accent/40 bg-accent/5' : 'border-border bg-secondary/30 hover:bg-secondary/50'
+                        }`}
+                      >
+                        <Package className={`h-4 w-4 mb-1 ${costType === 'product' ? 'text-accent' : 'text-muted-foreground'}`} />
+                        <p className="font-medium text-foreground text-xs">{labels.variableLabel}</p>
+                        <p className="text-[10px] text-muted-foreground">{labels.variableHint}</p>
+                      </button>
+                      <button
+                        onClick={() => { setCostType('business'); setClassification('fixed'); }}
+                        className={`p-3 rounded-xl border text-left transition-all text-sm ${
+                          costType === 'business' ? 'border-purple-400/40 bg-purple-500/5' : 'border-border bg-secondary/30 hover:bg-secondary/50'
+                        }`}
+                      >
+                        <Building2 className={`h-4 w-4 mb-1 ${costType === 'business' ? 'text-purple-400' : 'text-muted-foreground'}`} />
+                        <p className="font-medium text-foreground text-xs">{labels.fixedLabel}</p>
+                        <p className="text-[10px] text-muted-foreground">{labels.fixedHint}</p>
+                      </button>
+                    </div>
                   </div>
-                </div>
+                )}
 
                 {/* Category text input */}
                 <div className="mb-4">
