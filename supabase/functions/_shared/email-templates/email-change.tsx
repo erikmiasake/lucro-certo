@@ -11,12 +11,15 @@ import {
   Html,
   Link,
   Preview,
-  Section,
   Text,
 } from 'npm:@react-email/components@0.0.22'
 
 interface EmailChangeEmailProps {
   siteName: string
+  // oldEmail is the user's current address (HookData.OldEmail). For the
+  // NEW-recipient half of a secure email_change fanout, `email` equals the
+  // recipient (NEW), so the "from" line must render oldEmail to read
+  // "from OLD to NEW" instead of "from NEW to NEW".
   oldEmail: string
   email: string
   newEmail: string
@@ -24,38 +27,37 @@ interface EmailChangeEmailProps {
 }
 
 export const EmailChangeEmail = ({
+  siteName,
   oldEmail,
   newEmail,
   confirmationUrl,
 }: EmailChangeEmailProps) => (
-  <Html lang="pt-BR" dir="ltr">
+  <Html lang="en" dir="ltr">
     <Head />
-    <Preview>Confirme a alteração do seu e-mail no Lucro Real</Preview>
+    <Preview>Confirm your email change for {siteName}</Preview>
     <Body style={main}>
       <Container style={container}>
-        <Section style={brandBar}>
-          <Text style={brand}>Lucro Real</Text>
-        </Section>
-        <Heading style={h1}>Confirme a alteração de e-mail</Heading>
+        <Heading style={h1}>Confirm your email change</Heading>
         <Text style={text}>
-          Você pediu para alterar o e-mail da sua conta de{' '}
-          <Link href={`mailto:${oldEmail}`} style={link}>{oldEmail}</Link>{' '}
-          para{' '}
-          <Link href={`mailto:${newEmail}`} style={link}>{newEmail}</Link>.
+          You requested to change your email address for {siteName} from{' '}
+          <Link href={`mailto:${oldEmail}`} style={link}>
+            {oldEmail}
+          </Link>{' '}
+          to{' '}
+          <Link href={`mailto:${newEmail}`} style={link}>
+            {newEmail}
+          </Link>
+          .
         </Text>
-        <Section style={{ textAlign: 'center' as const, margin: '32px 0' }}>
-          <Button style={button} href={confirmationUrl}>
-            Confirmar alteração
-          </Button>
-        </Section>
-        <Text style={muted}>
-          Se o botão não funcionar, copie e cole este link no navegador:
+        <Text style={text}>
+          Click the button below to confirm this change:
         </Text>
-        <Text style={linkFallback}>{confirmationUrl}</Text>
+        <Button style={button} href={confirmationUrl}>
+          Confirm Email Change
+        </Button>
         <Text style={footer}>
-          Se você não pediu esta alteração, proteja sua conta imediatamente.
-          <br />
-          <Link href="https://lucroreal.live" style={footerLink}>lucroreal.live</Link>
+          If you didn't request this change, please secure your account
+          immediately.
         </Text>
       </Container>
     </Body>
@@ -64,15 +66,27 @@ export const EmailChangeEmail = ({
 
 export default EmailChangeEmail
 
-const main = { backgroundColor: '#ffffff', fontFamily: "-apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif" }
-const container = { padding: '32px 28px', maxWidth: '560px' }
-const brandBar = { paddingBottom: '24px', borderBottom: '1px solid #eef0f2', marginBottom: '28px' }
-const brand = { fontSize: '18px', fontWeight: 700 as const, color: 'hsl(152, 76%, 38%)', margin: 0, letterSpacing: '-0.01em' }
-const h1 = { fontSize: '24px', fontWeight: 700 as const, color: '#0f1419', margin: '0 0 16px', letterSpacing: '-0.02em' }
-const text = { fontSize: '15px', color: '#3a3f46', lineHeight: '1.6', margin: '0 0 16px' }
-const muted = { fontSize: '12px', color: '#8a8f96', margin: '0 0 6px' }
-const linkFallback = { fontSize: '12px', color: 'hsl(152, 76%, 38%)', wordBreak: 'break-all' as const, margin: '0 0 28px' }
-const link = { color: 'hsl(152, 76%, 38%)', textDecoration: 'underline' }
-const footerLink = { color: 'hsl(152, 76%, 38%)', textDecoration: 'none' }
-const button = { backgroundColor: 'hsl(152, 76%, 45%)', color: '#0f1419', fontSize: '15px', fontWeight: 600 as const, borderRadius: '14px', padding: '14px 28px', textDecoration: 'none', display: 'inline-block' }
-const footer = { fontSize: '12px', color: '#8a8f96', margin: '32px 0 0', paddingTop: '20px', borderTop: '1px solid #eef0f2', lineHeight: '1.6' }
+const main = { backgroundColor: '#ffffff', fontFamily: 'Arial, sans-serif' }
+const container = { padding: '20px 25px' }
+const h1 = {
+  fontSize: '22px',
+  fontWeight: 'bold' as const,
+  color: '#000000',
+  margin: '0 0 20px',
+}
+const text = {
+  fontSize: '14px',
+  color: '#55575d',
+  lineHeight: '1.5',
+  margin: '0 0 25px',
+}
+const link = { color: 'inherit', textDecoration: 'underline' }
+const button = {
+  backgroundColor: '#10b981',
+  color: '#ffffff',
+  fontSize: '14px',
+  borderRadius: '8px',
+  padding: '12px 20px',
+  textDecoration: 'none',
+}
+const footer = { fontSize: '12px', color: '#999999', margin: '30px 0 0' }
