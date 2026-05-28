@@ -8,13 +8,15 @@ import {
   CheckCircle2, Wallet, PiggyBank, BarChart3, Shield, Package, Repeat
 } from 'lucide-react';
 
+// Sugestão de faturamento médio MENSAL por tipo de negócio
+// (≈ média diária × 26 dias operacionais por mês)
 const suggestedAvgSales: Partial<Record<BusinessType, string>> = {
-  restaurante: '1.500',
-  salao: '800',
-  petshop: '1.200',
-  loja: '2.000',
-  academia: '3.000',
-  outro: '1.000',
+  restaurante: '40.000',
+  salao: '20.000',
+  petshop: '30.000',
+  loja: '50.000',
+  academia: '80.000',
+  outro: '25.000',
 };
 
 const aiHints = [
