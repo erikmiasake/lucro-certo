@@ -90,7 +90,7 @@ export default function Configuracoes() {
     if (!user?.email) return;
     try {
       const { error } = await supabase.auth.resetPasswordForEmail(user.email, {
-        redirectTo: `${window.location.origin}/reset-password`,
+        redirectTo: `${getAppUrl()}/reset-password`,
       });
       if (error) throw error;
       toast.success('E-mail enviado!', { description: 'Verifique sua caixa de entrada para redefinir a senha.' });
