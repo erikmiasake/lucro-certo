@@ -235,6 +235,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
         monthlyRevenue: monthlyVal > 0 ? monthlyVal : undefined,
         selectedCosts,
         employeePayroll: totalPayroll > 0 ? totalPayroll : undefined,
+        ...goalsPayload,
         profile: {
           name: businessName,
           city: '',
