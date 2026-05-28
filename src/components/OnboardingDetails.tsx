@@ -711,6 +711,48 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
         </p>
       </motion.div>
 
+      {/* Goals (optional) */}
+      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.30 }} className="mb-4">
+        <div className="flex items-center gap-2 mb-1">
+          <Target className="h-4 w-4 text-primary" />
+          <label className="text-sm font-medium text-foreground">Suas metas do mês</label>
+          <span className="text-[10px] text-muted-foreground/60 ml-1">(opcional)</span>
+        </div>
+        <p className="text-xs text-muted-foreground/60 mb-2.5">
+          Aparecem no Dashboard com o progresso em tempo real
+        </p>
+        <div className="grid grid-cols-2 gap-2">
+          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+            <label className="text-[10px] text-muted-foreground/60 mb-0.5 block">Lucro mensal</label>
+            <div className="flex items-center gap-1">
+              <span className="text-xs font-bold text-muted-foreground">R$</span>
+              <input
+                type="text"
+                inputMode="numeric"
+                placeholder="10.000"
+                value={goalProfit}
+                onChange={(e) => setGoalProfit(formatCurrency(e.target.value))}
+                className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
+              />
+            </div>
+          </div>
+          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
+            <label className="text-[10px] text-muted-foreground/60 mb-0.5 block">Margem desejada</label>
+            <div className="flex items-center gap-1">
+              <input
+                type="text"
+                inputMode="decimal"
+                placeholder="20"
+                value={goalMargin}
+                onChange={(e) => setGoalMargin(e.target.value.replace(/[^\d.,]/g, ''))}
+                className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
+              />
+              <span className="text-xs font-bold text-muted-foreground">%</span>
+            </div>
+          </div>
+        </div>
+      </motion.div>
+
       {/* Objective */}
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.32 }} className="mb-4">
         <div className="flex items-center gap-2 mb-1.5">
@@ -808,48 +850,6 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
               Adicionar
             </motion.button>
           )}
-        </div>
-      </motion.div>
-
-      {/* Goals (optional) */}
-      <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.38 }} className="mb-4">
-        <div className="flex items-center gap-2 mb-1">
-          <Target className="h-4 w-4 text-primary" />
-          <label className="text-sm font-medium text-foreground">Suas metas do mês</label>
-          <span className="text-[10px] text-muted-foreground/60 ml-1">(opcional)</span>
-        </div>
-        <p className="text-xs text-muted-foreground/60 mb-2.5">
-          Aparecem no Dashboard com o progresso em tempo real
-        </p>
-        <div className="grid grid-cols-2 gap-2">
-          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
-            <label className="text-[10px] text-muted-foreground/60 mb-0.5 block">Lucro mensal</label>
-            <div className="flex items-center gap-1">
-              <span className="text-xs font-bold text-muted-foreground">R$</span>
-              <input
-                type="text"
-                inputMode="numeric"
-                placeholder="10.000"
-                value={goalProfit}
-                onChange={(e) => setGoalProfit(formatCurrency(e.target.value))}
-                className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
-              />
-            </div>
-          </div>
-          <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
-            <label className="text-[10px] text-muted-foreground/60 mb-0.5 block">Margem desejada</label>
-            <div className="flex items-center gap-1">
-              <input
-                type="text"
-                inputMode="decimal"
-                placeholder="20"
-                value={goalMargin}
-                onChange={(e) => setGoalMargin(e.target.value.replace(/[^\d.,]/g, ''))}
-                className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
-              />
-              <span className="text-xs font-bold text-muted-foreground">%</span>
-            </div>
-          </div>
         </div>
       </motion.div>
 
