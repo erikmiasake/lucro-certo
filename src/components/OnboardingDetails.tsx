@@ -190,6 +190,13 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
   };
 
   const handleFinish = () => {
+    const parsedGoalProfit = parseInt(goalProfit.replace(/\D/g, '')) || 0;
+    const parsedGoalMargin = parseFloat(goalMargin.replace(',', '.')) || 0;
+    const goalsPayload = {
+      goalProfit: parsedGoalProfit > 0 ? parsedGoalProfit : undefined,
+      goalMargin: parsedGoalMargin > 0 && parsedGoalMargin <= 100 ? parsedGoalMargin : undefined,
+    };
+
     if (isPersonal) {
       // Convert monthly income to a daily average (30 days)
       const monthlyVal = parseInt(monthlyIncome.replace(/\D/g, '')) || 0;
@@ -198,6 +205,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
         avgSales: dailyAvg > 0 ? dailyAvg.toLocaleString('pt-BR') : '',
         selectedCosts,
         monthlyIncome: monthlyVal > 0 ? monthlyVal : undefined,
+        ...goalsPayload,
         profile: {
           name: profileName || 'Minhas finanças',
           city: '',
