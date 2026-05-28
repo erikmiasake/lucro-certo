@@ -36,7 +36,7 @@ const EMAIL_TEMPLATES: Record<string, React.ComponentType<any>> = {
 }
 
 // Configuration
-const SITE_NAME = "easy-profit-bot"
+const SITE_NAME = "Lucro Real"
 const SENDER_DOMAIN = "notify.lucroreal.live"
 const ROOT_DOMAIN = "lucroreal.live"
 const FROM_DOMAIN = "lucroreal.live" // Domain shown in From address (may be root or sender subdomain)
