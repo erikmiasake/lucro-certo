@@ -61,6 +61,13 @@ export default function OnboardingPage() {
     if (data.employeePayroll && data.employeePayroll > 0) {
       addCostMapItem('Folha de pagamento', 'fixed', data.employeePayroll);
     }
+    // Save monthly goals if provided — show up in Dashboard immediately
+    if ((data.goalProfit && data.goalProfit > 0) || (data.goalMargin && data.goalMargin > 0)) {
+      setGoals({
+        monthlyProfit: data.goalProfit && data.goalProfit > 0 ? data.goalProfit : null,
+        monthlyMargin: data.goalMargin && data.goalMargin > 0 ? data.goalMargin : null,
+      });
+    }
     setBusinessType(selectedType);
 
     // Personal mode: distribute monthly income across the days of the current calendar month
