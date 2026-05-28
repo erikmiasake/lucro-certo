@@ -21,6 +21,12 @@ interface SignupEmailProps {
   token?: string
 }
 
+function formatToken(token?: string): string {
+  if (!token || token.length !== 8) return token || ''
+  // Format 8-char token as XX XX XX XX for readability
+  return `${token.slice(0, 2)} ${token.slice(2, 4)} ${token.slice(4, 6)} ${token.slice(6, 8)}`
+}
+
 export const SignupEmail = ({
   siteName,
   recipient,
