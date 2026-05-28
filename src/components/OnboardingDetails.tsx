@@ -633,19 +633,22 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
       <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.29 }} className="mb-4">
         <div className="flex items-center gap-2 mb-1.5">
           <DollarSign className="h-4 w-4 text-primary" />
-          <label className="text-sm font-medium text-foreground">Média de vendas por dia</label>
+          <label className="text-sm font-medium text-foreground">Faturamento médio mensal</label>
         </div>
         <div className="flex items-center gap-2 p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
           <span className="text-sm font-bold text-muted-foreground">R$</span>
           <input
             type="text"
             inputMode="numeric"
-            placeholder={`Ex: R$ ${suggestedAvgSales[selectedType]} por dia`}
+            placeholder={`Ex: R$ ${suggestedAvgSales[selectedType]} por mês`}
             value={avgSales}
             onChange={handleSalesChange}
             className="flex-1 text-sm font-bold bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40 placeholder:font-normal"
           />
         </div>
+        <p className="text-[10px] text-muted-foreground/60 mt-1.5">
+          Quanto seu negócio fatura por mês (vendas brutas, antes dos custos). Vamos dividir automaticamente pelos seus dias de funcionamento.
+        </p>
       </motion.div>
 
       {/* Objective */}
