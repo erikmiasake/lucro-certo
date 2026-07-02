@@ -4,10 +4,12 @@ const config: CapacitorConfig = {
   appId: 'live.lucroreal.app',
   appName: 'LucroReal',
   webDir: 'dist',
-  server: {
-    url: 'https://9e093724-6570-4188-b8e8-946511e7f651.lovableproject.com?forceHideBadge=true',
-    cleartext: true,
-  },
+  // IMPORTANT: remove or comment the `server` block below when building the
+  // production native app. It is only needed for Lovable hot-reload preview.
+  // server: {
+  //   url: 'https://9e093724-6570-4188-b8e8-946511e7f651.lovableproject.com?forceHideBadge=true',
+  //   cleartext: true,
+  // },
   ios: {
     contentInset: 'always',
     backgroundColor: '#000000',
