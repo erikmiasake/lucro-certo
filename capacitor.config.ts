@@ -4,10 +4,10 @@ const config: CapacitorConfig = {
   appId: 'live.lucroreal.app',
   appName: 'LucroReal',
   webDir: 'dist',
-  server: {
-    url: 'https://9e093724-6570-4188-b8e8-946511e7f651.lovableproject.com?forceHideBadge=true',
-    cleartext: true,
-  },
+  // server: {
+  //   url: 'https://9e093724-6570-4188-b8e8-946511e7f651.lovableproject.com?forceHideBadge=true',
+  //   cleartext: true,
+  // },
   ios: {
     contentInset: 'always',
     backgroundColor: '#000000',

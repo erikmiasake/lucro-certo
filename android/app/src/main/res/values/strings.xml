@@ -1,0 +1,7 @@
+<?xml version='1.0' encoding='utf-8'?>
+<resources>
+    <string name="app_name">LucroReal</string>
+    <string name="title_activity_main">LucroReal</string>
+    <string name="package_name">live.lucroreal.app</string>
+    <string name="custom_url_scheme">live.lucroreal.app</string>
+</resources>
