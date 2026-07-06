@@ -108,6 +108,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
   // Goals (both modes)
   const [goalProfit, setGoalProfit] = useState('');
   const [goalMargin, setGoalMargin] = useState('');
+  const [lastEditedGoal, setLastEditedGoal] = useState<'profit' | 'margin' | null>(null);
 
   const config = businessConfigs[selectedType];
 
@@ -165,6 +166,9 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     return amount.toLocaleString('pt-BR');
   };
 
+  const parseCurrencyValue = (value: string) => parseInt(value.replace(/\D/g, ''), 10) || 0;
+  const parsePercentValue = (value: string) => parseFloat(value.replace(',', '.')) || 0;
+
   const handleSalesChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setAvgSales(formatCurrency(e.target.value));
   };
@@ -200,9 +204,10 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
   }, [isPersonal, monthlyIncome, avgSales]);
 
   const handleGoalProfitChange = (raw: string) => {
+    setLastEditedGoal('profit');
     const formatted = formatCurrency(raw);
     setGoalProfit(formatted);
-    const val = parseInt(formatted.replace(/\D/g, ''), 10) || 0;
+    const val = parseCurrencyValue(formatted);
     if (val === 0) {
       setGoalMargin('');
       return;
@@ -216,9 +221,10 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
   };
 
   const handleGoalMarginChange = (raw: string) => {
+    setLastEditedGoal('margin');
     const clean = raw.replace(/[^\d.,]/g, '');
     setGoalMargin(clean);
-    const pct = parseFloat(clean.replace(',', '.')) || 0;
+    const pct = parsePercentValue(clean);
     if (pct === 0) {
       setGoalProfit('');
       return;
@@ -231,12 +237,29 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     }
   };
 
+  useEffect(() => {
+    if (!lastEditedGoal || baseMonthlyRevenue <= 0) return;
+
+    if (lastEditedGoal === 'profit') {
+      const val = parseCurrencyValue(goalProfit);
+      if (val > 0) {
+        setGoalMargin(String(Math.min(100, Math.round((val / baseMonthlyRevenue) * 100))));
+      }
+      return;
+    }
+
+    const pct = parsePercentValue(goalMargin);
+    if (pct > 0 && pct <= 100) {
+      setGoalProfit(Math.round((pct / 100) * baseMonthlyRevenue).toLocaleString('pt-BR'));
+    }
+  }, [baseMonthlyRevenue, lastEditedGoal, goalProfit, goalMargin]);
+
 
 
 
   const handleFinish = () => {
-    const parsedGoalProfit = parseInt(goalProfit.replace(/\D/g, '')) || 0;
-    const parsedGoalMargin = parseFloat(goalMargin.replace(',', '.')) || 0;
+    const parsedGoalProfit = parseCurrencyValue(goalProfit);
+    const parsedGoalMargin = parsePercentValue(goalMargin);
     const goalsPayload = {
       goalProfit: parsedGoalProfit > 0 ? parsedGoalProfit : undefined,
       goalMargin: parsedGoalMargin > 0 && parsedGoalMargin <= 100 ? parsedGoalMargin : undefined,
@@ -244,7 +267,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
 
     if (isPersonal) {
       // Convert monthly income to a daily average (30 days)
-      const monthlyVal = parseInt(monthlyIncome.replace(/\D/g, '')) || 0;
+      const monthlyVal = parseCurrencyValue(monthlyIncome);
       const dailyAvg = monthlyVal > 0 ? Math.round(monthlyVal / 30) : 0;
       onFinish({
         avgSales: dailyAvg > 0 ? dailyAvg.toLocaleString('pt-BR') : '',
@@ -262,7 +285,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
       });
     } else {
       // avgSales aqui contém o faturamento MENSAL digitado pelo usuário
-      const monthlyVal = parseInt(avgSales.replace(/\D/g, '')) || 0;
+      const monthlyVal = parseCurrencyValue(avgSales);
       // Conta dias operacionais do mês corrente para converter mensal → diário
       const now = new Date();
       const year = now.getFullYear();
