@@ -1,6 +1,6 @@
 import { useStore } from '@/hooks/use-store';
 import { BusinessType, businessConfigs, isPersonalMode } from '@/lib/business-config';
-import { setBusinessType, resetAllWithDB, setGoals, setBusinessProfile } from '@/lib/finance';
+import { setBusinessType, resetAllWithDB, setGoals, setBusinessProfile, getMonthSummary } from '@/lib/finance';
 import { useState, useEffect } from 'react';
 import { motion } from 'framer-motion';
 import {
