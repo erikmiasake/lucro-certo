@@ -481,7 +481,7 @@ export default function Configuracoes() {
                 inputMode="decimal"
                 placeholder="Ex: 5000"
                 value={profitGoal}
-                onChange={(e) => setProfitGoal(e.target.value)}
+                onChange={(e) => handleProfitGoalChange(e.target.value)}
                 className="flex-1 text-sm font-medium bg-transparent outline-none text-foreground placeholder:text-muted"
               />
             </div>
@@ -498,12 +498,20 @@ export default function Configuracoes() {
                 inputMode="decimal"
                 placeholder="Ex: 25"
                 value={marginGoal}
-                onChange={(e) => setMarginGoal(e.target.value)}
+                onChange={(e) => handleMarginGoalChange(e.target.value)}
                 className="flex-1 text-sm font-medium bg-transparent outline-none text-foreground placeholder:text-muted"
               />
               <span className="text-sm font-bold text-muted-foreground">%</span>
             </div>
           </div>
+
+          {monthRevenue === 0 && (
+            <p className="text-[11px] text-muted-foreground/70">
+              {isPersonal
+                ? 'Registre uma entrada no mês para calcular o % automaticamente.'
+                : 'Registre uma receita no mês para calcular a margem automaticamente.'}
+            </p>
+          )}
 
           <button
             onClick={handleSaveGoals}
