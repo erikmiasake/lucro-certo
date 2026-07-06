@@ -55,6 +55,7 @@ export async function saveProfileToDB(state: AppState): Promise<void> {
       cost_map: state.costMap as any,
       goals: state.goals as any,
       operating_weekdays: state.businessProfile.operatingWeekdays as any,
+      custom_categories: (state.customCategories ?? { business: [], personal: [] }) as any,
       updated_at: new Date().toISOString(),
     } as any, { onConflict: 'user_id' });
 
