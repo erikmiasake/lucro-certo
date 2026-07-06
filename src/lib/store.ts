@@ -1280,7 +1280,7 @@ export function deleteCostMapItem(id: string) {
   notify();
 }
 
-export function addCostMapItem(name: string, classification: CostClassification, value: number = 0) {
+export function addCostMapItem(name: string, classification: CostClassification, value: number = 0, category?: string) {
   const item: CostMapItem = {
     id: crypto.randomUUID(),
     name,
@@ -1288,6 +1288,7 @@ export function addCostMapItem(name: string, classification: CostClassification,
     value,
     spreadDays: classification === 'fixed' ? 30 : 7,
     createdAt: Date.now(),
+    category: category?.trim() || undefined,
   };
   state = { ...state, costMap: [...state.costMap, item] };
   syncCostMapToCosts();
@@ -1306,7 +1307,7 @@ export function registerCost(
 ) {
   const inferredClassification = classification || (type === 'business' ? 'fixed' : 'variable');
   const itemName = description?.trim() || category?.trim() || (type === 'product' ? 'Custo variável' : 'Custo fixo');
-  const item = addCostMapItem(itemName, inferredClassification, amount);
+  const item = addCostMapItem(itemName, inferredClassification, amount, category);
 
   if (inferredClassification === 'variable' && spreadDays !== 7) {
     updateCostMapItem(item.id, { spreadDays });
