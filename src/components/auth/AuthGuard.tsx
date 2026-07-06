@@ -89,8 +89,10 @@ export default function AuthGuard({ children }: AuthGuardProps) {
   }
 
   if (!session) {
-    return <Navigate to="/login" state={{ from: location.pathname }} replace />;
+    const next = location.pathname + location.search;
+    return <Navigate to={`/login?next=${encodeURIComponent(next)}`} state={{ from: location.pathname }} replace />;
   }
+
 
   // Block access until email is verified — but skip the check for OAuth users
   // (Google, etc.) since they never receive a verification email.
