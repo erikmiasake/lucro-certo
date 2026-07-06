@@ -786,9 +786,6 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
             </div>
           </div>
         </div>
-        {goalsHint && (
-          <p className="text-[10px] text-muted-foreground/60 mt-1.5">{goalsHint}</p>
-        )}
       </motion.div>
 
       {/* Objective */}
