@@ -34,6 +34,34 @@ export default function Configuracoes() {
   const [marginGoal, setMarginGoal] = useState(state.goals?.monthlyMargin?.toString() || '');
   const [goalsSaved, setGoalsSaved] = useState(false);
 
+  // Receita/entrada real do mês atual — vem da camada central (mesma fonte
+  // usada por dashboard, IA e relatórios). Serve de base para sincronizar
+  // meta em R$ ↔ meta em %.
+  const monthRevenue = getMonthSummary().totalRevenue;
+
+  const handleProfitGoalChange = (raw: string) => {
+    const clean = raw.replace(/[^\d.,]/g, '').replace(',', '.');
+    setProfitGoal(clean);
+    const val = parseFloat(clean) || 0;
+    if (monthRevenue > 0 && val > 0) {
+      const pct = Math.min(100, Math.round((val / monthRevenue) * 100));
+      setMarginGoal(String(pct));
+    } else if (val === 0) {
+      setMarginGoal('');
+    }
+  };
+
+  const handleMarginGoalChange = (raw: string) => {
+    const clean = raw.replace(/[^\d.,]/g, '').replace(',', '.');
+    setMarginGoal(clean);
+    const pct = parseFloat(clean) || 0;
+    if (monthRevenue > 0 && pct > 0 && pct <= 100) {
+      setProfitGoal(String(Math.round((pct / 100) * monthRevenue)));
+    } else if (pct === 0) {
+      setProfitGoal('');
+    }
+  };
+
   const [businessName, setBusinessName] = useState(state.businessProfile?.name || '');
   const [city, setCity] = useState(state.businessProfile?.city || '');
   const [operatingDays, setOperatingDays] = useState(state.businessProfile?.operatingDays?.toString() || '6');
