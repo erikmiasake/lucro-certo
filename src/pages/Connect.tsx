@@ -88,7 +88,15 @@ export default function Connect() {
               </p>
               <p>
                 Ao configurar, você faz login com a sua conta Lucro Real e autoriza
-                o assistente. A partir daí, o ChatGPT ou Claude só enxerga{
+                o assistente. A partir daí, o ChatGPT ou Claude só enxerga os seus
+                próprios dados: suas receitas, custos e movimentações. Cada usuário
+                conecta a própria conta e o assistente nunca acessa os dados de
+                outra pessoa.
+              </p>
+            </div>
+          </section>
+
+          {/* ChatGPT */}
           <section className="mt-6 rounded-2xl border border-primary/15 bg-card/60 backdrop-blur p-4 sm:p-5">
             <h2 className="text-lg font-semibold">ChatGPT</h2>
             <ol className="mt-3 space-y-2.5 text-sm text-foreground/90 list-decimal pl-5">
