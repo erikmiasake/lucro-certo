@@ -71,6 +71,8 @@ export interface CostMapItem {
   value: number;
   spreadDays: number; // variable: user-defined (e.g. 5, 7, 15, 30); fixed: always 30
   createdAt?: number; // timestamp for persistent date reference
+  /** Reusable category assigned by the user. Used to aggregate on the Analysis tab. */
+  category?: string;
 }
 
 export interface CustomCategories {
