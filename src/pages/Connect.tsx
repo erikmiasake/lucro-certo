@@ -75,7 +75,20 @@ export default function Connect() {
             </p>
           </section>
 
-          {/* ChatGPT */}
+          {/* Como funciona */}
+          <section className="mt-6 rounded-2xl border border-primary/15 bg-card/60 backdrop-blur p-4 sm:p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Como funciona</h2>
+            </div>
+            <div className="space-y-3 text-sm text-foreground/90">
+              <p>
+                Este conector é para <strong>você</strong> conectar o seu próprio
+                ChatGPT ou Claude à sua conta do Lucro Real.
+              </p>
+              <p>
+                Ao configurar, você faz login com a sua conta Lucro Real e autoriza
+                o assistente. A partir daí, o ChatGPT ou Claude só enxerga{
           <section className="mt-6 rounded-2xl border border-primary/15 bg-card/60 backdrop-blur p-4 sm:p-5">
             <h2 className="text-lg font-semibold">ChatGPT</h2>
             <ol className="mt-3 space-y-2.5 text-sm text-foreground/90 list-decimal pl-5">
