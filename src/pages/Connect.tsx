@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { Copy, Check, ArrowLeft, Sparkles } from "lucide-react";
+import { Copy, Check, ArrowLeft, Sparkles, ShieldCheck } from "lucide-react";
 
 const mcpUrl = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/mcp`;
 
