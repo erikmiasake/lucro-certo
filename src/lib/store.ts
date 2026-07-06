@@ -1319,8 +1319,9 @@ export function registerCost(
   const item = addCostMapItem(itemName, inferredClassification, amount, category);
 
   if (inferredClassification === 'variable' && spreadDays !== 7) {
-    updateCostMapItem(item.id, { spreadDays });
+    updateCostMapItem(item.id, { spreadDays: Math.max(spreadDays, 0) });
   }
+
 
   // Persist the category on the current mode's reusable list
   if (category && category.trim()) {
