@@ -189,6 +189,44 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     setAverageSalary(formatCurrency(e.target.value));
   };
 
+  // Base de receita/entrada mensal usada para sincronizar meta R$ ↔ %.
+  // Em onboarding ainda não há registros — usamos o valor informado nos campos
+  // acima (mesma fonte que alimentará a camada central após finalizar).
+  const baseMonthlyRevenue = useMemo(() => {
+    const raw = isPersonal ? monthlyIncome : avgSales;
+    return parseInt(raw.replace(/\D/g, ''), 10) || 0;
+  }, [isPersonal, monthlyIncome, avgSales]);
+
+  const handleGoalProfitChange = (raw: string) => {
+    const formatted = formatCurrency(raw);
+    setGoalProfit(formatted);
+    const val = parseInt(formatted.replace(/\D/g, ''), 10) || 0;
+    if (baseMonthlyRevenue > 0 && val > 0) {
+      const pct = Math.min(100, Math.round((val / baseMonthlyRevenue) * 100));
+      setGoalMargin(String(pct));
+    } else if (val === 0) {
+      setGoalMargin('');
+    }
+  };
+
+  const handleGoalMarginChange = (raw: string) => {
+    const clean = raw.replace(/[^\d.,]/g, '');
+    setGoalMargin(clean);
+    const pct = parseFloat(clean.replace(',', '.')) || 0;
+    if (baseMonthlyRevenue > 0 && pct > 0 && pct <= 100) {
+      const amount = Math.round((pct / 100) * baseMonthlyRevenue);
+      setGoalProfit(amount.toLocaleString('pt-BR'));
+    } else if (pct === 0) {
+      setGoalProfit('');
+    }
+  };
+
+  const goalsHint = baseMonthlyRevenue === 0
+    ? (isPersonal
+        ? 'Informe sua renda mensal acima para calcular o % automaticamente.'
+        : 'Informe o faturamento mensal acima para calcular a margem automaticamente.')
+    : null;
+
   const handleFinish = () => {
     const parsedGoalProfit = parseInt(goalProfit.replace(/\D/g, '')) || 0;
     const parsedGoalMargin = parseFloat(goalMargin.replace(',', '.')) || 0;
