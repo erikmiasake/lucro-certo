@@ -1,8 +1,8 @@
-import { useState, useRef, useEffect } from 'react';
+import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BusinessConfig, BusinessType } from '@/lib/business-config';
-import { CostClassification } from '@/lib/finance';
-import { Package, Building2, ChevronLeft } from 'lucide-react';
+import { CostClassification, getCustomCategories, removeCustomCategory } from '@/lib/finance';
+import { Package, Building2, ChevronLeft, Plus, X } from 'lucide-react';
 import { useStore } from '@/hooks/use-store';
 import { getModeCopyFromType } from '@/lib/modes';
 
