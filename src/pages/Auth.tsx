@@ -17,20 +17,27 @@ export default function Auth() {
   const [searchParams] = useSearchParams();
   const [isAuthenticated, setIsAuthenticated] = useState<boolean | null>(null);
 
+  // Preserve a caller-supplied post-auth destination (e.g. the OAuth consent page).
+  // Only accept same-origin relative paths.
+  const rawNext = searchParams.get('next');
+  const nextPath = rawNext && rawNext.startsWith('/') && !rawNext.startsWith('//') ? rawNext : null;
+  const nextQuery = nextPath ? `?next=${encodeURIComponent(nextPath)}` : '';
+
   useEffect(() => {
     supabase.auth.getSession().then(({ data: { session } }) => {
       setIsAuthenticated(!!session);
     });
   }, []);
 
-  // Redirect authenticated users to dashboard
+  // Redirect authenticated users to the requested destination or dashboard
   if (isAuthenticated === true) {
-    return <Navigate to="/dashboard" replace />;
+    return <Navigate to={nextPath ?? '/dashboard'} replace />;
   }
 
   // Determine mode from path or query param
   const isRegisterPath = location.pathname === '/register';
   const mode = isRegisterPath ? 'register' : (searchParams.get('mode') as 'login' | 'register') || 'login';
+
 
   const handleAuth = async (data: FormValues) => {
     try {
@@ -39,7 +46,7 @@ export default function Auth() {
           email: data.email,
           password: data.password,
           options: {
-            emailRedirectTo: `${window.location.origin}/welcome`,
+            emailRedirectTo: `${window.location.origin}${nextPath ?? '/welcome'}`,
             data: {
               full_name: data.name,
             },
@@ -105,11 +112,14 @@ export default function Auth() {
         }
 
         const appState = getState();
-        if (appState.onboardingComplete) {
+        if (nextPath) {
+          navigate(nextPath, { replace: true });
+        } else if (appState.onboardingComplete) {
           navigate('/dashboard', { replace: true });
         } else {
           navigate('/welcome', { replace: true });
         }
+
       }
     } catch (err: any) {
       toast.error('Erro na autenticação', {
@@ -121,8 +131,9 @@ export default function Auth() {
   const handleGoogleSignIn = async () => {
     try {
       const result = await lovable.auth.signInWithOAuth('google', {
-        redirect_uri: `${window.location.origin}/dashboard`,
+        redirect_uri: `${window.location.origin}${nextPath ?? '/dashboard'}`,
       });
+
       if (result.error) {
         toast.error('Erro ao entrar com Google', { description: result.error.message });
       }

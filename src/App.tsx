@@ -19,6 +19,7 @@ const Tutorial = lazyWithRetry(() => import("./pages/Tutorial.tsx"));
 const Index = lazyWithRetry(() => import("./pages/Index.tsx"));
 const Privacy = lazyWithRetry(() => import("./pages/Privacy.tsx"));
 const Terms = lazyWithRetry(() => import("./pages/Terms.tsx"));
+const OAuthConsent = lazyWithRetry(() => import("./pages/OAuthConsent.tsx"));
 
 const NotFound = lazyWithRetry(() => import("./pages/NotFound.tsx"));
 
@@ -68,6 +69,8 @@ const App = () => (
             <Route path="/forgot-password" element={<ForgotPassword />} />
             <Route path="/privacy" element={<Privacy />} />
             <Route path="/terms" element={<Terms />} />
+            <Route path="/.lovable/oauth/consent" element={<OAuthConsent />} />
+
 
 
             {/* Protected routes */}

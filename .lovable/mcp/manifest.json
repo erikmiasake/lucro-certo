@@ -1,0 +1,209 @@
+{
+  "version": 1,
+  "sdk_version": "0.20.0",
+  "path": "/functions/v1/mcp",
+  "auth": {
+    "type": "oauth",
+    "issuer": "https://peubkwmtvjmaajlvtlul.supabase.co/auth/v1",
+    "accepted_audiences": [
+      "authenticated"
+    ]
+  },
+  "mcp": {
+    "server": {
+      "name": "lucro-real-mcp",
+      "version": "0.1.0",
+      "title": "Lucro Real"
+    },
+    "tools": [
+      {
+        "name": "list_entries",
+        "title": "List revenue entries",
+        "description": "List the signed-in user's revenue (income) entries, optionally filtered by date range.",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "Start date YYYY-MM-DD (inclusive)."
+            },
+            "to": {
+              "type": "string",
+              "description": "End date YYYY-MM-DD (inclusive)."
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500,
+              "description": "Max rows (default 100)."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_entry",
+        "title": "Create revenue entry",
+        "description": "Insert a revenue (income) entry for the signed-in user.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "number",
+              "description": "Amount in the user's currency."
+            },
+            "date": {
+              "type": "string",
+              "description": "Date YYYY-MM-DD."
+            },
+            "category": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "source": {
+              "type": "string",
+              "description": "Origin: manual, auto, estimated."
+            }
+          },
+          "required": [
+            "amount",
+            "date"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "list_costs",
+        "title": "List costs",
+        "description": "List the signed-in user's costs, optionally filtered by date range or classification (fixed/variable).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "from": {
+              "type": "string",
+              "description": "Start date YYYY-MM-DD (inclusive)."
+            },
+            "to": {
+              "type": "string",
+              "description": "End date YYYY-MM-DD (inclusive)."
+            },
+            "classification": {
+              "type": "string",
+              "enum": [
+                "fixed",
+                "variable"
+              ]
+            },
+            "limit": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 500
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "create_cost",
+        "title": "Create cost",
+        "description": "Insert a cost (expense) for the signed-in user.",
+        "annotations": {
+          "readOnlyHint": false,
+          "destructiveHint": false,
+          "idempotentHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "amount": {
+              "type": "number"
+            },
+            "date": {
+              "type": "string",
+              "description": "Date YYYY-MM-DD."
+            },
+            "classification": {
+              "type": "string",
+              "enum": [
+                "fixed",
+                "variable"
+              ],
+              "description": "Fixed spreads over spread_days; variable is a one-off."
+            },
+            "category": {
+              "type": "string"
+            },
+            "subcategory": {
+              "type": "string"
+            },
+            "description": {
+              "type": "string"
+            },
+            "type": {
+              "type": "string"
+            },
+            "spread_days": {
+              "type": "integer",
+              "minimum": 1,
+              "maximum": 365,
+              "description": "For fixed costs, number of days to spread (default 30)."
+            }
+          },
+          "required": [
+            "amount",
+            "date",
+            "classification"
+          ],
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      },
+      {
+        "name": "get_summary",
+        "title": "Get financial summary",
+        "description": "Return revenue, costs, profit and margin for the given month (defaults to current month).",
+        "annotations": {
+          "readOnlyHint": true,
+          "idempotentHint": true,
+          "openWorldHint": false
+        },
+        "inputSchema": {
+          "type": "object",
+          "properties": {
+            "month": {
+              "type": "string",
+              "description": "Month as YYYY-MM. Defaults to current month."
+            }
+          },
+          "additionalProperties": false,
+          "$schema": "http://json-schema.org/draft-07/schema#"
+        },
+        "outputSchema": null
+      }
+    ]
+  }
+}
