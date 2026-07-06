@@ -130,24 +130,8 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                   </div>
                 </div>
 
-                {/* Category selector */}
                 <div className="mb-4">
-                  <div className="flex items-center justify-between mb-2">
-                    <p className="text-xs font-medium text-muted-foreground">Categoria</p>
-                    {!addingCategory && (
-                      <button
-                        type="button"
-                        onClick={() => {
-                          setAddingCategory(true);
-                          setTimeout(() => newCatRef.current?.focus(), 50);
-                        }}
-                        className="flex items-center gap-1 text-[11px] text-primary hover:text-primary/80 transition-colors"
-                      >
-                        <Plus className="h-3 w-3" />
-                        Nova
-                      </button>
-                    )}
-                  </div>
+                  <p className="text-xs font-medium text-muted-foreground mb-2">Categoria</p>
 
                   {savedCategories.length > 0 && (
                     <div className="flex flex-wrap gap-1.5 mb-2">
@@ -184,56 +168,42 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                     </div>
                   )}
 
-                  {addingCategory ? (
-                    <div className="flex gap-2">
-                      <input
-                        ref={newCatRef}
-                        type="text"
-                        placeholder={labels.categoryPlaceholder}
-                        value={newCategoryText}
-                        onChange={(e) => setNewCategoryText(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (e.key === 'Enter') {
-                            const v = newCategoryText.trim();
-                            if (v) {
-                              addCustomCategory(v);
-                              setCategory(v);
-                              setNewCategoryText('');
-                              setAddingCategory(false);
-                            }
-                          } else if (e.key === 'Escape') {
-                            setNewCategoryText('');
-                            setAddingCategory(false);
-                          }
-                        }}
-                        className="flex-1 px-4 py-2.5 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/40 transition-colors text-sm"
-                      />
-                      <button
-                        type="button"
-                        onClick={() => {
+                  <div className="flex gap-2">
+                    <input
+                      ref={newCatRef}
+                      type="text"
+                      placeholder={labels.categoryPlaceholder}
+                      value={newCategoryText}
+                      onChange={(e) => setNewCategoryText(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === 'Enter') {
                           const v = newCategoryText.trim();
                           if (v) {
                             addCustomCategory(v);
                             setCategory(v);
                             setNewCategoryText('');
-                            setAddingCategory(false);
                           }
-                        }}
-                        className="px-3 rounded-xl bg-primary/15 text-primary text-xs font-semibold hover:bg-primary/25 transition-colors"
-                      >
-                        OK
-                      </button>
-                    </div>
-                  ) : savedCategories.length === 0 ? (
-                    <input
-                      type="text"
-                      placeholder={labels.categoryPlaceholder}
-                      value={category}
-                      onChange={(e) => setCategory(e.target.value)}
-                      className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/40 transition-colors text-sm"
+                        }
+                      }}
+                      className="flex-1 px-4 py-2.5 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/40 transition-colors text-sm"
                     />
-                  ) : null}
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const v = newCategoryText.trim();
+                        if (v) {
+                          addCustomCategory(v);
+                          setCategory(v);
+                          setNewCategoryText('');
+                        }
+                      }}
+                      className="px-3 rounded-xl bg-primary/15 text-primary text-xs font-semibold hover:bg-primary/25 transition-colors"
+                    >
+                      OK
+                    </button>
+                  </div>
                 </div>
+
 
                 <button
                   onClick={goToDetails}
