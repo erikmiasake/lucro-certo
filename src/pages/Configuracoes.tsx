@@ -505,13 +505,6 @@ export default function Configuracoes() {
             </div>
           </div>
 
-          {monthRevenue === 0 && (
-            <p className="text-[11px] text-muted-foreground/70">
-              {isPersonal
-                ? 'Registre uma entrada no mês para calcular o % automaticamente.'
-                : 'Registre uma receita no mês para calcular a margem automaticamente.'}
-            </p>
-          )}
 
           <button
             onClick={handleSaveGoals}

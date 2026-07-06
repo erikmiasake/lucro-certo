@@ -221,11 +221,8 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     }
   };
 
-  const goalsHint = baseMonthlyRevenue === 0
-    ? (isPersonal
-        ? 'Informe sua renda mensal acima para calcular o % automaticamente.'
-        : 'Informe o faturamento mensal acima para calcular a margem automaticamente.')
-    : null;
+
+
 
   const handleFinish = () => {
     const parsedGoalProfit = parseInt(goalProfit.replace(/\D/g, '')) || 0;
@@ -573,9 +570,6 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
             </div>
           </div>
         </div>
-        {goalsHint && (
-          <p className="text-[10px] text-muted-foreground/60 mt-1.5">{goalsHint}</p>
-        )}
       </motion.div>
 
 
@@ -792,9 +786,6 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
             </div>
           </div>
         </div>
-        {goalsHint && (
-          <p className="text-[10px] text-muted-foreground/60 mt-1.5">{goalsHint}</p>
-        )}
       </motion.div>
 
       {/* Objective */}
