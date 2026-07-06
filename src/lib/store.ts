@@ -1567,7 +1567,7 @@ export function getMonthlySummary(year: number, month: number): MonthlySummary {
 }
 
 export function resetAll() {
-  state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
+  state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, customCategories: { business: [], personal: [] } };
   notify();
 }
 
