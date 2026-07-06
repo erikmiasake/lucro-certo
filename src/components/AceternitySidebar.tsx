@@ -180,7 +180,7 @@ function MobileSidebar() {
               animate={{ x: 0 }}
               exit={{ x: "-100%" }}
               transition={{ duration: 0.3, ease: "easeInOut" }}
-              className="fixed top-0 left-0 bottom-0 z-50 w-[280px] bg-sidebar-background border-r border-border/50 p-4 flex flex-col"
+              className="fixed top-0 left-0 bottom-0 z-50 w-[280px] bg-sidebar border-r border-border/50 shadow-[4px_0_24px_rgba(0,0,0,0.35)] p-4 flex flex-col"
             >
               <div className="flex items-center justify-between mb-8">
                 <div className="flex items-center gap-3">
