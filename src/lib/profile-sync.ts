@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { AppState, BusinessProfile, CostMapItem, Goals } from '@/lib/store';
+import { AppState, BusinessProfile, CostMapItem, CustomCategories, Goals } from '@/lib/store';
 
 export async function loadProfileFromDB(): Promise<Partial<AppState> | null> {
   const { data: { user } } = await supabase.auth.getUser();
