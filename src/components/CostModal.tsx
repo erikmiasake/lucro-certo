@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BusinessConfig, BusinessType } from '@/lib/business-config';
-import { CostClassification, getCustomCategories, removeCustomCategory } from '@/lib/finance';
+import { CostClassification, addCustomCategory, getCustomCategories, removeCustomCategory } from '@/lib/finance';
 import { Package, Building2, ChevronLeft, Plus, X } from 'lucide-react';
 import { useStore } from '@/hooks/use-store';
 import { getModeCopyFromType } from '@/lib/modes';
@@ -196,6 +196,7 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                           if (e.key === 'Enter') {
                             const v = newCategoryText.trim();
                             if (v) {
+                              addCustomCategory(v);
                               setCategory(v);
                               setNewCategoryText('');
                               setAddingCategory(false);
@@ -212,6 +213,7 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                         onClick={() => {
                           const v = newCategoryText.trim();
                           if (v) {
+                            addCustomCategory(v);
                             setCategory(v);
                             setNewCategoryText('');
                             setAddingCategory(false);
