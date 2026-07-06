@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Helmet } from "react-helmet-async";
 import { Link } from "react-router-dom";
-import { Copy, Check, ArrowLeft, Sparkles } from "lucide-react";
+import { Copy, Check, ArrowLeft, Sparkles, ShieldCheck } from "lucide-react";
 
 const mcpUrl = `https://${import.meta.env.VITE_SUPABASE_PROJECT_ID}.supabase.co/functions/v1/mcp`;
 
@@ -73,6 +73,27 @@ export default function Connect() {
               Você fará login com sua conta Lucro Real ao conectar. O assistente
               só acessa os seus próprios dados.
             </p>
+          </section>
+
+          {/* Como funciona */}
+          <section className="mt-6 rounded-2xl border border-primary/15 bg-card/60 backdrop-blur p-4 sm:p-5">
+            <div className="flex items-center gap-2 mb-3">
+              <ShieldCheck className="h-5 w-5 text-primary" />
+              <h2 className="text-lg font-semibold">Como funciona</h2>
+            </div>
+            <div className="space-y-3 text-sm text-foreground/90">
+              <p>
+                Este conector é para <strong>você</strong> conectar o seu próprio
+                ChatGPT ou Claude à sua conta do Lucro Real.
+              </p>
+              <p>
+                Ao configurar, você faz login com a sua conta Lucro Real e autoriza
+                o assistente. A partir daí, o ChatGPT ou Claude só enxerga os seus
+                próprios dados: suas receitas, custos e movimentações. Cada usuário
+                conecta a própria conta e o assistente nunca acessa os dados de
+                outra pessoa.
+              </p>
+            </div>
           </section>
 
           {/* ChatGPT */}
