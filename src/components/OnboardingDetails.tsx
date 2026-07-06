@@ -221,11 +221,8 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     }
   };
 
-  const goalsHint = baseMonthlyRevenue === 0
-    ? (isPersonal
-        ? 'Informe sua renda mensal acima para calcular o % automaticamente.'
-        : 'Informe o faturamento mensal acima para calcular a margem automaticamente.')
-    : null;
+
+
 
   const handleFinish = () => {
     const parsedGoalProfit = parseInt(goalProfit.replace(/\D/g, '')) || 0;
