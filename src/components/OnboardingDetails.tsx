@@ -1,7 +1,7 @@
 import { useState, useEffect, useMemo } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { BusinessType, businessConfigs, businessImages, isPersonalMode } from '@/lib/business-config';
-import { BusinessProfile } from '@/lib/finance';
+import { BusinessProfile, getMonthSummary } from '@/lib/finance';
 import {
   ArrowRight, ArrowLeft, DollarSign, Tag, Brain, Plus, X, Sparkles,
   Building2, MapPin, Calendar, Users, Crosshair, TrendingUp, Percent,
@@ -190,9 +190,11 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
   };
 
   // Base de receita/entrada mensal usada para sincronizar meta R$ ↔ %.
-  // Em onboarding ainda não há registros — usamos o valor informado nos campos
-  // acima (mesma fonte que alimentará a camada central após finalizar).
+  // Prioriza receita real do mês (camada central). Fallback: valor digitado
+  // acima nesta tela de onboarding.
   const baseMonthlyRevenue = useMemo(() => {
+    const central = getMonthSummary().totalRevenue || 0;
+    if (central > 0) return central;
     const raw = isPersonal ? monthlyIncome : avgSales;
     return parseInt(raw.replace(/\D/g, ''), 10) || 0;
   }, [isPersonal, monthlyIncome, avgSales]);
@@ -201,10 +203,14 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     const formatted = formatCurrency(raw);
     setGoalProfit(formatted);
     const val = parseInt(formatted.replace(/\D/g, ''), 10) || 0;
-    if (baseMonthlyRevenue > 0 && val > 0) {
+    if (val === 0) {
+      setGoalMargin('');
+      return;
+    }
+    if (baseMonthlyRevenue > 0) {
       const pct = Math.min(100, Math.round((val / baseMonthlyRevenue) * 100));
       setGoalMargin(String(pct));
-    } else if (val === 0) {
+    } else {
       setGoalMargin('');
     }
   };
@@ -213,10 +219,14 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     const clean = raw.replace(/[^\d.,]/g, '');
     setGoalMargin(clean);
     const pct = parseFloat(clean.replace(',', '.')) || 0;
-    if (baseMonthlyRevenue > 0 && pct > 0 && pct <= 100) {
+    if (pct === 0) {
+      setGoalProfit('');
+      return;
+    }
+    if (baseMonthlyRevenue > 0 && pct <= 100) {
       const amount = Math.round((pct / 100) * baseMonthlyRevenue);
       setGoalProfit(amount.toLocaleString('pt-BR'));
-    } else if (pct === 0) {
+    } else {
       setGoalProfit('');
     }
   };
