@@ -1234,7 +1234,7 @@ function costMapItemToCost(item: CostMapItem): Cost {
     date,
     createdAt: item.createdAt || Date.now(),
     description: item.name,
-    category: item.name,
+    category: item.category?.trim() || item.name,
     subcategory: undefined,
   };
 }
