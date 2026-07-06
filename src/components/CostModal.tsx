@@ -47,6 +47,8 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
       setClassification('variable');
       setCategory('');
       setSubcategory('');
+      setAddingCategory(false);
+      setNewCategoryText('');
       setTimeout(() => descRef.current?.focus(), 100);
     }
   }, [open]);
