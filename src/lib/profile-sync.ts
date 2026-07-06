@@ -1,5 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
-import { AppState, BusinessProfile, CostMapItem, Goals } from '@/lib/store';
+import { AppState, BusinessProfile, CostMapItem, CustomCategories, Goals } from '@/lib/store';
 
 export async function loadProfileFromDB(): Promise<Partial<AppState> | null> {
   const { data: { user } } = await supabase.auth.getUser();
@@ -31,6 +31,7 @@ export async function loadProfileFromDB(): Promise<Partial<AppState> | null> {
     mainCosts: data.main_costs || [],
     costMap: (data.cost_map as unknown as CostMapItem[]) || [],
     goals: (data.goals as unknown as Goals) || { monthlyProfit: null, monthlyMargin: null },
+    customCategories: ((data as any).custom_categories as CustomCategories) || { business: [], personal: [] },
   };
 }
 
@@ -54,6 +55,7 @@ export async function saveProfileToDB(state: AppState): Promise<void> {
       cost_map: state.costMap as any,
       goals: state.goals as any,
       operating_weekdays: state.businessProfile.operatingWeekdays as any,
+      custom_categories: (state.customCategories ?? { business: [], personal: [] }) as any,
       updated_at: new Date().toISOString(),
     } as any, { onConflict: 'user_id' });
 

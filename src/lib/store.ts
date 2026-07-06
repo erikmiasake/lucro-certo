@@ -73,6 +73,11 @@ export interface CostMapItem {
   createdAt?: number; // timestamp for persistent date reference
 }
 
+export interface CustomCategories {
+  business: string[];
+  personal: string[];
+}
+
 export interface AppState {
   businessType: BusinessType | null;
   onboardingComplete: boolean;
@@ -83,21 +88,30 @@ export interface AppState {
   mainCosts?: string[];
   goals: Goals;
   businessProfile: BusinessProfile;
+  customCategories: CustomCategories;
 }
 
 const STORAGE_KEY = 'lucro-real-data';
 
 const defaultProfile: BusinessProfile = { name: '', city: '', operatingDays: 6, employeeCount: 0, objective: '', operatingWeekdays: [1, 2, 3, 4, 5, 6] };
+const defaultCustomCategories: CustomCategories = { business: [], personal: [] };
+
+function normalizeCustomCategories(raw: any): CustomCategories {
+  const biz = Array.isArray(raw?.business) ? raw.business.filter((s: any) => typeof s === 'string' && s.trim()) : [];
+  const per = Array.isArray(raw?.personal) ? raw.personal.filter((s: any) => typeof s === 'string' && s.trim()) : [];
+  return { business: Array.from(new Set(biz)), personal: Array.from(new Set(per)) };
+}
 
 function loadState(): AppState {
   try {
     const raw = safeGetItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      const loaded = { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, costMap: [], onboardingComplete: false, ...parsed };
+      const loaded = { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, costMap: [], onboardingComplete: false, customCategories: defaultCustomCategories, ...parsed };
       if (!loaded.businessProfile.operatingWeekdays) {
         loaded.businessProfile.operatingWeekdays = [1, 2, 3, 4, 5, 6];
       }
+      loaded.customCategories = normalizeCustomCategories(loaded.customCategories);
       loaded.costMap = (loaded.costMap || []).map((item: any) => ({
         ...item,
         spreadDays: item.spreadDays ?? (item.classification === 'fixed' ? 30 : 7),
@@ -106,7 +120,7 @@ function loadState(): AppState {
       return loaded;
     }
   } catch {}
-  return { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
+  return { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, customCategories: { business: [], personal: [] } };
 }
 
 function saveState(s: AppState) {
@@ -174,7 +188,7 @@ export function hydrateFromDB(partial: Partial<AppState>) {
 /** Wipe local cached state. Call on logout. */
 export function clearLocalState() {
   disableDBSync();
-  state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
+  state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, customCategories: { business: [], personal: [] } };
   saveState(state);
   listeners.forEach((l) => l());
 }
@@ -1296,7 +1310,46 @@ export function registerCost(
     updateCostMapItem(item.id, { spreadDays });
   }
 
+  // Persist the category on the current mode's reusable list
+  if (category && category.trim()) {
+    addCustomCategory(category.trim());
+  }
+
   return item;
+}
+
+/** Returns the reusable cost categories for the currently active mode (Business or Personal). */
+export function getCustomCategories(): string[] {
+  const key = state.businessType === 'pessoal' ? 'personal' : 'business';
+  return state.customCategories?.[key] ?? [];
+}
+
+/** Adds a category to the current mode's reusable list (deduped, trimmed). */
+export function addCustomCategory(name: string) {
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  const key = state.businessType === 'pessoal' ? 'personal' : 'business';
+  const current = state.customCategories?.[key] ?? [];
+  if (current.some((c) => c.toLowerCase() === trimmed.toLowerCase())) return;
+  const nextList = [...current, trimmed];
+  state = {
+    ...state,
+    customCategories: { ...(state.customCategories ?? { business: [], personal: [] }), [key]: nextList },
+  };
+  notify();
+}
+
+/** Removes a category from the current mode's reusable list. Does not affect existing cost records. */
+export function removeCustomCategory(name: string) {
+  const key = state.businessType === 'pessoal' ? 'personal' : 'business';
+  const current = state.customCategories?.[key] ?? [];
+  const nextList = current.filter((c) => c.toLowerCase() !== name.toLowerCase());
+  if (nextList.length === current.length) return;
+  state = {
+    ...state,
+    customCategories: { ...(state.customCategories ?? { business: [], personal: [] }), [key]: nextList },
+  };
+  notify();
 }
 
 /** Get the monthly equivalent of a cost map item */
@@ -1553,7 +1606,7 @@ export function getMonthlySummary(year: number, month: number): MonthlySummary {
 }
 
 export function resetAll() {
-  state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
+  state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, customCategories: { business: [], personal: [] } };
   notify();
 }
 
