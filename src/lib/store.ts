@@ -1310,7 +1310,46 @@ export function registerCost(
     updateCostMapItem(item.id, { spreadDays });
   }
 
+  // Persist the category on the current mode's reusable list
+  if (category && category.trim()) {
+    addCustomCategory(category.trim());
+  }
+
   return item;
+}
+
+/** Returns the reusable cost categories for the currently active mode (Business or Personal). */
+export function getCustomCategories(): string[] {
+  const key = state.businessType === 'pessoal' ? 'personal' : 'business';
+  return state.customCategories?.[key] ?? [];
+}
+
+/** Adds a category to the current mode's reusable list (deduped, trimmed). */
+export function addCustomCategory(name: string) {
+  const trimmed = name.trim();
+  if (!trimmed) return;
+  const key = state.businessType === 'pessoal' ? 'personal' : 'business';
+  const current = state.customCategories?.[key] ?? [];
+  if (current.some((c) => c.toLowerCase() === trimmed.toLowerCase())) return;
+  const nextList = [...current, trimmed];
+  state = {
+    ...state,
+    customCategories: { ...(state.customCategories ?? { business: [], personal: [] }), [key]: nextList },
+  };
+  notify();
+}
+
+/** Removes a category from the current mode's reusable list. Does not affect existing cost records. */
+export function removeCustomCategory(name: string) {
+  const key = state.businessType === 'pessoal' ? 'personal' : 'business';
+  const current = state.customCategories?.[key] ?? [];
+  const nextList = current.filter((c) => c.toLowerCase() !== name.toLowerCase());
+  if (nextList.length === current.length) return;
+  state = {
+    ...state,
+    customCategories: { ...(state.customCategories ?? { business: [], personal: [] }), [key]: nextList },
+  };
+  notify();
 }
 
 /** Get the monthly equivalent of a cost map item */
