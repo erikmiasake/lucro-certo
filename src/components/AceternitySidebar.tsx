@@ -33,6 +33,7 @@ const getLinks = (isPersonal: boolean, glossary: ReturnType<typeof getModeCopyFr
     { label: "Movimentações", href: "/movimentacoes", icon: <ArrowLeftRight className="h-5 w-5 shrink-0" /> },
     { label: glossary.navCosts, href: "/custos", icon: <Wallet className="h-5 w-5 shrink-0" /> },
     { label: glossary.navPerformance, href: "/desempenho", icon: <TrendingUp className="h-5 w-5 shrink-0" /> },
+    { label: "Integração de IA", href: "/connect", icon: <Sparkles className="h-5 w-5 shrink-0" /> },
     { label: isPersonal ? "Meu Perfil" : "Meu Negócio", href: "/configuracoes", icon: <Settings className="h-5 w-5 shrink-0" /> },
   ];
   return links;
