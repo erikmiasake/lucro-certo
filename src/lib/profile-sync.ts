@@ -31,6 +31,7 @@ export async function loadProfileFromDB(): Promise<Partial<AppState> | null> {
     mainCosts: data.main_costs || [],
     costMap: (data.cost_map as unknown as CostMapItem[]) || [],
     goals: (data.goals as unknown as Goals) || { monthlyProfit: null, monthlyMargin: null },
+    customCategories: ((data as any).custom_categories as CustomCategories) || { business: [], personal: [] },
   };
 }
 
