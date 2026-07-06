@@ -24,8 +24,18 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
   const [subcategory, setSubcategory] = useState('');
   const [value, setValue] = useState('');
   const [spreadDays, setSpreadDays] = useState(5);
+  const [addingCategory, setAddingCategory] = useState(false);
+  const [newCategoryText, setNewCategoryText] = useState('');
   const descRef = useRef<HTMLInputElement>(null);
   const valueRef = useRef<HTMLInputElement>(null);
+  const newCatRef = useRef<HTMLInputElement>(null);
+
+  const savedCategories = useMemo(
+    () => getCustomCategories(),
+    // Re-read whenever the store updates or the modal reopens
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [state.customCategories, state.businessType, open],
+  );
 
   useEffect(() => {
     if (open) {
