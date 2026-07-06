@@ -553,7 +553,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
                 inputMode="numeric"
                 placeholder="500"
                 value={goalProfit}
-                onChange={(e) => setGoalProfit(formatCurrency(e.target.value))}
+                onChange={(e) => handleGoalProfitChange(e.target.value)}
                 className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
               />
             </div>
@@ -566,13 +566,16 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
                 inputMode="decimal"
                 placeholder="20"
                 value={goalMargin}
-                onChange={(e) => setGoalMargin(e.target.value.replace(/[^\d.,]/g, ''))}
+                onChange={(e) => handleGoalMarginChange(e.target.value)}
                 className="w-full text-sm bg-transparent outline-none text-foreground placeholder:text-muted-foreground/40"
               />
               <span className="text-xs font-bold text-muted-foreground">%</span>
             </div>
           </div>
         </div>
+        {goalsHint && (
+          <p className="text-[10px] text-muted-foreground/60 mt-1.5">{goalsHint}</p>
+        )}
       </motion.div>
 
 
