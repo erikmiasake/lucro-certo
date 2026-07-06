@@ -188,7 +188,7 @@ export function hydrateFromDB(partial: Partial<AppState>) {
 /** Wipe local cached state. Call on logout. */
 export function clearLocalState() {
   disableDBSync();
-  state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
+  state = { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, customCategories: { business: [], personal: [] } };
   saveState(state);
   listeners.forEach((l) => l());
 }
