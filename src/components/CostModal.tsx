@@ -196,6 +196,7 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                           if (e.key === 'Enter') {
                             const v = newCategoryText.trim();
                             if (v) {
+                              addCustomCategory(v);
                               setCategory(v);
                               setNewCategoryText('');
                               setAddingCategory(false);
