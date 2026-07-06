@@ -73,6 +73,11 @@ export interface CostMapItem {
   createdAt?: number; // timestamp for persistent date reference
 }
 
+export interface CustomCategories {
+  business: string[];
+  personal: string[];
+}
+
 export interface AppState {
   businessType: BusinessType | null;
   onboardingComplete: boolean;
@@ -83,6 +88,7 @@ export interface AppState {
   mainCosts?: string[];
   goals: Goals;
   businessProfile: BusinessProfile;
+  customCategories: CustomCategories;
 }
 
 const STORAGE_KEY = 'lucro-real-data';
