@@ -260,12 +260,12 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                 ) : (
                   <div className="mb-5">
                     <p className="text-sm text-muted-foreground mb-3">Esse {config.isPersonal ? 'gasto' : 'custo'} dura quantos dias?</p>
-                    <div className="flex gap-2">
+                    <div className="flex flex-wrap gap-2">
                       {[3, 5, 7, 15, 30].map((d) => (
                         <button
                           key={d}
                           onClick={() => setSpreadDays(d)}
-                          className={`flex-1 py-2.5 rounded-xl font-semibold text-xs transition-all ${
+                          className={`flex-1 min-w-[52px] py-2.5 rounded-xl font-semibold text-xs transition-all ${
                             spreadDays === d
                               ? 'gradient-primary text-primary-foreground shadow-md shadow-primary/15'
                               : 'bg-secondary text-muted-foreground hover:text-foreground'
@@ -274,13 +274,26 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                           {d}d
                         </button>
                       ))}
+                      <button
+                        onClick={() => setSpreadDays(0)}
+                        className={`flex-1 min-w-[84px] py-2.5 rounded-xl font-semibold text-xs transition-all ${
+                          spreadDays === 0
+                            ? 'gradient-primary text-primary-foreground shadow-md shadow-primary/15'
+                            : 'bg-secondary text-muted-foreground hover:text-foreground'
+                        }`}
+                      >
+                        Sem prazo
+                      </button>
                     </div>
                     <p className="text-[10px] text-muted-foreground mt-2">
-                      {config.isPersonal
-                        ? `Ex: uma compra que dura ${spreadDays} dias será dividida igualmente nesse período.`
-                        : `Ex: uma compra de insumos que dura ${spreadDays} dias será dividida igualmente nesse período.`}
+                      {spreadDays === 0
+                        ? `Valor pontual — não será diluído por dia. Ideal para itens duráveis (ex: relógio, ferramenta).`
+                        : config.isPersonal
+                          ? `Ex: uma compra que dura ${spreadDays} dias será dividida igualmente nesse período.`
+                          : `Ex: uma compra de insumos que dura ${spreadDays} dias será dividida igualmente nesse período.`}
                     </p>
                   </div>
+
                 )}
 
                 <button
