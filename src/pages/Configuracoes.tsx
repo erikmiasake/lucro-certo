@@ -6,8 +6,9 @@ import { motion } from 'framer-motion';
 import {
   Check, Trash2, Target, TrendingUp, Percent, Building2,
   MapPin, Calendar, Users, Crosshair, ChevronDown, Save,
-  User, Mail, Camera, KeyRound, LogOut, ShieldAlert
+  User, Mail, Camera, KeyRound, LogOut, ShieldAlert, Sparkles, ChevronRight
 } from 'lucide-react';
+import { Link } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useNavigate } from 'react-router-dom';
@@ -518,7 +519,30 @@ export default function Configuracoes() {
         </motion.div>
       )}
 
+      {/* Agent integrations */}
+      <motion.div
+        initial={{ opacity: 0, y: 8 }}
+        animate={{ opacity: 1, y: 0 }}
+        transition={{ delay: 0.22 }}
+        className="rounded-2xl p-5 card-elevated mb-5"
+      >
+        <SectionTitle icon={Sparkles} title="Assistentes de IA" />
+        <Link
+          to="/connect"
+          className="flex items-center justify-between gap-3 py-2 -mx-1 px-1 rounded-lg hover:bg-secondary/40 transition-colors"
+        >
+          <div className="min-w-0">
+            <p className="text-sm font-medium text-foreground">Conectar ao ChatGPT ou Claude</p>
+            <p className="text-xs text-muted-foreground mt-0.5">
+              Consulte seu lucro e adicione movimentações pelo assistente.
+            </p>
+          </div>
+          <ChevronRight className="h-4 w-4 text-muted-foreground shrink-0" />
+        </Link>
+      </motion.div>
+
       {/* Danger zone */}
+
       <motion.div initial={{ opacity: 0, y: 8 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="rounded-2xl p-5 border border-destructive/20 bg-destructive/5">
         <p className="text-xs uppercase tracking-wider text-destructive font-medium mb-3">Zona de perigo</p>
         <button
