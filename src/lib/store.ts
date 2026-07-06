@@ -428,16 +428,25 @@ function getCostImpactOnDate(cost: Cost, targetDate: string): number {
       return cost.amount / daysInMonth;
     }
 
+    // "Sem prazo" / no dilution: the full amount hits only on the registration date.
+    if (cost.spreadDays === 0) {
+      return cost.date === targetDate ? cost.amount : 0;
+    }
+
     const spreadDays = Math.max(cost.spreadDays || 1, 1);
     return cost.amount / spreadDays;
   }
 
+  if (cost.spreadDays === 0) {
+    return cost.date === targetDate ? cost.amount : 0;
+  }
   const costDate = new Date(cost.date + 'T00:00:00');
   const target = new Date(targetDate + 'T00:00:00');
   const diffDays = Math.floor((target.getTime() - costDate.getTime()) / (1000 * 60 * 60 * 24));
   if (diffDays < 0 || diffDays >= cost.spreadDays) return 0;
   return cost.amount / cost.spreadDays;
 }
+
 
 function getCostImpactInRange(cost: Cost, dates: string[]): number {
   return dates.reduce((sum, date) => sum + getCostImpactOnDate(cost, date), 0);
