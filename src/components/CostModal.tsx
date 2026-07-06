@@ -130,16 +130,107 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                   </div>
                 </div>
 
-                {/* Category text input */}
+                {/* Category selector */}
                 <div className="mb-4">
-                  <p className="text-xs font-medium text-muted-foreground mb-2">Categoria</p>
-                  <input
-                    type="text"
-                    placeholder={labels.categoryPlaceholder}
-                    value={category}
-                    onChange={(e) => setCategory(e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/40 transition-colors text-sm"
-                  />
+                  <div className="flex items-center justify-between mb-2">
+                    <p className="text-xs font-medium text-muted-foreground">Categoria</p>
+                    {!addingCategory && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setAddingCategory(true);
+                          setTimeout(() => newCatRef.current?.focus(), 50);
+                        }}
+                        className="flex items-center gap-1 text-[11px] text-primary hover:text-primary/80 transition-colors"
+                      >
+                        <Plus className="h-3 w-3" />
+                        Nova
+                      </button>
+                    )}
+                  </div>
+
+                  {savedCategories.length > 0 && (
+                    <div className="flex flex-wrap gap-1.5 mb-2">
+                      {savedCategories.map((c) => {
+                        const active = category === c;
+                        return (
+                          <button
+                            key={c}
+                            type="button"
+                            onClick={() => setCategory(active ? '' : c)}
+                            className={`group inline-flex items-center gap-1 pl-2.5 pr-1.5 py-1 rounded-full border text-[11px] transition-all ${
+                              active
+                                ? 'border-primary/50 bg-primary/10 text-foreground'
+                                : 'border-border bg-secondary/40 text-muted-foreground hover:text-foreground hover:border-border/80'
+                            }`}
+                          >
+                            <span>{c}</span>
+                            <span
+                              role="button"
+                              tabIndex={-1}
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                removeCustomCategory(c);
+                                if (active) setCategory('');
+                              }}
+                              className="opacity-40 group-hover:opacity-100 hover:text-destructive transition-opacity"
+                              aria-label={`Remover ${c}`}
+                            >
+                              <X className="h-2.5 w-2.5" />
+                            </span>
+                          </button>
+                        );
+                      })}
+                    </div>
+                  )}
+
+                  {addingCategory ? (
+                    <div className="flex gap-2">
+                      <input
+                        ref={newCatRef}
+                        type="text"
+                        placeholder={labels.categoryPlaceholder}
+                        value={newCategoryText}
+                        onChange={(e) => setNewCategoryText(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (e.key === 'Enter') {
+                            const v = newCategoryText.trim();
+                            if (v) {
+                              setCategory(v);
+                              setNewCategoryText('');
+                              setAddingCategory(false);
+                            }
+                          } else if (e.key === 'Escape') {
+                            setNewCategoryText('');
+                            setAddingCategory(false);
+                          }
+                        }}
+                        className="flex-1 px-4 py-2.5 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/40 transition-colors text-sm"
+                      />
+                      <button
+                        type="button"
+                        onClick={() => {
+                          const v = newCategoryText.trim();
+                          if (v) {
+                            setCategory(v);
+                            setNewCategoryText('');
+                            setAddingCategory(false);
+                          }
+                        }}
+                        className="px-3 rounded-xl bg-primary/15 text-primary text-xs font-semibold hover:bg-primary/25 transition-colors"
+                      >
+                        OK
+                      </button>
+                    </div>
+                  ) : savedCategories.length === 0 ? (
+                    <input
+                      type="text"
+                      placeholder={labels.categoryPlaceholder}
+                      value={category}
+                      onChange={(e) => setCategory(e.target.value)}
+                      className="w-full px-4 py-3 rounded-xl bg-secondary/50 border border-border text-foreground placeholder:text-muted-foreground/50 outline-none focus:border-primary/40 transition-colors text-sm"
+                    />
+                  ) : null}
                 </div>
 
                 <button
