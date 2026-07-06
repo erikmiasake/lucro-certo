@@ -184,6 +184,7 @@ export type Database = {
           city: string | null
           cost_map: Json | null
           created_at: string
+          custom_categories: Json
           employee_count: number | null
           goals: Json | null
           id: string
@@ -202,6 +203,7 @@ export type Database = {
           city?: string | null
           cost_map?: Json | null
           created_at?: string
+          custom_categories?: Json
           employee_count?: number | null
           goals?: Json | null
           id?: string
@@ -220,6 +222,7 @@ export type Database = {
           city?: string | null
           cost_map?: Json | null
           created_at?: string
+          custom_categories?: Json
           employee_count?: number | null
           goals?: Json | null
           id?: string

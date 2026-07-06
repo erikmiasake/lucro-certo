@@ -1,0 +1,1 @@
+ALTER TABLE public.profiles ADD COLUMN IF NOT EXISTS custom_categories jsonb NOT NULL DEFAULT '{"business":[],"personal":[]}'::jsonb;
