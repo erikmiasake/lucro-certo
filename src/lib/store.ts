@@ -1369,9 +1369,11 @@ export function removeCustomCategory(name: string) {
 export function getMonthlyEquivalent(item: CostMapItem): number {
   if (item.value <= 0) return 0;
   if (item.classification === 'fixed') return item.value;
+  if (item.spreadDays === 0) return item.value; // Sem prazo: pontual, sem diluição
   const days = item.spreadDays || 7;
   return (item.value / days) * 30;
 }
+
 
 export function getCostMap() {
   const fixed = state.costMap.filter(i => i.classification === 'fixed');
