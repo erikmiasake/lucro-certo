@@ -428,16 +428,25 @@ function getCostImpactOnDate(cost: Cost, targetDate: string): number {
       return cost.amount / daysInMonth;
     }
 
+    // "Sem prazo" / no dilution: the full amount hits only on the registration date.
+    if (cost.spreadDays === 0) {
+      return cost.date === targetDate ? cost.amount : 0;
+    }
+
     const spreadDays = Math.max(cost.spreadDays || 1, 1);
     return cost.amount / spreadDays;
   }
 
+  if (cost.spreadDays === 0) {
+    return cost.date === targetDate ? cost.amount : 0;
+  }
   const costDate = new Date(cost.date + 'T00:00:00');
   const target = new Date(targetDate + 'T00:00:00');
   const diffDays = Math.floor((target.getTime() - costDate.getTime()) / (1000 * 60 * 60 * 24));
   if (diffDays < 0 || diffDays >= cost.spreadDays) return 0;
   return cost.amount / cost.spreadDays;
 }
+
 
 function getCostImpactInRange(cost: Cost, dates: string[]): number {
   return dates.reduce((sum, date) => sum + getCostImpactOnDate(cost, date), 0);
@@ -1310,8 +1319,9 @@ export function registerCost(
   const item = addCostMapItem(itemName, inferredClassification, amount, category);
 
   if (inferredClassification === 'variable' && spreadDays !== 7) {
-    updateCostMapItem(item.id, { spreadDays });
+    updateCostMapItem(item.id, { spreadDays: Math.max(spreadDays, 0) });
   }
+
 
   // Persist the category on the current mode's reusable list
   if (category && category.trim()) {
@@ -1359,9 +1369,11 @@ export function removeCustomCategory(name: string) {
 export function getMonthlyEquivalent(item: CostMapItem): number {
   if (item.value <= 0) return 0;
   if (item.classification === 'fixed') return item.value;
+  if (item.spreadDays === 0) return item.value; // Sem prazo: pontual, sem diluição
   const days = item.spreadDays || 7;
   return (item.value / days) * 30;
 }
+
 
 export function getCostMap() {
   const fixed = state.costMap.filter(i => i.classification === 'fixed');
