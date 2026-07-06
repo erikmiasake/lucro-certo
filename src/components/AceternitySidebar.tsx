@@ -69,7 +69,7 @@ function DesktopSidebar() {
   return (
     <motion.div
       className={cn(
-        "hidden md:flex h-screen flex-col py-4 px-3 border-r border-border/50 bg-sidebar-background shrink-0 sticky top-0"
+        "hidden md:flex h-screen flex-col py-4 px-3 border-r border-border/50 bg-sidebar shrink-0 sticky top-0 z-30 shadow-[2px_0_16px_rgba(0,0,0,0.25)]"
       )}
       animate={{ width: open ? 220 : 60 }}
       transition={{ duration: 0.3, ease: "easeInOut" }}
