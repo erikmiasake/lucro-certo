@@ -94,16 +94,24 @@ export interface AppState {
 const STORAGE_KEY = 'lucro-real-data';
 
 const defaultProfile: BusinessProfile = { name: '', city: '', operatingDays: 6, employeeCount: 0, objective: '', operatingWeekdays: [1, 2, 3, 4, 5, 6] };
+const defaultCustomCategories: CustomCategories = { business: [], personal: [] };
+
+function normalizeCustomCategories(raw: any): CustomCategories {
+  const biz = Array.isArray(raw?.business) ? raw.business.filter((s: any) => typeof s === 'string' && s.trim()) : [];
+  const per = Array.isArray(raw?.personal) ? raw.personal.filter((s: any) => typeof s === 'string' && s.trim()) : [];
+  return { business: Array.from(new Set(biz)), personal: Array.from(new Set(per)) };
+}
 
 function loadState(): AppState {
   try {
     const raw = safeGetItem(STORAGE_KEY);
     if (raw) {
       const parsed = JSON.parse(raw);
-      const loaded = { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, costMap: [], onboardingComplete: false, ...parsed };
+      const loaded = { goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, costMap: [], onboardingComplete: false, customCategories: defaultCustomCategories, ...parsed };
       if (!loaded.businessProfile.operatingWeekdays) {
         loaded.businessProfile.operatingWeekdays = [1, 2, 3, 4, 5, 6];
       }
+      loaded.customCategories = normalizeCustomCategories(loaded.customCategories);
       loaded.costMap = (loaded.costMap || []).map((item: any) => ({
         ...item,
         spreadDays: item.spreadDays ?? (item.classification === 'fixed' ? 30 : 7),
@@ -112,7 +120,7 @@ function loadState(): AppState {
       return loaded;
     }
   } catch {}
-  return { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile };
+  return { businessType: null, onboardingComplete: false, entries: [], costs: [], costMap: [], goals: { monthlyProfit: null, monthlyMargin: null }, businessProfile: defaultProfile, customCategories: { business: [], personal: [] } };
 }
 
 function saveState(s: AppState) {
