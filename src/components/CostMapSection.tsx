@@ -132,6 +132,13 @@ function CostItemRow({ item, onUpdate, onDelete, onToggle, onRename, onSpreadCha
 
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
+            onClick={() => onEdit(item)}
+            title="Editar gasto"
+            className="p-1.5 rounded-lg text-muted-foreground/50 hover:text-primary hover:bg-primary/10 transition-all"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+          <button
             onClick={() => onToggle(item.id)}
             title={item.classification === 'fixed' ? 'Mover para variável' : 'Mover para fixo'}
             className="p-1.5 rounded-lg text-muted-foreground/50 hover:text-primary hover:bg-primary/10 transition-all"
