@@ -794,7 +794,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
           <span className="text-[10px] text-muted-foreground/60 ml-1">(opcional)</span>
         </div>
         <p className="text-xs text-muted-foreground/60 mb-2.5">
-          Aparecem no Dashboard com o progresso em tempo real
+          Digite em R$ ou %, o outro campo é calculado sobre o faturamento mensal.
         </p>
         <div className="grid grid-cols-2 gap-2">
           <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
