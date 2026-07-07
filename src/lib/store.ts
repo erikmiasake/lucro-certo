@@ -119,11 +119,50 @@ const FIXED_COST_DEFAULT_CATEGORY: Record<string, string> = {
   'encargos': 'Pessoal',
 };
 
+/** Default category mapping for well-known variable cost names (Business mode). */
+const VARIABLE_COST_DEFAULT_CATEGORY: Record<string, string> = {
+  'ingredientes': 'Insumos',
+  'bebidas': 'Insumos',
+  'embalagens': 'Insumos',
+  'descartáveis': 'Insumos',
+  'descartaveis': 'Insumos',
+  'produtos': 'Insumos',
+  'insumos': 'Insumos',
+  'mercadoria': 'Insumos',
+  'estoque': 'Insumos',
+  'materiais': 'Insumos',
+  'tintas': 'Insumos',
+  'cremes': 'Insumos',
+  'lâminas': 'Insumos',
+  'laminas': 'Insumos',
+  'ração': 'Insumos',
+  'racao': 'Insumos',
+  'produtos pet': 'Insumos',
+  'medicamentos': 'Insumos',
+  'suplementos': 'Insumos',
+  'acessórios': 'Insumos',
+  'acessorios': 'Insumos',
+  'equipamentos': 'Operacional',
+  'manutenção': 'Operacional',
+  'manutencao': 'Operacional',
+  'limpeza': 'Operacional',
+};
+
 /** Default fixed-cost categories seeded on Business onboarding. */
 const DEFAULT_BUSINESS_FIXED_CATEGORIES = ['Ocupação', 'Utilidades', 'Pessoal'];
+/** Default variable-cost categories seeded on Business onboarding. */
+const DEFAULT_BUSINESS_VARIABLE_CATEGORIES = ['Insumos', 'Operacional'];
 
 export function getDefaultFixedCategory(name: string): string | undefined {
   return FIXED_COST_DEFAULT_CATEGORY[name.trim().toLowerCase()];
+}
+
+export function getDefaultVariableCategory(name: string): string | undefined {
+  return VARIABLE_COST_DEFAULT_CATEGORY[name.trim().toLowerCase()];
+}
+
+export function getDefaultCategoryFor(name: string, classification: 'fixed' | 'variable'): string | undefined {
+  return classification === 'fixed' ? getDefaultFixedCategory(name) : getDefaultVariableCategory(name);
 }
 
 function normalizeCustomCategories(raw: any): CustomCategories {
