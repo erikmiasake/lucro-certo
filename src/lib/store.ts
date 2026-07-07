@@ -433,8 +433,14 @@ function getCostImpactOnDate(cost: Cost, targetDate: string): number {
       return cost.date === targetDate ? cost.amount : 0;
     }
 
+    // Derived variable cost: normalize so the monthly sum equals the
+    // "monthly equivalent" shown in the cost map: (amount / spreadDays) * 30.
+    // Without this normalization, months with 31 days inflate the total
+    // (e.g. 700/30 * 31 ≈ 723) and diverge from the map's "≈ R$ 700/mês".
     const spreadDays = Math.max(cost.spreadDays || 1, 1);
-    return cost.amount / spreadDays;
+    const target = new Date(targetDate + 'T00:00:00');
+    const daysInMonth = new Date(target.getFullYear(), target.getMonth() + 1, 0).getDate();
+    return (cost.amount / spreadDays) * 30 / daysInMonth;
   }
 
   if (cost.spreadDays === 0) {
