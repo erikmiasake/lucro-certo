@@ -826,6 +826,11 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
             </div>
           </div>
         </div>
+        {baseMonthlyRevenue > 0 && (
+          <p className="text-[10px] text-muted-foreground/50 mt-1.5">
+            Base: R$ {baseMonthlyRevenue.toLocaleString('pt-BR')} de faturamento mensal
+          </p>
+        )}
       </motion.div>
 
       {/* Objective */}
