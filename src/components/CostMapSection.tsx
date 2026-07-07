@@ -116,7 +116,6 @@ function CostItemRow({ item, onUpdate, onDelete, onToggle, onRename, onSpreadCha
               {item.category || 'Sem categoria'}
             </span>
           </div>
-        </div>
           {!editing ? (
             <button
               onClick={handleStartEdit}
