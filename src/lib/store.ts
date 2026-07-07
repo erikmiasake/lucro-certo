@@ -114,11 +114,20 @@ function loadState(): AppState {
         loaded.businessProfile.operatingWeekdays = [1, 2, 3, 4, 5, 6];
       }
       loaded.customCategories = normalizeCustomCategories(loaded.customCategories);
-      loaded.costMap = (loaded.costMap || []).map((item: any) => ({
-        ...item,
-        spreadDays: item.spreadDays ?? (item.classification === 'fixed' ? 30 : 7),
-        createdAt: item.createdAt ?? Date.now(),
-      }));
+      loaded.costMap = (loaded.costMap || []).map((item: any) => {
+        const classification = item.classification;
+        const hasCategory = typeof item.category === 'string' && item.category.trim().length > 0;
+        // Backfill default category on well-known fixed costs that lack one (legacy data).
+        const backfilledCategory = !hasCategory && classification === 'fixed'
+          ? backfillFixedCategory(item.name)
+          : undefined;
+        return {
+          ...item,
+          spreadDays: item.spreadDays ?? (classification === 'fixed' ? 30 : 7),
+          createdAt: item.createdAt ?? Date.now(),
+          category: hasCategory ? item.category : backfilledCategory,
+        };
+      });
       return loaded;
     }
   } catch {}
