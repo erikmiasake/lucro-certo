@@ -50,12 +50,22 @@ export default function CostModal({ open, onClose, onSubmit, config, initialData
   useEffect(() => {
     if (open) {
       setStep('describe');
-      setDescription('');
-      setValue('');
-      setSpreadDays(5);
-      setCostType('product');
-      setClassification('variable');
-      setCategory('');
+      if (initialData) {
+        setDescription(initialData.description ?? '');
+        setValue(initialData.value != null && initialData.value > 0 ? String(initialData.value) : '');
+        const cls = initialData.classification ?? (initialData.costType === 'business' ? 'fixed' : 'variable');
+        setClassification(cls);
+        setCostType(initialData.costType ?? (cls === 'fixed' ? 'business' : 'product'));
+        setSpreadDays(initialData.spreadDays ?? (cls === 'fixed' ? 30 : 5));
+        setCategory(initialData.category ?? '');
+      } else {
+        setDescription('');
+        setValue('');
+        setSpreadDays(5);
+        setCostType('product');
+        setClassification('variable');
+        setCategory('');
+      }
       setSubcategory('');
       setAddingCategory(false);
       setNewCategoryText('');
