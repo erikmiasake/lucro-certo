@@ -17,13 +17,14 @@ function fmt(value: number) {
 
 const SPREAD_OPTIONS = [3, 5, 7, 15, 30];
 
-function CostItemRow({ item, onUpdate, onDelete, onToggle, onRename, onSpreadChange }: {
+function CostItemRow({ item, onUpdate, onDelete, onToggle, onRename, onSpreadChange, onEdit }: {
   item: CostMapItem;
   onUpdate: (id: string, value: number) => void;
   onDelete: (id: string) => void;
   onToggle: (id: string) => void;
   onRename: (id: string, name: string) => void;
   onSpreadChange: (id: string, days: number) => void;
+  onEdit: (item: CostMapItem) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [editingName, setEditingName] = useState(false);
