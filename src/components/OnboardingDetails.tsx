@@ -203,6 +203,14 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     return parseInt(raw.replace(/\D/g, ''), 10) || 0;
   }, [isPersonal, monthlyIncome, avgSales]);
 
+  // Formata % com até 1 casa decimal (evita mostrar "0" quando o valor
+  // é pequeno em relação à receita — ex: R$ 20 sobre R$ 15.000 = 0,1%).
+  const formatPct = (pct: number) => {
+    const clamped = Math.min(100, Math.max(0, pct));
+    const rounded = Math.round(clamped * 10) / 10;
+    return Number.isInteger(rounded) ? String(rounded) : rounded.toString().replace('.', ',');
+  };
+
   const handleGoalProfitChange = (raw: string) => {
     setLastEditedGoal('profit');
     const formatted = formatCurrency(raw);
@@ -213,8 +221,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
       return;
     }
     if (baseMonthlyRevenue > 0) {
-      const pct = Math.min(100, Math.round((val / baseMonthlyRevenue) * 100));
-      setGoalMargin(String(pct));
+      setGoalMargin(formatPct((val / baseMonthlyRevenue) * 100));
     } else {
       setGoalMargin('');
     }
@@ -243,7 +250,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     if (lastEditedGoal === 'profit') {
       const val = parseCurrencyValue(goalProfit);
       if (val > 0) {
-        setGoalMargin(String(Math.min(100, Math.round((val / baseMonthlyRevenue) * 100))));
+        setGoalMargin(formatPct((val / baseMonthlyRevenue) * 100));
       }
       return;
     }
@@ -787,7 +794,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
           <span className="text-[10px] text-muted-foreground/60 ml-1">(opcional)</span>
         </div>
         <p className="text-xs text-muted-foreground/60 mb-2.5">
-          Aparecem no Dashboard com o progresso em tempo real
+          Digite em R$ ou %, o outro campo é calculado sobre o faturamento mensal.
         </p>
         <div className="grid grid-cols-2 gap-2">
           <div className="p-3 rounded-xl bg-secondary/40 border border-border focus-within:border-primary/40 transition-all">
@@ -819,6 +826,11 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
             </div>
           </div>
         </div>
+        {baseMonthlyRevenue > 0 && (
+          <p className="text-[10px] text-muted-foreground/50 mt-1.5">
+            Base: R$ {baseMonthlyRevenue.toLocaleString('pt-BR')} de faturamento mensal
+          </p>
+        )}
       </motion.div>
 
       {/* Objective */}
