@@ -108,7 +108,7 @@ export default function CostModal({ open, onClose, onSubmit, config, initialData
 
             {step === 'describe' ? (
               <>
-                <h2 className="text-lg font-bold text-foreground mb-1">{labels.costModalTitle}</h2>
+                <h2 className="text-lg font-bold text-foreground mb-1">{titleOverride ?? labels.costModalTitle}</h2>
                 <p className="text-muted-foreground text-xs mb-5">{labels.costModalSubtitle}</p>
 
                 {/* Description input */}
