@@ -1248,33 +1248,6 @@ const FIXED_COST_NAMES = ['Aluguel', 'Energia', 'Água', 'Gás', 'Sistema/Softwa
   // Personal — recurring monthly bills
   'Moradia', 'Contas fixas', 'Assinaturas', 'Educação'];
 
-/** Default category mapping for well-known fixed cost names (Business mode). */
-const FIXED_COST_DEFAULT_CATEGORY: Record<string, string> = {
-  'aluguel': 'Ocupação',
-  'condomínio': 'Ocupação',
-  'condominio': 'Ocupação',
-  'iptu': 'Ocupação',
-  'energia': 'Utilidades',
-  'água': 'Utilidades',
-  'agua': 'Utilidades',
-  'gás': 'Utilidades',
-  'gas': 'Utilidades',
-  'internet': 'Utilidades',
-  'telefone': 'Utilidades',
-  'contas': 'Utilidades',
-  'sistema/software': 'Utilidades',
-  'folha de pagamento': 'Pessoal',
-  'pró-labore': 'Pessoal',
-  'pro-labore': 'Pessoal',
-  'encargos': 'Pessoal',
-};
-
-/** Default fixed-cost categories seeded on Business onboarding. */
-const DEFAULT_BUSINESS_FIXED_CATEGORIES = ['Ocupação', 'Utilidades', 'Pessoal'];
-
-export function getDefaultFixedCategory(name: string): string | undefined {
-  return FIXED_COST_DEFAULT_CATEGORY[name.trim().toLowerCase()];
-}
 
 export function classifyCostName(name: string): CostClassification {
   if (FIXED_COST_NAMES.some(f => name.toLowerCase() === f.toLowerCase())) return 'fixed';
