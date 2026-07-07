@@ -391,6 +391,23 @@ export default function CostMapSection() {
         )}
       </AnimatePresence>
 
+      <CostModal
+        open={!!editItem}
+        onClose={() => setEditItem(null)}
+        onSubmit={handleEditSubmit}
+        config={config}
+        initialData={editItem ? {
+          description: editItem.name,
+          value: editItem.value,
+          spreadDays: editItem.spreadDays,
+          costType: editItem.classification === 'fixed' ? 'business' : 'product',
+          classification: editItem.classification,
+          category: editItem.category,
+        } : undefined}
+        submitLabel="Salvar alterações"
+        titleOverride="Editar gasto"
+      />
+
     </div>
   );
 }
