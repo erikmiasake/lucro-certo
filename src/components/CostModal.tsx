@@ -11,9 +11,19 @@ interface CostModalProps {
   onClose: () => void;
   onSubmit: (amount: number, type: 'product' | 'business', spreadDays: number, description?: string, category?: string, subcategory?: string, classification?: CostClassification) => void;
   config: BusinessConfig;
+  initialData?: {
+    description?: string;
+    value?: number;
+    spreadDays?: number;
+    costType?: 'product' | 'business';
+    classification?: CostClassification;
+    category?: string;
+  };
+  submitLabel?: string;
+  titleOverride?: string;
 }
 
-export default function CostModal({ open, onClose, onSubmit, config }: CostModalProps) {
+export default function CostModal({ open, onClose, onSubmit, config, initialData, submitLabel, titleOverride }: CostModalProps) {
   const state = useStore();
   const labels = getModeCopyFromType(state.businessType).glossary;
   const [step, setStep] = useState<'describe' | 'details'>('describe');
@@ -40,12 +50,22 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
   useEffect(() => {
     if (open) {
       setStep('describe');
-      setDescription('');
-      setValue('');
-      setSpreadDays(5);
-      setCostType('product');
-      setClassification('variable');
-      setCategory('');
+      if (initialData) {
+        setDescription(initialData.description ?? '');
+        setValue(initialData.value != null && initialData.value > 0 ? String(initialData.value) : '');
+        const cls = initialData.classification ?? (initialData.costType === 'business' ? 'fixed' : 'variable');
+        setClassification(cls);
+        setCostType(initialData.costType ?? (cls === 'fixed' ? 'business' : 'product'));
+        setSpreadDays(initialData.spreadDays ?? (cls === 'fixed' ? 30 : 5));
+        setCategory(initialData.category ?? '');
+      } else {
+        setDescription('');
+        setValue('');
+        setSpreadDays(5);
+        setCostType('product');
+        setClassification('variable');
+        setCategory('');
+      }
       setSubcategory('');
       setAddingCategory(false);
       setNewCategoryText('');
@@ -88,7 +108,7 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
 
             {step === 'describe' ? (
               <>
-                <h2 className="text-lg font-bold text-foreground mb-1">{labels.costModalTitle}</h2>
+                <h2 className="text-lg font-bold text-foreground mb-1">{titleOverride ?? labels.costModalTitle}</h2>
                 <p className="text-muted-foreground text-xs mb-5">{labels.costModalSubtitle}</p>
 
                 {/* Description input */}
@@ -301,7 +321,7 @@ export default function CostModal({ open, onClose, onSubmit, config }: CostModal
                   disabled={!value || parseFloat(value.replace(',', '.')) <= 0}
                   className="w-full py-4 rounded-2xl gradient-accent text-accent-foreground font-semibold text-lg disabled:opacity-30 active:scale-[0.97] transition-all shadow-lg shadow-accent/15"
                 >
-                  {labels.costModalButton}
+                  {submitLabel ?? labels.costModalButton}
                 </button>
               </>
             )}

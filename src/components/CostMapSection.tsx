@@ -6,8 +6,10 @@ import {
   getMonthlyEquivalent, CostClassification, CostMapItem
 } from '@/lib/finance';
 import {
-  Package, Building2, Trash2, Plus, ArrowRightLeft, Sparkles, X, Clock
+  Package, Building2, Trash2, Plus, ArrowRightLeft, Sparkles, X, Clock, Pencil
 } from 'lucide-react';
+import CostModal from '@/components/CostModal';
+import { businessConfigs } from '@/lib/business-config';
 
 function fmt(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
@@ -15,13 +17,14 @@ function fmt(value: number) {
 
 const SPREAD_OPTIONS = [3, 5, 7, 15, 30];
 
-function CostItemRow({ item, onUpdate, onDelete, onToggle, onRename, onSpreadChange }: {
+function CostItemRow({ item, onUpdate, onDelete, onToggle, onRename, onSpreadChange, onEdit }: {
   item: CostMapItem;
   onUpdate: (id: string, value: number) => void;
   onDelete: (id: string) => void;
   onToggle: (id: string) => void;
   onRename: (id: string, name: string) => void;
   onSpreadChange: (id: string, days: number) => void;
+  onEdit: (item: CostMapItem) => void;
 }) {
   const [editing, setEditing] = useState(false);
   const [editingName, setEditingName] = useState(false);
@@ -129,6 +132,13 @@ function CostItemRow({ item, onUpdate, onDelete, onToggle, onRename, onSpreadCha
 
         <div className="flex items-center gap-0.5 opacity-0 group-hover:opacity-100 transition-opacity">
           <button
+            onClick={() => onEdit(item)}
+            title="Editar gasto"
+            className="p-1.5 rounded-lg text-muted-foreground/50 hover:text-primary hover:bg-primary/10 transition-all"
+          >
+            <Pencil className="h-3.5 w-3.5" />
+          </button>
+          <button
             onClick={() => onToggle(item.id)}
             title={item.classification === 'fixed' ? 'Mover para variável' : 'Mover para fixo'}
             className="p-1.5 rounded-lg text-muted-foreground/50 hover:text-primary hover:bg-primary/10 transition-all"
@@ -183,7 +193,32 @@ export default function CostMapSection() {
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
   const [newClass, setNewClass] = useState<CostClassification>('variable');
+  const [editItem, setEditItem] = useState<CostMapItem | null>(null);
   const addRef = useRef<HTMLInputElement>(null);
+  const config = businessConfigs[state.businessType ?? 'outro'];
+
+  const handleEdit = (item: CostMapItem) => setEditItem(item);
+
+  const handleEditSubmit = (
+    amount: number,
+    _type: 'product' | 'business',
+    spreadDays: number,
+    description?: string,
+    category?: string,
+    _sub?: string,
+    classification?: CostClassification,
+  ) => {
+    if (!editItem) return;
+    const cls = classification ?? editItem.classification;
+    updateCostMapItem(editItem.id, {
+      value: amount,
+      spreadDays: cls === 'fixed' ? 30 : Math.max(spreadDays, 0),
+      classification: cls,
+      name: (description?.trim() || editItem.name),
+      category: category?.trim() || undefined,
+    });
+    setEditItem(null);
+  };
 
   const handleUpdate = (id: string, value: number) => {
     updateCostMapItem(id, { value });
@@ -270,6 +305,7 @@ export default function CostMapSection() {
                   onToggle={handleToggle}
                   onRename={handleRename}
                   onSpreadChange={handleSpreadChange}
+                  onEdit={handleEdit}
                 />
               ))}
             </AnimatePresence>
@@ -296,6 +332,7 @@ export default function CostMapSection() {
                   onToggle={handleToggle}
                   onRename={handleRename}
                   onSpreadChange={handleSpreadChange}
+                  onEdit={handleEdit}
                 />
               ))}
             </AnimatePresence>
@@ -353,6 +390,23 @@ export default function CostMapSection() {
           </motion.div>
         )}
       </AnimatePresence>
+
+      <CostModal
+        open={!!editItem}
+        onClose={() => setEditItem(null)}
+        onSubmit={handleEditSubmit}
+        config={config}
+        initialData={editItem ? {
+          description: editItem.name,
+          value: editItem.value,
+          spreadDays: editItem.spreadDays,
+          costType: editItem.classification === 'fixed' ? 'business' : 'product',
+          classification: editItem.classification,
+          category: editItem.category,
+        } : undefined}
+        submitLabel="Salvar alterações"
+        titleOverride="Editar gasto"
+      />
 
     </div>
   );
