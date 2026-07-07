@@ -203,6 +203,14 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     return parseInt(raw.replace(/\D/g, ''), 10) || 0;
   }, [isPersonal, monthlyIncome, avgSales]);
 
+  // Formata % com até 1 casa decimal (evita mostrar "0" quando o valor
+  // é pequeno em relação à receita — ex: R$ 20 sobre R$ 15.000 = 0,1%).
+  const formatPct = (pct: number) => {
+    const clamped = Math.min(100, Math.max(0, pct));
+    const rounded = Math.round(clamped * 10) / 10;
+    return Number.isInteger(rounded) ? String(rounded) : rounded.toString().replace('.', ',');
+  };
+
   const handleGoalProfitChange = (raw: string) => {
     setLastEditedGoal('profit');
     const formatted = formatCurrency(raw);
@@ -213,8 +221,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
       return;
     }
     if (baseMonthlyRevenue > 0) {
-      const pct = Math.min(100, Math.round((val / baseMonthlyRevenue) * 100));
-      setGoalMargin(String(pct));
+      setGoalMargin(formatPct((val / baseMonthlyRevenue) * 100));
     } else {
       setGoalMargin('');
     }
@@ -243,7 +250,7 @@ export default function OnboardingDetails({ selectedType, onBack, onFinish }: Pr
     if (lastEditedGoal === 'profit') {
       const val = parseCurrencyValue(goalProfit);
       if (val > 0) {
-        setGoalMargin(String(Math.min(100, Math.round((val / baseMonthlyRevenue) * 100))));
+        setGoalMargin(formatPct((val / baseMonthlyRevenue) * 100));
       }
       return;
     }
