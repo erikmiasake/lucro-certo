@@ -85,25 +85,38 @@ function CostItemRow({ item, onUpdate, onDelete, onToggle, onRename, onSpreadCha
         </div>
 
         <div className="flex-1 min-w-0">
-          {!editingName ? (
-            <button
-              onClick={handleStartEditName}
-              className="text-xs font-medium text-foreground truncate block hover:text-primary transition-colors cursor-text"
-              title="Clique para renomear"
+          <div className="flex flex-col items-start gap-0.5">
+            {!editingName ? (
+              <button
+                onClick={handleStartEditName}
+                className="text-xs font-medium text-foreground truncate block hover:text-primary transition-colors cursor-text"
+                title="Clique para renomear"
+              >
+                {item.name}
+              </button>
+            ) : (
+              <input
+                ref={nameRef}
+                type="text"
+                value={nameVal}
+                onChange={e => setNameVal(e.target.value)}
+                onBlur={handleSaveName}
+                onKeyDown={e => e.key === 'Enter' && handleSaveName()}
+                className="w-full text-xs font-medium bg-secondary/50 rounded-lg px-2 py-1 outline-none border border-border focus:border-primary/40 text-foreground"
+              />
+            )}
+            <span
+              className={`text-[10px] px-1.5 py-0.5 rounded-md font-medium shrink-0 ${
+                item.category
+                  ? (isVariable ? 'bg-accent/10 text-accent/80' : 'bg-purple-500/10 text-purple-400/80')
+                  : 'bg-secondary/40 text-muted-foreground/50'
+              }`}
+              title={item.category ? 'Categoria' : 'Sem categoria'}
             >
-              {item.name}
-            </button>
-          ) : (
-            <input
-              ref={nameRef}
-              type="text"
-              value={nameVal}
-              onChange={e => setNameVal(e.target.value)}
-              onBlur={handleSaveName}
-              onKeyDown={e => e.key === 'Enter' && handleSaveName()}
-              className="w-full text-xs font-medium bg-secondary/50 rounded-lg px-2 py-1 outline-none border border-border focus:border-primary/40 text-foreground"
-            />
-          )}
+              {item.category || 'Sem categoria'}
+            </span>
+          </div>
+        </div>
           {!editing ? (
             <button
               onClick={handleStartEdit}
