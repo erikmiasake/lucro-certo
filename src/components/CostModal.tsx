@@ -11,9 +11,19 @@ interface CostModalProps {
   onClose: () => void;
   onSubmit: (amount: number, type: 'product' | 'business', spreadDays: number, description?: string, category?: string, subcategory?: string, classification?: CostClassification) => void;
   config: BusinessConfig;
+  initialData?: {
+    description?: string;
+    value?: number;
+    spreadDays?: number;
+    costType?: 'product' | 'business';
+    classification?: CostClassification;
+    category?: string;
+  };
+  submitLabel?: string;
+  titleOverride?: string;
 }
 
-export default function CostModal({ open, onClose, onSubmit, config }: CostModalProps) {
+export default function CostModal({ open, onClose, onSubmit, config, initialData, submitLabel, titleOverride }: CostModalProps) {
   const state = useStore();
   const labels = getModeCopyFromType(state.businessType).glossary;
   const [step, setStep] = useState<'describe' | 'details'>('describe');
