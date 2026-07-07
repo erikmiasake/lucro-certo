@@ -98,6 +98,34 @@ const STORAGE_KEY = 'lucro-real-data';
 const defaultProfile: BusinessProfile = { name: '', city: '', operatingDays: 6, employeeCount: 0, objective: '', operatingWeekdays: [1, 2, 3, 4, 5, 6] };
 const defaultCustomCategories: CustomCategories = { business: [], personal: [] };
 
+/** Default category mapping for well-known fixed cost names (Business mode). Declared early for use in loadState migrations. */
+const FIXED_COST_DEFAULT_CATEGORY: Record<string, string> = {
+  'aluguel': 'Ocupação',
+  'condomínio': 'Ocupação',
+  'condominio': 'Ocupação',
+  'iptu': 'Ocupação',
+  'energia': 'Utilidades',
+  'água': 'Utilidades',
+  'agua': 'Utilidades',
+  'gás': 'Utilidades',
+  'gas': 'Utilidades',
+  'internet': 'Utilidades',
+  'telefone': 'Utilidades',
+  'contas': 'Utilidades',
+  'sistema/software': 'Utilidades',
+  'folha de pagamento': 'Pessoal',
+  'pró-labore': 'Pessoal',
+  'pro-labore': 'Pessoal',
+  'encargos': 'Pessoal',
+};
+
+/** Default fixed-cost categories seeded on Business onboarding. */
+const DEFAULT_BUSINESS_FIXED_CATEGORIES = ['Ocupação', 'Utilidades', 'Pessoal'];
+
+export function getDefaultFixedCategory(name: string): string | undefined {
+  return FIXED_COST_DEFAULT_CATEGORY[name.trim().toLowerCase()];
+}
+
 function normalizeCustomCategories(raw: any): CustomCategories {
   const biz = Array.isArray(raw?.business) ? raw.business.filter((s: any) => typeof s === 'string' && s.trim()) : [];
   const per = Array.isArray(raw?.personal) ? raw.personal.filter((s: any) => typeof s === 'string' && s.trim()) : [];
