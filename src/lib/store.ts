@@ -119,7 +119,7 @@ function loadState(): AppState {
         const hasCategory = typeof item.category === 'string' && item.category.trim().length > 0;
         // Backfill default category on well-known fixed costs that lack one (legacy data).
         const backfilledCategory = !hasCategory && classification === 'fixed'
-          ? backfillFixedCategory(item.name)
+          ? FIXED_COST_DEFAULT_CATEGORY[String(item.name || '').trim().toLowerCase()]
           : undefined;
         return {
           ...item,
