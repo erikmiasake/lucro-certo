@@ -1395,6 +1395,8 @@ export function deleteCostMapItem(id: string) {
 }
 
 export function addCostMapItem(name: string, classification: CostClassification, value: number = 0, category?: string) {
+  const explicit = category?.trim();
+  const resolvedCategory = explicit || getDefaultCategoryFor(name, classification);
   const item: CostMapItem = {
     id: crypto.randomUUID(),
     name,
@@ -1402,7 +1404,7 @@ export function addCostMapItem(name: string, classification: CostClassification,
     value,
     spreadDays: classification === 'fixed' ? 30 : 7,
     createdAt: Date.now(),
-    category: category?.trim() || undefined,
+    category: resolvedCategory || undefined,
   };
   state = { ...state, costMap: [...state.costMap, item] };
   syncCostMapToCosts();
