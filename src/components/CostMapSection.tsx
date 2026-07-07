@@ -193,7 +193,32 @@ export default function CostMapSection() {
   const [showAdd, setShowAdd] = useState(false);
   const [newName, setNewName] = useState('');
   const [newClass, setNewClass] = useState<CostClassification>('variable');
+  const [editItem, setEditItem] = useState<CostMapItem | null>(null);
   const addRef = useRef<HTMLInputElement>(null);
+  const config = businessConfigs[state.businessType ?? 'outro'];
+
+  const handleEdit = (item: CostMapItem) => setEditItem(item);
+
+  const handleEditSubmit = (
+    amount: number,
+    _type: 'product' | 'business',
+    spreadDays: number,
+    description?: string,
+    category?: string,
+    _sub?: string,
+    classification?: CostClassification,
+  ) => {
+    if (!editItem) return;
+    const cls = classification ?? editItem.classification;
+    updateCostMapItem(editItem.id, {
+      value: amount,
+      spreadDays: cls === 'fixed' ? 30 : Math.max(spreadDays, 0),
+      classification: cls,
+      name: (description?.trim() || editItem.name),
+      category: category?.trim() || undefined,
+    });
+    setEditItem(null);
+  };
 
   const handleUpdate = (id: string, value: number) => {
     updateCostMapItem(id, { value });
