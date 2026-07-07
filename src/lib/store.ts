@@ -184,10 +184,13 @@ function loadState(): AppState {
       loaded.costMap = (loaded.costMap || []).map((item: any) => {
         const classification = item.classification;
         const hasCategory = typeof item.category === 'string' && item.category.trim().length > 0;
-        // Backfill default category on well-known fixed costs that lack one (legacy data).
-        const backfilledCategory = !hasCategory && classification === 'fixed'
-          ? FIXED_COST_DEFAULT_CATEGORY[String(item.name || '').trim().toLowerCase()]
-          : undefined;
+        // Backfill default category on well-known costs that lack one (legacy data).
+        const key = String(item.name || '').trim().toLowerCase();
+        const backfilledCategory = hasCategory
+          ? undefined
+          : classification === 'fixed'
+            ? FIXED_COST_DEFAULT_CATEGORY[key]
+            : VARIABLE_COST_DEFAULT_CATEGORY[key];
         return {
           ...item,
           spreadDays: item.spreadDays ?? (classification === 'fixed' ? 30 : 7),
