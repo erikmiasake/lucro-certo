@@ -321,7 +321,7 @@ export default function CostModal({ open, onClose, onSubmit, config, initialData
                   disabled={!value || parseFloat(value.replace(',', '.')) <= 0}
                   className="w-full py-4 rounded-2xl gradient-accent text-accent-foreground font-semibold text-lg disabled:opacity-30 active:scale-[0.97] transition-all shadow-lg shadow-accent/15"
                 >
-                  {labels.costModalButton}
+                  {submitLabel ?? labels.costModalButton}
                 </button>
               </>
             )}
