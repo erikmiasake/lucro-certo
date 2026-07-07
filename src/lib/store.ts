@@ -119,11 +119,50 @@ const FIXED_COST_DEFAULT_CATEGORY: Record<string, string> = {
   'encargos': 'Pessoal',
 };
 
+/** Default category mapping for well-known variable cost names (Business mode). */
+const VARIABLE_COST_DEFAULT_CATEGORY: Record<string, string> = {
+  'ingredientes': 'Insumos',
+  'bebidas': 'Insumos',
+  'embalagens': 'Insumos',
+  'descartáveis': 'Insumos',
+  'descartaveis': 'Insumos',
+  'produtos': 'Insumos',
+  'insumos': 'Insumos',
+  'mercadoria': 'Insumos',
+  'estoque': 'Insumos',
+  'materiais': 'Insumos',
+  'tintas': 'Insumos',
+  'cremes': 'Insumos',
+  'lâminas': 'Insumos',
+  'laminas': 'Insumos',
+  'ração': 'Insumos',
+  'racao': 'Insumos',
+  'produtos pet': 'Insumos',
+  'medicamentos': 'Insumos',
+  'suplementos': 'Insumos',
+  'acessórios': 'Insumos',
+  'acessorios': 'Insumos',
+  'equipamentos': 'Operacional',
+  'manutenção': 'Operacional',
+  'manutencao': 'Operacional',
+  'limpeza': 'Operacional',
+};
+
 /** Default fixed-cost categories seeded on Business onboarding. */
 const DEFAULT_BUSINESS_FIXED_CATEGORIES = ['Ocupação', 'Utilidades', 'Pessoal'];
+/** Default variable-cost categories seeded on Business onboarding. */
+const DEFAULT_BUSINESS_VARIABLE_CATEGORIES = ['Insumos', 'Operacional'];
 
 export function getDefaultFixedCategory(name: string): string | undefined {
   return FIXED_COST_DEFAULT_CATEGORY[name.trim().toLowerCase()];
+}
+
+export function getDefaultVariableCategory(name: string): string | undefined {
+  return VARIABLE_COST_DEFAULT_CATEGORY[name.trim().toLowerCase()];
+}
+
+export function getDefaultCategoryFor(name: string, classification: 'fixed' | 'variable'): string | undefined {
+  return classification === 'fixed' ? getDefaultFixedCategory(name) : getDefaultVariableCategory(name);
 }
 
 function normalizeCustomCategories(raw: any): CustomCategories {
@@ -145,10 +184,13 @@ function loadState(): AppState {
       loaded.costMap = (loaded.costMap || []).map((item: any) => {
         const classification = item.classification;
         const hasCategory = typeof item.category === 'string' && item.category.trim().length > 0;
-        // Backfill default category on well-known fixed costs that lack one (legacy data).
-        const backfilledCategory = !hasCategory && classification === 'fixed'
-          ? FIXED_COST_DEFAULT_CATEGORY[String(item.name || '').trim().toLowerCase()]
-          : undefined;
+        // Backfill default category on well-known costs that lack one (legacy data).
+        const key = String(item.name || '').trim().toLowerCase();
+        const backfilledCategory = hasCategory
+          ? undefined
+          : classification === 'fixed'
+            ? FIXED_COST_DEFAULT_CATEGORY[key]
+            : VARIABLE_COST_DEFAULT_CATEGORY[key];
         return {
           ...item,
           spreadDays: item.spreadDays ?? (classification === 'fixed' ? 30 : 7),
@@ -1304,7 +1346,7 @@ function syncCostMapToCosts() {
 export function initCostMapFromOnboarding(selectedCosts: string[]) {
   const items: CostMapItem[] = selectedCosts.map(name => {
     const classification = classifyCostName(name);
-    const category = classification === 'fixed' ? getDefaultFixedCategory(name) : undefined;
+    const category = getDefaultCategoryFor(name, classification);
     return {
       id: crypto.randomUUID(),
       name,
@@ -1316,11 +1358,12 @@ export function initCostMapFromOnboarding(selectedCosts: string[]) {
     };
   });
 
-  // Seed the Business-mode reusable category list with the default fixed-cost categories,
-  // plus any categories inferred from the selected fixed costs — deduped.
+  // Seed the Business-mode reusable category list with the default fixed + variable
+  // categories, plus any categories inferred from the selected costs — deduped.
   const seeded = new Set<string>([
     ...(state.customCategories?.business ?? []),
     ...DEFAULT_BUSINESS_FIXED_CATEGORIES,
+    ...DEFAULT_BUSINESS_VARIABLE_CATEGORIES,
     ...items.map(i => i.category).filter((c): c is string => !!c),
   ]);
 
@@ -1352,6 +1395,8 @@ export function deleteCostMapItem(id: string) {
 }
 
 export function addCostMapItem(name: string, classification: CostClassification, value: number = 0, category?: string) {
+  const explicit = category?.trim();
+  const resolvedCategory = explicit || getDefaultCategoryFor(name, classification);
   const item: CostMapItem = {
     id: crypto.randomUUID(),
     name,
@@ -1359,7 +1404,7 @@ export function addCostMapItem(name: string, classification: CostClassification,
     value,
     spreadDays: classification === 'fixed' ? 30 : 7,
     createdAt: Date.now(),
-    category: category?.trim() || undefined,
+    category: resolvedCategory || undefined,
   };
   state = { ...state, costMap: [...state.costMap, item] };
   syncCostMapToCosts();
