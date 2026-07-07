@@ -6,8 +6,10 @@ import {
   getMonthlyEquivalent, CostClassification, CostMapItem
 } from '@/lib/finance';
 import {
-  Package, Building2, Trash2, Plus, ArrowRightLeft, Sparkles, X, Clock
+  Package, Building2, Trash2, Plus, ArrowRightLeft, Sparkles, X, Clock, Pencil
 } from 'lucide-react';
+import CostModal from '@/components/CostModal';
+import { businessConfigs } from '@/lib/business-config';
 
 function fmt(value: number) {
   return value.toLocaleString('pt-BR', { style: 'currency', currency: 'BRL', minimumFractionDigits: 0, maximumFractionDigits: 0 });
