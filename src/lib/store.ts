@@ -1294,6 +1294,7 @@ function syncCostMapToCosts() {
 export function initCostMapFromOnboarding(selectedCosts: string[]) {
   const items: CostMapItem[] = selectedCosts.map(name => {
     const classification = classifyCostName(name);
+    const category = classification === 'fixed' ? getDefaultFixedCategory(name) : undefined;
     return {
       id: crypto.randomUUID(),
       name,
@@ -1301,9 +1302,26 @@ export function initCostMapFromOnboarding(selectedCosts: string[]) {
       value: 0,
       spreadDays: classification === 'fixed' ? 30 : 7,
       createdAt: Date.now(),
+      category,
     };
   });
-  state = { ...state, costMap: items };
+
+  // Seed the Business-mode reusable category list with the default fixed-cost categories,
+  // plus any categories inferred from the selected fixed costs — deduped.
+  const seeded = new Set<string>([
+    ...(state.customCategories?.business ?? []),
+    ...DEFAULT_BUSINESS_FIXED_CATEGORIES,
+    ...items.map(i => i.category).filter((c): c is string => !!c),
+  ]);
+
+  state = {
+    ...state,
+    costMap: items,
+    customCategories: {
+      ...(state.customCategories ?? { business: [], personal: [] }),
+      business: Array.from(seeded),
+    },
+  };
   syncCostMapToCosts();
   notify();
 }
