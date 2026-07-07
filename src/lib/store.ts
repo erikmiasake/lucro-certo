@@ -98,6 +98,34 @@ const STORAGE_KEY = 'lucro-real-data';
 const defaultProfile: BusinessProfile = { name: '', city: '', operatingDays: 6, employeeCount: 0, objective: '', operatingWeekdays: [1, 2, 3, 4, 5, 6] };
 const defaultCustomCategories: CustomCategories = { business: [], personal: [] };
 
+/** Default category mapping for well-known fixed cost names (Business mode). Declared early for use in loadState migrations. */
+const FIXED_COST_DEFAULT_CATEGORY: Record<string, string> = {
+  'aluguel': 'Ocupação',
+  'condomínio': 'Ocupação',
+  'condominio': 'Ocupação',
+  'iptu': 'Ocupação',
+  'energia': 'Utilidades',
+  'água': 'Utilidades',
+  'agua': 'Utilidades',
+  'gás': 'Utilidades',
+  'gas': 'Utilidades',
+  'internet': 'Utilidades',
+  'telefone': 'Utilidades',
+  'contas': 'Utilidades',
+  'sistema/software': 'Utilidades',
+  'folha de pagamento': 'Pessoal',
+  'pró-labore': 'Pessoal',
+  'pro-labore': 'Pessoal',
+  'encargos': 'Pessoal',
+};
+
+/** Default fixed-cost categories seeded on Business onboarding. */
+const DEFAULT_BUSINESS_FIXED_CATEGORIES = ['Ocupação', 'Utilidades', 'Pessoal'];
+
+export function getDefaultFixedCategory(name: string): string | undefined {
+  return FIXED_COST_DEFAULT_CATEGORY[name.trim().toLowerCase()];
+}
+
 function normalizeCustomCategories(raw: any): CustomCategories {
   const biz = Array.isArray(raw?.business) ? raw.business.filter((s: any) => typeof s === 'string' && s.trim()) : [];
   const per = Array.isArray(raw?.personal) ? raw.personal.filter((s: any) => typeof s === 'string' && s.trim()) : [];
@@ -114,11 +142,20 @@ function loadState(): AppState {
         loaded.businessProfile.operatingWeekdays = [1, 2, 3, 4, 5, 6];
       }
       loaded.customCategories = normalizeCustomCategories(loaded.customCategories);
-      loaded.costMap = (loaded.costMap || []).map((item: any) => ({
-        ...item,
-        spreadDays: item.spreadDays ?? (item.classification === 'fixed' ? 30 : 7),
-        createdAt: item.createdAt ?? Date.now(),
-      }));
+      loaded.costMap = (loaded.costMap || []).map((item: any) => {
+        const classification = item.classification;
+        const hasCategory = typeof item.category === 'string' && item.category.trim().length > 0;
+        // Backfill default category on well-known fixed costs that lack one (legacy data).
+        const backfilledCategory = !hasCategory && classification === 'fixed'
+          ? FIXED_COST_DEFAULT_CATEGORY[String(item.name || '').trim().toLowerCase()]
+          : undefined;
+        return {
+          ...item,
+          spreadDays: item.spreadDays ?? (classification === 'fixed' ? 30 : 7),
+          createdAt: item.createdAt ?? Date.now(),
+          category: hasCategory ? item.category : backfilledCategory,
+        };
+      });
       return loaded;
     }
   } catch {}
@@ -1211,6 +1248,7 @@ const FIXED_COST_NAMES = ['Aluguel', 'Energia', 'Água', 'Gás', 'Sistema/Softwa
   // Personal — recurring monthly bills
   'Moradia', 'Contas fixas', 'Assinaturas', 'Educação'];
 
+
 export function classifyCostName(name: string): CostClassification {
   if (FIXED_COST_NAMES.some(f => name.toLowerCase() === f.toLowerCase())) return 'fixed';
   if (VARIABLE_COST_NAMES.some(v => name.toLowerCase() === v.toLowerCase())) return 'variable';
@@ -1266,6 +1304,7 @@ function syncCostMapToCosts() {
 export function initCostMapFromOnboarding(selectedCosts: string[]) {
   const items: CostMapItem[] = selectedCosts.map(name => {
     const classification = classifyCostName(name);
+    const category = classification === 'fixed' ? getDefaultFixedCategory(name) : undefined;
     return {
       id: crypto.randomUUID(),
       name,
@@ -1273,9 +1312,26 @@ export function initCostMapFromOnboarding(selectedCosts: string[]) {
       value: 0,
       spreadDays: classification === 'fixed' ? 30 : 7,
       createdAt: Date.now(),
+      category,
     };
   });
-  state = { ...state, costMap: items };
+
+  // Seed the Business-mode reusable category list with the default fixed-cost categories,
+  // plus any categories inferred from the selected fixed costs — deduped.
+  const seeded = new Set<string>([
+    ...(state.customCategories?.business ?? []),
+    ...DEFAULT_BUSINESS_FIXED_CATEGORIES,
+    ...items.map(i => i.category).filter((c): c is string => !!c),
+  ]);
+
+  state = {
+    ...state,
+    costMap: items,
+    customCategories: {
+      ...(state.customCategories ?? { business: [], personal: [] }),
+      business: Array.from(seeded),
+    },
+  };
   syncCostMapToCosts();
   notify();
 }
